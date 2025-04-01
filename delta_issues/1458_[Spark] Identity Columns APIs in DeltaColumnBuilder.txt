@@ -1,0 +1,43 @@
+#### Which Delta project/connector is this regarding?
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+This PR is part of https://github.com/delta-io/delta/issues/1959
+* We introduce `generateAlwaysAsIdentity` and `generatedByDefaultAsIdentity`APIs into DeltaColumnBuilder so that users can create Delta table with Identity column. 
+* We guard the creation of identity column tables with a feature flag until development is complete.
+
+## How was this patch tested?
+New tests. 
+
+## Does this PR introduce _any_ user-facing changes?
+
+<!--
+If yes, please clarify the previous behavior and the change this PR proposes - provide the console output, description and/or an example to show the behavior difference if possible.
+If possible, please also clarify if this is a user-facing change compared to the released Delta Lake versions or within the unreleased branches such as master.
+If no, write 'No'.
+-->
+Yes, we introduce `generateAlwaysAsIdentity` and `generatedByDefaultAsIdentity` interfaces to DeltaColumnBuilder for creating identity columns. 
+**Interfaces**
+```
+def generatedAlwaysAsIdentity(): DeltaColumnBuilder
+def generatedAlwaysAsIdentity(start: Long, step: Long): DeltaColumnBuilder
+def generatedByDefaultAsIdentity(): DeltaColumnBuilder
+def generatedByDefaultAsIdentity(start: Long, step: Long): DeltaColumnBuilder
+```
+When the `start` and the `step` parameters are not specified, they default to `1L`. `generatedByDefaultAsIdentity` allows users to insert values into the column while a column specified with`generatedAlwaysAsIdentity` can only ever have system generated values.
+
+**Example Usage**
+```
+// Creates a Delta identity column.
+io.delta.tables.DeltaTable.columnBuilder(spark, "id")
+      .dataType(LongType)
+      .generatedAlwaysAsIdentity()
+// Which is equivalent to the call
+io.delta.tables.DeltaTable.columnBuilder(spark, "id")
+      .dataType(LongType)
+      .generatedAlwaysAsIdentity(start = 1L, step = 1L)
+```

@@ -1,0 +1,41 @@
+I was trying to register a Delta table on Azure data lake gen2 as an external table in Snowflake following the docs [Delta.io Docs: Snowflake to Delta Lake integration](https://docs.delta.io/0.7.0/snowflake-integration.html#language-python). I created the manifest files and they correctly represent the latest commit so that seems to work. However, when following the docs, the table creation in Snowflake uses a regex to define input parquet files rather than pointing to the previously created table holding the manifest file pointers. The result being that I read all files when querying from Snowflake. So either I'm missing something obvious or the docs have a missing link which I am not sure how to fix. I post my full code here in case it helps. I add comments.
+
+**Spark**
+```
+from delta import *
+
+# databricks specific config but this probably works in OSS without it
+spark.conf.set("spark.databricks.delta.symlinkFormatManifest.fileSystemCheck.enabled", 'false')
+
+deltaTable = DeltaTable.forPath(sparkSession = spark, path = '/mnt/mydir/mytable')
+deltaTable.generate("symlink_format_manifest")
+```
+
+**Snowflake**
+
+```
+-- need a stage for table reference
+CREATE STAGE db.schema.table_ext_stage URL = 'azure://myadl.blob.core.windows.net/mydir/mytable' CREDENTIALS = (AZURE_SAS_TOKEN = '***');
+
+-- create a table holding manifest file pointers as described in docs
+CREATE OR REPLACE EXTERNAL TABLE schema.table_ext_manifest(
+    filename VARCHAR AS split_part(VALUE:c1, '/', -1)
+  )
+  WITH LOCATION = @table_ext_stage/_symlink_format_manifest/
+  FILE_FORMAT = (TYPE = CSV)
+  PATTERN = '.*[/]manifest'
+  AUTO_REFRESH = false;
+
+-- now create actual external table holding data; NO reference to manifest file pointers
+CREATE OR REPLACE EXTERNAL TABLE megacube.Z3ATD50_EXT(
+  "a" varchar as (value:"a"::varchar),
+  "b" float as (value:"b"::float),
+   parquet_filename VARCHAR AS split_part(metadata$filename, '/', -1)
+  )
+  WITH LOCATION = @table_ext_stage/
+  FILE_FORMAT = (TYPE = PARQUET)
+  PATTERN = '.*[/]part-[^/]*[.]parquet'
+  AUTO_REFRESH = false;
+```
+
+I would have expected a reference to the manifest table holding the file pointers or something similar, e.g. in the table creation parameter `WITH LOCATION`. What am I missing?

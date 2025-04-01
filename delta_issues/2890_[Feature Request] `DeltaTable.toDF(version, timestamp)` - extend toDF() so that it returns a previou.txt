@@ -1,0 +1,54 @@
+## Feature request
+
+### Overview
+
+I think it would be very useful to have an _easy way_ to **retrieve a _former_ `DeltaTable` version as `DataFrame`**.
+
+### Motivation
+
+Currently, querying a former version of a DeltaTable is limited in some respects when using PySpark:
+When the path of a Delta table is know, the following will work
+```
+df1 = spark.read.format("delta").option("timestampAsOf", timestamp_string).load("/tmp/delta/people10m")
+df2 = spark.read.format("delta").option("versionAsOf", version).load("/tmp/delta/people10m")
+```
+https://docs.delta.io/latest/delta-batch.html#dataframereader-options
+
+However, if only the **_table name_** is known (and not its location), there is no way of retrieving a former version of a Delta table directly.
+```
+# DOESN'T WORK!
+df1 = spark.table(default.people10m).option("timestampAsOf", timestamp_string)
+df2 = spark.table(default.people10m).option("versionAsOf", version)
+```
+
+Workaround is using Spark SQL:
+```
+df1 = spark.sql("SELECT * FROM default.people10m TIMESTAMP AS OF '2018-10-18T22:15:12.013Z'")
+df2 = spark.sql("SELECT * FROM delta.`/tmp/delta/people10m` VERSION AS OF 123")
+```
+https://docs.delta.io/latest/delta-batch.html#sql-as-of-syntax
+
+### Further details
+
+I propose extending the functionality of `DeltaTable.toDF()` into 
+`DeltaTable.toDF(version: int = None, timestamp: str = None) → pyspark.sql.dataframe.DataFrame`.
+
+This way, a user can either specify `version` or `timestamp` to define which version he is interested in
+- `DeltaTable.toDF()` same behaviour as-is
+- `DeltaTable.toDF(version=200)` return version 200 of `DeltaTable` as `DataFrame`
+- `DeltaTable.toDF(timestamp='2021-01-01 01:01:01')` return `DeltaTable` as of '2021-01-01 01:01:01' as `DataFrame`
+- `DeltaTable.toDF(version=200 = timestamp='2021-01-01 01:01:01')` if version and timestamp refer to the same version, return it as `DataFrame`, else trow `exception` that version and timestamp are not consistent
+
+the above example would then look like
+```
+df1 = DeltaTable.forName(spark, default.people10m).toDF(timestamp=timestamp_string)
+df2 = DeltaTable.forPath(spark, '/tmp/delta/people10m').toDF(version=version)
+```
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [ ] Yes. I can contribute this feature independently.
+- [ ] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [x] No. I cannot contribute this feature at this time.

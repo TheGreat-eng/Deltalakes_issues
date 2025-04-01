@@ -1,0 +1,7 @@
+## Feature request
+
+### Overview
+
+Native support for creating a "database" (as in 'CREATE DATABASE') that can be used to store meta-data catalog and all related schema elements. This would help organize a specific set of tables under a logical construct like a database and also help in implementing proper backup and restore scenarios. 
+
+Thanks!

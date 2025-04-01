@@ -1,0 +1,11 @@
+With more recent DBRs (14.x, 15.x) a previously written table by delta-rs became unreadable due to the following:
+
+        24/09/26 01:12:43 ERROR Uncaught throwable from user code: com.databricks.sql.transaction.tahoe.DeltaRuntimeException: [DELTA_DUPLICATE_ACTIONS_FOUND] File operation 'remove' for path ds=2024-09-25/part-00631-d7048577-f7b0-3b87-9f2e-336d394e0387-c000.gz.parquet was specified several times.
+        It conflicts with ds=2024-09-25/part-00631-d7048577-f7b0-3b87-9f2e-336d394e0387-c000.gz.parquet.
+        It is not valid for multiple file operations with the same path to exist in a single commit.
+
+This particular scenario resulted in a extremely rare race condition we discovered in AWS for some delta-rs related code, but I could not find any statements in the protocol to indicate that duplicate actions were actually an invalid state.
+
+I believe that they _should_ be considered an invalid state and the validation error provided by newer Databricks runtimes to be a reasonable one. Therefore this change adds some verbiage to the protocol stating that DBR's behavior is acceptable for such a Delta table.
+
+[Slack thread on the topic](https://delta-users.slack.com/archives/C03FVMHT93Q/p1728321032555229)

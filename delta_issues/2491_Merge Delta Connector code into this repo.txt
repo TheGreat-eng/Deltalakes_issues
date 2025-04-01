@@ -1,0 +1,7 @@
+We have proposed for the Delta Connectors code to be merged in this repo. See more detailed in the Delta Connectors issue - https://github.com/delta-io/connectors/issues/556
+
+This issue is to track the work that needs to be done. I am thinking of breaking down the work as follows: 
+
+- [x] Merge all the code (with full history) in a connectors/ directory - #1837 
+- [ ] Integrate the connector subproject to the main build.sbt so that they can all be compiled together with existing subprojects in this repo, and tested together - https://github.com/delta-io/delta/pull/1845
+- [ ] Integrate unidoc, syntax check, mima binary compatibility check, etc.

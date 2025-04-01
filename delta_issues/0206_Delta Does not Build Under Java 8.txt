@@ -1,0 +1,26 @@
+## Bug
+
+### Describe the problem
+
+#### Steps to reproduce
+
+1. git clone https://github.com/delta-io/delta.git
+2. build/sbt compile (with a newer JVM: I can repro this with  Java 11 and Java 17, both on OSX and Ubuntu
+
+#### Observed results
+
+Compilation errors
+
+```
+[error] /home/anoop/delta/iceberg/src/main/scala/org/apache/spark/sql/delta/icebergShaded/IcebergConversionTransaction.scala:35:8: not found: object shadedForDelta
+[error] import shadedForDelta.org.apache.iceberg.{AppendFiles, DeleteFiles, OverwriteFiles, PendingUpdate, RewriteFiles, Transaction => IcebergTransaction}
+```
+
+This happened because the build script used in Uniform (`delta/icebergShaded/generate_iceberg_jars.py`) fails because of a Gradle error. 
+
+With JDK8, the build succeeds cleanly.
+
+#### Expected results
+
+Users should be able to build/test Delta with newer JDK versions.
+

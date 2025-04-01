@@ -1,0 +1,40 @@
+## Feature request
+
+#### Which Delta project/connector is this regarding?
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [x] Kernel
+- [ ] Other (fill in here)
+
+### Overview
+Delta tables currently lack the ability to change the type of a column or nested field after the table was created. Changing type then currently requires copying the while table over, whether that's by actually creating a copy of the table or doing the copy to the new type in place using e.g. column mapping.
+
+This feature request targets specifically widening type changes. In the case of widening change, we are guaranteed that all values present in files that were written before the type change can be promoted to the new, wider type without the risk of overflow or precision loss.
+In particular, the following type changes can be supported:
+- byte -> short -> int -> long
+- float -> double
+- decimal precision/scale increase as long as the precision increases by at least as much as the scale to avoid loss of precision/overflow
+- date -> timestamp_ntz - dates don't have a timezone and can only be promoted to timestamp without timezone unambiguously.
+
+
+### Motivation
+The type of a column or field is mostly fixed once the table has been created: we only allow setting a column or field to nullable.
+The type of a column can become too narrow to store the required values in the lifetime of a table, for example:
+- IDs stored in an integer column exceed 31 bits that the type can hold, and the column type needs to be extended to Long.
+- A decimal column was initially created with a given precision and new data with a higher precision needs to be ingested.
+
+The only way to handle these situations today is to manually rewrite the table to add a new column with the type wanted and copy the data to the new column. This can be expensive for large tables that must be rewritten and will conflict with every concurrent operation.
+
+
+### Further details
+Design Doc: https://docs.google.com/document/d/1KIqf6o6JMD7e8aMrGlUROSwTfzYeW4NCIZVAUMW_-Tc
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [x] Yes. I can contribute this feature independently.
+- [ ] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.

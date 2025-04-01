@@ -1,0 +1,5 @@
+For on premise designng delta lake, and craete metastor must use hive.
+
+Some problems maybe accursed in use hive,  that java version and setting cluster are some of them.
+
+Why delta lake has not metastore inside itself, with out needing other applications?

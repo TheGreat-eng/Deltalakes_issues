@@ -1,0 +1,3 @@
+Resolves #960 
+
+Add functions to `DeltaTable` to perform optimization. Lightweight wrapper that just calls the OptimizeExecutor directly. All the commands seem to be implemented slightly differently (some return an empty DF, some return the actual result of something), so wasn't sure which route to go. Just had to move the partition condition checking into the executor. Also added a few duplicate tests using the DeltaTable API instead of SQL.

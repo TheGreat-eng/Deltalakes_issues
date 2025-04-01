@@ -1,0 +1,24 @@
+## Feature request
+
+#### Which Delta project/connector is this regarding?
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [X] Other (Dev environment)
+
+### Overview
+Add [Dev Container](https://containers.dev/) to the repo.
+
+### Motivation
+Improve developers life
+Less barriers for new contributors
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [X] Yes. I can contribute this feature independently.
+- [ ] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.

@@ -1,0 +1,3 @@
+See the project plan at #1105.
+
+This PR adds two tests to DeltaVacuumSuite testing CDF + VACUUM integration.

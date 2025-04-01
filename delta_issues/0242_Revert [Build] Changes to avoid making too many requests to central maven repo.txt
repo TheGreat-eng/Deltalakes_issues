@@ -1,0 +1,1 @@
+Reverts delta-io/delta#4082 (few unncessary changes are included). Will make a new PR.

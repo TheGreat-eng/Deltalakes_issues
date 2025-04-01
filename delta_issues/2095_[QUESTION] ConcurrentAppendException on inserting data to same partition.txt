@@ -1,0 +1,21 @@
+Hi, I'm trying to insert time series data into my delta table. 
+As you have mentioned here https://docs.delta.io/latest/concurrency-control.html while inserting to a table there is no conflict.
+what I am doing is reading from Kafka then making a big batch and inserting data to my table with spark java API. 
+but I receive this exception: ConcurrentAppendException.
+this is the code I'm trying to write my batch with:
+```java
+ var data = sparkSession.createDataFrame(items, User.class);
+data.write()
+        .format("delta")
+        .mode(SaveMode.Append)
+        .partitionBy("context", "year", "month", "day")
+         .save(filePath);
+```
+this is the error log
+```
+23/10/23 09:29:13 ERROR Main: io.delta.exceptions.ConcurrentAppendException: Files were added to partition [context=all, year=2023, month=10, day=21] by a concurrent update. Please try the operation again.
+Conflicting commit: {"timestamp":1698053348437,"operation":"WRITE","operationParameters":{"mode":Append,"partitionBy":["context","year","month","day"]},"readVersion":53953,"isolationLevel":"Serializable","isBlindAppend":true,"operationMetrics":{"numFiles":"20","numOutputRows":"1000","numOutputBytes":"310141"},"engineInfo":"Apache-Spark/3.4.1 Delta-Lake/2.4.0","txnId":"8e068046-e534-4190-8ab1-4e87cda468c2"}
+```
+i cant even catch this exception
+__Note__: I have multiple consumers reading from Kafka and writing to delta table 
+what can i do for it ?

@@ -1,0 +1,16 @@
+Hello,
+
+I am doing some testing with this feature Change Data Feed using Databricks and Pyspark, of course the Delta format and I don't understand something:
+1. I created a table
+2. Saved some data inside
+3. Apply a merge with a dataframe that involves inserts, deletes, updates
+ spark.sql('MERGE INTO test t USING src s ON s.Id = t.Id and s.date_field = t.date_field WHEN MATCHED THEN UPDATE SET * WHEN NOT MATCHED THEN INSERT * WHEN NOT MATCHED BY SOURCE THEN DELETE')
+5. Inspect data
+
+SELECT * FROM table_changes('table', 2); version is 2
+
+I observed a row with ID(for example 234123) appearing twice. In the _change_type column I have for first occurernce update_preimage, for the second occurrance update_postimage.
+
+I will say that it is something normal to appear twice because maybe something changed on that ID, but if I am checking each value for both occurrences I see no change.
+
+It is something normal?

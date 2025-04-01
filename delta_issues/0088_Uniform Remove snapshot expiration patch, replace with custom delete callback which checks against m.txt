@@ -1,0 +1,36 @@
+
+<!--
+Thanks for sending a pull request!  Here are some tips for you:
+  1. If this is your first time, please read our contributor guidelines: https://github.com/delta-io/delta/blob/master/CONTRIBUTING.md
+  2. If the PR is unfinished, add '[WIP]' in your PR title, e.g., '[WIP] Your PR title ...'.
+  3. Be sure to keep the PR description updated to reflect all changes.
+  4. Please write your PR title to summarize what this PR proposes.
+  5. If possible, provide a concise example to reproduce the issue for a faster review.
+  6. If applicable, include the corresponding issue number in the PR title and link it in the body.
+-->
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [X ] Other Uniform
+
+## Description
+This change removes the snapshot expiration patch for uniform which currently prevents any deletion of shared data files
+as part of expiration. We can achieve the same behavior by passing in a custom delete callback which checks if a path to delete is in the Iceberg metadata location, if it is we can clean it up, if it's not we should not clean it up since it would be a data file.
+
+Note, one edge case which is also addressed is in case the user some configured their Iceberg metadata location to be the same as the data location. In this case, we take the conservative approach of not doing any metadata cleanup.
+Such a configuration in practice is very rare since it goes against a user's interest to not separate (separation of metadata in a different prefix ensures better throughput for instance), but it didn't add too much complexity to defend against that so it was added.
+
+
+## How was this patch tested?
+
+
+## Does this PR introduce _any_ user-facing changes?
+No, preserves existing behavior

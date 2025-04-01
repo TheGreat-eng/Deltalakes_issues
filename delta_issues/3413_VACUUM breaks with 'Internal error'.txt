@@ -1,0 +1,54 @@
+I read a large set of parquet files and save them partitioned by column in delta format. 
+Since the raw data comes from two different folders, I run the conversion to delta format twice in succession.
+
+function for conversion:
+```
+def write_to_delta(df: DataFrame, output_path: str):
+  (df
+   .repartition('col_name')
+   .write
+   .mode('append')
+   .option('mergeSchema', True)
+   .partitionBy('col_name')
+   .format('delta')
+   .save(output_path))
+```
+
+Finally, I would like to optimize and clean up the delta lake. therefore, I execute the following commands.
+
+```
+spark.sql(f'OPTIMIZE delta.`{output_path}`').display()
+```
+
+```
+spark.sql('set spark.databricks.delta.retentionDurationCheck.enabled = false;')
+spark.sql('set spark.databricks.delta.vacuum.parallelDelete.enabled = true;')
+
+spark.sql(f'VACUUM delta.`{output_path}` RETAIN 0 HOURS').display()
+```
+
+The last command breaks with an `Internal Error`
+
+```
+Internal error. Attach your notebook to a different cluster or restart the current cluster.
+java.lang.RuntimeException: abort: DriverClient destroyed
+	at com.databricks.backend.daemon.driver.DriverClient.$anonfun$poll$3(DriverClient.scala:476)
+	at scala.concurrent.Future.$anonfun$flatMap$1(Future.scala:307)
+	at scala.concurrent.impl.Promise.$anonfun$transformWith$1(Promise.scala:41)
+	at scala.concurrent.impl.CallbackRunnable.run(Promise.scala:64)
+	at com.databricks.threading.NamedExecutor$$anon$2.$anonfun$run$1(NamedExecutor.scala:359)
+	at scala.runtime.java8.JFunction0$mcV$sp.apply(JFunction0$mcV$sp.java:23)
+	at com.databricks.logging.UsageLogging.$anonfun$withAttributionContext$1(UsageLogging.scala:215)
+	at scala.util.DynamicVariable.withValue(DynamicVariable.scala:62)
+	at com.databricks.logging.AttributionContext$.withValue(AttributionContext.scala:95)
+	at com.databricks.logging.UsageLogging.withAttributionContext(UsageLogging.scala:213)
+	at com.databricks.logging.UsageLogging.withAttributionContext$(UsageLogging.scala:210)
+	at com.databricks.threading.NamedExecutor.withAttributionContext(NamedExecutor.scala:287)
+	at com.databricks.threading.NamedExecutor$$anon$2.run(NamedExecutor.scala:358)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1128)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:628)
+	at java.base/java.lang.Thread.run(Thread.java:834)
+```
+
+Am I doing something wrong?
+Can I improve the conversion?

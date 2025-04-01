@@ -1,0 +1,3 @@
+I have realized while digging into the code that we have a function called ```writeFiles``` inside the ```TransactionaWriter``` with an unused parameter ```writeOptions```.
+This Pull Request changes the code so it's now possible to pass ```DeltaOptions``` to the ```writeFiles``` function and use its values during the write.
+Before these changes, the code never used what we pass as write options.

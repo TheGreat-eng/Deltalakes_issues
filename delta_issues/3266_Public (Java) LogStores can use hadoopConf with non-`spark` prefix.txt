@@ -1,0 +1,5 @@
+## Description
+
+Update test case to ensure that the public, java LogStores can receive non-`spark` prefix configuration params.
+
+We test that our custom test suite LogStore implementation can still receive hadoopConf params using `--conf this.is.a.non.spark.prefix.key=bar`

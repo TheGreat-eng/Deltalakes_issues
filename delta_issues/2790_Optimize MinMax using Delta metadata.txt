@@ -1,0 +1,13 @@
+## Description
+
+Follow up of https://github.com/delta-io/delta/issues/1192, which optimizes COUNT. This PR adds support for MIN/MAX as well.
+
+Fix #2092
+
+## How was this patch tested?
+
+Created additional unit tests to cover MIN/MAX.
+
+## Does this PR introduce _any_ user-facing changes?
+
+Only performance improvement

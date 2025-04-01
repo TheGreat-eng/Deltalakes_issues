@@ -1,0 +1,16 @@
+#### Which Delta project/connector is this regarding?
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [X] Kernel
+- [ ] Other (fill in here)
+
+## Description
+SnapshotImpl and LogReplay were using a complicated `Lazy` pattern, in an effort to delay loading the latest protocol and metadata for a snapshot as late as possible. There's no need to do that. You can't do anything against a snapshot unless you 1) know that this connector can understand the table protocol, and 2) you know the schema. We can just load this eagerly and simplify the code.
+
+Also do misc indentation cleanup and re-order member variables to match the order in the constructor.
+
+## How was this patch tested?
+
+Minor refactor. Existing UTs.

@@ -1,0 +1,20 @@
+#### Which Delta project/connector is this regarding?
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+Previously, `deltaLog.getHistory(start, endOpt)` served the `[start, endOpt]` range. However, this behavior was accidentally changed in #2799 to serve the `[start, endOpt)` range.
+
+We revert it back to the original behavior and also update the function comment.
+
+## How was this patch tested?
+
+UTs
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

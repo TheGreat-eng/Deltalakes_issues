@@ -1,0 +1,10 @@
+Currently if a user specifies the `timestampAsOf` option which is greater than the last commit an error is thrown. There is a parameter to [getActiveCommitAtTime](https://github.com/delta-io/delta/blob/master/src/main/scala/org/apache/spark/sql/delta/DeltaHistoryManager.scala#L133) called 
+`canReturnLastCommit` however it is currently hard coded to [false](https://github.com/delta-io/delta/blob/master/src/main/scala/org/apache/spark/sql/delta/DeltaTable.scala#L226).
+
+The current behaviour is not how I expected this `timestampAsOf` to work as logically as the final commit which is less than `timestampAsOf` is the most recent known state of the dataset. 
+
+Are you planning on exposing `canReturnLastCommit` like the other options? I can prepare a PR if beneficial.
+
+```scala
+.option("canReturnLastCommit", true)
+```

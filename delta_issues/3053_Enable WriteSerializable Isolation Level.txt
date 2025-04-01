@@ -1,0 +1,11 @@
+## Description
+
+Resolves #1261
+
+## How was this patch tested?
+
+Added tests for isolation level WriteSerializable in OptimisticTransactionSuite
+
+## Does this PR introduce _any_ user-facing changes?
+
+Yes. it enabled setting config `delta.isolationLevel=WriteSerializable`

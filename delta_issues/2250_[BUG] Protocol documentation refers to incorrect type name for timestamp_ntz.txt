@@ -1,0 +1,25 @@
+## Bug
+
+#### Which Delta project/connector is this regarding?
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [x] Other (documentation)
+
+### Describe the problem
+
+The Protocol document references "timestamp without timezone" and "timestamp without time zone" but never the actual type name of "timestamp_ntz".
+
+#### Steps to reproduce
+
+N/A
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [x] Yes. I can contribute a fix for this bug independently.
+- [ ] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute a bug fix at this time.

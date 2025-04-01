@@ -1,0 +1,42 @@
+## Feature request
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the issue title
+For example: [Feature Request][Spark] Title of my issue
+-->
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+### Overview
+
+If a table does not meet the requirements for `VACCUM LITE`, then it should be possible to run a one-off `VACUUM FULL` to unblock subsequent `VACUUM LITE`.
+
+### Motivation
+
+This will benefit any old delta table for which the Delta log has been pruned already.  Currently it is impossible to ever run a `VACUUM LITE` on these tables.
+
+### Further details
+
+I have a delta table which is >1 year old, and which has never been vacuumed.  The table does not meet the requirements for a `VACUUM LITE`, i.e. (from the docs):
+
+> If `VACUUM LITE` cannot be completed because the Delta log has been pruned a `DELTA_CANNOT_VACUUM_LITE` exception is raised.
+
+Currently, I can never ever run `VACUUM LITE` on this old table, because I cannot get past the `DELTA_CANNOT_VACUUM_LITE` exception.
+
+I think it's a fairly easy fix: we just need `VACUUM FULL` to persist the `latestCommitVersionOutsideOfRetentionWindow` into the `_last_vacuum_info` file.  Currently, `latestCommitVersionOutsideOfRetentionWindowOpt` is calculated [for LITE only, but not for FULL](https://github.com/delta-io/delta/blob/v3.3.0/spark/src/main/scala/org/apache/spark/sql/delta/commands/VacuumCommand.scala#L280-L292).  If we can fix `VACUUM FULL` to write a non-empty `_last_vacuum_info` file, then I think subsequent `VACUUM LITE` will just work without problem.
+
+Please can you confirm whether this is a good idea, and then I'd be happy to contribute a PR.  Am I correct that currently it is impossible to ever run `VACUUM LITE` on a table whose Delta log has been pruned?
+
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [ ] Yes. I can contribute this feature independently.
+- [x] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.

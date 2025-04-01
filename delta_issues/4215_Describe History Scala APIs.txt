@@ -1,0 +1,9 @@
+For #54, Adding DescribeDeltaHistory history Scala API
+
+DescribeDeltaHistory on a DeltaTable would return a DataFrame with the commit info in reverse chronological order. The `limit` optional parameter specifies the last `limit` operations to fetch the History on.
+
+
+Sample usage :
+`deltaTable = new DeltaTable(spark.table(tableName))`
+`deltaTable.history(limit = 10)`
+`deltaTable.history()`

@@ -1,0 +1,109 @@
+## Bug
+
+#### Which Delta project/connector is this regarding?
+
+- [ x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+### Describe the problem
+I'm using my own custom version of `fs.s3a.impl` which performs transparent encryption and description. All my parquet fles and Delta Lake files are being encrypted when writing a data frame to s3, but I see that Delta Lake tries to read its json file right after writing and this reading doesn't use my java implementation of fs.s3a.impl resulting in errors, since the json file is not decrypted.
+
+I think this happens because in this [place](https://github.com/delta-io/delta/blob/v3.3.0/spark/src/main/scala/org/apache/spark/sql/delta/Snapshot.scala#L449) one must be sure the data has been correctly written, and this is done by reading from S3 with the default implementation `org.apache.hadoop.fs.s3a.S3AFileSystem` (the configuration of the spark context seems to be somehow reset [here](https://github.com/delta-io/delta/blob/v3.3.0/spark/src/main/scala/org/apache/spark/sql/delta/DeltaLog.scala#L740)).
+
+I understand this is wanted, but how can I force delta lake to use my implementation without modifying the code source ?
+
+#### Steps to reproduce
+
+```
+import os
+from pyspark.sql import SparkSession, Row
+
+S3_ENDPOINT = os.environ['S3_ENDPOINT']
+S3_ACCESS_KEY = os.environ['S3_ACCESS_KEY']
+S3_SECRET_KEY = os.environ['S3_SECRET_KEY']
+S3_BUCKET_NAME = os.environ['S3_BUCKET_NAME']
+ 
+key = <base64-encoded 32 bytes key for AES>
+iv = <base64-encoded 16 bytes initialization vector for AES>
+
+spark = SparkSession.builder \
+    .appName("S3A Encryption in PySpark") \
+    .config("spark.hadoop.aes.key", key) \
+    .config("spark.hadoop.aes.iv", iv) \
+    .config("spark.hadoop.fs.s3a.impl", "my.custom.fs.EncryptedS3AFileSystem") \
+    .config("spark.hadoop.fs.s3a.access.key", S3_ACCESS_KEY) \
+    .config("spark.hadoop.fs.s3a.secret.key", S3_SECRET_KEY) \
+    .config("spark.hadoop.fs.s3a.endpoint", S3_ENDPOINT) \
+    .config("spark.sql.extensions", "io.delta.sql.DeltaSparkSessionExtension") \
+    .config("spark.sql.catalog.spark_catalog", "org.apache.spark.sql.delta.catalog.DeltaCatalog") \
+    .config("spark.hadoop.fs.s3a.aws.credentials.provider", "org.apache.hadoop.fs.s3a.SimpleAWSCredentialsProvider") \
+    .getOrCreate()
+
+print(spark._jsc.hadoopConfiguration().get("fs.s3a.impl"))
+
+# Define S3 path
+s3_key = "encrypted_data"
+
+names = ["John", "Paul", "Ringo", "George"]
+data = [(names[i % len(names)], i) for i in range(1, 1000000)]
+columns = ["Name", "ID"]
+
+df = spark.createDataFrame(data, columns)
+df.write.mode("overwrite") \
+    .format("delta") \
+    .partitionBy("Name") \
+    .save(f"s3a://{S3_BUCKET_NAME}/{s3_key}")
+
+```
+
+
+
+#### Observed results
+
+<!-- What happened?  This could be a description, log output, etc. -->
+
+This is the error I get, it happens because delta-lake tries to read 00000000000000000000.json but the read fails because the file is encrypted (as expected). I report the error just to see part of the stack trace.
+
+```python
+Caused by: org.apache.spark.SparkException: [MALFORMED_RECORD_IN_PARSING.WITHOUT_SUGGESTION] Malformed records are detected in record parsing: [null,null,null,null,null,null,null,null,null,null].
+Parse Mode: FAILFAST. To process malformed records as null result, try setting the option 'mode' as 'PERMISSIVE'. 
+        at org.apache.spark.sql.errors.QueryExecutionErrors$.malformedRecordsDetectedInRecordParsingError(QueryExecutionErrors.scala:1611)
+        at org.apache.spark.sql.catalyst.util.FailureSafeParser.parse(FailureSafeParser.scala:79)
+        at org.apache.spark.sql.execution.datasources.json.TextInputJsonDataSource$.$anonfun$readFile$9(JsonDataSource.scala:143)
+        at scala.collection.Iterator$$anon$11.nextCur(Iterator.scala:486)
+        at scala.collection.Iterator$$anon$11.hasNext(Iterator.scala:492)
+        at scala.collection.Iterator$$anon$10.hasNext(Iterator.scala:460)
+        at org.apache.spark.sql.execution.datasources.FileScanRDD$$anon$1.hasNext(FileScanRDD.scala:131)
+        at org.apache.spark.sql.execution.datasources.FileScanRDD$$anon$1.nextIterator(FileScanRDD.scala:286)
+        ... 20 more
+
+```
+
+I run my code with
+```bash
+spark-submit --jars ./target/myfilesystem.jar --packages org.apache.hadoop:hadoop-aws:3.2.2,io.delta:delta-spark_2.12:3.3.0 write.py
+```
+
+#### Expected results
+
+<!-- What did you expect to happen? -->
+I expect delta lake to correctly decrypt 00000000000000000000.json as it happens for all my parquet files, that is delta lake is expected to use my class implementing the file system (passed in spark.hadoop.fs.s3a.impl).
+
+#### Further details
+
+### Environment information
+
+* Delta Lake version: 3.3.0
+* Spark version:
+* Scala version:
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ x] Yes. I can contribute a fix for this bug independently.
+- [ x] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute a bug fix at this time.

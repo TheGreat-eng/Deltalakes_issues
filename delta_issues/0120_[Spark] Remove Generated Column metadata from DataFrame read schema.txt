@@ -1,0 +1,28 @@
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [X] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+This PR removes the Generated Column internal metadata from the DataFrame read schema when reading a table with generated columns.
+
+## How was this patch tested?
+
+Added a test to `GeneratedColumnSuite` which tests various paths for reading a table with generated columns.
+
+## Does this PR introduce _any_ user-facing changes?
+
+<!--
+If yes, please clarify the previous behavior and the change this PR proposes - provide the console output, description and/or an example to show the behavior difference if possible.
+If possible, please also clarify if this is a user-facing change compared to the released Delta Lake versions or within the unreleased branches such as master.
+If no, write 'No'.
+-->
+Yes, output of `Dataset.schema` now no longer includes internal metadata for generated columns

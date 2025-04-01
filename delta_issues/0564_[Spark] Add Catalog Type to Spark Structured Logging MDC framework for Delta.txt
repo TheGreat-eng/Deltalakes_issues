@@ -1,0 +1,19 @@
+#### Which Delta project/connector is this regarding?
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+Add a new `Catalog` type to be used in Spark Structured Logging within delta-spark
+
+## How was this patch tested?
+
+Build
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

@@ -1,0 +1,7 @@
+Hi delta team, I'm trying to run `SHOW CREATE TABLE` in my local development environment and the error occurs, but the statement works well in Databricks environment.
+
+I'm wondering whether this `SHOW CREATE TABLE` feature is proprietary for Databricks? 
+
+If it's true, is there any possible workaround for the OSS version to support `SHOW CREATE TABLE` statement?
+
+Thanks.

@@ -1,0 +1,21 @@
+#### Which Delta project/connector is this regarding?
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+As part of making Delta more catalog-aware (see https://github.com/delta-io/delta/issues/2052), we need to solve two basic problems:
+1. When code calls the `TableIdentifier` overload of `DeltaLog.forTable`, the catalog lookup is performed internally and immediately discarded after extracting the table's storage location from it. If the caller needed the catalog info, they are out of luck. Caller can avoid the problem by creating a `DeltaTableV2` instead, which already provides both `DeltaLog` and `CatalogTable`. To support this use case, we define new helper methods that make this easy to do (especially for unit tests).
+2. Even if we have a `DeltaTableV2`, there's no convenient way to start a transaction from it, in order to pass along the catalog info. To make it easy for callers to do the right thing, we define new helper methods for starting transactions directly from the `DeltaTableV2` itself. When transactions eventually become aware of catalog info, these new helper methods will make a narrow waist that can be enhanced to pass along their catalog info.
+
+## How was this patch tested?
+
+Existing unit tests (most changes are anyway in test code).
+
+## Does this PR introduce _any_ user-facing changes?
+
+Internal APIs only.

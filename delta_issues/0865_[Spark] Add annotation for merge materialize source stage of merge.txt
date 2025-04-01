@@ -1,0 +1,32 @@
+<!--
+Thanks for sending a pull request!  Here are some tips for you:
+  1. If this is your first time, please read our contributor guidelines: https://github.com/delta-io/delta/blob/master/CONTRIBUTING.md
+  2. If the PR is unfinished, add '[WIP]' in your PR title, e.g., '[WIP] Your PR title ...'.
+  3. Be sure to keep the PR description updated to reflect all changes.
+  4. Please write your PR title to summarize what this PR proposes.
+  5. If possible, provide a concise example to reproduce the issue for a faster review.
+  6. If applicable, include the corresponding issue number in the PR title and link it in the body.
+-->
+
+#### Which Delta project/connector is this regarding?
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+Originally MERGE source materialization was lazy, and triggered when the source was used for the first time. Because of that, it couldn't be cleanly separated as a stage. Since it was changed to be eager, we can now annotate it, which should make it easier to find in Spark UI.
+
+## How was this patch tested?
+
+Merge materialize source stage is now annotated:
+![image](https://github.com/user-attachments/assets/5a468cda-ffae-40d4-9054-dcfca681c470)
+
+Unit tests validate that the new stage is present in MERGE commit metrics.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

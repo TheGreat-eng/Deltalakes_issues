@@ -1,0 +1,18 @@
+#### Which Delta project/connector is this regarding?
+- [X] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+Currently most post-commit hooks, except manifest generation, suppress errors, i.e. they are logged but do not throw during the command that triggered them. Although this makes sense for production, it can hide issues in testing. This commit adds a config to make post-commit hooks always throw an exception.
+
+## How was this patch tested?
+
+Existing tests provide sufficient coverage.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

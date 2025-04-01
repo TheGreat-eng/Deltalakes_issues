@@ -1,0 +1,1 @@
+With the upcoming Spark 3.2 release, ensure Delta can support the latest release. 

@@ -1,0 +1,7 @@
+We are seeing rather extreme latency in our streaming batch upserts. Our strategy currently is to take a batch dataframe that we read streaming from a raw table, decompose it into its partitions, and then upsert to those specific partitions in our aggregate Delta Lake table. Our processing gets to the physical upsert portion of this process but then it takes a long time, upwards of 20 minutes for 100 rows or so. It reports this, over and over again:
+ 
+20/12/03 02:14:22 WARN RetryTolerableRenameFSDataOutputStream: Failed to rename temp file dbfs:/mnt/agg-container/session/_delta_log/__tmp_path_dir/.00000000000000005120.json.f5dd3921-244c-4c0a-bcb8-64e664bdc147.tmp to dbfs:/mnt/agg-container/session/_delta_log/00000000000000005120.json because file exists
+ 
+Is there any best practices we’re missing? We are running this as a job in Databricks.
+
+Note: I know this is the open source Delta Lake GitHub, so if there's a better place to put this, let me know.

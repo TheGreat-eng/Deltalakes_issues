@@ -1,0 +1,7 @@
+## Description
+(Split from #2941)
+
+Earlier it used to throw if the path is not valid. Now, it doesn't validate immediately. Instead the validation is done when we try to create a snapshot or other operations. We want to create tables from scratch and `Table. forPath` throwing error doesn't let us proceed.
+
+## How was this patch tested?
+Unittests

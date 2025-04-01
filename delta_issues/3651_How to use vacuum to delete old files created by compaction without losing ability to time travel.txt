@@ -1,0 +1,1 @@
+I am running some operations for compaction of files. Now I want to delete the old files left out after compaction to avoid redundancy of same data. But if I use vacuum command, then I am not able to do time travel as all the old states of data get deleted. So, what is the better way to delete old files left out due to compaction without losing ability to time travel?

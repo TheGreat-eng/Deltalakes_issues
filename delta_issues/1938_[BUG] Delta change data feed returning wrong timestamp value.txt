@@ -1,0 +1,33 @@
+## Bug
+
+### Describe the problem
+
+When reading data using table_changes_by_path the newer 2.4 version delta lake is returning two different values for overwrite operation (Insert/Delete). We noticed insert history row started showing the local timezone value and the delete row showing the UTC value for the commit timestamp field.
+
+#### Observed results
+Ex: 
+Environment:  DBR 11.3 running Delta 2.1
+<img width="516" alt="image" src="https://github.com/delta-io/delta/assets/84868891/54aa81ef-a833-4a7e-8b0b-82d422bdde81">
+
+Environment:  DBR 13.3 running Delta 2.4.0
+<img width="533" alt="image" src="https://github.com/delta-io/delta/assets/84868891/0b2d0edb-4988-4d1e-b871-dfb662914e21">
+
+If you notice running the following SQL for the same table history in two different environments results in two different results. If you notice the value for insert change type it is not matching what it used to be previously.
+`select * from table_changes_by_path('table_path', '2021-09-15 00:00:00', '2023-12-11 06:27:57')`
+
+I believe that the commit or changes done in the following PR commit for daylight saving time might be causing this, the change was done to CdcAddFileIndex file but the files for RemoveFileIndex don't have the same change for CDC_COMMIT_TIMESTAMP value.
+https://github.com/delta-io/delta/commit/5ab678db
+
+### Environment information
+
+* Delta Lake version: 2.4.0
+* Spark version: 3.4.1
+* Scala version: 2.12
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [x] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute a bug fix at this time.

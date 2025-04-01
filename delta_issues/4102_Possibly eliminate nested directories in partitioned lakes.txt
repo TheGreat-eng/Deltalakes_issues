@@ -1,0 +1,35 @@
+When we run `partitionBy` on a Delta lake, it creates a nested directory structure, similar to `partitionBy` for Parquet/CSV lakes.  For Parquet/CSV, we need the nested directory structure to apply the partition filters.  For Delta lake, we don't need the nested directory structure because the partition metadata is stored in the transaction log.
+
+Here's some code that writes out a partitioned Delta lake:
+
+```scala
+df
+  .write
+  .format("delta")
+  .partitionBy("country")
+  .save(outputPath)
+```
+
+The data will be stored in the filesystem like this:
+
+```
+some_folder/
+  _delta_log/
+    00.json
+  country=Argentina/
+    file1.snappy.parquet
+  country=Russia/
+    file2.snappy.parquet
+```
+
+We could also store this data like this:
+
+```
+some_folder/
+  _delta_log/
+    00.json
+  file1.snappy.parquet
+  file2.snappy.parquet
+```
+
+We know that `file1` contains the Argentina data and `file2` contains the Russia data from the transaction log.

@@ -1,0 +1,22 @@
+#### Which Delta project/connector is this regarding?
+
+- [ ] Spark
+- [X] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+This PR
+
+- adds better logging throughout Delta Standalone (improves debuggability)
+- fixes an issue in the Delta Standalone Checkpoint code path where we would incorrectly close an incomplete checkpoint upon error
+
+## How was this patch tested?
+
+Existing UTs + tested and verified locally
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

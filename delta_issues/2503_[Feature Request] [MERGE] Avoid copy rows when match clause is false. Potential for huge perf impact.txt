@@ -1,0 +1,76 @@
+## Feature request
+
+#### Which Delta project/connector is this regarding?
+- [X] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+### Overview
+The method findTouchedFiles in MergeIntoCommand only filter files by the condition (ON clause). Rewriting the entire table even when the match clause is false.
+
+### Motivation
+This is a big problem when you merge two big tables and match clause is mostly false, but ON clause matches most of the target table, like the example below.
+
+### Further details
+
+```
+def showMetrics(targetDataPathParam: String) {
+  val deltaTable = io.delta.tables.DeltaTable.forPath(spark, targetDataPathParam)
+   val operationMetrics = deltaTable.history(1).select("operationMetrics").head.toString()
+   println(s"Metrics for $targetDataPathParam: \r\n$operationMetrics\r\n")
+}
+
+spark.conf.set("spark.sql.files.maxRecordsPerFile", 1)
+
+val rows = 1000
+
+val data = spark.range(rows).withColumn("name", lit("John"))
+
+val df = data.toDF("id", "name")
+
+df.write.format("delta").save(tablePath)
+
+val source = data.toDF("id2", "name2")
+
+source.createOrReplaceTempView("test_data")
+
+spark.sql("MERGE INTO delta.`" + tablePath + """` t 
+   USING test_data s
+   ON s.id2 = t.id
+   WHEN MATCHED AND NOT (s.name2 <=> t.name) THEN UPDATE SET t.name = s.name2
+   WHEN NOT MATCHED THEN INSERT (id, name) VALUES (s.id2, s.name2)""")
+
+showMetrics(tablePath)
+```
+
+#### Observed results
+
+numTargetRowsCopied -> 1000
+numOutputRows -> 1000
+numTargetFilesRemoved -> 1000
+numTargetFilesAdded -> 1000
+
+#### Expected results
+
+numTargetRowsCopied -> 0
+numOutputRows -> 0
+numTargetFilesRemoved -> 0
+numTargetFilesAdded -> 0
+
+#### Further details
+
+### Environment information
+
+* Delta Lake version: 2.2.0
+* Spark version: 3.3
+* Scala version: 2.12
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [ ] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [X] No. I cannot contribute a bug fix at this time.

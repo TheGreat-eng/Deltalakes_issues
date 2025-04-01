@@ -1,0 +1,70 @@
+<!--
+Thanks for sending a pull request!  Here are some tips for you:
+  1. If this is your first time, please read our contributor guidelines: https://github.com/delta-io/delta/blob/master/CONTRIBUTING.md
+  2. If the PR is unfinished, add '[WIP]' in your PR title, e.g., '[WIP] Your PR title ...'.
+  3. Be sure to keep the PR description updated to reflect all changes.
+  4. Please write your PR title to summarize what this PR proposes.
+  5. If possible, provide a concise example to reproduce the issue for a faster review.
+  6. If applicable, include the corresponding issue number in the PR title and link it in the body.
+-->
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [X] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+Adds code to support Auto Compaction.
+
+Auto compaction combines small files within partitions to reduce problems due to a proliferation of small files. Auto compaction is implemented as a post commit hook, and so occurs after the write to a table has succeeded. It runs synchronously on the cluster that has performed the write. 
+
+You can control the output file size by setting the  spark.databricks.delta.autoCompact.maxFileSize.
+
+Auto compaction is only triggered for partitions or tables that have at least a certain number of small files. You can optionally change the minimum number of files required to trigger auto compaction by setting spark.databricks.delta.autoCompact.minNumFiles.
+
+This PR creates a post commit hook, which runs an `OptimizeExecutor` (from `OptimizeTableCommand.scala`), which will do the compaction.
+
+### Details
+We add a post-commit hook in TransactionalWrite, that will check if auto-compaction is needed. If the configs are set such that the write meets the criteria (i.e. AC is enabled, enough small files exist, etc) then partitions that meet the criteria will be reserved, and used to make an OptimizeExecutor targeting those partitions, and with the appropriate config values.
+
+This runs and will compact the files. Partitions are then released for future compactions to consider.
+
+AutoCompact is *disabled* by default
+
+### Configs
+There are a number of new configs introduced by this PR, all with prefix spark.databricks.delta.autoCompact.  Through a lot of experimentation and user feedback, we found these values to work well across a large range of tables and configurations.
+
+- `autoCompact.enabled`: should auto compaction run? (default: false)
+- `autoCompact.maxFileSize`: Target file size produced by auto compaction (default: 128 MB)
+- `autoCompact.minFileSize`: Files which are smaller than this threshold (in bytes) will be grouped together and rewritten as larger files by the Auto Compaction. (default: half of maxFileSize)
+<!--
+- Describe what this PR changes.
+- Describe why we need the change.
+ 
+If this PR resolves an issue be sure to include "Resolves #XXX" to correctly link and close the issue upon merge.
+-->
+
+## How was this patch tested?
+Unit tests in AutoCompactionSuite
+<!--
+If tests were added, say they were added here. Please make sure to test the changes thoroughly including negative and positive cases if possible.
+If the changes were tested in any way other than unit tests, please clarify how you tested step by step (ideally copy and paste-able, so that other reviewers can test and check, and descendants can verify in the future).
+If the changes were not tested, please explain why.
+-->
+
+## Does this PR introduce _any_ user-facing changes?
+
+Yes, please see the [Description](#description)
+
+<!--
+If yes, please clarify the previous behavior and the change this PR proposes - provide the console output, description and/or an example to show the behavior difference if possible.
+If possible, please also clarify if this is a user-facing change compared to the released Delta Lake versions or within the unreleased branches such as master.
+If no, write 'No'.
+-->

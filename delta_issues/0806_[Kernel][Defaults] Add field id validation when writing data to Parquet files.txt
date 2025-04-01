@@ -1,0 +1,7 @@
+## Description
+(stacked on top of #3504, see the latest commit)
+
+Add validation of field IDs in the given schema of data before writing to the Parquet files.
+
+## How was this patch tested?
+UTs

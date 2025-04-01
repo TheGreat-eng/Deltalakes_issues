@@ -1,0 +1,11 @@
+## Description
+
+Spark 3.3 will start to allow users using interval types in a data source. However, Delta is not ready to support interval types. Hence, this PR just disables for now.
+
+## How was this patch tested?
+
+Existing tests
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

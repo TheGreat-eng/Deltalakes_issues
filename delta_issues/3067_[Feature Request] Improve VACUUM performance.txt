@@ -1,0 +1,25 @@
+## Feature request
+
+### Overview
+
+Current VACUUM implementation sometimes is very inefficient / slow because of few reasons:
+* First phase of vacuum lists all files. It is done in parallel, but concurrency is limited by number of top-level partitions in the dataset. So if dataset has 2 top-level partitions, only two parallel spark jobs will list all the files in the dataset.
+* Collecting list of all files in the dataset is implemented using `LogStore.listFrom` - it is called recursively for each directory, so for datasets with huge number of small partitions it leads to huge number of `listFrom` calls. It is slow and for some storages it also leads to bigger costs (for example on S3 with Mutli Cluster Setup with S3DynamoDBLogStore each `listFrom` makes also DynamoDB request)
+
+### Motivation
+
+Current VACUUM implementation is simply not usable sometimes (vacuum job may take days to complete).
+
+### Further details
+
+Possible improvements:
+* for small number of top-level partition we may go deeper until enough of directory entries are found.
+* directly use `org.apache.hadoop.fs.FileSystem.listFiles(path, recursive=true)` instead of `LogStore.listFrom`
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [ ] Yes. I can contribute this feature independently.
+- [ ] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.

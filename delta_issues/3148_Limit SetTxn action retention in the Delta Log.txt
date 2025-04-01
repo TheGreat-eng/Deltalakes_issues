@@ -1,0 +1,6 @@
+## What changes were proposed in this pull request?
+
+This PR adds a new optional table property `delta.setTransactionRetentionDuration` that lets users set a duration so that newly created snapshots ignore all `SetTransaction`s older than that duration. Since we have allowed options to specify arbitration txnAppId and txnVersion for idempotent writes, there is a chance that unlimited number of SetTxn actions will forever clutter the Delta log. This is an opt-in mechanism to clear those actions.
+
+## How was this patch tested?
+New unit tests

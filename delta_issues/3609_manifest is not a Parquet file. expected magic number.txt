@@ -1,0 +1,19 @@
+Hello , 
+while trying to read delta table using hive i got the following error : 
+
+`Caused by: java.lang.RuntimeException: hdfs:/.../_symlink_format_manifest/manifest is not a Parquet file. expected magic number at tail [80, 65, 82, 49] but found [117, 101, 116, 10].` 
+while searching for the cause of the issue is fixed in spark 3 and delta 0.7.0 see #365 .
+
+i'm using the following commands to create external table in hive : 
+
+`DeltaTable.forPath(spark, deltaLakeSilverPath).generate("symlink_format_manifest")`
+
+`CREATE EXTERNAL TABLE IF NOT EXISTS $table_name ($schema) " +
+      "ROW FORMAT SERDE 'org.apache.hadoop.hive.ql.io.parquet.serde.ParquetHiveSerDe' " +
+      "STORED AS INPUTFORMAT 'org.apache.hadoop.hive.ql.io.SymlinkTextInputFormat' " +
+      "OUTPUTFORMAT 'org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat' " +
+      "LOCATION "+symlink_format_manifest_Path`
+I'm using spark version 3.1.2 and delta 1.0.0 .
+
+
+

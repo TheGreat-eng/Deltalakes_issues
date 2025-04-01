@@ -1,0 +1,56 @@
+## Bug
+
+### Describe the problem
+Filtering dates don't include the last/first date in the range. 
+#### Steps to reproduce
+```
+CREATE TABLE default.test_delta
+(
+    id       Int,
+    birthday date
+) using delta 
+location '...';
+```
+```
+insert into table default.test_delta
+values (1, cast("1999-01-01" as date));
+insert into table default.test_delta
+values (2, cast("1994-01-01" as date));
+insert into table default.test_delta
+values (3, cast('1994-04-01' as date));
+insert into table default.test_delta
+values (4, cast('1999-02-10' as date));
+```
+
+```
+select * from default.test_delta
+where birthday >= to_date('1994-01-01') and birthday < to_date('1999-02-11');
+```
+
+#### Observed results
+
+3 rows are returned, with 1994-04-01, 1994-01-01 and 1999-01-01
+
+#### Expected results
+
+4 rows are returned, with 1994-04-01, 1994-01-01, 1999-02-10 and 1999-01-01
+
+#### Further details
+
+If increase filter condition to 
+`select * from default.test_delta where birthday >= to_date('1994-01-01') and birthday < to_date('1999-02-12');`
+all 4 rows are returned 
+
+### Environment information
+
+* Delta Lake version: 2.2.0
+* Spark version: 3.3.2
+* Scala version: 2.12
+Running on Kubernetes cluster
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [X] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute a bug fix at this time.

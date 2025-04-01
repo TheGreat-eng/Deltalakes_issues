@@ -1,0 +1,17 @@
+About vacuum(time) -> deleteBeforeTimestamp, it will select files that will be deleted as following (let's ignore directory this case).
+I suppose it works like:
+All files - files: (files.modifyTime > deleteBeforeTimestamp)
+             - files: (currentSnapshot.addFiles)
+             - files: (all_removeFiles.deleteTime > deleteBeforeTimestamp)
+However it seems works like:
+All files - files: (files.modifyTime > deleteBeforeTimestamp)
+             - files: (currentSnapshot.addFiles)
+             - files: (currentSnapshot.removeFile.deleteTime > deleteBeforeTimestamp)
+The difference between all_removeFiles.deleteTime and currentSnapshot.removeFile.deleteTime is that currentSnapshot.removeFile will filter out those deleteTime < minFileRetentionTimestamp(computed by TOMBSTONE_RETENTION). So it may delete some RemoveFile with removeFiles.deleteTime > deleteBeforeTimestamp but removeFiles.deleteTime < minFileRetentionTimestamp when set vacuum time param > TOMBSTONE_RETENTION.
+
+For example:
+Vacuum time param: 14 days
+TOMBSTONE_RETENTION: 7 days
+Vacuum will delete files with RemoveFile.deleteTime earlier than 7 days rather than earlier 14 days.
+
+I want to confirm if it works lining with expectations

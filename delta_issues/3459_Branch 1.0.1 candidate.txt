@@ -1,0 +1,12 @@
+Backport a variety of minor bug fixes and improvements to branch-1.0.
+
+- https://github.com/delta-io/delta/commit/59aa330c403f8a71b3eef0e90bd61cd54aab108c
+- https://github.com/delta-io/delta/commit/104e2a472b5a0a5c718c42ac14ac8b851a1a7fe8
+- https://github.com/delta-io/delta/commit/7a3f1e8ec626e80880d524c2b897a969c8b4d63a
+- https://github.com/delta-io/delta/commit/43d14226cc802d721d1683495cdc8511acf460a1
+- https://github.com/delta-io/delta/commit/c586f9a7374923867c36f61df4ed133725c8df2c
+- https://github.com/delta-io/delta/commit/95e90763fd9f54df8880911b28b97b023a485d5f
+- https://github.com/delta-io/delta/pull/856/commits/ee5d31f52fadc03d46d7ffe5010e7b3ffe73baf1 // enable github actions to run tests
+- https://github.com/delta-io/delta/commit/4359484368b4a06c32b663826ac60bf12d9e8025
+- https://github.com/delta-io/delta/commit/4bee7ae50c50299cdea54ed3afeb59effa0f0790 // fix actions sbt download
+- https://github.com/delta-io/delta/commit/86bbe9905ebf8c57f5bf5078a5d18ad2b5081abe // fix actions sbt download

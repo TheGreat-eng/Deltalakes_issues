@@ -1,0 +1,6 @@
+In Spark 3.3 and below `_metadata.file_path` does URI encoding (spaces are encoded as `%20`).
+In Spark 3.4.0 `_metadata.file_path` is not encoded.
+
+DELETE with deletion vectors (#1591) [expects](https://github.com/delta-io/delta/blob/master/core/src/main/scala/org/apache/spark/sql/delta/commands/DeleteWithDeletionVectorsHelper.scala#L296) a specific behavior and won't work for both.
+
+If this regression is patched in 3.4.1 or newer we need to handle the different behaviors. I.e. generate our own path metadata column in `DeltaParquetFileFormat`. https://issues.apache.org/jira/browse/SPARK-43284 tracks fixing the regression in 3.4.0.

@@ -1,0 +1,26 @@
+<!--
+Thanks for sending a pull request!  Here are some tips for you:
+  1. If this is your first time, please read our contributor guidelines: https://github.com/delta-io/delta/blob/master/CONTRIBUTING.md
+  2. If the PR is unfinished, add '[WIP]' in your PR title, e.g., '[WIP] Your PR title ...'.
+  3. Be sure to keep the PR description updated to reflect all changes.
+  4. Please write your PR title to summarize what this PR proposes.
+  5. If possible, provide a concise example to reproduce the issue for a faster review.
+  6. If applicable, include the corresponding issue number in the PR title and link it in the body.
+-->
+
+## Description
+
+- Updates the `goldenTables` project to include utils that exposes the resource file path. Updates other projects to depend on it and use that for getting the golden table file paths.
+  - Moves the resources to `src/main/resources` so that other projects can depend on the `goldenTables` compile conf and skip all the test dependencies
+- Updates `goldenTables` to use the latest `delta-spark` version (just fixes a couple compile errors)
+- Update the kernelDefault `DeletionVectorSuite`
+   - Update `"end-to-end usage: reading partitioned dv table with checkpoint"` to use a golden table since that's how the resource table was originally generated. Adds this table to GoldenTables and removes the no longer used test resource table.
+   - Update the test resource `"dv-with-columnmapping"` to actually have DV enabled (previously it mistakenly wasn't).
+
+## How was this patch tested?
+
+Testing change.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No.

@@ -1,0 +1,1 @@
+Databricks managed delta works with s3, Any plan to make it available as open-source?

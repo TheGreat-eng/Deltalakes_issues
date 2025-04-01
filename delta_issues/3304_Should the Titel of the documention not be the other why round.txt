@@ -1,0 +1,19 @@
+The Titel of the following documenation:
+
+https://docs.delta.io/latest/snowflake-integration.html
+
+is
+
+"Snowflake to Delta Lake integration"
+
+should it not be 
+
+"Delta Lake to Snowflake integration"
+
+because we describe how to move Delta Lake data to Snowflake?
+
+As stated in the first sentence of the doc:
+"A Delta table can be read by Snowflake using..."
+
+
+

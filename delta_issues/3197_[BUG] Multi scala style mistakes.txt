@@ -1,0 +1,33 @@
+When I execute the command 'build/sbt compile', I encounter multiple scala style errors, as follows
+
+[error] /delta/core/src/main/scala/org/apache/spark/sql/delta/schema/SchemaUtils.scala:860:72: 
+[error]       Are you sure that you want to use toUpperCase or toLowerCase without the root locale? In most cases, you
+[error]       should use toUpperCase(Locale.ROOT) or toLowerCase(Locale.ROOT) instead.
+[error]       If you must use toUpperCase or toLowerCase without the root locale, wrap the code block with
+[error]       // scalastyle:off caselocale
+[error]       .toUpperCase
+[error]       .toLowerCase
+[error]       // scalastyle:on caselocale
+[error]     
+[error] /delta/core/src/main/scala/org/apache/spark/sql/delta/Snapshot.scala:416:76: 
+[error]       Are you sure that you want to throw Error? In most cases, you should use appropriate Exception instead.
+[error]       If you must throw Error, wrap the code block with
+[error]       // scalastyle:off throwerror
+[error]       throw new XXXError(...)
+[error]       // scalastyle:on throwerror
+[error]     
+[error] /delta/core/src/main/scala/org/apache/spark/sql/delta/storage/LogStore.scala:304:6: 
+[error]       Are you sure that you want to use sessionState.newHadoopConf? In most cases, you should use
+[error]       deltaLog.newDeltaHadoopConf() instead, so that the hadoop file system configurations specified
+[error]       in DataFrame options will come into effect.
+[error]       If you must use sessionState.newHadoopConf, wrap the code block with
+[error]       // scalastyle:off deltahadoopconfiguration
+[error]       spark.sessionState.newHadoopConf...
+[error]       // scalastyle:on deltahadoopconfiguration
+[error]     
+[error] /delta/core/src/main/scala/org/apache/spark/sql/delta/util/FileNames.scala:100:22: 
+[error]       Are you sure that you want to throw Error? In most cases, you should use appropriate Exception instead.
+[error]       If you must throw Error, wrap the code block with
+[error]       // scalastyle:off throwerror
+[error]       throw new XXXError(...)
+[error]       // scalastyle:on throwerror

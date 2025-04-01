@@ -1,0 +1,19 @@
+#### Which Delta project/connector is this regarding?
+
+- [X] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+This PR updates an error check in `DeltaOptionSuite` to use the error class framework from Apache Spark. This makes the test less brittle and fits into the framework that Spark is using.
+
+## How was this patch tested?
+
+This PR only modifies test coverage.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No.

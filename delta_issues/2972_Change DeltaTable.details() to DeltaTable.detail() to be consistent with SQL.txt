@@ -1,0 +1,10 @@
+
+## Description
+
+Change DeltaTable.details() to DeltaTable.detail() to be consistent with SQL command `DESCRIBE DETAIL`
+
+Also adds the @evolving tag.
+
+## How was this patch tested?
+
+Updates corresponding tests.

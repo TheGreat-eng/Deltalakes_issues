@@ -1,0 +1,10 @@
+## Description
+Additional tests covering type widening and:
+- Reading CDF
+- Column mapping
+- Time travel
+- RESTORE
+- CLONE
+
+## How was this patch tested?
+Test only

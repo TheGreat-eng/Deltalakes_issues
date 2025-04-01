@@ -1,0 +1,5 @@
+## Description
+Currently when rewriting the scan `PreprocessTablesWithDVs`, we use the `Scan` relation output as the data output for `HadoopFsRelation`. Data output comes directly from the data file or data file reader. Scan output contains additional columns such as `_metadata` which are populated in Scan operator once the data is read from the file reader.
+
+## How was this patch tested?
+Added a test. Also added a golden table for partitioned tables with DVs and tests.

@@ -1,0 +1,19 @@
+## Protocol Change Request
+
+### Description
+
+Adds the VacuumProtocolCheck PROTOCOL change. Design Doc:
+https://docs.google.com/document/d/15o8WO2T0vN21S5JG-FT_ZNhXFCWyh0i9tqhr9kBmZpE/edit#heading=h.4cz970y1mk93
+
+closes https://github.com/delta-io/delta/issues/2630
+
+### Willingness to contribute
+
+The Delta Lake Community encourages protocol innovations. Would you or
+another member of your organization be willing to contribute this
+feature to the Delta Lake code base?
+
+- [x] Yes. I can contribute.
+- [ ] Yes. I would be willing to contribute with guidance from the Delta
+Lake community.
+- [ ] No. I cannot contribute at this time.

@@ -1,0 +1,22 @@
+## Description
+
+This PR adds an option to start a streaming query on Delta source from earliest version.  
+This is different than the default behavior of reading the entire table as it allows to only read incremental changes from that version onward.
+
+For example, assuming a Delta table located in `path` with its earliest version being `n`, a user can now replace this query:
+```scala
+val n = spark.sql(s"describe history delta.`${path}`").orderBy("version").select("version").first().get(0)
+spark.readStream.format("delta").option("startingVersion", n).load(path)
+```
+with the following query:
+```scala
+spark.readStream.format("delta").option("startingVersion", "earliest").load(path)
+```
+
+## How was this patch tested?
+
+Added unit tests in `DeltaSourceSuite.scala`
+
+## Does this PR introduce _any_ user-facing changes?
+
+Allowed the option `startingVersion` in `DeltaOptions.scala` to accept the value `earliest`

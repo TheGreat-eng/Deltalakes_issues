@@ -1,0 +1,13 @@
+## Feature request
+
+### Overview
+
+`DESCRIBE DETAIL` is supported in SQL. But similar to `DESCRIBE HISTORY` which has Scala and Python APIs as `DeltaTable.history()`, there should be `DeltaTable.details()`
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [ ] Yes. I can contribute this feature independently.
+- [ ] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [x] No. I cannot contribute this feature at this time.

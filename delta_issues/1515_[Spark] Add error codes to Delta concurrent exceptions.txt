@@ -1,0 +1,5 @@
+## Description
+This PR bolsters the concurrent exceptions Delta throws by adding error codes to them and plugs them into the DeltaThrowable framework.
+
+## How was this patch tested?
+Added unit tests to verify the error codes get populated correctly for these exceptions.

@@ -1,0 +1,91 @@
+<!--
+Thanks for sending a pull request!  Here are some tips for you:
+  1. If this is your first time, please read our contributor guidelines: https://github.com/delta-io/delta/blob/master/CONTRIBUTING.md
+  2. If the PR is unfinished, add '[WIP]' in your PR title, e.g., '[WIP] Your PR title ...'.
+  3. Be sure to keep the PR description updated to reflect all changes.
+  4. Please write your PR title to summarize what this PR proposes.
+  5. If possible, provide a concise example to reproduce the issue for a faster review.
+  6. If applicable, include the corresponding issue number in the PR title and link it in the body.
+-->
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [x] Spark
+
+## Description
+- This PR resolves issue 1 in the issue #1679  
+- ** Attention ** 
+  - only the issue 1 has been solved in this PR
+  - The issue 2 still unsolved in the #1679 
+- The PR will change how the catalog schema is saved in Hive Metastore.
+- Technical details:
+  - Added a new boolean parameter `spark.databricks.delta.fixSchema.GlueCatalog` in DeltaSqlConf.
+  - When this parameter is true, then  in the class CreateDeltaTableCommand:
+      1 -   In cleanupTableDefinition function, the schema will be updated with the table schema
+      2 -   In updateCatalog function, after create a table in the catalog it will update the table schema using a session catalog function (alterTableDataSchema)
+- Describe why we need the change.
+- When we are using AWS Glue Catalog, the catalog can't recognize the schema, issue #1679 . This PR will solve the problem.
+<!--
+- Describe what this PR changes.
+- The PR will change how the catalog schema is saved in Hive Metastore.
+- Technical details:
+  - Added a new boolean parameter `spark.databricks.delta.fixSchema.GlueCatalog` in DeltaSqlConf.
+  - When this paramter is true, then  in the class CreateDeltaTableCommand:
+      1 -   In cleanupTableDefinition function, the schema will be updated with the table schema
+      2 -   In updateCatalog function, after create a table in the catalog it will update the table schema using a session catalog function (alterTableDataSchema)
+- Describe why we need the change.
+- When we are using AWS Glue Catalog, the catalog can't recognize the schema, issue #1679 . This PR will solve the problem
+ 
+If this PR resolves an issue be sure to include "Resolves #XXX" to correctly link and close the issue upon merge.
+-->
+
+## How was this patch tested?
+**I created 2 tests in DeltaTableBuilderSuite:**
+"Test schema external table delta glue catalog conf activated"
+"Test schema delta glue catalog conf activated"
+These tests just check if managed and external table will create the schema correctly when the parameter activated.
+But the solution was tested in AWS glue catalog, creating. the tables and check in glue catalog if the table has the right schema and check if Athena can read the table.
+
+**Follow the 2 ways we can create tables after this solution:**
+**Managed table:
+The database location needs to be informed in the database catalog configuration.**
+```
+# set the conf ("spark.databricks.delta.fixSchema.GlueCatalog", "true")
+df_products.coalesce(1).write \
+    .format("delta") \
+    .option("mergeSchema", True) \
+    .mode("overwrite") \
+    .saveAsTable("database_name.table_name")
+```
+
+**External table**
+```
+# set the conf ("spark.databricks.delta.fixSchema.GlueCatalog", "true")
+df_products.coalesce(1).write \
+    .format("delta") \
+    .option("mergeSchema", True) \
+    .option("path", "s3://bucket_name/table_folder_name") \
+    .mode("overwrite") \
+    .save()
+
+spark.catalog.createExternalTable(tableName="database_name.table_name", path="s3://bucket_name/table_folder_name")
+```
+
+
+<!--
+If tests were added, say they were added here. Please make sure to test the changes thoroughly including negative and positive cases if possible.
+If the changes were tested in any way other than unit tests, please clarify how you tested step by step (ideally copy and paste-able, so that other reviewers can test and check, and descendants can verify in the future).
+If the changes were not tested, please explain why.
+-->
+
+## Does this PR introduce _any_ user-facing changes?
+No.
+<!--
+If yes, please clarify the previous behavior and the change this PR proposes - provide the console output, description and/or an example to show the behavior difference if possible.
+If possible, please also clarify if this is a user-facing change compared to the released Delta Lake versions or within the unreleased branches such as master.
+If no, write 'No'.
+-->

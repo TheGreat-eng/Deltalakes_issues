@@ -1,0 +1,75 @@
+Hello Everyone,
+
+I've searched an article about using autoloader(cloudfiles) to inject data to delta table. But when I tried to run the py code, an error occurred, please help to make it work at my local environment.
+
+`import io
+import numpy as np
+import pandas as pd
+import pyspark
+from delta import *
+from pyspark.sql.functions import col, pandas_udf, regexp_extract
+from PIL import Image
+
+def extract_label(path_col):
+  """Extract label from file path using built-in SQL functions."""
+  return regexp_extract(path_col, "flower_photos/([^/]+)", 1)
+
+def extract_size(content):
+  """Extract image size from its raw content."""
+  image = Image.open(io.BytesIO(content))
+  return image.size
+
+builder = pyspark.sql.SparkSession.builder.appName("MyApp") \
+    .config("spark.sql.extensions", "io.delta.sql.DeltaSparkSessionExtension") \
+    .config("spark.sql.catalog.spark_catalog", "org.apache.spark.sql.delta.catalog.DeltaCatalog")
+
+spark = configure_spark_with_delta_pip(builder).getOrCreate()
+
+images = spark.readStream.format("cloudFiles") \
+  .option("cloudFiles.format", "binaryFile") \
+  .option("recursiveFileLookup", "true") \
+  .option("pathGlobFilter", "*.jpg") \
+  .load("/root/henry/flower_photos") \
+  .repartition(4)
+`
+
+
+Traceback (most recent call last):
+  File "/root/henry/inject.py", line 28, in <module>
+    .load("/root/henry/flower_photos") \
+  File "/usr/local/lib/python3.10/site-packages/pyspark/python/lib/pyspark.zip/pyspark/sql/streaming.py", line 452, in load
+  File "/usr/local/lib/python3.10/site-packages/pyspark/python/lib/py4j-0.10.9.2-src.zip/py4j/java_gateway.py", line 1309, in __call__
+  File "/usr/local/lib/python3.10/site-packages/pyspark/python/lib/pyspark.zip/pyspark/sql/utils.py", line 111, in deco
+  File "/usr/local/lib/python3.10/site-packages/pyspark/python/lib/py4j-0.10.9.2-src.zip/py4j/protocol.py", line 326, in get_return_value
+py4j.protocol.Py4JJavaError: An error occurred while calling o44.load.
+: java.lang.ClassNotFoundException:
+Failed to find data source: cloudFiles. Please find packages at
+http://spark.apache.org/third-party-projects.html
+
+        at org.apache.spark.sql.errors.QueryExecutionErrors$.failedToFindDataSourceError(QueryExecutionErrors.scala:443)
+        at org.apache.spark.sql.execution.datasources.DataSource$.lookupDataSource(DataSource.scala:670)
+        at org.apache.spark.sql.streaming.DataStreamReader.loadInternal(DataStreamReader.scala:156)
+        at org.apache.spark.sql.streaming.DataStreamReader.load(DataStreamReader.scala:209)
+        at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+        at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+        at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+        at java.base/java.lang.reflect.Method.invoke(Method.java:566)
+        at py4j.reflection.MethodInvoker.invoke(MethodInvoker.java:244)
+        at py4j.reflection.ReflectionEngine.invoke(ReflectionEngine.java:357)
+        at py4j.Gateway.invoke(Gateway.java:282)
+        at py4j.commands.AbstractCommand.invokeMethod(AbstractCommand.java:132)
+        at py4j.commands.CallCommand.execute(CallCommand.java:79)
+        at py4j.ClientServerConnection.waitForCommands(ClientServerConnection.java:182)
+        at py4j.ClientServerConnection.run(ClientServerConnection.java:106)
+        at java.base/java.lang.Thread.run(Thread.java:829)
+Caused by: java.lang.ClassNotFoundException: cloudFiles.DefaultSource
+        at java.base/java.net.URLClassLoader.findClass(URLClassLoader.java:476)
+        at java.base/java.lang.ClassLoader.loadClass(ClassLoader.java:589)
+        at java.base/java.lang.ClassLoader.loadClass(ClassLoader.java:522)
+        at org.apache.spark.sql.execution.datasources.DataSource$.$anonfun$lookupDataSource$5(DataSource.scala:656)
+        at scala.util.Try$.apply(Try.scala:213)
+        at org.apache.spark.sql.execution.datasources.DataSource$.$anonfun$lookupDataSource$4(DataSource.scala:656)
+        at scala.util.Failure.orElse(Try.scala:224)
+        at org.apache.spark.sql.execution.datasources.DataSource$.lookupDataSource(DataSource.scala:656)
+        ... 14 more
+

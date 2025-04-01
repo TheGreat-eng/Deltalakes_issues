@@ -1,0 +1,20 @@
+#### Which Delta project/connector is this regarding?
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [x] Kernel
+- [ ] Other (fill in here)
+
+## Description
+Kernel APIs are in the development phase. Add tags to indicate the APIs are evolving to set the expectations for API users.
+
+Also, add a `@since` tag to indicate which version the API interface/method was introduced in. This is not done for the Kernel APIs in this PR. In the future, Kernel API docs can adopt the same.
+
+The `Delta-Spark` module does extra labeling of evolving APIs by modifying the generated API
+- example [javadoc](https://docs.delta.io/latest/api/java/io/delta/tables/DeltaTable.html#detail--), [scaladoc](https://docs.delta.io/latest/api/java/io/delta/tables/DeltaTable.html#detail--), [code](https://github.com/delta-io/delta/blob/master/spark/src/main/scala/io/delta/tables/DeltaTable.scala#L138)
+- Evolving API label in Scala and Java docs. This is done by patching the generated HTML docs (code [here](https://github.com/delta-io/delta/blob/master/docs/api-javadocs.js#L44) and [here](https://github.com/delta-io/delta/blob/master/docs/generate_api_docs.py#L55))
+
+
+## How was this patch tested?
+NA

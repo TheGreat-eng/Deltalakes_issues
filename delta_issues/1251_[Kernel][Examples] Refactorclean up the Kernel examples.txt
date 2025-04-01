@@ -1,0 +1,12 @@
+## Description
+* Rename the `table-reader` directory to `kernel-examples` as we are going to have write examples in the same project
+* Rename `IntergrationTestSuite.java` to `ReadIntegrationTestSuite.java` as it is just for reads and be specific about it.
+* Misc. clean up and docs for running the integration tests
+
+## How was this patch tested?
+Manually ran 
+```
+$ kernel/examples/run-kernel-examples.py --use-local
+
+$ kernel/examples/run-kernel-examples.py --version 3.2.0 --maven-repo https://oss.sonatype.org/content/repositories/iodelta-1138
+```

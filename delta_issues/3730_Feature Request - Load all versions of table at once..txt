@@ -1,0 +1,10 @@
+It would be useful to query all available versions of delta files into a single DataFrame instead of a single version. Coupled with this request: https://github.com/delta-io/delta/issues/539 it would allow querying data over time to show how a record has changed. 
+
+Query example (using syntax proposed in https://github.com/delta-io/delta/issues/539 ):
+```sql
+select 
+  delta_version() as row_version
+  , *
+from some_table version all
+where primary_key = 1234
+```

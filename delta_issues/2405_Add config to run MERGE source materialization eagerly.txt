@@ -1,0 +1,23 @@
+<!--
+Thanks for sending a pull request!  Here are some tips for you:
+  1. If this is your first time, please read our contributor guidelines: https://github.com/delta-io/delta/blob/master/CONTRIBUTING.md
+  2. If the PR is unfinished, add '[WIP]' in your PR title, e.g., '[WIP] Your PR title ...'.
+  3. Be sure to keep the PR description updated to reflect all changes.
+  4. Please write your PR title to summarize what this PR proposes.
+  5. If possible, provide a concise example to reproduce the issue for a faster review.
+  6. If applicable, include the corresponding issue number in the PR title and link it in the body.
+-->
+
+## Description
+
+Add config to run MERGE source materialization eagerly.
+Add a new config that that controls whether the MERGE source is materialized eagerly or lazily.
+New config is set to eager by default to avoid suspected determinism issues with lazy materialization.
+
+## How was this patch tested?
+
+Run most sensitive tests with both eager and lazy settings, the rest only with the default to not blow up the CI time unnecessarily.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No.

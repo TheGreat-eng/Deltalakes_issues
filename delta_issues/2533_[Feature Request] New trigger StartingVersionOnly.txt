@@ -1,0 +1,24 @@
+## Feature request
+
+### Overview
+
+At the moment, there are two triggers which allow reading Delta table snapshot
+
+* **Once** - it is not really streaming, tries to process everything at once so not working with big tables
+* **AvailableNow** - almost what is required but not friendly to restarts because it will update stop version pointer if job is stopped and restarted
+
+Proposal is to add **StartingVersionOnly** which works similar to **AvailableNow** but will stop query when `endOffset.isStartingVersions` turns to `false`
+
+### Motivation
+
+Reliable way to create one-time snapshot (at specific version) of big table which is continuously updated  **using streaming**.
+
+`AvailableNow` can do that but it is not friendly to stop/restart which sometimes is required to fine-tune job and continue from where it stopped
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [ ] Yes. I can contribute this feature independently.
+- [X] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.

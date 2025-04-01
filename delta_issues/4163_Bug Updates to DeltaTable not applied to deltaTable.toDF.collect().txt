@@ -1,0 +1,28 @@
+Right now, if you make updates to a `DeltaTable` and call `deltaTable.toDF.collect()`, then the returned `Row` array doesn't reflect the updates:
+
+```
+scala> dt.toDF.show()
++---+
+| id|
++---+
+|108|
+|106|
+|  5|
+|  7|
+|  9|
++---+
+
+scala> dt.delete(condition = expr("id % 2 == 0"))
+
+scala> dt.toDF.show()
++---+
+| id|
++---+
+|  5|
+|  7|
+|  9|
++---+
+
+scala> dt.toDF.collect()
+Array[org.apache.spark.sql.Row] = Array([108], [106], [5], [7], [9])
+```

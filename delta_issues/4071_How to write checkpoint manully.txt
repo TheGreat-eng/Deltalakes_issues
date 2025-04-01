@@ -1,0 +1,5 @@
+Hello:
+    I use delta lake for a few days . It is very impressive to me . But sometimes the write performance on S3 really puzzled me . So I change the way to use it which I read data by format("delta") but I write data by format("parquet") and write 0***.json for log seperately .  It works fine except I don't konw how to write the checkpoint file . Could you please help to tell me how to invoke api to write a checkpoint file ? Or how to do a standard batch write by api on delta lake ?  I know there should be some mechanism for usage of standard batch wirte . But now I'm paying close attention to write speed . I think I could stand some missing of check  to save some jobs (stages) time in a write submit . 
+
+
+PS: I know Github is not the place where to ask questions . But Google Group for Delta lake seems no much people and no much discussion . So what's the lively community for Delta Lake ?

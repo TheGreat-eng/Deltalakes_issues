@@ -1,0 +1,33 @@
+## Feature request
+
+### Overview
+
+When time traveling to a version that no longer exists, the user will get an error message that may confuse them.  
+
+### Motivation
+
+I've seen users getting confused by this particular error message.  Here's the error message you'll get if you try to time travel to version 2 and it's not available anymore.  
+
+```
+spark.read.format("delta").option("versionAsOf", "2").load("tmp/delta-table").show()
+
+22/09/30 14:51:20 ERROR Executor: Exception in task 0.0 in stage 180.0 (TID 12139)
+java.io.FileNotFoundException: 
+File file:/Users/matthew.powers/Documents/code/my_apps/delta-examples/notebooks/pyspark/tmp/delta-table/part-00009-bdb964bc-8345-4d57-91e0-6190a6d1132e-c000.snappy.parquet does not exist
+
+It is possible the underlying files have been updated. You can explicitly invalidate
+the cache in Spark by running 'REFRESH TABLE tableName' command in SQL or by
+recreating the Dataset/DataFrame involved.
+```
+
+Perhaps this wording would be better:
+
+You're trying to read version 2 of the Delta Lake, which is not possible anymore because some of the files required by version 2 no longer exist.  Files for legacy versions of your data may have been removed with the vacuum command.  TODO: Brainstorm with team other messaging we may want to give.  Perhaps we can give users a link where they can learn more?
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [ ] Yes. I can contribute this feature independently.
+- [ ] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [X] No. I cannot contribute this feature at this time.

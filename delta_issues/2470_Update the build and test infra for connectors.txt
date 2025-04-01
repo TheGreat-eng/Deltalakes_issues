@@ -1,0 +1,12 @@
+## Description
+- Updated build.sbt to add new subprojects for connectors.
+  - Updated the unidoc settings to make sure it ignores all the new kernel and connectors code.
+  - Moved unidoc generation testing into an explicit separate step (explicitly call `sbt test unidoc` from run-tests.py) instead of implicitly via sbt task dependencies.
+   - Disabled code coverage because it was having problems with scala-2.13 builds and we were not really using it anyways.
+- Added a new Github action for running all connector tests by copying the existing action from the connectors dir. 
+- Renamed Spark test Github action file from tests.yaml to spark_tests.yaml
+- Increased SBT's Java heap size with .sbtoptions
+
+## How was this patch tested?
+
+New and existing Github actions

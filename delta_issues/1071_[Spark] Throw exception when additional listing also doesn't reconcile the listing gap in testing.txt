@@ -1,0 +1,22 @@
+#### Which Delta project/connector is this regarding?
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+We already log the failure scenario when additional file-system listing also can't reconcile the gap between concurrent file-system listing and commit-owner calls.
+
+With this PR, we will throw an exception if the above condition is triggered while testing.
+
+
+## How was this patch tested?
+
+UTs
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

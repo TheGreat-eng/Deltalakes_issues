@@ -1,0 +1,5 @@
+Context is [here](https://github.com/delta-io/delta/pull/2907#issuecomment-2062121743).
+
+Basically use [`TimestampConverters.createTimestampConverter`](https://github.com/delta-io/delta/blob/master/kernel/kernel-defaults/src/main/java/io/delta/kernel/defaults/internal/parquet/TimestampConverters.java#L49) for both timestamp and timestamp_ntz columns.
+
+For testing: use Spark to generated a golden table using the utilities in `GoldenTables.scala`.

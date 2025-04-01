@@ -1,0 +1,261 @@
+## Feature request: Add number of records to the `DeltaTable.detail()` method
+
+### Overview
+
+When executing the `DeltaTable.detail()` method, the current process will return a PySpark DataFrame with the following columns:
+- `id`, `name`, `description`, `location`, `createdAt`, `lastModified`, `partitionColumns`, `numFiles`, `sizeInBytes`, `properties`, `minReaderVersion`, `minWriterVersion`
+
+I'd like to see one new column added to this DataFrame which will tell me the number of records which exist in the DeltaTable. I'd like the table to have the following columns:
+- `id`, `name`, `description`, `location`, `createdAt`, `lastModified`, `partitionColumns`, `numFiles`, **`numRecords`**, `sizeInBytes`, `properties`, `minReaderVersion`, `minWriterVersion`
+
+### Motivation
+
+Currently, the only way that I can determine the number of records in a DeltaTable object is by converting it to a PySpark DataFrame and running the `.count()` method. For a smaller table, this is fine. However, for a table that is tens, or even hundreds of millions of records long, this PySpark `.count()` method can be quite slow to execute.
+
+Therefore, in order to speed up the determination of the number of records contained in a table, I'd like to be able to execute the DeltaTable `.detail()` method, which is a lot faster as it will only query the metadata of the table.
+
+### Further details
+
+#### Reproducible Example
+
+Using this script to build a simple table:
+
+```py
+>>> from string import ascii_lowercase as letters
+>>> import pandas as pd
+>>> from delta.tables import DeltaTable
+>>> from pyspark.sql import SparkSession
+
+>>> spark = SparkSession.builder.getOrCreate()
+
+>>> (
+...     spark
+...     .createDataFrame(
+...         pd.DataFrame(
+...             {
+...                 "id": range(1,11),
+...                 "chars": list(letters[:10]),
+...             }
+...         )
+...     )
+...     .write
+...     .mode("overwrite")
+...     .format("delta")
+...     .save("/tmp/test")
+... )
+```
+
+I can then check the table looks correct:
+
+```py
+>>> (
+...    DeltaTable
+...    .forPath(spark, "/tmp/test")
+...    .toDF()
+...    .show()
+... )
++---+-----+
+| id|chars|
++---+-----+
+|  1|    a|
+|  2|    b|
+|  3|    c|
+|  4|    d|
+|  5|    e|
+|  6|    f|
+|  7|    g|
+|  8|    h|
+|  9|    i|
+| 10|    j|
++---+-----+
+```
+
+And the detail of the table is:
+
+```py
+>>> (
+...     DeltaTable
+...     .forPath(spark, "/tmp/test")
+...     .detail()
+...     .show()
+... )
++------+--------------------+----+-----------+--------------+--------------------+-------------------+----------------+--------+-----------+----------+----------------+----------------+--------------------+----------+
+|format|                  id|name|description|      location|           createdAt|       lastModified|partitionColumns|numFiles|sizeInBytes|properties|minReaderVersion|minWriterVersion|       tableFeatures|statistics|
++------+--------------------+----+-----------+--------------+--------------------+-------------------+----------------+--------+-----------+----------+----------------+----------------+--------------------+----------+
+| delta|4bf3f1bd-4dad-404...|null|       null|dbfs:/tmp/test|2023-05-05 03:48:...|2023-05-05 03:56:53|              []|       1|        918|        {}|               1|               2|[appendOnly, inva...|        {}|
++------+--------------------+----+-----------+--------------+--------------------+-------------------+----------------+--------+-----------+----------+----------------+----------------+--------------------+----------+
+```
+
+#### Desired Result
+
+When I run this script 👇 I would like the column `numRecords` to be added as well.
+
+```py
+>>> (
+...     DeltaTable
+...     .forPath(spark, "/tmp/test")
+...     .detail()
+...     .show()
+... )
++------+--------------------+----+-----------+--------------+--------------------+-------------------+----------------+--------+----------+-----------+----------+----------------+----------------+--------------------+----------+
+|format|                  id|name|description|      location|           createdAt|       lastModified|partitionColumns|numFiles|numRecords|sizeInBytes|properties|minReaderVersion|minWriterVersion|       tableFeatures|statistics|
++------+--------------------+----+-----------+--------------+--------------------+-------------------+----------------+--------+----------+-----------+----------+----------------+----------------+--------------------+----------+
+| delta|4bf3f1bd-4dad-404...|null|       null|dbfs:/tmp/test|2023-05-05 03:48:...|2023-05-05 03:56:53|              []|       1|        10|        918|        {}|               1|               2|[appendOnly, inva...|        {}|
++------+--------------------+----+-----------+--------------+--------------------+-------------------+----------------+--------+----------+-----------+----------+----------------+----------------+--------------------+----------+
+```
+
+#### Technical details
+
+When I inspect under the hood, I understand it to work like this:
+1. In the Python [`delta.tables.py`][Python.DeltaTable-module] module, the [`DeltaTable`][Python.DeltaTable-class] class has one [`.detail()`][Python.DeltaTable.detail-method] method will call the [`self._jdt.detail()`][Python.DeltaTable._jdt.detail-method] method.
+2. This `self._jdt.detail()` method is actually calling the Scala [`DeltaTable.detail()`][Scala.DeltaTable-method] method, from the module [`core/src/main/scala/io/delta/tables/DeltaTable.scala`][Scala.DeltaTable-module].
+3. The Scala `DeltaTable.detail()` method is in turn executing the Scala [`DeltaTableOperations.executeDetails()`][DeltaTableOperations.executeDetails-method] method, from the module [`core/src/main/scala/io/delta/tables/execution/DeltaTableOperations.scala`][DeltaTableOperations-module].
+4. That `DeltaTableOperations.executeDetails()` method is next calling the [`DescribeDeltaDetailCommand.run()`][DescribeDeltaDetailCommand.run-method] method from the [`core/src/main/scala/org/apache/spark/sql/delta/commands/DescribeDeltaDetailsCommand.scala`][DescribeDeltaDetailsCommand-module] module.
+5. Because the object that I am referencing is indeed a DeltaTable, this `DescribeDeltaDetailCommand.run()` method is then calling the [`DescribeDeltaDetailCommand.describeDeltaTable()`][DescribeDeltaDetailCommand.describeDeltaTable-method] method from the [`core/src/main/scala/org/apache/spark/sql/delta/commands/DescribeDeltaDetailsCommand.scala`][DescribeDeltaDetailsCommand-module] module.
+6. That `DescribeDeltaDetailCommand.describeDeltaTable()` method is the lowest-level method which is compiling the information for the Detail table (one example of which I have shown above).
+7. You can see here that this `DescribeDeltaDetailCommand.describeDeltaTable()` method is compiling the information like the `numFiles`, `sizeInBytes`, and `partitionColumns`, etc, from the [`snapshot`](https://github.com/delta-io/delta/blob/5c3f4d37951ab4edf1cc3364ec6e8259844b331c/core/src/main/scala/org/apache/spark/sql/delta/commands/DescribeDeltaDetailsCommand.scala#LL81C13-L81C13) object.
+8. This `snapshot` object is an instance of the [`DeltaLog`][DeltaLog-class] class, from the [`core/src/main/scala/org/apache/spark/sql/delta/DeltaLog.scala`][DeltaLog-module] module.
+9. There also seems to be a reference [here](https://github.com/delta-io/delta/blob/5c3f4d37951ab4edf1cc3364ec6e8259844b331c/core/src/main/scala/org/apache/spark/sql/delta/commands/DescribeDeltaDetailsCommand.scala#L181) showing that this `snapshot` object is an instance of the [`Snapshot`][Snapshot-class] class, from the [`core/src/main/scala/org/apache/spark/sql/delta/Snapshot.scala`][Snapshot-module] module.
+10. Either way, whether the data comes from the `DeltaLog` or the `Snapshot` class, it seems like both of these classes are extensions of the [`SnapshotState`][SnapshotState-class] class, in the [`core/src/main/scala/org/apache/spark/sql/delta/SnapshotState.scala`][SnapshotState-module] module
+11. This `SnapshotState` appears to have one [`SnapshotStateManager`][SnapshotStateManager-trait] trait, where the actual numeric attributes are defined.
+    For example:
+    1. [`numOfFiles`][numOfFiles-attribute],
+    2. [`sizeInBytes`][sizeInBytes-attribute],
+    3. etc.
+12. These numeric attributes seem to be derived from the [`SnapshotStateManager.computedState`][SnapshotStateManager.computedState-property] property.
+13. This `SnapshotStateManager.computedState` property in turn executes the [`SnapshotStateManager.extractComputedState()`][SnapshotStateManager.extractComputedState-method] method.
+14. This `SnapshotStateManager.extractComputedState()` method then executes the [`SnapshotStateManager.aggregationsToComputeState()`][SnapshotStateManager.aggregationsToComputeState-method] where it defines exactly what data is extracted from the DeltaTable meta data (specifically, the `_delta_log` metadata).
+    For example:
+    1. [`"sizeInBytes" -> coalesce(sum(col("add.size")), lit(0L))`][sizeInBytes-calculation],
+    2. [`"numOfFiles" -> count(col("add"))`][numOfFiles-calculation],
+    3. etc.
+
+Having now traversed through the depth of this package to understand how it operates on the lower-level, I now better understand, and fully appreciate, the power and complexity of this Delta library.
+
+#### Implementation Recommendation
+
+To implement this change, we can use the information already contained within the `_delta_log` metadata.
+
+Let's inspect the metadata from our example above:
+
+```py
+from pprint import pprint
+import json
+lines=[]
+with open("/dbfs/tmp/test/_delta_log/00000000000000000000.json") as f:
+    for line in f.readlines():
+        lines.append(json.loads(line))
+pprint(lines)
+```
+
+(Yes, I'm using databricks; hence why I need to reference `/dbfs/`.)
+
+Which looks like:
+
+```yaml
+[{'commitInfo': {'clusterId': '0417-005026-c2d0cj3v',
+                 'engineInfo': 'Databricks-Runtime/12.2.x-scala2.12',
+                 'isBlindAppend': False,
+                 'isolationLevel': 'WriteSerializable',
+                 'notebook': {'notebookId': '2083680383954544'},
+                 'operation': 'WRITE',
+                 'operationMetrics': {'numFiles': '1',
+                                      'numOutputBytes': '918',
+                                      'numOutputRows': '10'},
+                 'operationParameters': {'mode': 'Overwrite',
+                                         'partitionBy': '[]'},
+                 'timestamp': 1683273409661,
+                 'txnId': '1417a5f5-c163-407e-811c-974bbb504c0c',
+                 'userId': '3446404337847384',
+                 'userName': 'adm.chris.mahoney@dbschenker.com'}},
+ {'protocol': {'minReaderVersion': 1, 'minWriterVersion': 2}},
+ {'metaData': {'configuration': {},
+               'createdTime': 1683273407268,
+               'format': {'options': {}, 'provider': 'parquet'},
+               'id': '7468a626-47ce-442f-8641-3b60bb9c5a9d',
+               'partitionColumns': [],
+               'schemaString': '{"type":"struct","fields":[{"name":"id","type":"long","nullable":true,"metadata":{}},{"name":"chars","type":"string","nullable":true,"metadata":{}}]}'}},
+ {'add': {'dataChange': True,
+          'modificationTime': 1683273409000,
+          'partitionValues': {},
+          'path': 'part-00000-8a2f2c05-2079-41b6-a9b6-42dba801b677-c000.snappy.parquet',
+          'size': 918,
+          'stats': '{"numRecords":10,"minValues":{"id":1,"chars":"a"},"maxValues":{"id":10,"chars":"j"},"nullCount":{"id":0,"chars":0}}',
+          'tags': {'INSERTION_TIME': '1683273409000000',
+                   'MAX_INSERTION_TIME': '1683273409000000',
+                   'MIN_INSERTION_TIME': '1683273409000000',
+                   'OPTIMIZE_TARGET_SIZE': '268435456'}}}]
+```
+
+It looks like the data is already recorded in the `add.stats.numRecords` element.
+
+Therefore, I'd recommend the following changes:
+
+1. Add a new line to the [`SnapshotStateManager.aggregationsToComputeState()`][SnapshotStateManager.aggregationsToComputeState-method] method.
+    - Perhaps something like: `"numOfRecords" -> coalesce(sum(col("add.stats.numRecords")), lit(0L))`.
+2. Add a new attribute to the [`SnapshotStateManager`][SnapshotStateManager-trait] trait.
+    - Something like: `def numOfRecords: Long = computedState.numOfRecords`.
+3. Add a new parameter to the [`SnapshotState`][SnapshotState-class] class.
+    - Something like: `numOfRecords: Long,`.
+4. Add a new initialisation line to the [`SnapshotStateManager.initialState()`][SnapshotStateManager.initialState-method] method.
+    - Something like: `numOfRecords = 0L,`.
+5. Add a new line to the [Snapshot.computeChecksum()][Snapshot.computeChecksum-method] method.
+    - Something like: `numRecords = numOfRecords,`.
+6. Add a new line to the [`DescribeDeltaDetailCommand.describeDeltaTable()`][DescribeDeltaDetailCommand.describeDeltaTable-method] method.
+    - Something like: `numRecords = snapshot.numOfRecords,`.
+
+I'm not sure if there will be other places that this will also need to be added. But these are the ones that I have found so far.
+
+#### Consideration of Breaking Changes
+
+While adding a new column to an existing table may be considered to be breaking changes, I don't think it will be an issue.
+
+Why? Because:
+
+1. There is a note on the Python [`DeltaTable.details()`][Python.DeltaTable.detail-note] method stating that it is _evolving_, and
+2. There is similar note exists on the Scala [`DeltaTable.Details()`][Scala.DeltaTable-note] method.
+
+So, therefore, I think it's okay to proceed.
+
+[Python.DeltaTable._jdt.detail-method]: https://github.com/delta-io/delta/blob/5c3f4d37951ab4edf1cc3364ec6e8259844b331c/python/delta/tables.py#L296
+[Python.DeltaTable.detail-method]: https://github.com/delta-io/delta/blob/5c3f4d37951ab4edf1cc3364ec6e8259844b331c/python/delta/tables.py#L282
+[Python.DeltaTable.detail-note]: https://github.com/delta-io/delta/blob/5c3f4d37951ab4edf1cc3364ec6e8259844b331c/python/delta/tables.py#L293
+[Python.DeltaTable-class]: (https://github.com/delta-io/delta/blob/5c3f4d37951ab4edf1cc3364ec6e8259844b331c/python/delta/tables.py#L37)
+[Python.DeltaTable-module]: https://github.com/delta-io/delta/blob/5c3f4d37951ab4edf1cc3364ec6e8259844b331c/python/delta/tables.py
+[Scala.DeltaTable-method]: https://github.com/delta-io/delta/blob/5c3f4d37951ab4edf1cc3364ec6e8259844b331c/core/src/main/scala/io/delta/tables/DeltaTable.scala#L146
+[Scala.DeltaTable-module]: https://github.com/delta-io/delta/blob/5c3f4d37951ab4edf1cc3364ec6e8259844b331c/core/src/main/scala/io/delta/tables/DeltaTable.scala
+[Scala.DeltaTable-note]: https://github.com/delta-io/delta/blob/5c3f4d37951ab4edf1cc3364ec6e8259844b331c/core/src/main/scala/io/delta/tables/DeltaTable.scala#L145
+[DeltaTableOperations.executeDetails-method]: https://github.com/delta-io/delta/blob/5c3f4d37951ab4edf1cc3364ec6e8259844b331c/core/src/main/scala/io/delta/tables/execution/DeltaTableOperations.scala#L57
+[DeltaTableOperations-module]: https://github.com/delta-io/delta/blob/5c3f4d37951ab4edf1cc3364ec6e8259844b331c/core/src/main/scala/io/delta/tables/execution/DeltaTableOperations.scala
+[DescribeDeltaDetailCommand.run-method]: https://github.com/delta-io/delta/blob/5c3f4d37951ab4edf1cc3364ec6e8259844b331c/core/src/main/scala/org/apache/spark/sql/delta/commands/DescribeDeltaDetailsCommand.scala#L76
+[DescribeDeltaDetailsCommand-module]: https://github.com/delta-io/delta/blob/5c3f4d37951ab4edf1cc3364ec6e8259844b331c/core/src/main/scala/org/apache/spark/sql/delta/commands/DescribeDeltaDetailsCommand.scala
+[DescribeDeltaDetailCommand.describeDeltaTable-method]: https://github.com/delta-io/delta/blob/5c3f4d37951ab4edf1cc3364ec6e8259844b331c/core/src/main/scala/org/apache/spark/sql/delta/commands/DescribeDeltaDetailsCommand.scala#L178
+[DeltaLog-module]: https://github.com/delta-io/delta/blob/5c3f4d37951ab4edf1cc3364ec6e8259844b331c/core/src/main/scala/org/apache/spark/sql/delta/DeltaLog.scala
+[DeltaLog-class]: https://github.com/delta-io/delta/blob/5c3f4d37951ab4edf1cc3364ec6e8259844b331c/core/src/main/scala/org/apache/spark/sql/delta/DeltaLog.scala#L74
+[Snapshot-class]: https://github.com/delta-io/delta/blob/5c3f4d37951ab4edf1cc3364ec6e8259844b331c/core/src/main/scala/org/apache/spark/sql/delta/Snapshot.scala#L66
+[Snapshot-module]: https://github.com/delta-io/delta/blob/5c3f4d37951ab4edf1cc3364ec6e8259844b331c/core/src/main/scala/org/apache/spark/sql/delta/Snapshot.scala
+[SnapshotState-class]: https://github.com/delta-io/delta/blob/5c3f4d37951ab4edf1cc3364ec6e8259844b331c/core/src/main/scala/org/apache/spark/sql/delta/SnapshotState.scala#L45
+[SnapshotState-module]: https://github.com/delta-io/delta/blob/5c3f4d37951ab4edf1cc3364ec6e8259844b331c/core/src/main/scala/org/apache/spark/sql/delta/SnapshotState.scala
+[numOfFiles-attribute]: https://github.com/delta-io/delta/blob/5c3f4d37951ab4edf1cc3364ec6e8259844b331c/core/src/main/scala/org/apache/spark/sql/delta/SnapshotState.scala#L156
+[sizeInBytes-attribute]: https://github.com/delta-io/delta/blob/5c3f4d37951ab4edf1cc3364ec6e8259844b331c/core/src/main/scala/org/apache/spark/sql/delta/SnapshotState.scala#L154
+[SnapshotStateManager-trait]: https://github.com/delta-io/delta/blob/5c3f4d37951ab4edf1cc3364ec6e8259844b331c/core/src/main/scala/org/apache/spark/sql/delta/SnapshotState.scala#L62
+[SnapshotStateManager.computedState-property]: https://github.com/delta-io/delta/blob/5c3f4d37951ab4edf1cc3364ec6e8259844b331c/core/src/main/scala/org/apache/spark/sql/delta/SnapshotState.scala#L74
+[SnapshotStateManager.extractComputedState-method]: https://github.com/delta-io/delta/blob/5c3f4d37951ab4edf1cc3364ec6e8259844b331c/core/src/main/scala/org/apache/spark/sql/delta/SnapshotState.scala#L124
+[SnapshotStateManager.aggregationsToComputeState-method]: https://github.com/delta-io/delta/blob/5c3f4d37951ab4edf1cc3364ec6e8259844b331c/core/src/main/scala/org/apache/spark/sql/delta/SnapshotState.scala#L135
+[sizeInBytes-calculation]: https://github.com/delta-io/delta/blob/5c3f4d37951ab4edf1cc3364ec6e8259844b331c/core/src/main/scala/org/apache/spark/sql/delta/SnapshotState.scala#LL138C7-L138C63
+[numOfFiles-calculation]: https://github.com/delta-io/delta/blob/5c3f4d37951ab4edf1cc3364ec6e8259844b331c/core/src/main/scala/org/apache/spark/sql/delta/SnapshotState.scala#L140
+[SnapshotStateManager.initialState-method]: https://github.com/delta-io/delta/blob/5c3f4d37951ab4edf1cc3364ec6e8259844b331c/core/src/main/scala/org/apache/spark/sql/delta/SnapshotState.scala#L167
+[Snapshot.computeChecksum-method]: https://github.com/delta-io/delta/blob/5c3f4d37951ab4edf1cc3364ec6e8259844b331c/core/src/main/scala/org/apache/spark/sql/delta/Snapshot.scala#L320
+
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [ ] Yes. I can contribute this feature independently.
+- [x] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.
+
+I'm still a newbie with using Scala. And I also don't know all of the different palces where this change would need to be implemented. But yea, I'll give it a go. Please help me though.
+
+Thanks!

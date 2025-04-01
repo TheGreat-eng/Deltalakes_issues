@@ -1,0 +1,13 @@
+## Description
+
+Running the query "SELECT COUNT(*) FROM Table" takes a lot of time for big tables, Spark scan all the parquet files just to return the number of rows, that information is available from Delta Logs.
+
+Resolves #1192
+
+## How was this patch tested?
+
+Created unit tests to validate the optimization works, including cases not covered by this optimization.
+
+## Does this PR introduce _any_ user-facing changes?
+
+Only performance improvement

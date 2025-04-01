@@ -1,0 +1,6 @@
+Hi,
+
+we need support for oracle cloud storage system (Object Storage), to leverage Delta Lake capabilities on Oracle Cloud.
+
+Thanks,
+Rohit

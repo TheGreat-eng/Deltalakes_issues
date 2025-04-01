@@ -1,0 +1,15 @@
+## Description
+Validation of properties now deletes the prefix `option.` in `deltaLog.snapshot.metadata.configuration` elements. This behavior is executed only if the flag `legacy.storeOptionsAsProperties`is not activated, otherwise it will still behave like it was previously.
+Resolves #1183 
+
+## How was this patch tested?
+The previous test was modified to accept the new logic with and without the flag `legacy.storeOptionsAsProperties` activated. The result table was updated to make it easier to see the results expected.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No
+<!--
+If yes, please clarify the previous behavior and the change this PR proposes - provide the console output, description and/or an example to show the behavior difference if possible.
+If possible, please also clarify if this is a user-facing change compared to the released Delta Lake versions or within the unreleased branches such as master.
+If no, write 'No'.
+-->

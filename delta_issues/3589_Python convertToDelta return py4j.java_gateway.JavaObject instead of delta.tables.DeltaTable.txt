@@ -1,0 +1,8 @@
+Hi,
+I am running the `deltaTable = DeltaTable.convertToDelta(spark, f"parquet.`{data_path}`")` to read a DeltaTable from the parquet files  but it doesn't return one as suggested in the documents. However, it successfully converts them. If I read them exactly after that line again using forPath, it will give me the DeltaTable.
+
+![image](https://user-images.githubusercontent.com/3591686/127658401-960c7a3f-48ee-4223-9bc9-c977fe67f70f.png)
+
+I am using spark 3.1 and get delta as an package using `sparkConf.set("spark.jars.packages", "io.delta:delta-core_2.12:1.0.0")`.
+Regards,
+Shahram

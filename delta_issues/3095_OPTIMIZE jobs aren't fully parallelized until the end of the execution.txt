@@ -1,0 +1,15 @@
+## OPTIMIZE jobs aren't fully parallelized until the end of the execution
+
+### When running the OPTIMIZE command I noticed that the execution starts with a number of jobs equal with `optimize.maxThreads` but this number decreases until a single job will be running at a time. 
+I don't know if it is something I can change on my side to make it use all the cores and run all the expected jobs until the end. 
+
+#### I tried this with various spark configurations ( cores.max = 30/100/400  and driver-cores = 10/20, and it happens every time - when allocating 100/400 cores it doesn't drop to 1 but still drops somewhere around ~10)
+
+<img width="1509" alt="Screenshot 2022-06-21 at 16 44 10" src="https://user-images.githubusercontent.com/26500743/174814911-bf012cbc-1b29-442e-a69a-ba6ee8233fa2.png">
+
+
+* Delta Lake version: 1.2.1
+* Spark version: 3.2.1
+* Scala version: 2.12.15
+
+I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.

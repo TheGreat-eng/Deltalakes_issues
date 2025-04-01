@@ -1,0 +1,1 @@
+Hi, is there a way to use this with [Spark 3.0 RC1](https://github.com/apache/spark/releases/tag/v3.0.0-rc1)?

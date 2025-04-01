@@ -1,0 +1,63 @@
+## Description
+When a table is written and a new checkpoint is generated, the old checkpoint is cleared due to expiration. If the executor is restarted for some reason at this time, an error will be reported when reading the table next.
+
+`[info]   org.apache.spark.SparkException: Job aborted due to stage failure: Task 0 in stage 38.0 failed 1 times, most recent failure: Lost task 0.0 in stage 38.0 (TID 34) (192.168.130.11 executor driver): java.io.FileNotFoundException: 
+[info] File file:/private/var/folders/gc/c__qhntd7s502txfp0ltxh880000gn/T/spark-9a479158-0bf7-4e82-afbd-cef470f54fa6/_delta_log/00000000000000000001.checkpoint.parquet does not exist
+[info] 
+[info] It is possible the underlying files have been updated. You can explicitly invalidate
+[info] the cache in Spark by running 'REFRESH TABLE tableName' command in SQL or by
+[info] recreating the Dataset/DataFrame involved.
+[info]        
+[info]  at org.apache.spark.sql.errors.QueryExecutionErrors$.readCurrentFileNotFoundError(QueryExecutionErrors.scala:506)
+[info]  at org.apache.spark.sql.execution.datasources.FileScanRDD$$anon$1.org$apache$spark$sql$execution$datasources$FileScanRDD$$anon$$readCurrentFile(FileScanRDD.scala:119)
+[info]  at org.apache.spark.sql.execution.datasources.FileScanRDD$$anon$1.nextIterator(FileScanRDD.scala:164)
+[info]  at org.apache.spark.sql.execution.datasources.FileScanRDD$$anon$1.hasNext(FileScanRDD.scala:93)
+[info]  at scala.collection.Iterator$$anon$10.hasNext(Iterator.scala:460)
+[info]  at scala.collection.Iterator$$anon$10.hasNext(Iterator.scala:460)
+[info]  at scala.collection.Iterator$$anon$10.hasNext(Iterator.scala:460)
+[info]  at scala.collection.Iterator$$anon$11.hasNext(Iterator.scala:491)
+[info]  at scala.collection.Iterator$$anon$10.hasNext(Iterator.scala:460)
+[info]  at org.apache.spark.sql.catalyst.expressions.GeneratedClass$GeneratedIteratorForCodegenStage1.processNext(Unknown Source)
+[info]  at org.apache.spark.sql.execution.BufferedRowIterator.hasNext(BufferedRowIterator.java:43)
+[info]  at org.apache.spark.sql.execution.WholeStageCodegenExec$$anon$1.hasNext(WholeStageCodegenExec.scala:759)
+[info]  at scala.collection.Iterator$$anon$10.hasNext(Iterator.scala:460)
+[info]  at org.apache.spark.shuffle.sort.BypassMergeSortShuffleWriter.write(BypassMergeSortShuffleWriter.java:140)
+[info]  at org.apache.spark.shuffle.ShuffleWriteProcessor.write(ShuffleWriteProcessor.scala:59)
+[info]  at org.apache.spark.scheduler.ShuffleMapTask.runTask(ShuffleMapTask.scala:99)
+[info]  at org.apache.spark.scheduler.ShuffleMapTask.runTask(ShuffleMapTask.scala:52)
+[info]  at org.apache.spark.scheduler.Task.run(Task.scala:131)
+[info]  at org.apache.spark.executor.Executor$TaskRunner.$anonfun$run$3(Executor.scala:506)
+[info]  at org.apache.spark.util.Utils$.tryWithSafeFinally(Utils.scala:1462)
+[info]  at org.apache.spark.executor.Executor$TaskRunner.run(Executor.scala:509)
+[info]  at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
+[info]  at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+[info]  at java.lang.Thread.run(Thread.java:750)
+[info] 
+[info] Driver stacktrace:
+[info]   at org.apache.spark.scheduler.DAGScheduler.failJobAndIndependentStages(DAGScheduler.scala:2403)
+[info]   at org.apache.spark.scheduler.DAGScheduler.$anonfun$abortStage$2(DAGScheduler.scala:2352)
+[info]   at org.apache.spark.scheduler.DAGScheduler.$anonfun$abortStage$2$adapted(DAGScheduler.scala:2351)
+[info]   at scala.collection.mutable.ResizableArray.foreach(ResizableArray.scala:62)
+[info]   at scala.collection.mutable.ResizableArray.foreach$(ResizableArray.scala:55)
+[info]   at scala.collection.mutable.ArrayBuffer.foreach(ArrayBuffer.scala:49)
+[info]   at org.apache.spark.scheduler.DAGScheduler.abortStage(DAGScheduler.scala:2351)
+[info]   at org.apache.spark.scheduler.DAGScheduler.$anonfun$handleTaskSetFailed$1(DAGScheduler.scala:1109)
+[info]   at org.apache.spark.scheduler.DAGScheduler.$anonfun$handleTaskSetFailed$1$adapted(DAGScheduler.scala:1109)
+[info]   at scala.Option.foreach(Option.scala:407)
+[info]   at org.apache.spark.scheduler.DAGScheduler.handleTaskSetFailed(DAGScheduler.scala:1109)
+[info]   at org.apache.spark.scheduler.DAGSchedulerEventProcessLoop.doOnReceive(DAGScheduler.scala:2591)
+[info]   at org.apache.spark.scheduler.DAGSchedulerEventProcessLoop.onReceive(DAGScheduler.scala:2533)
+[info]   at org.apache.spark.scheduler.DAGSchedulerEventProcessLoop.onReceive(DAGScheduler.scala:2522)
+[info]   at org.apache.spark.util.EventLoop$$anon$1.run(EventLoop.scala:49)
+[info]   Cause: java.io.FileNotFoundException: File file:/private/var/folders/gc/c__qhntd7s502txfp0ltxh880000gn/T/spark-9a479158-0bf7-4e82-afbd-cef470f54fa6/_delta_log/00000000000000000001.checkpoint.parquet does not exist
+`
+
+The solution is adjust snapshot logSegment comparison for added the version comparison of checkpoint, when the log version is the same, the checkpoint version is different, need to create a new snapshot.
+
+## How was this patch tested?
+Unit test.
+
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

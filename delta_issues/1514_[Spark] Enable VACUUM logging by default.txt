@@ -1,0 +1,24 @@
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [X] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+This PR enables VACUUM logging by-default in all scenarios. Previously, VACUUM logging is enabled by-default only for a specific list of file systems. 
+
+
+## How was this patch tested?
+
+Unit tests and manual tests. The vacuum is enabled by default for AWS.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No.

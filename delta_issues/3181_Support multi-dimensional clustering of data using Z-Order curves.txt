@@ -1,0 +1,44 @@
+## Overview
+This issue tracks implementing multi-dimensional clustering of data using Z-Order curves to improve the data skipping (=> query performance) when a query on Delta Lake table contains predicates on one or more non-partition columns. This feature is part of the Performance Improvements section of the [Delta Lake 2022 H1 Roadmap](https://github.com/delta-io/delta/issues/920) with a target of 2022 Q2.
+
+## Requirements
+
+- Provide the means to explicitly organize data such that data skipping is effective for more than just one column.
+- Supports all column types currently supported by Data Skipping to cluster data.
+- Optimize Z-Order construction should respect the transactional properties of the Delta table. That means it can run in parallel with reads and writes without violating any ACID properties.
+- In case of conflict when committing Z-order layout changes to Delta table, should retry once before failing.
+- Option to select a subset of partitions in a table to build clustering using Z-order.
+
+## Design Sketch
+Design details are [here](https://docs.google.com/document/d/1TYFxAUvhtYqQ6IHAZXjliVuitA5D1u793PMnzsH_3vs/edit?usp=sharing).
+
+## SQL
+
+```sql
+    OPTIMIZE ('/path/to/dir' | delta.table)
+    [WHERE day = 25 AND city = ‘New York’] -- partition filters to restrict the data layout changes to a subset of partitions
+    [ZORDER BY (col1, col2, ... colN)]
+```
+
+## Configs
+
+- `DeltaSQLConf.OPTIMIZE_ZORDERBY_NUM_RANGE_IDS` - This controls the domain of rangeId values to be interleaved. The bigger, the better granularity, but at the expense of performance (more data gets sampled).
+- `DeltaSQLConf.OPTIMIZE_ZORDERBY_ADD_NOISE` - Whether or not a random byte should be added as a suffix to the interleaved bits when computing the Z-order values for multi dimensional clustering. This can help deal with skew, but may have a negative impact on overall min/max skipping effectiveness.
+
+## Project plan
+Please see the [design sketch](https://docs.google.com/document/d/1TYFxAUvhtYqQ6IHAZXjliVuitA5D1u793PMnzsH_3vs/edit?usp=sharing) for details. Here are the highlevel tasks.
+
+- Implement `range_partition_id(col, N) -> int` expression ([PR 1137](https://github.com/delta-io/delta/pull/1137))
+   - Given Z-order by column, generate a expression that the range partition id for column value in the row
+   - Run for every input column given in optimize Z-order by columns
+   - `N` is config value of `DeltaSQLConf.OPTIMIZE_ZORDERBY_NUM_RANGE_IDS`
+- Implement `interleave_bits(col1:int, col2:int, …. col_n:int) -> byte array (Z-order value)` expression ([PR 1149](https://github.com/delta-io/delta/pull/1149))
+   - Input to this expression is output of `range_partition_id` for each Z-order by column
+- Add transformation for multi-dimensional clustering of the data using the above two expressions ([PR 1150](https://github.com/delta-io/delta/pull/1150))
+- `OptimizeTableCommand` changes to execute Z-Order By ([PR 1171](https://github.com/delta-io/delta/pull/1171))
+   - Compute `range_partition_ids` for each Z-Order by column in input DataFrame
+   - Compute Z-order value using the interleave_bits and range partition ids from above step
+   - If required add noise to Z-order values to reduce the skew
+   - Repartition the input by Z-order value from the previous step.
+   - Write the output DataFrame from previous sep
+- SQL Parser changes to support the new ZOrderBy expression  ([PR 1171](https://github.com/delta-io/delta/pull/1171))

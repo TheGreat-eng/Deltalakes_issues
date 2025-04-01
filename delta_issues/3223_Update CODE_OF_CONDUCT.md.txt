@@ -1,0 +1,11 @@
+## Description
+
+Fixed spelling of here, it looks like previous accidentally included "shipit"
+
+## How was this patch tested?
+
+Reviewed the text 
+
+## Does this PR introduce _any_ user-facing changes?
+
+It does not.

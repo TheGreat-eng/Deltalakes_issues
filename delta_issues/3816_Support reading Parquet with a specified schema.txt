@@ -1,0 +1,5 @@
+In the wild, there's a lossy conversion from Avro to Parquet and back, where enums become strings. When reading back a DeltaTable, if we want to use DeltaTable.forPath (session, path) there is no way to specificy a schema (eg. avro-schema) in order to have the reader conform the read data to specified avro schema (and also do the string to enum conversion back).
+
+Is there any way to add a "forPath" method signature accepting a "Schema" specification in the same way that "spark.read.schema (someSchema).parquet (somePath)" works?
+
+https://github.com/delta-io/delta/blob/master/src/main/scala/io/delta/tables/DeltaTable.scala#L656

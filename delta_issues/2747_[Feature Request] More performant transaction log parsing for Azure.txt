@@ -1,0 +1,30 @@
+## Feature request
+
+### Overview
+There is room for performance improvement when parsing delta transaction logs to get the latest state of a delta table stored on Azure blob storage (ADLS gen 2 with the hierarchical namespace). 
+
+### Motivation
+For tables with relatively fast transactions open source delta is quite slow at parsing the transaction log of delta tables. For example we have a table where just parsing the transaction log to get the latest state takes 2 minutes compared to seconds on Databricks. 
+
+### Further details
+
+<!--
+Use this section to include any additional information about the feature. If you have a proposal for how to implement this feature, please include it here. For implementation guidelines, please read our contributor guidelines: https://github.com/delta-io/delta/blob/master/CONTRIBUTING.md
+If there are any specific requirements for this feature that are not immediately obvious please outline them here.
+-->
+I have done some experimentation building my own versions of `hadoop-azure` and `delta-storage` and I was able to demonstrate a 10X performance improvement in my simple test (10 seconds instead of 2 minutes).
+
+I did this just by creating an Azure specific implementation of `AzureLogStore.listFrom` and plumbing it through to [this function](https://hadoop.apache.org/docs/r3.2.1/api/org/apache/hadoop/fs/azurebfs/AzureBlobFileSystemStore.html#listStatus-org.apache.hadoop.fs.Path-java.lang.String-). This is a lot faster because it can take into account the ordering and the provided `startFile` to list only the small number (~10) files we need in order. The generic `HadoopFileSystemLogStore.listFrom` needs to list the entire transaction log directory then does the filtering and sorting in memory.
+
+The main difficulty I see with this change is that it might need an upstream change to `hadoop-azure` so that a version of `listStatus` that accepts the all important `startFrom` argument is exposed by `AzureBlobFileSystem`. I opened an [issue](https://issues.apache.org/jira/browse/HDFS-16894) there too.
+
+I also did a bit of testing when requesting a specific delta version and I was quite confused by the listing operations it was trying to do. I'm pretty sure this could be improved but for now its probably beyond my scala/java skill level to actually implement. 
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [ ] Yes. I can contribute this feature independently.
+- [x] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+(This comes with the caveat that I've never written any scala or java code before now)
+- [ ] No. I cannot contribute this feature at this time.

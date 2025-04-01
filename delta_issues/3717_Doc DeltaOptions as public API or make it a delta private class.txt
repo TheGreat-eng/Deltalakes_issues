@@ -1,0 +1,11 @@
+I was using Delta Lake and wanted set OVERWRITE_SCHEMA_OPTION to true, with
+
+```scala
+df.write.option(DeltaOptions. OVERWRITE_SCHEMA_OPTION, "true").format("delta")
+```
+
+however this application is broken in Databricks since the internal version is different with open source one and the support engineer said that DeltaOptions is private API
+
+this actually confused users a lot, I saw a public class and straightforwardly referred to it only to find that we cannot use it in the platform of the company who created Delta Lake
+
+I would suggest documenting DeltaOptions as a public API and committed to backward compatibility or make it a delta private class so others will not fall into the same issue

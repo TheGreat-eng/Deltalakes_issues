@@ -1,0 +1,8 @@
+When running multiple concurrent merge/update operations on the same output Delta table, some of the operations might fail due to a concurrent [write conflict](https://docs.delta.io/latest/concurrency-control.html#write-conflicts). This is a result of Delta Lake using [optimistic concurrency control](https://docs.delta.io/latest/concurrency-control.html#optimistic-concurrency-control). To prevent the entire application from failing, you can catch the exception thrown by the conflict, inspect it, and then retry the operation (if it makes sense to do so). I believe this is not uncommon in streaming scenarios where a Delta table sink is being updated by multiple streaming sources.
+
+My suggestion is to provide the retry mechanism in Delta Lake, which could be controlled by a configuration value
+```properties
+spark.databricks.delta.retryWriteConflict.enabled = true  # would be false by default
+spark.databricks.delta.retryWriteConflict.limit = 3  # optionally limit the maximum amout of retries
+# can probably add more options like retry delay, exponential backoff, etc...
+```

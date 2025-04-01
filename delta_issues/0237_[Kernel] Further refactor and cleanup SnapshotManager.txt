@@ -1,0 +1,19 @@
+#### Which Delta project/connector is this regarding?
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [X] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+This PR further refactors and cleans up SnapshotManager. We consolidate all of our `getLogSegment` methods to just one. It has a deep implementation. This PR adds nice, clean header blocks to describe the steps during log segment construction.
+
+## How was this patch tested?
+
+Refactor. Update existing UTs.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No.

@@ -1,0 +1,10 @@
+## Description
+This PR is part of the feature: Support reading Delta tables with deletion vectors (more at delta-io/delta#1485)
+
+Adds a new bitmap implementation called `RoaringBitmapArray`. This will be used to encode the deleted row indices. There already exists a `Roaring64Bitmap` provided by the `org.roaringbitmap` library , but this implementation is optimized for use case of handling row indices, which are always clustered between 0 and the index of the last row number of a file, as opposed to being arbitrarily sparse over the whole `Long` space.
+
+## How was this patch tested?
+Unit tests
+
+## Does this PR introduce _any_ user-facing changes?
+No

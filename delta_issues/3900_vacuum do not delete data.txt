@@ -1,0 +1,17 @@
+ val deltaTable = DeltaTable.forPath(spark, path)
+    deltaTable.vacuum()
+    deltaTable.history().show()
+
++-------+--------------------+------+--------+---------+--------------------+----+--------+---------+-----------+--------------+-------------+--------------------+
+|version|           timestamp|userId|userName|operation| operationParameters| job|notebook|clusterId|readVersion|isolationLevel|isBlindAppend|    operationMetrics|
++-------+--------------------+------+--------+---------+--------------------+----+--------+---------+-----------+--------------+-------------+--------------------+
+|      7|2020-05-07 16:22:...|  null|    null|    WRITE|[mode -> Overwrit...|null|    null|     null|          6|          null|        false|[numFiles -> 2, n...|
+|      6|2020-05-07 16:12:...|  null|    null|    WRITE|[mode -> Overwrit...|null|    null|     null|          5|          null|        false|[numFiles -> 2, n...|
+|      5|2020-05-07 16:08:...|  null|    null|    WRITE|[mode -> Overwrit...|null|    null|     null|          4|          null|        false|                null|
+|      4|2020-04-15 11:25:...|  null|    null|    WRITE|[mode -> Append, ...|null|    null|     null|          3|          null|         true|                null|
+|      3|2020-04-15 11:08:...|  null|    null|    WRITE|[mode -> Append, ...|null|    null|     null|          2|          null|         true|                null|
+|      2|2020-04-15 11:07:...|  null|    null|    WRITE|[mode -> Append, ...|null|    null|     null|          1|          null|         true|                null|
+|      1|2020-04-15 11:02:...|  null|    null|    WRITE|[mode -> Append, ...|null|    null|     null|          0|          null|         true|                null|
+|      0|2020-04-15 11:01:...|  null|    null|    WRITE|[mode -> Append, ...|null|    null|     null|       null|          null|         true|                null|
++-------+--------------------+------+--------+---------+--------------------+----+--------+---------+-----------+--------------+-------------+--------------------+
+ 2020-04-15 Record not deleted

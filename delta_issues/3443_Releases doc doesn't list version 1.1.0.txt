@@ -1,0 +1,1 @@
+The [releases page](https://docs.delta.io/latest/releases.html) doesn't mention release 1.1.0 & Spark 3.2.

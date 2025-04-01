@@ -1,0 +1,56 @@
+## Feature request
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the issue title
+For example: [Feature Request][Spark] Title of my issue
+-->
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [X] Kernel
+- [ ] Other (fill in here)
+
+### Overview
+During LogReplay, our JSON and Parquet file contextualizations look something like this (pasted below).
+
+There is a performance optimization to be done here where instead of contextualizing JSON or parquet files one at a time ` jsonHandler.contextualizeFileReads(Utils.singletonCloseableIterator(InternalUtils.getScanFileRow(nextFile)), ..)`, we do them all at once. This would allow JSON readers to start loading / pre-fetching multiple files at once.
+
+This should be safe as `jsonHandler.contextualizeFileReads` must return data in the same order as the input file infos.
+It would also reduce the number of contexts we need to manage. The code below in currently incomplete. We will actually need to keep track of all our CloseableIterators and make sure they are all closed.
+
+However, we will need to design this to work properly within the `getNextActionsIter` method ...
+
+```java
+/**
+ * Get the next file from `filesIter` (.json or .checkpoint.parquet), contextualize it
+ * (allow the connector to split it), and then read it + inject the `isFromCheckpoint`
+ * information.
+ *
+ * Requires that `filesIter.hasNext` is true.
+ */
+private CloseableIterator<Tuple2<FileDataReadResult, Boolean>> getNextActionsIter() {
+    final FileStatus nextFile = filesIter.next();
+
+    try {
+        if (nextFile.getPath().endsWith(".json")) {
+            final JsonHandler jsonHandler = tableClient.getJsonHandler();
+
+            // Convert the `nextFile` FileStatus into an internal ScanFile Row and then
+            // allow the connector to contextualize it (i.e. perform any splitting)
+            final CloseableIterator<FileReadContext> fileReadContextIter =
+                jsonHandler.contextualizeFileReads(
+                    Utils.singletonCloseableIterator(
+                        InternalUtils.getScanFileRow(nextFile)),
+                    Literal.TRUE
+                );
+
+            // Read that file
+            final CloseableIterator<FileDataReadResult> fileReadDataIter =
+                tableClient.getJsonHandler().readJsonFiles(
+                    fileReadContextIter,
+                    readSchema);
+
+            return combine(fileReadDataIter, false /* isFromCheckpoint */);
+```

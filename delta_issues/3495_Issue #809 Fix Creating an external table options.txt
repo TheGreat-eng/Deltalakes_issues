@@ -1,0 +1,1 @@
+This PR fix metadata.configuration inconsistency between write into delta and create delta table. #809 

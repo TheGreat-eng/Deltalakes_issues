@@ -1,0 +1,23 @@
+## Feature request
+
+### Overview
+
+Currently, the `MERGE` command returns an empty result. It would be more useful if it returned
+- number of affected rows (Long)
+- number of updated rows (Long)
+- number of deleted rows (Long)
+- number of inserted rows (Long)
+
+### Motivation
+
+These are obvious metrics that users would expect from this operation.
+
+### Further details
+
+Implementation wise, this should be pretty straight forward. We already have access to
+- `metrics("numTargetRowsUpdated")`
+- `metrics("numTargetRowsDeleted")`
+- `metrics("numTargetRowsInserted")`
+- `num_affected_rows` should just be the sum of the 3 above metrics
+
+Remember to add tests!

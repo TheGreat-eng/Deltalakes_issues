@@ -1,0 +1,21 @@
+The catalog name hive_metastore was set. The delta table failed to be created. The table location directory was empty without  n_delta_log。 catalog name can only be spark_catalog?
+
+```
+val spark = SparkSession.builder()
+          .master("local")
+          .enableHiveSupport()
+          .config("spark.serializer", "org.apache.spark.serializer.KryoSerializer")
+          .config("spark.sql.extensions", "io.delta.sql.DeltaSparkSessionExtension")
+          .config("spark.sql.catalog.hive_metastore", "org.apache.spark.sql.delta.catalog.DeltaCatalog")
+          .getOrCreate()
+
+spark.sql("DROP TABLE if exists bigdata.delta_sample")
+        val deltaCreateTableDdl =
+          """
+            |create table if not exists hive_metastore.bigdata.delta_sample (
+            |    k int,
+            |    v string
+            |) USING delta
+            |""".stripMargin
+        spark.sql(deltaCreateTableDdl)
+```

@@ -1,0 +1,24 @@
+#### Which Delta project/connector is this regarding?
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+In the PR, I propose to use the `condition` parameter instead of `errorClass` in calls of `checkError` because `errorClass` was renamed in Spark by the PR https://github.com/apache/spark/pull/48027. This PR fixes compilation issues like:
+```
+[error]       checkError(
+[error]       ^
+[error] /home/runner/work/delta/delta/spark/src/test/scala/org/apache/spark/sql/delta/rowtracking/RowTrackingReadWriteSuite.scala:304:7: overloaded method checkError with alternatives:
+[error]   (exception: org.apache.spark.SparkThrowable,condition: String,sqlState: Option[String],parameters: Map[String,String],context: RowTrackingReadWriteSuite.this.ExpectedContext)Unit <and>
+```
+
+## How was this patch tested?
+
+By compiling locally.
+
+## Does this PR introduce _any_ user-facing changes?
+No. This makes changes in tests only.

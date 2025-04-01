@@ -1,0 +1,29 @@
+#### Which Delta project/connector is this regarding?
+
+- [X] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+https://github.com/delta-io/delta/pull/3146 added support for spark master structured logging, but broke the test logging for delta-spark against spark 3.5. This PR fixes that.
+
+The broken logging looked like this (https://github.com/delta-io/delta/actions/runs/10856009436/job/30129811815):
+
+```
+ERROR StatusConsoleListener Unable to locate plugin type for JsonTemplateLayout
+ERROR StatusConsoleListener Unable to locate plugin for JsonTemplateLayout
+ERROR StatusConsoleListener Could not create plugin of type class org.apache.logging.log4j.core.appender.FileAppender for element File: java.lang.NullPointerException
+ java.lang.NullPointerException
+	at org.apache.logging.log4j.core.config.plugins.visitors.PluginElementVisitor.findNamedNode(PluginElementVisitor.java:104)
+```
+
+## How was this patch tested?
+
+GitHub CI tests.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No.

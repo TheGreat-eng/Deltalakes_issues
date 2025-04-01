@@ -1,0 +1,22 @@
+```scala
+spark.range(10).write.format("delta").option("header", "true").save(path)
+spark.sql(s"create table mytab (id long) using delta location '$path' options (header=true)")
+```
+
+It fails with the following message:
+
+```
+org.apache.spark.sql.AnalysisException: The specified properties do not match the existing properties at <path>.
+
+== Specified ==
+option.header=true
+header=true
+
+== Existing ==
+  at org.apache.spark.sql.delta.DeltaErrors$.createTableWithDifferentPropertiesException(DeltaErrors.scala:806)
+  ...
+```
+
+I'm not sure whether it's a bug or intended. Please close the issue if it's not a bug.
+
+Tested on the latest master (2067d9e0a8860166515df0677de3f6f331d42b78).

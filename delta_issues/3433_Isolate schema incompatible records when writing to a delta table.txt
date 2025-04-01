@@ -1,0 +1,39 @@
+Hi!
+
+I have a need for reading streaming of parquet files with `data` json string column, and write the data as structured delta table.
+Problem is, every here and there, I get records or even files with incompatible schema to the destination delta table.
+Is there a way of specifying destination of where to put these invalid rows, similar to:
+`.option("badRecordsPath", "/foo/badRecordsPath")` 
+
+This is my current code, that fails because of 
+
+> pyspark.sql.utils.AnalysisException: Failed to merge fields 'details' and 'details'. Failed to merge fields 'message' and 'message'. Failed to merge incompatible data types StringType and StructType(...
+
+```
+def write_df_to_delta(df, epoch_id):
+  parsed_df = (
+    spark.read
+    .json(
+      df.select("data")
+      .rdd.map(lambda row: row.data)
+    )  
+  )
+  
+  (parsed_df
+   .write
+   .format('delta')
+   .mode('append')
+   .option("mergeSchema", "true")
+   .partitionBy('tenantId', 'date')
+   .save('/foo/auditing_delta')
+  )
+  
+(
+  parquet_stream
+  .writeStream
+  .option("checkpointLocation", CHECKPOINT_LOCATION)
+  .foreachBatch(write_df_to_delta)
+  .trigger(processingTime='60 seconds')
+  .start()
+)
+```

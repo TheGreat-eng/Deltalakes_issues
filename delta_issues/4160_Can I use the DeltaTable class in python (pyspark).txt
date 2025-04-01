@@ -1,0 +1,6 @@
+Hi, I am a freshman in delta.io/spark. I would like to use DeltaTable class in python (pyspark) script. 
+I found solutions for java/scala in delta.io docs (https://docs.delta.io/latest/quick-start.html#conditional-update-without-overwrite). 
+Is it possible to use DeltaTable in python to update table?
+Regards,
+
+Michael

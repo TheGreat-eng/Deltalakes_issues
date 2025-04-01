@@ -1,0 +1,19 @@
+## Feature request
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the issue title
+For example: [Feature Request][Spark] Title of my issue
+-->
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [X] Kernel
+- [ ] Other (fill in here)
+
+### Overview
+
+All of our `DataType` classes provide `toJson` which serializes the type following the delta protocol schema serialization rules https://github.com/delta-io/delta/blob/master/PROTOCOL.md#schema-serialization-format. We use this method to serialize the physical and logical schemas in `ScanStateRow`.
+
+`toJson` is only tested by the 2 round-trip tests in `DefaultJsonHandlerSuite`. We should add more thorough tests for `toJson`.

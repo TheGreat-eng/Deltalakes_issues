@@ -1,0 +1,17 @@
+#### Which Delta project/connector is this regarding?
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+The PR https://github.com/apache/spark/pull/48196 deprecated the `getErrorClass` method of `SparkThrowable` and added new one `getCondition`. In the PR, I propose to migrate Delta exception onto new method `getCondition`.
+ 
+## How was this patch tested?
+By compiling and running the existing tests.
+
+## Does this PR introduce _any_ user-facing changes?
+No.

@@ -1,0 +1,15 @@
+## Description
+
+Spark 3.3.0 will add a new data type: [timestamp without time zone](https://issues.apache.org/jira/browse/SPARK-35662). It's a local timestamp without the time zone information.
+
+This PR proposes the Delta Lake protocol change to support this new type. There is no implementation yet because it's blocked by Spark 3.3.0 release.
+
+Also twist the existing doc for `timestamp` type.
+
+## How was this patch tested?
+
+There is no test since this is a protocol change.
+
+## Does this PR introduce _any_ user-facing changes?
+
+Yes. The protocol will talk about how to support Spark's new data type `timestamp without time zone`.

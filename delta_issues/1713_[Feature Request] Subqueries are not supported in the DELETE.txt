@@ -1,0 +1,25 @@
+## Feature request
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the issue title
+For example: [Feature Request][Spark] Title of my issue
+-->
+
+- [x] Spark 3.5.0
+- [x] Hadoop 3.3.6
+- [x] Hive 3.1.3
+- [x] Delta Lake 3.0.0
+
+### Overview
+
+I want to create a MOR Delta Table. The main feature of MOR tables is `deletion_vector` files. And they are generated only when we explicitly delete rows using `DELETE FROM` query. 
+I use `MERGE INTO` query to merge the incrementals into my base table. It also includes `WHEN NOT MATCHED THEN DELETE`. But it doesn't generate `deletion_vector` files as it is not a direct `DELETE FROM` query.
+So, I tried using `DELETE FROM WHERE <>` , but got an error saying: 
+`[DELTA_UNSUPPORTED_SUBQUERY] Subqueries are not supported in the DELETE`.
+
+### Motivation
+
+So, people who want to build a MOR Delta Table will benefit from this. Because if a dataset is large enough and we generally include the DELETE in the MERGE INTO query itself. If that doesn't generate deletion_vector files then it is difficult to use DELETE FROM as we will always have a sub-query for this.
+
+Request to add this functionality in upcoming releases. Thanks!

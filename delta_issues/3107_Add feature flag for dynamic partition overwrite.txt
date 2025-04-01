@@ -1,0 +1,7 @@
+### Changes
+
+This pull request adds a feature flag `DYNAMIC_PARTITION_OVERWRITE_ENABLED` for dynamic partition overwrite mode.
+
+### Testing
+Adds tests to `DeltaSuite` and `DeltaOptionsSuite` to check when it's disabled.
+

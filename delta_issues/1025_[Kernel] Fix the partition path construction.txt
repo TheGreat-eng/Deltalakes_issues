@@ -1,0 +1,7 @@
+## Description
+The current code does not escape the control + special characters in partition values when constructing a path for writing the data related to the partition. Not escaping these characters could cause invalid path issues. 
+
+The escaping logic is similar to what Spark and Hive do.
+
+## How was this patch tested?
+Unit tests.

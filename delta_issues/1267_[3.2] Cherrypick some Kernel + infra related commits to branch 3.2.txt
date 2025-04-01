@@ -1,0 +1,6 @@
+3a668e9917a98121c3db36883213b9680ff6812c [Kernel] Add a meta file containing the Kernel version.
+1523e071dba1b001767d7042ca6fef9fc1139acf [Kernel] Rename TableClient to Engine
+db10a33afd166b18e42ffbdb86f8d8cf022524e1 [Build] Fix Java checkstyle plugin to work with SBT upgrade
+c1018a15667b6bc07d5b42e7a329a765a7b11435 [Kernel][Infra] Fix the java checkstyle for Kernel's Meta file
+f4555f545895ac474bce01fa4f84e7795a4fb0ea [Kernel] Remove unused ExpressionHandler.isSupported(...) for now
+c8bbd5b6db29ab4607a34ffb5b5023f78fe61869 [Kernel] Refactor all user-facing exceptions to be "KernelExceptions"

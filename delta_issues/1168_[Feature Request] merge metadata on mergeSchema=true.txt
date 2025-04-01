@@ -1,0 +1,44 @@
+## Feature request
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the issue title
+For example: [Feature Request][Spark] Title of my issue
+-->
+
+- [X] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+### Overview
+
+<!-- Provide a high-level description of the feature request. -->
+
+### Motivation
+
+<!-- How will this feature be used? Why is it important? Which users will benefit from it? -->
+
+This is follow up of the #2674 . Current behavior is counterintuitive. Metadata is a part of schema and it is logical to expect that it will be merged into the current table schema
+
+### Further details
+
+<!--
+Use this section to include any additional information about the feature. If you have a proposal for how to implement this feature, please include it here. For implementation guidelines, please read our contributor guidelines: https://github.com/delta-io/delta/blob/master/CONTRIBUTING.md
+If there are any specific requirements for this feature that are not immediately obvious please outline them here.
+-->
+
+The problem is here https://github.com/delta-io/delta/blob/1609c38782f21c06fe3b24b32d0f4c97c3c2c755/spark/src/main/scala/org/apache/spark/sql/delta/schema/SchemaMergingUtils.scala#L182 . If this line will be replaced with something like 
+```scala
+current.Field.metadata ++ updateField.metadata
+```
+,  then metadata will be merged.
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [X] Yes. I can contribute this feature independently.
+- [ ] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.

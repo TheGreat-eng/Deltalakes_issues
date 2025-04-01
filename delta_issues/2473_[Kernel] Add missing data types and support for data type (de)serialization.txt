@@ -1,0 +1,7 @@
+## Description
+This PR is part of delta-io/delta#1783. It adds additional data types supported by Delta Lake protocol that were missing from the interfaces PR delta-io/delta#1808.
+
+It also adds serialization and deserailization of table schema represented as `StructType`.
+
+## How was this patch tested?
+UTs

@@ -1,0 +1,17 @@
+## Feature request
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the issue title
+For example: [Feature Request][Spark] Title of my issue
+-->
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [X] Kernel
+- [ ] Other (fill in here)
+
+### Overview
+
+#2607 adds the API `Table::getSnapshotAtVersion` and time-travel by timestamp is coming soon. We should include this API in the examples and in the user guide.

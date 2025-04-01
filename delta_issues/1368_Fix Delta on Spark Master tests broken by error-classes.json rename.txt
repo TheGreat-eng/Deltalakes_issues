@@ -1,0 +1,20 @@
+#### Which Delta project/connector is this regarding?
+- [X] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+In Apache Spark https://github.com/apache/spark/commit/c5b8e60e0d5956d9f648f77ae13a1558c99adf6b, `error-classes.json` was renamed to `error-conditions.json`.
+
+Update Delta's DeltaThrowableHelper to use the right json file when cross compiling against Spark 3.5 and Spark Master.
+
+## How was this patch tested?
+
+Existing UTs.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

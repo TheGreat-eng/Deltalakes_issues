@@ -1,0 +1,1 @@
+how to use spark sql to create a table which are a special type of columns whose values are automatically generated based on a user-specified function over other columns in the Delta table. 

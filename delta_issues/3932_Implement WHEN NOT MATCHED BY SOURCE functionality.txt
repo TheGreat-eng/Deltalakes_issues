@@ -1,0 +1,19 @@
+Currently the API of DeltaLake follows the `MERGE` behavior implemented in multiple SQL engines. This behavior does not expose a method for deleting records from the target that no longer exist in the source. [Microsoft SQL Server](https://docs.microsoft.com/en-us/sql/t-sql/statements/merge-transact-sql?view=sql-server-ver15) adds a more advanced `MERGE` behavior which allows the specification of multiple `WHEN NOT MATCHED` statements specifying either `SOURCE` or `TARGET`.
+
+```sql
+MERGE
+    [ TOP ( expression ) [ PERCENT ] ]
+    [ INTO ] <target_table> [ WITH ( <merge_hint> ) ] [ [ AS ] table_alias ]  
+    USING <table_source>
+    ON <merge_search_condition>  
+    [ WHEN MATCHED [ AND <clause_search_condition> ]  
+        THEN <merge_matched> ] [ ...n ]  
+    [ WHEN NOT MATCHED [ BY TARGET ] [ AND <clause_search_condition> ]  
+        THEN <merge_not_matched> ]  
+    [ WHEN NOT MATCHED BY SOURCE [ AND <clause_search_condition> ]  
+        THEN <merge_matched> ] [ ...n ]  
+```
+
+DeltaLake implicitly implements the `WHEN NOT MATCHED BY TARGET` but currently does not have a way of specifying `WHEN NOT MATCHED BY SOURCE`. This PR implements the `WHEN NOT MATCHED BY SOURCE` capability whilst retaining the existing `whenNotMatched` API. This means all existing code remains unchanged.
+
+In doing so the logic for identifying files to be rewritten has been updated as previously all files impacted by the `join condition` were rewritten whether the data changed or not. This PR changes that behavior to only rewrite files actually changed by the `MERGE` statement which means much less data is rewritten if a dataset is only changing by a small number of rows each `MERGE` which is beneficial to both runtime and disk usage. The use case for this is applying table snapshots as incoming `SOURCE` record sets to a target existing table 'delta' snapshot and only writing the changes - giving a way to efficiently time travel through table versions over time without consuming disk for unchanged data.

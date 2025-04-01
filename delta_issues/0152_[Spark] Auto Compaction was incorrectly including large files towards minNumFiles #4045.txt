@@ -1,0 +1,23 @@
+#### Which Delta project/connector is this regarding?
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+- If DELTA_AUTO_COMPACT_MIN_FILE_SIZE was unset, it was defaulting to Long.MaxValue which resulted in large files counting torwards the minNumFiles threshold for AC to be triggered. This resulted in compaction running more frequently up to the point of running after every write as a table grows in size.
+![image](https://github.com/user-attachments/assets/0e3de6f4-48f5-4d83-b061-c12ec9a76fa0)
+The below is the expected behavior on the same test suite as produced by Databricks: 
+![image](https://github.com/user-attachments/assets/055d432a-8cd5-42fb-9819-cbe6a7bcf89a)
+
+- AC eval criteria incorrectly didn't always require enough small files and would trigger AC if AC wasn't run as part of the last operation. AC should only evaluate as `shouldCompact` if compaction last not just run AND there are enough small files.
+ 
+Resolves #4045  See issue for more details.
+
+## How was this patch tested?
+- AutoCompactSuite.scala was updated to add more robust coverage to ensure large files don't trigger AC.
+- I separately ran a test suite which runs 200 iterations of merging data into a Delta table and monitors for AC being triggered to ensure that compaction is running based on having small files >= minNumFiles. I also ran this same test suite in Databricks to ensure that the behavior matches.
+
+## Does this PR introduce _any_ user-facing changes?
+No.

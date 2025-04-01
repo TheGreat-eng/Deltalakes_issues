@@ -1,0 +1,3 @@
+Reverts delta-io/delta#3517
+
+Seems to have caused Delta-Spark Master (against spark master) test failures https://github.com/delta-io/delta/actions/runs/10373348510/job/28718248898

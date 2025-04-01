@@ -1,0 +1,5 @@
+Resolves #837 
+
+Adds a config that sets the maximum number of actions to include in a single file of a multipart checkpoint. If the total actions of a snapshot is larger than this, the checkpoint will be split up into multiple parts.
+
+It is disabled by default so the behavior is purely opt-in, as most users probably don't know about actions or how to set this value. In the future it could be set to some sane default value if there's some consensus on what it should be.

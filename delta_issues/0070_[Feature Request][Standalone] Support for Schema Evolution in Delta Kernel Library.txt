@@ -1,0 +1,33 @@
+## Feature request
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the issue title
+For example: [Feature Request][Spark] Title of my issue
+-->
+
+- [ ] Spark
+- [x] Standalone
+- [ ] Flink
+- [x] Kernel
+- [ ] Other (fill in here)
+
+### Overview
+
+I have been working with the Delta Standalone/Kernel library (e.g., io.delta:delta-kernel) in Java to produce OTF files and noticed the lack of support for schema evolution and writing operations that would allow for schema overrides directly within the library itself. Most examples and documentation seem to focus on using Spark for these tasks.
+
+### Motivation
+
+Adding support for schema evolution and writing operations directly within the Delta Standalone/Kernel library would be beneficial for users who prefer or need to use Java without Spark. This feature would enhance the flexibility and usability of the Delta Kernel library, allowing for more robust data management and evolution capabilities.
+
+### Further details
+
+I am specifically looking for guidance or examples on how to achieve schema evolution and writing operations directly with the Delta Kernel library in Java. This would involve support for schema overrides and updates to accommodate new data structures.
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [ ] Yes. I can contribute this feature independently.
+- [ ] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [x] No. I cannot contribute this feature at this time.

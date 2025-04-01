@@ -1,0 +1,9 @@
+Hello team,
+
+I'm the maintainer of [Anteon](https://github.com/getanteon/anteon). We have created Gurubase.io with the mission of building a centralized, open-source tool-focused knowledge base. Essentially, each "guru" is equipped with custom knowledge to answer user questions based on collected data related to that tool.
+
+I wanted to update you that I've manually added the [Delta Lake Guru](https://gurubase.io/g/delta-lake) to Gurubase. Delta Lake Guru uses the data from this repo and data from the [docs](https://docs.delta.io) to answer questions by leveraging the LLM.
+
+In this PR, I showcased the "Delta Lake Guru", which highlights that Delta Lake now has an AI assistant available to help users with their questions. Please let me know your thoughts on this contribution.
+
+Additionally, if you want me to disable Delta Lake Guru in Gurubase, just let me know that's totally fine.

@@ -1,0 +1,1 @@
+@dennyglee and I made a couple of edits to the version of CONTRIBUTING.md on the new version of the website. This PR reflects those edits and it also adds delta-charter.pdf to the repo which is the correct place for the charter.

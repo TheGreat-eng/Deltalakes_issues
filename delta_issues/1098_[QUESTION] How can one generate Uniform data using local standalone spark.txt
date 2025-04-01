@@ -1,0 +1,92 @@
+## Question
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the issue title
+For example: [BUG][Spark] Title of my issue
+-->
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [x] Other (Uniform)
+
+### Describe the problem
+How can one use Uniform from a local standalone spark runtime? The docs state that Uniform requires HMS but should otherwise work. However I can't seem to find the incantation required to get the iceberg metadata to write without failing. Apologies if this is not the correct forum for such questions! Please feel free to direct me elsewhere if that's the case. Thanks very much!
+
+#### Steps to reproduce
+```scala
+// build.sbt dependencies:
+ Seq(
+  "org.apache.spark" %% "spark-core",
+  "org.apache.spark" %% "spark-sql",
+  "org.apache.spark" %% "spark-hive"
+).map(_ % "3.5.0") ++ Seq(
+  "io.delta" %% "delta-spark"   % "3.2.0",
+  "io.delta" %% "delta-iceberg" % "3.2.0"
+)
+```
+
+```scala
+val spark = SparkSession
+      .builder()
+      .master("local[*]")
+      .config("spark.sql.catalog.spark_catalog", "org.apache.spark.sql.delta.catalog.DeltaCatalog")
+      .config("spark.sql.catalog.spark_catalog.type", "hadoop")
+      .config("spark.sql.extensions", "io.delta.sql.DeltaSparkSessionExtension")
+      .enableHiveSupport()
+      .getOrCreate()
+
+Seq((1, "a"))
+  .toDF("a", "b")
+  .write.format("delta")
+  .option("delta.enableIcebergCompatV2", "true")
+  .option("delta.universalFormat.enabledFormats", "iceberg")
+  .option("delta.enableDeletionVectors", false)
+  .saveAsTable("spark_catalog.default.test")
+```
+
+
+#### Observed results
+Blows up with:
+```
+15:09:47.086 [        pool-616-thread-1] ERROR          org.apache.spark.util.Utils - Aborting task
+org.apache.hadoop.hive.metastore.api.MetaException: Unable to update transaction database java.sql.SQLSyntaxErrorException: Table/View 'NEXT_LOCK_ID' does not exist.
+	at org.apache.derby.impl.jdbc.SQLExceptionFactory.getSQLException(Unknown Source)
+	at org.apache.derby.impl.jdbc.Util.generateCsSQLException(Unknown Source)
+	at org.apache.derby.impl.jdbc.TransactionResourceImpl.wrapInSQLException(Unknown Source)
+	at org.apache.derby.impl.jdbc.TransactionResourceImpl.handleException(Unknown Source)
+...
+Caused by: ERROR 42X05: Table/View 'NEXT_LOCK_ID' does not exist.
+	at org.apache.derby.iapi.error.StandardException.newException(Unknown Source)
+	at org.apache.derby.iapi.error.StandardException.newException(Unknown Source)
+...
+15:09:47.073 [        pool-616-thread-1] ERROR org.apache.spark.sql.delta.icebergShaded.IcebergConverter - Error when converting to Iceberg metadata
+org.apache.hadoop.hive.metastore.api.MetaException: Unable to update transaction database java.sql.SQLSyntaxErrorException: Table/View 'NEXT_LOCK_ID' does not exist.
+	at org.apache.derby.impl.jdbc.SQLExceptionFactory.getSQLException(Unknown Source)
+	at org.apache.derby.impl.jdbc.Util.generateCsSQLException(Unknown Source)
+
+```
+
+#### Expected results
+
+Table generated with delta & iceberg metadata 
+
+#### Further details
+Does delta Uniform not play with with Derby similar to Iceberg? https://github.com/apache/iceberg/issues/8277#issuecomment-1680875724 & https://github.com/apache/iceberg/issues/7847? Are there other dependencies that are missing e.g. `"org.apache.iceberg" %% "iceberg-spark-runtime-3.5" % "1.5.2"`?
+
+
+### Environment information
+
+* Delta Lake version: 3.2.0 & 3.1.0
+* Spark version: 3.5.0
+* Scala version: 2.12.19
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [x] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute a bug fix at this time.

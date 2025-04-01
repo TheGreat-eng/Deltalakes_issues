@@ -1,0 +1,4 @@
+I have a table which have billions of rows, and partitioned to 4000 partitions, and the jobs may run merge operations on each partition at same time. If I have enough workers machines, 
+
+1. Will the merge operation in different partition block each other?
+2. Does Vacuum operation run automatically or I need to run manually?

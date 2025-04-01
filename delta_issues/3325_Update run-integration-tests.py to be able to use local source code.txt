@@ -1,0 +1,4 @@
+Right now `run-integration-tests.py` can only be run with a released, or staged version. This PR adds a flag `--use-local` that allows us to run the integration tests for any local version.
+
+`--use-local` uses `build/sbt publishLocal` to package the local source code before running the tests.
+

@@ -1,0 +1,15 @@
+## Description
+
+The current implementation of `S3SingleDriverLogStore.listFrom` lists the entire content of the parent directory and filters the result. This can take a long time if the parent directory contains a lot of files. In practice, this can happen for _delta_log folders with a lot of commits.
+
+We change the implementation to use the [startAfter](https://sdk.amazonaws.com/java/api/latest/software/amazon/awssdk/services/s3/model/ListObjectsV2Request.html#startAfter--) parameter such that we only get keys lexicographically greater or equal than the resolved path in the S3 list response. This will usually reduce the number of S3 list requests from `size of _delta_log / 1000` to 1.
+
+This resolves #[1191](https://github.com/delta-io/delta/issues/1191).
+
+## How was this patch tested?
+
+I've tested the patch briefly with the sample test described in #[1191](https://github.com/delta-io/delta/issues/1191). The [previous iteration of this patch](https://github.com/jkylling/delta/commit/ec998ee9bc62b65c0f4be5ae8f38a5c5753b443c) has been tested a bit more. Correctness has not been tested thoroughly.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

@@ -1,0 +1,21 @@
+#### Which Delta project/connector is this regarding?
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [x] Other (Storage)
+
+## Description
+This is a simple cleanup PR for improving documentation of getCoordinatorName
+
+1. Return an Optional<String> to indicate the method may return null if no coordinator is set
+2. Rename the method from getCoordinator -> getCoordinatorName
+
+## How was this patch tested?
+
+Build
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

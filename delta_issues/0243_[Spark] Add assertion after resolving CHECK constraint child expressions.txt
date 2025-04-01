@@ -1,0 +1,6 @@
+## Description
+This adds an assertion after we attempt resolution to log additional information. The assertion will fail in testing mode but only emit an event outside of testing. This can later be turned into an actual exception if the data collected shows it's the right thing to do.
+
+## How was this patch tested?
+N/A, logging only
+

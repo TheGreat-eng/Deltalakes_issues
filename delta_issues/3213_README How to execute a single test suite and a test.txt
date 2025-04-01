@@ -1,0 +1,1 @@
+Add two more sample sbt command lines to show how to execute a single test suite as well as a single test (within a test suite). I consider it very helpful for new contributors (and I found it helpful myself too as I seem to have googled these commands all the time).

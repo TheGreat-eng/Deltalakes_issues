@@ -1,0 +1,13 @@
+## Description
+Currently, Kernel doesn't allow setting arbitrary table properties other than the `delta.*` properties that Kernel understands. We have valid use cases where we need to allow storing properties with arbitrary key names.
+
+As part of this, we also don't want to set any `delta.*` properties that Kernel doesn't understand or supports yet.
+
+## How was this patch tested?
+UTs
+
+## Does this PR introduce _any_ user-facing changes?
+Now the connectors can property with any name.
+
+
+Resolves #3149

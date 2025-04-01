@@ -1,0 +1,10 @@
+Resolves [#954](https://github.com/delta-io/delta/issues/954)
+
+## Description
+- `DelegatingLogStore.scala` now, by default, uses the `io.delta.storage` Java `LogStore` implementations. At runtime, each of these implementations is then wrapped inside of a `LogStoreAdapter` to be used as a `LogStore.scala` throughout the delta code base.
+
+## How was this patch tested?
+
+Updated existing unit tests. We test setting the scheme for both the default (java) LogStores, as well as the previous scala LogStores.
+
+Thus, if a user specifies a Scala LogStore for a given scheme, that will continue to work.

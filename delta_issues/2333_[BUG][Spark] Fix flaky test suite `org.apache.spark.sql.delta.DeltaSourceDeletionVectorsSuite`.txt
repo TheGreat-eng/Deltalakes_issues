@@ -1,0 +1,27 @@
+## Bug
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the issue title
+For example: [BUG][Spark] Title of my issue
+-->
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+### Describe the problem
+
+Failed test `subsequent DML commands are processed correctly in a batch - INSERT->UPDATE - List((ignoreChanges,true)) *** FAILED ***`
+
+CI runs: https://github.com/delta-io/delta/actions/runs/5835475304/job/15827113787, https://github.com/delta-io/delta/actions/runs/5868780845/job/15912353282?pr=1950
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [ ] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [x] No. I cannot contribute a bug fix at this time.

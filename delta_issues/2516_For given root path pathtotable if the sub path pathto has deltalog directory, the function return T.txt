@@ -1,0 +1,36 @@
+## Bug
+For given root path: "/path/to/table"  if the sub path "/path/to" has deltalog directory, the function return True
+
+### Describe the problem
+ I am using isDeltaTable method (Delta version 2.0.0) in my Jupyter notebook and have weird behavior with this code:
+DeltaTable.isDeltaTable(spark, "/path/to/table")
+For given root path: "/path/to/table"  if the sub path "/path/to" has deltalog directory, the function return True.
+![image](https://github.com/delta-io/delta/assets/45856254/1c3b07cd-6451-45a5-afbd-f1edc8c5fc29)
+
+The Documentation the provided is:
+"classmethod isDeltaTable(sparkSession: pyspark.sql.session.SparkSession, identifier: str) → bool
+Check if the provided identifier string, in this case a file path, is the root of a Delta table using the given SparkSession."
+(https://docs.delta.io/latest/api/python/index.html)
+So the question is : if the root the I provided path don't contains Delta table ,
+ but the sub-root path has delta table and 'isDeltaTable' returns True - is this not a bug? or am I missing something?
+
+
+#### Expected results
+For given root path  isDeltaTable will return True if there is Delta table only in at the root path, 
+and False otherwise(even if in the sub-path there is delta log)
+
+
+
+### Environment information
+
+* Delta Lake version: 2.0.0
+* Spark version:3.2
+* Scala version:2.12
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [X] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute a bug fix at this time.

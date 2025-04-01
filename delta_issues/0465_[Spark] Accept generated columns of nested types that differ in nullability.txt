@@ -1,0 +1,34 @@
+<!--
+Thanks for sending a pull request!  Here are some tips for you:
+  1. If this is your first time, please read our contributor guidelines: https://github.com/delta-io/delta/blob/master/CONTRIBUTING.md
+  2. If the PR is unfinished, add '[WIP]' in your PR title, e.g., '[WIP] Your PR title ...'.
+  3. Be sure to keep the PR description updated to reflect all changes.
+  4. Please write your PR title to summarize what this PR proposes.
+  5. If possible, provide a concise example to reproduce the issue for a faster review.
+  6. If applicable, include the corresponding issue number in the PR title and link it in the body.
+-->
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+- Changes the behaviour of generated columns over nested types to allow nullability mismatches like we do for top-level types by switching exact data type equal to using `equalsIgnoreNullability` instead.
+- Additionally, improve the error message in the case where the SQL string is identical (which hopefully shouldn't happen anymore after this, but just in case this comes up again later).
+
+## How was this patch tested?
+
+- Added new tests for various type (mis-) matches.
+
+## Does this PR introduce _any_ user-facing changes?
+
+Yes: Generated columns now allow the type of the column definition to differ by nullability from the type of the generating expression, even when the type is a nested type.

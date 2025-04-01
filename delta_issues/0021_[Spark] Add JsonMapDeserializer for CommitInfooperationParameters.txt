@@ -1,0 +1,39 @@
+#### Which Delta project/connector is this regarding?
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+
+This PR fixes an old deserialization issue in CommitInfo's operationParameters field. When deserializing, JSON strings were stored without proper escaping, causing problems during reserialization:
+
+First Serialization:
+```
+"operationParameters": {
+  "mode": "Append",
+  "statsOnLoad": false,
+  "partitionBy": "[]"
+}
+```
+
+Reserialization after deserialization:
+```
+"operationParameters": {
+  "mode": Append,
+  "statsOnLoad": false,
+  "partitionBy": []
+}
+```
+
+`DESCRIBE HISTORY` was however relying on the old behavior. We fix it by adding a `prettyOperationParameters` method to CommitInfo which makes it a neutral change for `DESCRIBE HISTORY`
+
+## How was this patch tested?
+
+UTs
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

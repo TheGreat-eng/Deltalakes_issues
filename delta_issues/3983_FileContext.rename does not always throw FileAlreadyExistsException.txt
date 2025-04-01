@@ -1,0 +1,10 @@
+FileSystem.rename(HDFSLogStore) can also throw IOException when the destination File already exists:
+https://github.com/apache/hadoop/blob/trunk/hadoop-common-project/hadoop-common/src/main/java/org/apache/hadoop/fs/FileSystem.java#L1594 
+
+So we can not handle this when in OptimisticTransaction.doCommit to checkAndRetry
+https://github.com/delta-io/delta/blob/778cc6923bb3985122062f7ce4af4cd58a15f849/src/main/scala/org/apache/spark/sql/delta/OptimisticTransaction.scala#L397
+
+We should use the same logic in HadoopFileSystemLogStore.writeWithRename
+https://github.com/delta-io/delta/blob/778cc6923bb3985122062f7ce4af4cd58a15f849/src/main/scala/org/apache/spark/sql/delta/storage/HadoopFileSystemLogStore.scala#L103-L107
+
+If I missing something, please correct me, thanks!

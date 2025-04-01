@@ -1,0 +1,56 @@
+<!--
+Thanks for sending a pull request!  Here are some tips for you:
+  1. If this is your first time, please read our contributor guidelines: https://github.com/delta-io/delta/blob/master/CONTRIBUTING.md
+  2. If the PR is unfinished, add '[WIP]' in your PR title, e.g., '[WIP] Your PR title ...'.
+  3. Be sure to keep the PR description updated to reflect all changes.
+  4. Please write your PR title to summarize what this PR proposes.
+  5. If possible, provide a concise example to reproduce the issue for a faster review.
+  6. If applicable, include the corresponding issue number in the PR title and link it in the body.
+-->
+
+## Description
+
+This PR addresses a potential data loss when using the external-log-store mechanism.
+The vulnerability is based on the fact that delta_log version is determined at the beginning of the `DataFrameWriter.save()` function,
+prior to the part in which the dataset is written to parquet files.
+Since this action might take long (due to sparks laziness), 
+there is a need to validate that `N.json` wasn't added to the filesystem (and deleted from the external log-store by the ttl) during that time. 
+The validation should occur as close as possible to locking `N.json` in the external log-store.
+
+"Resolves #1410"- and extensively explained there.
+
+<!--
+- Describe what this PR changes.
+- Describe why we need the change.
+ 
+If this PR resolves an issue be sure to include "Resolves #XXX" to correctly link and close the issue upon merge.
+-->
+## How was this patch tested?
+Unit tests were added
+<!--
+If tests were added, say they were added here. Please make sure to test the changes thoroughly including negative and positive cases if possible.
+If the changes were tested in any way other than unit tests, please clarify how you tested step by step (ideally copy and paste-able, so that other reviewers can test and check, and descendants can verify in the future).
+If the changes were not tested, please explain why.
+-->
+
+## Does this PR introduce _any_ user-facing changes?
+ No
+<!--
+If yes, please clarify the previous behavior and the change this PR proposes - provide the console output, description and/or an example to show the behavior difference if possible.
+If possible, please also clarify if this is a user-facing change compared to the released Delta Lake versions or within the unreleased branches such as master.
+If no, write 'No'.
+-->
+
+## Extra
+Even after this fix, the ttl suggested [here](https://docs.delta.io/latest/delta-storage.html#production-configuration-s3-multi-cluster:~:text=Run%20the%20following%20command%20on%20your%20given%20DynamoDB%20table%20to%20enable%20TTL) might lead to data loss.
+Since it has no suspension - a record might be deleted immediately after committed,
+This scenario might occur:
+1. writer **A** checks if `N.json` is in filesystem and it isn't.
+2.  writer **B** locks `N.json` in external log-store.
+3. writer **B** saves `N.json` to filesystems delta_log.
+4. writer **B** commits `N.json` in external log-store.
+5. `N.json` is deleted from external log-store by ttl.
+6. writer **A** locks `N.json` in external log-store (and succeeds).
+7. writer **A** saves `N.json` to filesystems delta_log and overwrites writer **B**'s log file.
+
+The above scenario is very unlikely, but in order to stay 100% safe, a ttl with suspension can be considered.

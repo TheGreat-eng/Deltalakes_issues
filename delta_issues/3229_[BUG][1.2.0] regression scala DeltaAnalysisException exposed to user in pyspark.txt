@@ -1,0 +1,62 @@
+## Bug
+
+### Describe the problem
+
+In `1.2.0` we introduced [DeltaSharedExceptions](https://github.com/delta-io/delta/blob/master/core/src/main/scala/org/apache/spark/sql/delta/DeltaSharedExceptions.scala), and replaced `org.apache.spark.sql.AnalysisException`s with `DeltaAnalysisException`. However, Spark 3.2 [doesn't capture](https://github.com/apache/spark/blob/branch-3.2/python/pyspark/sql/utils.py#L85) these Scala exceptions in pyspark as it does for `AnalysisException`s. This is [fixed](https://github.com/apache/spark/blob/master/python/pyspark/sql/utils.py#L156) for Spark 3.3 and master. So instead we see the weird java error shown below.
+
+#### Steps to reproduce
+
+See #1081
+
+#### Observed results
+
+```
+py4j.protocol.Py4JJavaError: An error occurred while calling o41.load.
+: org.apache.spark.sql.delta.DeltaAnalysisException: `/tmp/table_exists` is not a Delta table.
+	at org.apache.spark.sql.delta.DeltaErrors$.notADeltaTableException(DeltaErrors.scala:281)
+	at org.apache.spark.sql.delta.catalog.DeltaTableV2.toBaseRelation(DeltaTableV2.scala:169)
+	at org.apache.spark.sql.delta.sources.DeltaDataSource.$anonfun$createRelation$4(DeltaDataSource.scala:187)
+	at org.apache.spark.sql.delta.metering.DeltaLogging.recordFrameProfile(DeltaLogging.scala:120)
+	at org.apache.spark.sql.delta.metering.DeltaLogging.recordFrameProfile$(DeltaLogging.scala:118)
+	at org.apache.spark.sql.delta.sources.DeltaDataSource.recordFrameProfile(DeltaDataSource.scala:50)
+	at org.apache.spark.sql.delta.sources.DeltaDataSource.createRelation(DeltaDataSource.scala:164)
+	at org.apache.spark.sql.execution.datasources.DataSource.resolveRelation(DataSource.scala:350)
+	at org.apache.spark.sql.DataFrameReader.loadV1Source(DataFrameReader.scala:274)
+	at org.apache.spark.sql.DataFrameReader.$anonfun$load$1(DataFrameReader.scala:243)
+	at scala.Option.map(Option.scala:230)
+	at org.apache.spark.sql.DataFrameReader.load(DataFrameReader.scala:210)
+	at org.apache.spark.sql.DataFrameReader.load(DataFrameReader.scala:188)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at py4j.reflection.MethodInvoker.invoke(MethodInvoker.java:244)
+	at py4j.reflection.ReflectionEngine.invoke(ReflectionEngine.java:357)
+	at py4j.Gateway.invoke(Gateway.java:282)
+	at py4j.commands.AbstractCommand.invokeMethod(AbstractCommand.java:132)
+	at py4j.commands.CallCommand.execute(CallCommand.java:79)
+	at py4j.ClientServerConnection.waitForCommands(ClientServerConnection.java:182)
+	at py4j.ClientServerConnection.run(ClientServerConnection.java:106)
+	at java.lang.Thread.run(Thread.java:748)
+```
+
+#### Expected results
+
+We should see a `org.apache.spark.sql.AnalysisException` _python_ exception.
+
+Run with 1.1.0 we see...
+```
+pyspark.sql.utils.AnalysisException: `/tmp/table_exists` is not a Delta table.
+```
+
+#### Further details
+
+<!--
+Include any additional details that may be useful for diagnosing the problem here. If including tracebacks, please include the full traceback. Large logs and files should be attached.
+-->
+
+### Environment information
+
+* Delta Lake version: 1.2.0
+* Spark version: 3.2
+* Scala version: 2.12

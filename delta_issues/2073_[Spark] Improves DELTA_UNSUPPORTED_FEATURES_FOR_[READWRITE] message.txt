@@ -1,0 +1,26 @@
+#### Which Delta project/connector is this regarding?
+- [X] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+Improves DELTA_UNSUPPORTED_FEATURES_FOR_READ and DELTA_UNSUPPORTED_FEATURES_FOR_WRITE error message by adding the table path/name and Delta version. Follow up of #2118
+ 
+Resolves #2215
+
+@ryan-johnson-databricks
+
+Example of error message:
+
+> org.apache.spark.sql.delta.DeltaUnsupportedTableFeatureException: [DELTA_UNSUPPORTED_FEATURES_FOR_READ] Unsupported Delta read feature: table "file:/tmp/spark-4fd41aee" requires reader table feature(s) that are unsupported by Delta Lake "3.1.0-SNAPSHOT": NonExistingReaderFeature1, NonExistingReaderFeature2.
+
+## How was this patch tested?
+
+Unit Tests
+
+## Does this PR introduce _any_ user-facing changes?
+
+Yes, the error message is improved.

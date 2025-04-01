@@ -1,0 +1,8 @@
+## Description
+Adds support for writing data into tables with column mapping (id/name) enabled. 
+
+PR #3393 adds support for updating metadata. This PR completes writing data with appropriate physical names/field ids into the Parquet data files.
+
+
+## How was this patch tested?
+Repeat the existing write test suite with column mapping mode (id/name) enabled. This avoids test code repeat. TODO: Some cleanup needs to be done here. I will push the updates.

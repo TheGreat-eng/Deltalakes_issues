@@ -1,0 +1,31 @@
+My data which is by default partitioned on two columns. After merge operation too many small part files are generated causing the above issue. Tried adding `spark.delta.merge.repartitionBeforeWrite=true` and `spark.databricks.optimizer.dynamicPartitionPruning=true` to my spark conf, still getting the same issue. 
+Error logs:
+
+```
+Caused by: org.apache.spark.SparkException: Job aborted due to stage failure: Task 40 in stage 42.0 failed 4 times, most recent failure: Lost task 40.3 in stage 42.0 (TID 35715, ip-10-4-136-250.ec2.internal, executor 111): org.apache.spark.SparkException: Task failed while writing rows.
+  at org.apache.spark.sql.execution.datasources.FileFormatWriter$.org$apache$spark$sql$execution$datasources$FileFormatWriter$$executeTask(FileFormatWriter.scala:257)
+  at org.apache.spark.sql.execution.datasources.FileFormatWriter$$anonfun$write$1.apply(FileFormatWriter.scala:170)
+  at org.apache.spark.sql.execution.datasources.FileFormatWriter$$anonfun$write$1.apply(FileFormatWriter.scala:169)
+  at org.apache.spark.scheduler.ResultTask.runTask(ResultTask.scala:90)
+  at org.apache.spark.scheduler.Task.run(Task.scala:123)
+  at org.apache.spark.executor.Executor$TaskRunner$$anonfun$10.apply(Executor.scala:408)
+  at org.apache.spark.util.Utils$.tryWithSafeFinally(Utils.scala:1405)
+  at org.apache.spark.executor.Executor$TaskRunner.run(Executor.scala:414)
+  at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
+  at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+  at java.lang.Thread.run(Thread.java:748)
+Caused by: com.amazon.ws.emr.hadoop.fs.shaded.com.amazonaws.services.s3.model.AmazonS3Exception: Slow Down (Service: Amazon S3; Status Code: 503; Error Code: 503 Slow Down; Request ID: B0A9E0F930E16BC4; S3 Extended Request ID: XCNevUt8NZA3t2KkXSLWmAeHHv+Vs3+IO+DdvRSahzJjTTxRH/8Yv/pTbjy1Q68rrs2AbJjM4sc=), S3 Extended Request ID: XCNevUt8NZA3t2KkXSLWmAeHHv+Vs3+IO+DdvRSahzJjTTxRH/8Yv/pTbjy1Q68rrs2AbJjM4sc=
+  at com.amazon.ws.emr.hadoop.fs.shaded.com.amazonaws.http.AmazonHttpClient$RequestExecutor.handleErrorResponse(AmazonHttpClient.java:1742)
+  at com.amazon.ws.emr.hadoop.fs.shaded.com.amazonaws.http.AmazonHttpClient$RequestExecutor.handleServiceErrorResponse(AmazonHttpClient.java:1371)
+  at com.amazon.ws.emr.hadoop.fs.shaded.com.amazonaws.http.AmazonHttpClient$RequestExecutor.executeOneRequest(AmazonHttpClient.java:1347)
+  at com.amazon.ws.emr.hadoop.fs.shaded.com.amazonaws.http.AmazonHttpClient$RequestExecutor.executeHelper(AmazonHttpClient.java:1127)
+  at com.amazon.ws.emr.hadoop.fs.shaded.com.amazonaws.http.AmazonHttpClient$RequestExecutor.doExecute(AmazonHttpClient.java:784)
+  at com.amazon.ws.emr.hadoop.fs.shaded.com.amazonaws.http.AmazonHttpClient$RequestExecutor.executeWithTimer(AmazonHttpClient.java:752)
+  at com.amazon.ws.emr.hadoop.fs.shaded.com.amazonaws.http.AmazonHttpClient$RequestExecutor.execute(AmazonHttpClient.java:726)
+  at com.amazon.ws.emr.hadoop.fs.shaded.com.amazonaws.http.AmazonHttpClient$RequestExecutor.access$500(AmazonHttpClient.java:686)
+  at com.amazon.ws.emr.hadoop.fs.shaded.com.amazonaws.http.AmazonHttpClient$RequestExecutionBuilderImpl.execute(AmazonHttpClient.java:668)
+  at com.amazon.ws.emr.hadoop.fs.shaded.com.amazonaws.http.AmazonHttpClient.execute(AmazonHttpClient.java:532)
+  at com.amazon.ws.emr.hadoop.fs.shaded.com.amazonaws.http.AmazonHttpClient.execute(AmazonHttpClient.java:512)
+  at com.amazon.ws.emr.hadoop.fs.shaded.com.amazonaws.services.s3.AmazonS3Client.invoke(AmazonS3Client.java:5052)
+  at com.amazon.ws.emr.hadoop.fs.shaded.com.amazonaws.services.s3.AmazonS3Client.invoke(AmazonS3Client.java:4998)
+```

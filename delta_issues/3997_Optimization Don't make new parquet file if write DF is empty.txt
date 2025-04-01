@@ -1,0 +1,5 @@
+Right now, if you try to append or overwrite a Delta table with an empty `DataFrame`, Delta will write a 0-row Parquet file to disk and include it as an "add" on the transaction log.  This 0-row file isn't helpful and just bloats the directory and transaction log.
+
+This PR changes `WriteIntoDelta.scala` to not write any new files if `data` has no rows.
+
+cc: @rapoth @suhsteve @imback82 

@@ -1,0 +1,2 @@
+This tracks the ongoing work and discussions for building the Scala/Java APIs for SQL UPDATE Delta Lake tables.
+

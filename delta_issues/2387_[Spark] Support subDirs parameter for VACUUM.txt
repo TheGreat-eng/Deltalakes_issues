@@ -1,0 +1,49 @@
+<!--
+Thanks for sending a pull request!  Here are some tips for you:
+  1. If this is your first time, please read our contributor guidelines: https://github.com/delta-io/delta/blob/master/CONTRIBUTING.md
+  2. If the PR is unfinished, add '[WIP]' in your PR title, e.g., '[WIP] Your PR title ...'.
+  3. Be sure to keep the PR description updated to reflect all changes.
+  4. Please write your PR title to summarize what this PR proposes.
+  5. If possible, provide a concise example to reproduce the issue for a faster review.
+  6. If applicable, include the corresponding issue number in the PR title and link it in the body.
+-->
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+<!--
+- Describe what this PR changes.
+- Describe why we need the change.
+ 
+If this PR resolves an issue be sure to include "Resolves #XXX" to correctly link and close the issue upon merge.
+-->
+
+Support subDirs parameter for VACUUM command. Currently VACUUM command builds a list of all files under the root table location and exclude valid files from the list. This operation could cause huge storage cost when >10M of valid files under the table and need to run VACUUM frequently for few files. For now there is no way to avoid listing all files for VACUUM operation. 
+
+This PR adds `subDirs` parameter for VACUUM Scala/Python API to limit the candidate files. If subDirs parameter is given, only file paths under the directories will be considered for VACUUM.
+
+It can be beneficial for the following scenario:
+- A table maintains millions of files, keeps getting new data and needs to VACUUM frequently.
+- If a table is partitioned by date type, it's clear which partitions need to be vacuumed.
+- If there are many invalid files and a user want to run vacuum partially due to of lack of resources, etc.
+
+For WHERE clause support in #1691, we usually use the clause to "filter" files. So we have to make the whole list first for filtering. Otherwise it needs to check the predicate before stepping into each subdirectory recursively, which requires a lot of code changes. This PR could be a workaround for #1691. There was the same request #220 
+
+## How was this patch tested?
+
+Unit tests, ran in production for months
+
+## Does this PR introduce _any_ user-facing changes?
+
+Yes, support new parameter for VACUUM.

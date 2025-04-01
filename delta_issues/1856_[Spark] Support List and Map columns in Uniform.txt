@@ -1,0 +1,21 @@
+#### Which Delta project/connector is this regarding?
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+This PR adds support for List and Map columns in Uniform. To support these types, Delta column mapping needs to write additional field IDs to the parquet schema. List columns require one additional field ID for the 'element' subfield and Map columns require two additional field IDs for the 'key' and 'value' subfields inside the parquet file. These nested field IDs are added to the table schema during the generation of the IDs and physical names for column mapping. They are added to the parquet schema through a new class, DeltaParquetWriteSupport, that hooks into Spark's parquet write path and rewrites the parquet schema based on the additional field IDs.
+
+This PR is part of https://github.com/delta-io/delta/issues/2297.
+
+## How was this patch tested?
+
+Unit tests will be added soon in a separate PR.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

@@ -1,0 +1,21 @@
+#### Which Delta project/connector is this regarding?
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+This PR follows https://github.com/delta-io/delta/pull/2696 and https://github.com/delta-io/delta/pull/2719 to finally enable testing special characters in all DV tests.
+
+One test is currently failing due to a potential bug in the `OPTIMIZE` code path, which is pending investigation.
+
+## How was this patch tested?
+
+Test-only.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No.

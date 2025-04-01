@@ -1,0 +1,2 @@
+Hudi has Hudi Sync which allows sync of table metadata from transaciton logs to HMS/Glue.
+I wanted to know if there is something similar for Delta Tables?

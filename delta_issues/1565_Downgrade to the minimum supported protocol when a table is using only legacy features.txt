@@ -1,0 +1,23 @@
+#### Which Delta project/connector is this regarding?
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+When CDF is enabled on a table using `Protocol(3, 7)` without any other features, `DROP FEATURE` cannot downgrade the table protocol version to `Protocol(1, 4)`.
+
+`Protocol(1, 4).implicitlySupportedFeatures` always return a long list `Set(org.apache.spark.sql.delta.ChangeDataFeedTableFeature$@5d56d7c5, org.apache.spark.sql.delta.CheckConstraintsTableFeature$@a7c32f7, org.apache.spark.sql.delta.InvariantsTableFeature$@10898af, org.apache.spark.sql.delta.AppendOnlyTableFeature$@760cb590, org.apache.spark.sql.delta.GeneratedColumnsTableFeature$@6a08f493)` but `Protocol(3,7,None,[changeDataFeed]).implicitlySupportedFeatures` returns an empty set. The code requires `newProtocol.implicitlySupportedFeatures` must be the same as `oldProtocol.implicitlySupportedFeatures`. This check prevents downgrading to `Protocol(1, 4)`.
+
+This PR changes the check to: `newProtocol.implicitlySupportedFeatures` must be the superset of `oldProtocol.implicitlySupportedFeatures`. This will allow DROP FEATURE to downgrade the protocol further.
+
+## How was this patch tested?
+
+The new unit test.
+
+## Does this PR introduce _any_ user-facing changes?
+
+Yep. `DROP FEATURE` can downgrade the protocol further to the right minimum required protocol of CDF or other legacy features.

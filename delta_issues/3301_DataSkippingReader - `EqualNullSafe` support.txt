@@ -1,0 +1,15 @@
+Resolves  https://github.com/delta-io/delta/pull/974#discussion_r825686186
+
+Add `EqualNullSafe` support in data skipping
+
+|Expression| Behavior|
+| --- | --- |
+|`EqualNullSafe(Literal(...), a)`| this has the same behavior as `EqualNullSafe(a, Literal(...))` |
+|`Not(EqualNullSafe(Literal(...), a))`|this has the same behavior as `Not(EqualNullSafe(a, Literal(...)))`|
+|`EqualNullSafe(a, Literal(null, _))` | this will be optimized to `IsNull(a)` by rule `NullPropagation` |
+|`Not(EqualNullSafe(a, Literal(null, _)))` | this will be optimized to `Not(IsNull(a))` by rule `NullPropagation` and then optimized to `IsNotNull(a)` by rule `BooleanSimplification`|
+|`EqualNullSafe(a, NotNullLiteral(v, _))` | we will select files meeting `min <= v && max >= v` |
+|`Not(EqualNullSafe(a, NotNullLiteral(v, _)))` | we will select files meeting `min.isNull or max.isNull or nullCount.isNull or !(min === v && max === v && nullCount === 0)` |
+
+
+

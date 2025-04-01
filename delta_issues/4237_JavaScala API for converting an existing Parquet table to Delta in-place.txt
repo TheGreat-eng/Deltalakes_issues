@@ -1,0 +1,1 @@
+Tracking a new feature for converting an existing Parquet table to Delta without reading and writing the whole table to a new location. 

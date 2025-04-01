@@ -1,0 +1,17 @@
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the issue title
+For example: [Feature Request][Spark] Title of my issue
+-->
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [X] Kernel
+- [ ] Other (fill in here)
+
+### Overview
+
+We throw a `TableNotFoundException` in a couple of scenarios (empty _delta_log folder, not a delta table, etc) on snapshot creation but sometimes on table creation (invalid path). Spend a small amount of time deciding when we should throw these errors (and maybe update the error messages to be more informative).
+
+https://github.com/delta-io/delta/pull/2211#discussion_r1366515844

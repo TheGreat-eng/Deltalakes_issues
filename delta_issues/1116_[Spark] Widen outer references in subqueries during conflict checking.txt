@@ -1,0 +1,19 @@
+#### Which Delta project/connector is this regarding?
+
+- [X] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+Currently Delta conflict checker cannot handle correlated subqueries in the read predicates of the current transaction during partition-level concurrency and fails with "Cannot find column index for attribute" exceptions. This commit fixes this issue by widening all predicates that contain outer references.
+
+## How was this patch tested?
+
+Unit tests.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

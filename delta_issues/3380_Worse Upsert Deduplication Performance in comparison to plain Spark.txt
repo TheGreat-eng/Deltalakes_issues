@@ -1,0 +1,48 @@
+Hey 👋 
+
+we are currently investigating switching from "plain" spark to using your delta lake which sounds like it suits us.
+
+Our processing and current approach to deal with deduplication (not real duplicates but similar semantics) and keep the latest duplicate record is as follows:
+
+1. New data is read from json
+2. New data is processed / refined
+3. All current data is read from target location
+4. Data is deduplicated by combining current data with new data with `union`, sorting it with a window function and drop all records except the newest
+5. Deduplicated data is written to a cache
+6. Data is written to final target location
+
+By using delta lake, we can replace (4.), (5.) and (6.) with an upsert statement like this:
+```scala
+val current = "current"
+val new = "updates"
+
+    deltaTable
+      .as(current)
+      .merge(
+        newData.as(new),
+        uniqueFields.map(key => s"$current.$key = $new.$key").mkString(" AND ")
+      )
+      .whenMatched("$current.date < $new.date")
+      .updateAll()
+      .whenNotMatched()
+      .insertAll()
+      .execute()
+```
+
+This results in the expected data (so we get the same data from both pipelines). However, using delta lake with an upsert like above is about 1.5 - 2 times slower than our current approach. The `whenMatched` clause is a bit more complex but roughly speaking is the translated version of the sorting in (4.).
+
+Some more context about the environment:
+- AWS EMR 6.5.0
+- Spark 3.1.2
+- Scala 2.12
+- Delta Lake 1.0.0
+- There is a relatively small number of files on the delta lake side (above referred to as target location)
+- We have tried to disable Adaptive Query Execution (enabled is faster)
+- For broadcast join to work we have increased the size to 4GB (in)
+- Our test cluster consists of 16 execution nodes, new data is in the magnitude of 1GB and whole magnitude of 100GB with a few million records.
+
+Is it usually the case that the performance decreases because of the additional overhead? I honestly expected a negligible overhead or even a performance increase (since not all data has to be read for the upsert and afterwards copied over).
+
+Any suggestions how this can be improved or pointers on what to double check?
+
+Happy to hear from you :-)

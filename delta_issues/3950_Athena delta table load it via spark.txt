@@ -1,0 +1,6 @@
+The EMR configured to use Glue Data Catalog as external Hive metastore and lot of pyspark scripts written to query against hive meta store. We have converted few datasets to delta lake and created tables in Glue Data Catalog. We have an issue when directly querying those tables using spark API, but the same works with delta API. any way to make this work?
+
+spark.sql("SELECT * FROM mydb.mytable").show(10)
+
+Caused by: java.lang.RuntimeException: s3://my-buclet/db/schmea/deltatable/_symlink_format_manifest/manifest is not a Parquet file. expected magic number at tail [80, 65, 82, 49] but found [117, 101, 116, 10]
+

@@ -1,0 +1,22 @@
+#### Which Delta project/connector is this regarding?
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [X] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+- Make Metadata implement AbstractMetadata
+- Update kernel's AbstractMetadata to align it with delta-storage's AbstractMetadata (storage uses Long for createdTime, kerenel used Optional<Long>).
+- Update kernel's AbstractMetadata to all `@Nulalble` annotations to make it clear the expected return values.
+- Consolidate Metadata's getPartitionColumn APIs (there were two APIs, with different return types and different case-sensitivities; now there's only 1 API)
+
+## How was this patch tested?
+
+Just a refactor. Existing UTs.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No.

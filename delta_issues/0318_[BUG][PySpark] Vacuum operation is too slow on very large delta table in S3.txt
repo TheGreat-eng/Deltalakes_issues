@@ -1,0 +1,71 @@
+## Bug
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the issue title
+For example: [BUG][Spark] Title of my issue
+-->
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [X] PySpark
+
+### Describe the problem
+
+We are using Delta Lake version 2.1.0 (in a Glue 4.0 job) to write data to a Delta table in S3. However, this has resulted in many small files (~15 KB each) across 27,000 partitions, with each partition containing about 50 files. While compacting some partitions has been straightforward, the vacuum operation is taking over 6 hours, even with a G2X configuration and 40 workers since vacuum runs across all the partitions.
+
+I’ve explored the following options but need further guidance due to limited PySpark documentation:
+- **Inventory File Feature:** I couldn’t find clear PySpark documentation on how to use this.
+- **Parallel Delete Configuration:** I found the setting `spark.databricks.delta.vacuum.parallelDelete.enabled=true`, but since we’re not on Databricks, I’m unsure of the equivalent for PySpark.
+- **Vacuum Lite Operation:** I came across this option but need clarification on how to use it.
+
+We’ve recently migrated to Glue 5.0, which supports Delta Lake 3.2.1. As a result, new tables will use version 3.2.1, while older tables remain on 2.1.0. I’d appreciate suggestions for handling this scenario in both versions.
+
+#### Steps to reproduce
+
+<!--
+Please include copy-pastable code snippets if possible.
+1. _____
+2. _____
+3. _____
+-->
+
+#### Observed results
+
+delta_table.vacuum(24) taking more than 6 hours for very large delta tables with too many small files
+
+#### Expected results
+
+delta_table.vacuum(24) taking less than 15-20 minutes or option to execute vacuum only on certain partitions
+
+
+#### Further details
+
+<!--
+Include any additional details that may be useful for diagnosing the problem here. If including tracebacks, please include the full traceback. Large logs and files should be attached.
+-->
+
+### Environment information
+
+Both the environments listed below
+1 -->
+* Glue version: 4.0
+* Delta Lake version: 2.1.0
+* Spark version: 3. 3
+* Scala version: 
+
+2-->
+* Glue version: 5.0
+* Delta Lake version: 3.2.1
+* Spark version: 3.5.2
+* Scala version: 2.12.18
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [ ] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute a bug fix at this time.

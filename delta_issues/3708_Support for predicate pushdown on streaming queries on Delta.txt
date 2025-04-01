@@ -1,0 +1,3 @@
+Delta streaming source is using the Data Source V1 API which doesn't support filter push down.
+There are scenarios where multiple streaming queries may have to be run on different partitions
+of a Delta table. This feature will be very useful.

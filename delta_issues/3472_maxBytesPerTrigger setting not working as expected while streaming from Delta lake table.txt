@@ -1,0 +1,15 @@
+According to [public documentation](https://docs.databricks.com/delta/delta-streaming.html#id4), it states that when we specify maxBytesPerTrigger, it will try to fetch apprx that size of data.
+
+**Scenario:** 
+I have delta commits coming in of size ~10MB. Though I specify 65536/65536b, it is always fetching the whole version df in a micro batch instead of 64KB worth of data. 
+
+Can u pls let me know if I am missing something. And also, please update documentation with some example for this use case. 
+
+`    df = ( 
+SPARK.readStream.format("delta") 
+        .option("ignoreChanges", "true") 
+        .option("maxBytesPerTrigger", "65536b") 
+        .load(path)
+    )`
+
+NOTE: My delta lake table consists of data in parquet format

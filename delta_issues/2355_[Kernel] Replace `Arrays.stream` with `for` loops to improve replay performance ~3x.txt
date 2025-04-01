@@ -1,0 +1,18 @@
+#### Which Delta project/connector is this regarding?
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [x] Kernel
+- [ ] Other (fill in here)
+
+## Description
+This PR replaces usages of `Arrays.stream` (slow, known performance issues) with simple `for` loops (faster) inside of the delta kernel hot path (parquet row conversion). This yielded a ~3x performance boost at replaying the delta log.
+
+## How was this patch tested?
+Created a table with 1M rows, 1M add files, and 1000 commits. Loaded the latest snapshot of this table (20 times, to be able to aggregate my results), and recorded the time spent performing `LogReplay::loadTableProtocolAndMetadata()`.
+
+The results are
+
+- master (98fe7797f681408036d08aefda8c6684d8b0e0a1): ~4100ms
+- this PR: ~1400ms
+

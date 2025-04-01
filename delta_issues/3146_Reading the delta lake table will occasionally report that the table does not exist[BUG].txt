@@ -1,0 +1,19 @@
+When I indirectly read the data in the table, the reading fails occasionally, and the error is that the table does not exist.
+![image](https://user-images.githubusercontent.com/28140815/171562498-cf7f9023-e0c4-423e-b62a-5754f795856e.png)
+
+But in fact, this table has always existed. When using the delta1.0.0 version, this problem often occurred when using the DeltaTable.isDeltaTable method. Later, this method was avoided from the business level, and the delta lake was upgraded to 1.0.1. However, when reading, the problem of unrecognized table still occurs occasionally.
+
+The data is stored on azure datalake storage gen2, and a connection is established with delta lake through hadoop-azure. I don't know if it is an internal problem of delta lake, resulting in occasional unrecognized tables.
+
+At present, through the spark.read().format("delta").load() method, will there be an error that the table cannot be recognized
+
+the log is :
+java.lang.RuntimeException: org.apache.spark.sql.AnalysisException: `abfss://xxx@xxx.dfs.core.windows.net/xxx` is not a Delta table. 	at com.foxit.sensor.Indicator.CompareWorker.run(CompareWorker.java:41) ~[?:?] 	at com.foxit.sensor.runner.Application.start(Application.java:128) ~[?:?] 	at com.foxit.sensor.runner.Application.main(Application.java:38) ~[?:?] 	at jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method) ~[?:?] 	at jdk.internal.reflect.NativeMethodAccessorImpl.invoke(Unknown Source) ~[?:?] 	at jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(Unknown Source) ~[?:?] 	at java.lang.reflect.Method.invoke(Unknown Source) ~[?:?] 	at org.apache.spark.deploy.JavaMainApplication.start(SparkApplication.scala:52) ~[spark-core_2.12-3.1.1.jar:3.1.1] 	at org.apache.spark.deploy.SparkSubmit.org$apache$spark$deploy$SparkSubmit$runMain(SparkSubmit.scala:951) ~[spark-core_2.12-3.1.1.jar:3.1.1] 	at org.apache.spark.deploy.SparkSubmit.doRunMain$1(SparkSubmit.scala:180) ~[spark-core_2.12-3.1.1.jar:3.1.1] 	at org.apache.spark.deploy.SparkSubmit.submit(SparkSubmit.scala:203) ~[spark-core_2.12-3.1.1.jar:3.1.1] 	at org.apache.spark.deploy.SparkSubmit.doSubmit(SparkSubmit.scala:90) ~[spark-core_2.12-3.1.1.jar:3.1.1] 	at org.apache.spark.deploy.SparkSubmit$anon$2.doSubmit(SparkSubmit.scala:1030) ~[spark-core_2.12-3.1.1.jar:3.1.1] 	at org.apache.spark.deploy.SparkSubmit$.main(SparkSubmit.scala:1039) ~[spark-core_2.12-3.1.1.jar:3.1.1] 	at org.apache.spark.deploy.SparkSubmit.main(SparkSubmit.scala) ~[spark-core_2.12-3.1.1.jar:3.1.1] Caused by: org.apache.spark.sql.AnalysisException: `abfss://xxx@xxx.dfs.core.windows.net/xxx` is not a Delta table. 	at org.apache.spark.sql.delta.DeltaErrors$.notADeltaTableException(DeltaErrors.scala:260) ~[?:?] 	at org.apache.spark.sql.delta.catalog.DeltaTableV2.toBaseRelation(DeltaTableV2.scala:142) ~[?:?] 	at org.apache.spark.sql.delta.sources.DeltaDataSource.createRelation(DeltaDataSource.scala:177) ~[?:?] 	at org.apache.spark.sql.execution.datasources.DataSource.resolveRelation(DataSource.scala:354) ~[spark-sql_2.12-3.1.1.jar:3.1.1] 	at org.apache.spark.sql.DataFrameReader.loadV1Source(DataFrameReader.scala:326) ~[spark-sql_2.12-3.1.1.jar:3.1.1] 	at org.apache.spark.sql.DataFrameReader.$anonfun$load$1(DataFrameReader.scala:306) ~[spark-sql_2.12-3.1.1.jar:3.1.1] 	at scala.Option.map(Option.scala:230) ~[scala-library-2.12.10.jar:?] 	at org.apache.spark.sql.DataFrameReader.load(DataFrameReader.scala:266) ~[spark-sql_2.12-3.1.1.jar:3.1.1] 	at org.apache.spark.sql.DataFrameReader.load(DataFrameReader.scala:240) ~[spark-sql_2.12-3.1.1.jar:3.1.1]
+
+
+
+
+
+- Delta Lake version: 1.0.1
+- Spark version: 3.1.1
+- Scala version: 2.12.2

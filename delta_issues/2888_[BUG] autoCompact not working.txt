@@ -1,0 +1,43 @@
+I have a delta table in the location as below with such properties:
+
+tablePath ```abfss://CONTAINER@SA.dfs.core.windows.net/TABLE```
+
+```
+delta.autoOptimize.autoCompact true
+delta.autoOptimize.optimizeWrite true
+delta.deletedFileRetentionDuration interval 168 hours
+delta.logRetentionDuration interval 168 hours
+delta.minReaderVersion 1
+delta.minWriterVersion 2
+```
+
+I do run daily from databricks:
+```
+VACUUM delta.`abfss://CONTAINER@SA.dfs.core.windows.net/TABLE`
+ ```
+
+Table  is partitionBy date, some_col.
+I do writeStream to above table with mode ```append``` using spark streaming.
+
+```
+spark version 3.2.1
+delta.io library ver 1.2.1
+hadoop ver 3.3.0
+```
+
+
+If I check some old location: 
+```
+abfss://CONTAINER@SA.dfs.core.windows.net/TABLE/date=2022-08-20/hour=7/some_col=xxx/
+``` 
+or some latest written location: 
+```
+abfss://CONTAINER@SA.dfs.core.windows.net/TABLE/date=2022-10-11//hour=5/some_col=xxx/
+```
+
+I see lots of small files still.
+
+I thought that autoCompact will force DeltaTable to repartition small files into large ones (128MB). 
+
+Although, it is not the case.
+Why?

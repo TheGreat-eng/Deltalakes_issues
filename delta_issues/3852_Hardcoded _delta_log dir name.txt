@@ -1,0 +1,1 @@
+Any reason to hardcode transaction log's root folder name "_delta_log" in DeltaLog.scala file?

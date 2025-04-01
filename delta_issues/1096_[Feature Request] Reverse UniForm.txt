@@ -1,0 +1,29 @@
+## Feature request
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the issue title
+For example: [Feature Request][Spark] Title of my issue
+-->
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+### Overview
+
+This issue asks for reverse UniForm for enhanced Interoperability. 
+
+### Motivation
+
+The existing Delta UniForm is one-direction as it enables read Delta as Iceberg; Thus this asks for the other direction to read Iceberg as Delta.
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [x] Yes. I can contribute this feature independently.
+- [x] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.

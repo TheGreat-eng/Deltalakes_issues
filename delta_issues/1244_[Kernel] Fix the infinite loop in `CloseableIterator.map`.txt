@@ -1,0 +1,3 @@
+## Description
+
+`CloseableIterator.map` creates new `CloseableIterator` which has wrong `forEachRemaining` impl (it calls itself). We should remove the impl and fall back on the default impl. This is a day 0 bug, not needed for 3.2 (given 3.2 is so close to release)

@@ -1,0 +1,12 @@
+## Description
+
+Validate the operation name for optimize command - Fixes #1756 
+Also changed DeltaLog.snapshot to DeltaLog.unsafeVolatileSnapshot, as snapshot field is deprecated.
+
+## How was this patch tested?
+
+Run tests locally
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

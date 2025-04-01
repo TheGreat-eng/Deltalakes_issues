@@ -1,0 +1,73 @@
+## Bug
+
+### Describe the problem
+If you have a generated column that uses a nested field, the entire top level struct can no longer evolve the schema, even though it should just be the actually use nested field that can't be changed.
+
+#### Steps to reproduce
+
+<!--
+Please include copy-pastable code snippets if possible.
+1. _____
+2. _____
+3. _____
+-->
+In PySpark:
+
+```python
+from delta.tables import DeltaTable
+import pyspark.sql.functions as F
+df = spark.range(1).select(F.struct(F.current_timestamp().alias('timestamp')).alias('nested'))
+(DeltaTable.create(spark)
+    .location('/tmp/deltatest')
+    .addColumns(df.schema)
+    .addColumn('date', dataType='date', generatedAlwaysAs='CAST(nested.timestamp as date)')
+    .execute()
+)
+
+(df.write
+    .format('delta')
+    .mode('append')
+    .save('/tmp/deltatest')
+)
+
+(df
+    .withColumn('nested', F.col('nested').withField('new', F.lit('hey')))
+    .write
+    .format('delta')
+    .mode('append')
+    .option('mergeSchema', 'true')
+    .save('/tmp/deltatest')
+)
+```
+
+#### Observed results
+
+<!-- What happened?  This could be a description, log output, etc. -->
+```
+pyspark.sql.utils.AnalysisException: Column nested is a generated column or a column used by a generated column. The data type is STRUCT<`timestamp`: TIMESTAMP>. It doesn't accept data type STRUCT<`timestamp`: TIMESTAMP, `new`: STRING>
+```
+
+#### Expected results
+
+<!-- What did you expect to happen? -->
+New nested field added because it doesn't affect the timestamp column used for the generated column.
+
+#### Further details
+
+<!--
+Include any additional details that may be useful for diagnosing the problem here. If including tracebacks, please include the full traceback. Large logs and files should be attached.
+-->
+
+### Environment information
+
+* Delta Lake version: 2.0.0rc1
+* Spark version: 3.2.1
+* Scala version: 2.12
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [x] Yes. I can contribute a fix for this bug independently.
+- [ ] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute a bug fix at this time.

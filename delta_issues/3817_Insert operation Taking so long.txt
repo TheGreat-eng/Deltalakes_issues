@@ -1,0 +1,19 @@
+Hi guys,
+
+Is there any to tune this time without add more resources? 5 files of 500mb each are taking almost 10 minutes to write.
+
+And this is something very strange, the job already finished and spark UI show that is running yet.
+
+<img width="1680" alt="Captura de Tela 2020-08-24 às 18 40 47" src="https://user-images.githubusercontent.com/36298331/91099708-30d55380-e63a-11ea-9124-b4d6fcc673d3.png">
+<img width="1675" alt="Captura de Tela 2020-08-24 às 18 40 23" src="https://user-images.githubusercontent.com/36298331/91099717-33d04400-e63a-11ea-898f-05b3c49e3486.png">
+<img width="1680" alt="Captura de Tela 2020-08-24 às 18 38 34" src="https://user-images.githubusercontent.com/36298331/91099719-35017100-e63a-11ea-8514-07e6180e63ab.png">
+
+spark-submit --deploy-mode cluster --conf spark.dynamicAllocation.executorIdleTimeout=60s --conf spark.dynamicAllocation.maxExecutors=1 --conf spark.executor.memoryOverhead=1024 --conf spark.executor.cores=3 --conf spark.executor.memory=8g --conf spark.sql.extensions=io.delta.sql.DeltaSparkSessionExtension --conf spark.sql.catalog.spark_catalog=org.apache.spark.sql.delta.catalog.DeltaCatalog --packages io.delta:delta-core_2.12:0.7.0 --py-files files.zip main.py
+
+spark_session = SparkSession.builder.appName(application_name) \
+        .config("spark.jars.packages", "io.delta:delta-core_2.12:0.7.0") \
+        .config("spark.sql.extensions", "io.delta.sql.DeltaSparkSessionExtension") \
+        .config("spark.sql.catalog.spark_catalog", "org.apache.spark.sql.delta.catalog.DeltaCatalog") \
+        .config("spark.sql.shuffle.partitions", "5")\
+        .config("spark.databricks.delta.schema.autoMerge.enabled", "true")\
+        .getOrCreate()

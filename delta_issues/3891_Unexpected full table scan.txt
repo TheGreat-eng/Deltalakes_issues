@@ -1,0 +1,50 @@
+- spark 2.4.4
+- delta 0.6.0
+
+Let's create partitioned test table and load it:
+```
+from pyspark.sql import functions as F
+
+spark.range(16).withColumnRenamed("id", "a").crossJoin(
+    spark.range(16)
+).write.format("delta").partitionBy("a").save("test")
+
+df = spark.read.format("delta").load("test")
+```
+
+Following query works like expected, touching only single partition:
+```
+q1 = (F.col("a") == 1) & (F.col("id")==1)
+df.filter(q1).explain()
+   ...
+   +- *(1) FileScan ... PartitionCount: 1 ...
+```
+But following one does full table scan:
+```
+q1 = (F.col("a") == 1) & (F.col("id")==1)
+q2 = (F.col("a") == 2) & (F.col("id")==2)
+
+df.filter(q1 | q2).explain()
+   ...
+   +- *(1) FileScan ... PartitionCount: 16 ...
+```
+
+Of course we can do some workarounds:
+```
+df.filter(q1).union(df.filter(q2)).explain()
+...
+:     +- *(1) FileScan ... PartitionCount: 1
+      +- *(2) FileScan ... PartitionCount: 1
+```
+or:
+```
+df.filter(F.col("a").isin([1,2]) & (q1 | q2)).explain()
+   ...
+   +- *(1) FileScan ... PartitionCount: 2 ...
+```
+
+The question is: is full table scan expected for this simple query:
+```
+df.filter(q1 | q2)
+```
+or it is a bug?

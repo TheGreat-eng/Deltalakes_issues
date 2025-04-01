@@ -1,0 +1,15 @@
+## Overview
+This is the official issue to track interest, feature requests, and progress being made on per-column statistics generation in Delta Lake. This issue is the first part to the solution of “File skipping using columns stats” as outlined on the Delta OSS 2022 H1 roadmap [here](https://github.com/delta-io/delta/issues/920).
+
+Statistics generation is a prerequisite for actual data skipping. First we must write the per-file statistics into the Delta Log, and only then can we leverage those statistics to safely skip files during reads.
+
+## Requirements
+Per-column statistics generation means the following: during data writes, we keep track of basic statistics (minimum, maximum, etc.) on a per-file level for all columns, including nested columns.
+
+Since this statistics generation will likely slightly impact data write overhead, users should easily be able to enable/disable this feature, and it should also be tunable (i.e. specify for how many columns that statistics should be collected).
+
+## Design Sketch
+Please see the attached Google Document [here](https://docs.google.com/document/d/14Tesce--T6b6O8qqyCiFYTBx_xzp3gDPYFFpmEVDcAE/edit?usp=sharing) outlining the proposed, and subject to change, basic design sketch.
+
+## Future Work
+After this issue is resolved, we should actually read these per-file statistics at query planning time to implement file skipping.

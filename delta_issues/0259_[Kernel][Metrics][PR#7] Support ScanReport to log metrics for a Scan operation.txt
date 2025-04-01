@@ -1,0 +1,37 @@
+<!--
+Thanks for sending a pull request!  Here are some tips for you:
+  1. If this is your first time, please read our contributor guidelines: https://github.com/delta-io/delta/blob/master/CONTRIBUTING.md
+  2. If the PR is unfinished, add '[WIP]' in your PR title, e.g., '[WIP] Your PR title ...'.
+  3. Be sure to keep the PR description updated to reflect all changes.
+  4. Please write your PR title to summarize what this PR proposes.
+  5. If possible, provide a concise example to reproduce the issue for a faster review.
+  6. If applicable, include the corresponding issue number in the PR title and link it in the body.
+-->
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [X] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+Adds `ScanReport` for reporting a Scan.
+
+We record `ScanReport` either after all the scan files have successfully been consumed (and the iterator closed), or if an exception is thrown while reading/filtering/preparing the scan files to be returned to the connector. This is done within the `hasNext` and `next` methods on the returned iterator since that is when we do all of the kernel work/eval (since the iterator is lazily loaded). We only record a report for failures that happen within Kernel, if there are failures from within the connector code, no report will be emitted.
+
+We also add support for serializing `ScanReport` in this PR.
+
+## How was this patch tested?
+
+Adds unit tests.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No.

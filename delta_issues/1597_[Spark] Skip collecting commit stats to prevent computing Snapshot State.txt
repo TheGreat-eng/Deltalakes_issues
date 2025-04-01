@@ -1,0 +1,50 @@
+#### Which Delta project/connector is this regarding?
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+Before this PR, Delta computes a [SnapshotState](https://github.com/delta-io/delta/blob/v3.1.0/spark/src/main/scala/org/apache/spark/sql/delta/SnapshotState.scala#L46-L58) during every commit.  Computing a SnapshotState is fairly slow and expensive, because it involves reading the entirety of a checkpoint, sidecars, and log segment.
+
+For many types of commit, it should be unnecessary to compute the SnapshotState.
+
+After this PR, a transaction can avoid computing the SnapshotState of a newly created snapshot. Skipping the computation is enabled via a spark configuration option `spark.databricks.delta.commitStats.collect=false`
+
+This change can have a big performance impact when writing into a Delta Table.  Especially when the table comprises a large number of underlying data files.
+
+## How was this patch tested?
+
+- Locally built delta-spark
+- Ran a small spark job to insert rows into a delta table
+- Inspected log4j output to see if snapshot state was computed
+- Repeated again, this time setting `spark.databricks.delta.commitStats.collect=false`
+
+Simple demo job that triggers computing SnapshotState, before this PR:
+
+```scala
+val spark = SparkSession
+  .builder
+  .appName("myapp")
+  .master("local[*]")
+  .config("spark.sql.warehouse.dir", "./warehouse")
+  .config("spark.sql.extensions", "io.delta.sql.DeltaSparkSessionExtension")
+  .config("spark.sql.catalog.spark_catalog", "org.apache.spark.sql.delta.catalog.DeltaCatalog")
+  .getOrCreate
+
+spark.sql("""CREATE TABLE test_delta(id string) USING DELTA """)
+
+spark.sql("""
+  INSERT INTO test_delta (id) VALUES (42)
+  """)
+
+spark.close()
+```
+
+## Does this PR introduce _any_ user-facing changes?
+
+Yes, after this PR the user can set spark config option `spark.databricks.delta.commitStats.collect=false` to avoid computing SnapshotState after a commit.
+

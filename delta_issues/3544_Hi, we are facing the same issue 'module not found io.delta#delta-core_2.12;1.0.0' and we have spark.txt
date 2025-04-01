@@ -1,0 +1,8 @@
+Hi, we are facing the same issue **'module not found: io.delta#delta-core_2.12;1.0.0**' and we have **spark-3.1.2-bin-hadoop3.2**
+Any help on how do we resolve this issue and run the below command successfully? 
+**pyspark --packages io.delta:delta-core_2.12:1.0.0 --conf "spark.sql.extensions=io.delta.sql.DeltaSparkSessionExtension" --conf "spark.sql.catalog.spark_catalog=org.apache.spark.sql.delta.catalog.DeltaCatalog"**
+
+
+![image](https://user-images.githubusercontent.com/21185078/131542094-1088b3e6-cd03-4f7e-a0ba-c667bfd6c953.png)
+
+_Originally posted by @kumaran-chandrababu in https://github.com/delta-io/delta/issues/63#issuecomment-909400364_

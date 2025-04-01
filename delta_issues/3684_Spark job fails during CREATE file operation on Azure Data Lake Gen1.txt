@@ -1,0 +1,37 @@
+Hi, 
+
+I am facing an issue in executing the Spark job with the below details.  
+
+Spark Version:  3.0.0
+
+Please help and let me know 
+1. What is the root cause of the issue ?
+2. How to fix it ?  Is this something to do with the size of ADL Gen1 file system. 
+
+
+**Brief Overview**
+Our Big Data Product runs in AKS Cluster deployed in Microsoft Azure. 
+
+All the jobs executed within the product are Apache Spark jobs. In addition to HDFS, even Azure Data Lake Gen1 is also one of the supported file systems. 
+
+**Scenario**
+Source generates events and publishes them into Azure Event Hubs.  Spark Streaming job is waiting for events on a particular EH(Event Hub) and it will keep on writing the data into Azure Data Lake Gen1 file system. 
+
+- Huge number of transactions (1 to 5 million) records have been injected at the source side 
+- Spark streaming job is continuously running for hours and writing the data into the ADL Gen1 file system 
+- All of a sudden, it fails in the middle with the below error:
+        
+**_org.apache.spark.sql.execution.streaming.StreamExecution.org$apache$spark$sql$execution$streaming$StreamExecution$$runStream(StreamExecution.scala:355)
+        at org.apache.spark.sql.execution.streaming.StreamExecution$$anon$1.run(StreamExecution.scala:245)
+Caused by: com.microsoft.azure.datalake.store.ADLException: Error creating file /landing_home/_delta_log/.00000000000000001748.json.9d2edecf-973c-4d61-a178-4db46bd70f2c.tmp
+Operation CREATE failed with exception java.net.SocketTimeoutException : Read timed out
+Last encountered exception thrown after 1 tries. [java.net.SocketTimeoutException]
+ [ServerRequestId:null]
+        at com.microsoft.azure.datalake.store.ADLStoreClient.getExceptionFromResponse(ADLStoreClient.java:1169)
+        at com.microsoft.azure.datalake.store.ADLStoreClient.createFile(ADLStoreClient.java:281)
+        at org.apache.hadoop.fs.adl.AdlFileSystem.create(AdlFileSystem.java:374)
+        at org.apache.hadoop.fs.FileSystem.primitiveCreate(FileSystem.java:1228)
+        at org.apache.hadoop.fs.DelegateToFileSystem.createInternal(DelegateToFileSystem.java:100)
+        at org.apache.hadoop.fs.AbstractFileSystem.create(AbstractFileSystem.java:605)
+        at org.apache.hadoop.fs.FileContext$3.next(FileContext.java:696)
+        at org.apache.hadoop.fs.FileContext$3.next(FileContext.java:692)_**

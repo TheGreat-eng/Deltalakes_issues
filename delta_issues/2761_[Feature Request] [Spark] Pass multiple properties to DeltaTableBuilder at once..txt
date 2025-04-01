@@ -1,0 +1,23 @@
+## Feature request
+
+### Overview
+
+When creating a new Delta Lake table with [DeltaTableBuilder](https://docs.delta.io/latest/api/python/index.html#delta.tables.DeltaTableBuilder), users can specify a table property via `property`. This issue is to allow for multiple configurations to be passed at once.
+
+### Motivation
+
+Before this feature, users who want to add multiple properties to their Delta Lake table at time of creation have to do so manually in their application logic [(for example)](https://github.com/christophergrant/delta-hydro/blob/ba9259db04e7a94144b2f5bce8f879d03d1e9ae0/hydro/delta.py#L249), which is unnecessarily cumbersome.
+
+### Further details
+
+[addColumn](https://docs.delta.io/latest/api/python/index.html#delta.tables.DeltaTableBuilder.addColumn) : [addColumns](https://docs.delta.io/latest/api/python/index.html#delta.tables.DeltaTableBuilder.addColumns) would be roughly the same as [property](https://docs.delta.io/latest/api/python/index.html#delta.tables.DeltaTableBuilder.property) : `properties`, where `properties` is the feature that this issue is proposing.
+
+This would be a functionality for both Scala and Python.
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [ ] Yes. I can contribute this feature independently.
+- [ ] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [x] No. I cannot contribute this feature at this time.

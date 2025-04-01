@@ -1,0 +1,7 @@
+Currently, merge can produce a very large number of files when the table is partitioned. Reducing # shuffle partitions can reduce the # files but also reduce the parallelism of the operation, making it slower.
+ 
+Reports
+- https://delta-users.slack.com/archives/CJ70UCSHM/p1582931151094700
+- https://github.com/delta-io/delta/issues/345
+
+As discussed in the above slack thread, a solution is the add an additional conf that optionally repartitions the data to be written by the partitioning column.

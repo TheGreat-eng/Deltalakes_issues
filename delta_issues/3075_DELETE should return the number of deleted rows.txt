@@ -1,0 +1,13 @@
+
+
+## Description
+
+Resolves #1222
+
+## How was this patch tested?
+
+The SQL test suite was extended
+
+## Does this PR introduce _any_ user-facing changes?
+
+The returned DataFrame from a delete should not be empty, but it will contain a single row

@@ -1,0 +1,24 @@
+I understand this might be by design, but https://docs.delta.io/latest/delta-batch.html#add-columns could be made more clear. It currently says,
+
+> By default, nullability is true.
+
+![image](https://github.com/delta-io/delta/assets/25746010/9e0f2cb1-6966-452b-a2ee-626c304b2d11)
+
+
+which gives me an impression that one can override the nullability, but I got
+
+```
+spark-sql (default)> ALTER TABLE basic ADD COLUMNS (col1_nonnull2 integer NOT NULL);
+[DELTA_OPERATION_NOT_ALLOWED] Operation not allowed: `NOT NULL in ALTER TABLE ADD COLUMNS` is not supported for Delta tables
+```
+
+Also, note that due to #831, you cannot change an existing nullable column to non-nullable. This means the ONLY way to have a non-nullable column is to do so when creating the table.
+
+Version:
+
+```
+        :: modules in use:
+        io.delta#delta-spark_2.12;3.1.0 from central in [default]
+        io.delta#delta-storage;3.1.0 from central in [default]
+        org.antlr#antlr4-runtime;4.9.3 from central in [default]
+```

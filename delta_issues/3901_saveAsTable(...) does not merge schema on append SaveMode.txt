@@ -1,0 +1,76 @@
+On the test snippet below, Spark should merge the schema on the second "append" dataframe action on the given table, but it does not and returns with an error:
+```scala
+  test("Should merge schema on append") {
+    val path = s"${System.getProperty("java.io.tmpdir")}/delta"
+    val tableName = "TestTable"
+
+    spark.range(10)
+      .write
+      .format("delta").mode("append").option("path", path).saveAsTable(tableName)
+
+    spark.range(10)
+      .withColumn("part", 'id + 1)
+      .write
+      .option(DeltaOptions.MERGE_SCHEMA_OPTION, "true")
+      .format("delta").mode("append").option("path", path).saveAsTable(tableName)
+
+    spark.read.format("delta").table(tableName).show(false)
+  }
+```
+Error:
+```scala
+The column number of the existing table default.TestTable(struct<id:bigint>) doesn't match the data schema(struct<id:bigint,part:bigint>);
+org.apache.spark.sql.AnalysisException: The column number of the existing table default.TestTable(struct<id:bigint>) doesn't match the data schema(struct<id:bigint,part:bigint>);
+	at org.apache.spark.sql.execution.datasources.PreprocessTableCreation$$anonfun$apply$2.applyOrElse(rules.scala:131)
+	at org.apache.spark.sql.execution.datasources.PreprocessTableCreation$$anonfun$apply$2.applyOrElse(rules.scala:76)
+	at org.apache.spark.sql.catalyst.plans.logical.AnalysisHelper$$anonfun$resolveOperatorsDown$1$$anonfun$2.apply(AnalysisHelper.scala:108)
+	at org.apache.spark.sql.catalyst.plans.logical.AnalysisHelper$$anonfun$resolveOperatorsDown$1$$anonfun$2.apply(AnalysisHelper.scala:108)
+	at org.apache.spark.sql.catalyst.trees.CurrentOrigin$.withOrigin(TreeNode.scala:70)
+	at org.apache.spark.sql.catalyst.plans.logical.AnalysisHelper$$anonfun$resolveOperatorsDown$1.apply(AnalysisHelper.scala:107)
+	at org.apache.spark.sql.catalyst.plans.logical.AnalysisHelper$$anonfun$resolveOperatorsDown$1.apply(AnalysisHelper.scala:106)
+	at org.apache.spark.sql.catalyst.plans.logical.AnalysisHelper$.allowInvokingTransformsInAnalyzer(AnalysisHelper.scala:194)
+	at org.apache.spark.sql.catalyst.plans.logical.AnalysisHelper$class.resolveOperatorsDown(AnalysisHelper.scala:106)
+	at org.apache.spark.sql.catalyst.plans.logical.LogicalPlan.resolveOperatorsDown(LogicalPlan.scala:29)
+	at org.apache.spark.sql.catalyst.plans.logical.AnalysisHelper$class.resolveOperators(AnalysisHelper.scala:73)
+	at org.apache.spark.sql.catalyst.plans.logical.LogicalPlan.resolveOperators(LogicalPlan.scala:29)
+	at org.apache.spark.sql.execution.datasources.PreprocessTableCreation.apply(rules.scala:76)
+	at org.apache.spark.sql.execution.datasources.PreprocessTableCreation.apply(rules.scala:72)
+	at org.apache.spark.sql.catalyst.rules.RuleExecutor$$anonfun$execute$1$$anonfun$apply$1.apply(RuleExecutor.scala:87)
+	at org.apache.spark.sql.catalyst.rules.RuleExecutor$$anonfun$execute$1$$anonfun$apply$1.apply(RuleExecutor.scala:84)
+	at scala.collection.IndexedSeqOptimized$class.foldl(IndexedSeqOptimized.scala:57)
+	at scala.collection.IndexedSeqOptimized$class.foldLeft(IndexedSeqOptimized.scala:66)
+	at scala.collection.mutable.ArrayBuffer.foldLeft(ArrayBuffer.scala:48)
+	at org.apache.spark.sql.catalyst.rules.RuleExecutor$$anonfun$execute$1.apply(RuleExecutor.scala:84)
+	at org.apache.spark.sql.catalyst.rules.RuleExecutor$$anonfun$execute$1.apply(RuleExecutor.scala:76)
+	at scala.collection.immutable.List.foreach(List.scala:392)
+	at org.apache.spark.sql.catalyst.rules.RuleExecutor.execute(RuleExecutor.scala:76)
+	at org.apache.spark.sql.catalyst.analysis.Analyzer.org$apache$spark$sql$catalyst$analysis$Analyzer$$executeSameContext(Analyzer.scala:127)
+	at org.apache.spark.sql.catalyst.analysis.Analyzer.execute(Analyzer.scala:121)
+	at org.apache.spark.sql.catalyst.analysis.Analyzer$$anonfun$executeAndCheck$1.apply(Analyzer.scala:106)
+	at org.apache.spark.sql.catalyst.analysis.Analyzer$$anonfun$executeAndCheck$1.apply(Analyzer.scala:105)
+	at org.apache.spark.sql.catalyst.plans.logical.AnalysisHelper$.markInAnalyzer(AnalysisHelper.scala:201)
+	at org.apache.spark.sql.catalyst.analysis.Analyzer.executeAndCheck(Analyzer.scala:105)
+	at org.apache.spark.sql.execution.QueryExecution.analyzed$lzycompute(QueryExecution.scala:57)
+	at org.apache.spark.sql.execution.QueryExecution.analyzed(QueryExecution.scala:55)
+	at org.apache.spark.sql.execution.QueryExecution.assertAnalyzed(QueryExecution.scala:47)
+	at org.apache.spark.sql.execution.QueryExecution.withCachedData$lzycompute(QueryExecution.scala:61)
+	at org.apache.spark.sql.execution.QueryExecution.withCachedData(QueryExecution.scala:60)
+	at org.apache.spark.sql.execution.QueryExecution.optimizedPlan$lzycompute(QueryExecution.scala:66)
+	at org.apache.spark.sql.execution.QueryExecution.optimizedPlan(QueryExecution.scala:66)
+	at org.apache.spark.sql.execution.QueryExecution.sparkPlan$lzycompute(QueryExecution.scala:72)
+	at org.apache.spark.sql.execution.QueryExecution.sparkPlan(QueryExecution.scala:68)
+	at org.apache.spark.sql.execution.QueryExecution.executedPlan$lzycompute(QueryExecution.scala:77)
+	at org.apache.spark.sql.execution.QueryExecution.executedPlan(QueryExecution.scala:77)
+	at org.apache.spark.sql.execution.SQLExecution$$anonfun$withNewExecutionId$1.apply(SQLExecution.scala:76)
+	at org.apache.spark.sql.execution.SQLExecution$.withSQLConfPropagated(SQLExecution.scala:125)
+	at org.apache.spark.sql.execution.SQLExecution$.withNewExecutionId(SQLExecution.scala:73)
+	at org.apache.spark.sql.DataFrameWriter.runCommand(DataFrameWriter.scala:668)
+	at org.apache.spark.sql.DataFrameWriter.createTable(DataFrameWriter.scala:465)
+	at org.apache.spark.sql.DataFrameWriter.saveAsTable(DataFrameWriter.scala:444)
+	at org.apache.spark.sql.DataFrameWriter.saveAsTable(DataFrameWriter.scala:400)
+```
+
+Tested on:
+- delta.io: 0.6.0
+- Spark 2.4.0 (CDH 6.2.0)
+- scala 2.11.12

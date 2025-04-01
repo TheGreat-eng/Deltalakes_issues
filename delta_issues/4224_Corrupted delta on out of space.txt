@@ -1,0 +1,25 @@
+I'm running a streaming job writing to delta. Recently my disk space run out, so streaming jobs was repeatedly failing ([out_of_space.log](https://github.com/delta-io/delta/files/3381243/out_of_space.log)) with:
+`Caused by: org.apache.spark.SparkException: Job aborted due to stage failure: Task 9 in stage 58.0 failed 4 times, most recent failure: Lost task 9.3 in stage 58.0 (TID 2581, 10.42.46.221, executor 2): java.io.IOException: No space left on device`
+
+Despite this error, some streaming jobs managed to write from time to time. 
+After resolving the disk space issue, I'm not able to read delta table anymore ([read_error.log](https://github.com/delta-io/delta/files/3381093/read_error.log)):
+`Caused by: org.apache.hadoop.fs.ChecksumException: Checksum error: file:/datastore/data/delta/archive/events/event_hour=20190705225/part-00001-c6369a9f-37bb-47f3-b764-3bffcf5257a5.c000.snappy.parquet at 6144 exp: -586689930 got: -1297451656`
+
+It seems like parquet, which was not fully written was added to delta log.
+Snippet of commit log for file 00000000000000033412.json:
+```
+{“commitInfo”:{“timestamp”:1562411477182,“operation”:“STREAMING UPDATE”,“operationParameters”:{“outputMode”:“Append”,“queryId”:“3e553a00-4b3b-4369-ad40-3f528a4d7369",“epochId”:“29609"},“readVersion”:33411}}
+{“txn”:{“appId”:“3e553a00-4b3b-4369-ad40-3f528a4d7369",“version”:29609,“lastUpdated”:1562411477182}}
+{“add”:{“path”:“event_hour=20190705225/part-00001-c6369a9f-37bb-47f3-b764-3bffcf5257a5.c000.snappy.parquet”,“partitionValues”:{“event_hour”:“20190705225"},“size”:12889,“modificationTime”:1562411474000,“dataChange”:true}}
+```
+
+### Parquet file
+
+- The parquet file "part-00001-c6369a9f-37bb-47f3-b764-3bffcf5257a5.c000.snappy.parquet" has 12889 bytes - same number as written to delta log (“size”:12889).
+- When I try to read the parquet with checksum file deleted I get exception:
+  `IOException: Could not read footer for file`
+
+### Code observations
+
+- AddFile entry from commit log contains correct parquet size (12889). This is filled in [DelayedCommitProtocol.commitTask()](https://github.com/delta-io/delta/blob/ae3daa85be7cfb574a83f8d73eb10920243e4014/src/main/scala/org/apache/spark/sql/delta/files/DelayedCommitProtocol.scala#L139), this means [dataWriter.commit()](https://github.com/apache/spark/blob/c3e32bf06c35ba2580d46150923abfa795b4446a/sql/core/src/main/scala/org/apache/spark/sql/execution/datasources/FileFormatWriter.scala#L247) had to be called 
+- But still parquet was not fully written by the executor, which implies [DynamicPartitionDataWriter.write()](https://github.com/apache/spark/blob/c3e32bf06c35ba2580d46150923abfa795b4446a/sql/core/src/main/scala/org/apache/spark/sql/execution/datasources/FileFormatWriter.scala#L245) does not handle out of space problem correctly and doesn't throw exception (?)

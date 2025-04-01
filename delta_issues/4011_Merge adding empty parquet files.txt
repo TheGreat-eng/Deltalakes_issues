@@ -1,0 +1,50 @@
+I was testing the merge functionality with the following files:
+[people.zip](https://github.com/delta-io/delta/files/4107318/people.zip)
+
+Using Spark 2.4.4 and io.delta:delta-core_2.11:0.5.0
+
+In spark-shell with files in HDFS:
+```
+import io.delta.tables._
+val df = spark.read.option("header", "true").csv("/path/to/people.base.csv")
+df.write.format("delta").save("/path/to/people")
+val peopledeltatbl = DeltaTable.forPath("/path/to/people")
+val updatesDF =  spark.read.option("header", "true").csv("/path/to/people.cdc.1.csv")
+peopledeltatbl.as("people").merge(updatesDF.as("updates"),"people.id = updates.id").whenMatched("updates.action = 'delete'").delete.whenMatched("updates.action = 'update'").updateExpr(Map("name" -> "updates.name","email" -> "updates.email")).whenNotMatched("updates.action = 'insert'").insertExpr(Map("id" -> "updates.id","name" -> "updates.name","email" -> "updates.email")).execute()
+val updatesDF =  spark.read.option("header", "true").csv("/user/abrb554/people.cdc.2.csv")
+peopledeltatbl.as("people").merge(updatesDF.as("updates"),"people.id = updates.id").whenMatched("updates.action = 'delete'").delete.whenMatched("updates.action = 'update'").updateExpr(Map("name" -> "updates.name","email" -> "updates.email")).whenNotMatched("updates.action = 'insert'").insertExpr(Map("id" -> "updates.id","name" -> "updates.name","email" -> "updates.email")).execute()
+val updatesDF =  spark.read.option("header", "true").csv("/user/abrb554/people.cdc.3.csv")
+peopledeltatbl.as("people").merge(updatesDF.as("updates"),"people.id = updates.id").whenMatched("updates.action = 'delete'").delete.whenMatched("updates.action = 'update'").updateExpr(Map("name" -> "updates.name","email" -> "updates.email")).whenNotMatched("updates.action = 'insert'").insertExpr(Map("id" -> "updates.id","name" -> "updates.name","email" -> "updates.email")).execute()
+```
+This is the Delta Lake produced: 
+[people.deltalake.zip](https://github.com/delta-io/delta/files/4107322/people.deltalake.zip)
+
+
+### Expected behaviour:
+After merge with people.cdc.1.csv:
+- 1 parquet file added for the inserted record
+- 00000000000000000001.json to contain the added file
+
+After merge with people.cdc.2.csv:
+- 1 parquet file added for the updated record to replace the changed file
+- 00000000000000000002.json to contain the added file and remove of the changed
+
+After merge with people.cdc.3.csv:
+- 1 parquet file added for the deleted record to replace the changed file
+- 00000000000000000003.json to contain the added file and remove of the changed
+
+### Actual behaviour:
+After merge with people.cdc.1.csv:
+- In 00000000000000000001.json there are 2 parquet files added
+- 1 parquet file added for the inserted record
+- 1 parquet file added that contains 0 rows
+
+After merge with people.cdc.2.csv:
+- In 00000000000000000002.json there are 4 parquet files added and 1 removed
+- parquet file added for each unchanged record (I think this relates to [Issue 239](https://github.com/delta-io/delta/issues/239))
+- 1 parquet file added that contains 0 rows
+
+After merge with people.cdc.3.csv:
+- In 00000000000000000003.json there are 1 parquet files added and 1 removed
+- The parquet file removed matches the file that contains the remove row
+- 1 parquet file added that contains 0 rows

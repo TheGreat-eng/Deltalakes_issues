@@ -1,0 +1,15 @@
+This is the umbrella issue for Deletion Vector support. 
+
+### Motivation
+During Delta DML operations, both the semantics of cloud file systems as well as our guarantees about transaction history in Delta prevent us from performing any in-place updates to files. When updates are small compared to the total file size (e.g., a single row per file), this leads to an enormous performance burden of having to rewrite the entire file for a small change (aka Copy-on-write). A large fraction of DML statements that update anything, update a very small %  of all the rows in the files they touch. Deletion Vectors (DVs) are a mechanism to deal with the case where updates are stored more efficiently, by avoiding the expensive rewrite of the unmodified data.
+
+### Proposal
+The solution proposed in this issue is to augment the parquet files of a Delta table with separate “Deletion Vector” (DV) files, instead of rewriting them immediately. A DV is an optimized bitmap that represents a set of rows (of a particular parquet file) that are no longer valid (“deleted”) in a particular version of a Delta Table. The n-th row of a Parquet file has row index n, and is associated with the n-th bit of the DV. 
+
+When reading a Delta table at a version that contains DVs, care must be taken to “ignore” (filter out) the invalid rows during scans. As reading files with DVs is going to be somewhat slower than reading a fully compacted file without DVs, the mechanism itself is a tradeoff between write and read performance. 
+
+### Further details
+
+The detail proposal and the required protocol changes are sketched out in this doc. 
+
+https://docs.google.com/document/d/1lv35ZPfioopBbzQ7zT82LOev7qV7x4YNLkMr2-L5E_M/edit?usp=sharing

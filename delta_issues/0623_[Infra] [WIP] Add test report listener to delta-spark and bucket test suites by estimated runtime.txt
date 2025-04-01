@@ -1,0 +1,25 @@
+#### Which Delta project/connector is this regarding?
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [X] Other (Infra)
+
+## Description
+
+Adds a test report listener to delta-spark to record test runtimes. This listener logs test runtime metrics and writes metrics to a csv file (per CI shard, per attempt, per jvm, per thread) and uploads it as a test artifact.
+
+We can use the output of this job to learn how to better bucket our slowest + largest tests.
+
+https://github.com/delta-io/delta/actions/runs/11002528077?pr=3694
+
+![image](https://github.com/user-attachments/assets/ca87779f-6e2a-4cf2-8044-45cfa996bbf7)
+
+## How was this patch tested?
+
+Locally and GitHub CI.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No.

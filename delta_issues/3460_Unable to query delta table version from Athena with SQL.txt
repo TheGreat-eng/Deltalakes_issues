@@ -1,0 +1,57 @@
+Hello Delta team, I would like to clarify if the above scenario is actually a possibility.
+
+Here are our current scenario steps:
+
+Tooling Version:
+
+- AWS Glue - 3.0
+- Python version - 3
+- Spark version - 3.1
+- Delta.io version -1.0.0
+
+From AWS Glue jobs running PySpark code, we make several overwrite operations to a delta table, as follows:
+
+`df.write.format("delta").mode("overwrite").save(target_s3_path)`
+
+The operation succeeds with no issues.
+
+Also, we were able to run successfully the following operations:
+
+```
+ deltaTable = DeltaTable.forPath(spark, target_s3_path)
+
+ fullHistoryDF = deltaTable.history()    # get the full history of the table
+
+ lastOperationDF = deltaTable.history(1) # get the last operation
+    
+ preLastOperationDF = deltaTable.history(2)
+```
+
+    
+    
+Those were also successful and we were able to read its content and check the multiple versions of the delta table that were written.
+
+Here is the key concern of the issue:
+From pyspark code, we had no issues reading any of the table versions specifically, as follows:
+
+
+` spark.read.format("delta").option("versionAsOf", 2).load(target_s3_path)`
+
+We would like to run a very similar SQL query through Athena instead, in order to retrieve a specific version of a table, for example:
+
+`SELECT * FROM "delta_db"."delta_table" VERSION AS OF 2;`
+
+But running this syntax in athena results in the following error:
+`line 1:71: mismatched input 'AS'. Expecting: '(', ',', 'CROSS', 'EXCEPT', 'FULL', 'GROUP', 'HAVING', 'INNER', 'INTERSECT', 'JOIN', 'LEFT', 'LIMIT', 'NATURAL', 'OFFSET', 'ORDER', 'RIGHT', 'TABLESAMPLE', 'UNION', 'WHERE', <EOF>`
+
+Obs.: The manyfest file creation step and the CREATE EXTERNAL TABLE from athena step described in https://docs.delta.io/latest/presto-integration.html#presto-and-athena-to-delta-lake-integration were also executed prior to the above SQL query attempt
+
+Any clarification regarding the matter would be really appreciated!
+Thanks in advance!
+
+
+
+
+
+
+

@@ -1,0 +1,58 @@
+Env: Run in container
+JDK Version: openjdk version "11.0.16" 2022-07-19
+Stack info:
+```
+"ForkJoinPool.commonPool-worker-3" #92 daemon prio=5 os_prio=0 cpu=3982.21ms elapsed=149.87s tid=0x00000043cc03f000 nid=0x5be runnable  [0x000000449515b000]
+   java.lang.Thread.State: RUNNABLE
+        at java.lang.ProcessImpl.forkAndExec(java.base@11.0.16/Native Method)
+        at java.lang.ProcessImpl.<init>(java.base@11.0.16/ProcessImpl.java:340)
+        at java.lang.ProcessImpl.start(java.base@11.0.16/ProcessImpl.java:271)
+        at java.lang.ProcessBuilder.start(java.base@11.0.16/ProcessBuilder.java:1107)
+        at java.lang.ProcessBuilder.start(java.base@11.0.16/ProcessBuilder.java:1071)
+        at org.apache.hadoop.util.Shell.runCommand(Shell.java:938)
+        at org.apache.hadoop.util.Shell.run(Shell.java:901)
+        at org.apache.hadoop.util.Shell$ShellCommandExecutor.execute(Shell.java:1213)
+        at org.apache.hadoop.util.Shell.execCommand(Shell.java:1307)
+        at org.apache.hadoop.util.Shell.execCommand(Shell.java:1289)
+        at org.apache.hadoop.fs.FileUtil.readLink(FileUtil.java:211)
+        at org.apache.hadoop.fs.RawLocalFileSystem.deprecatedGetFileLinkStatusInternal(RawLocalFileSystem.java:1113)
+        at org.apache.hadoop.fs.RawLocalFileSystem.getFileLinkStatusInternal(RawLocalFileSystem.java:1102)
+        at org.apache.hadoop.fs.RawLocalFileSystem.getFileLinkStatus(RawLocalFileSystem.java:1073)
+        at org.apache.hadoop.fs.DelegateToFileSystem.getFileLinkStatus(DelegateToFileSystem.java:133)
+        at org.apache.hadoop.fs.AbstractFileSystem.renameInternal(AbstractFileSystem.java:751)
+        at org.apache.hadoop.fs.AbstractFileSystem.rename(AbstractFileSystem.java:720)
+        at org.apache.hadoop.fs.ChecksumFs.renameInternal(ChecksumFs.java:489)
+        at org.apache.hadoop.fs.AbstractFileSystem.rename(AbstractFileSystem.java:720)
+        at org.apache.hadoop.fs.FileContext.rename(FileContext.java:1036)
+        at io.delta.storage.HDFSLogStore.writeInternal(HDFSLogStore.java:125)
+        at io.delta.storage.HDFSLogStore.write(HDFSLogStore.java:68)
+        at io.delta.standalone.internal.storage.DelegatingLogStore.write(DelegatingLogStore.scala:91)
+        at io.delta.standalone.internal.OptimisticTransactionImpl.doCommit(OptimisticTransactionImpl.scala:366)
+        at io.delta.standalone.internal.OptimisticTransactionImpl.$anonfun$doCommitRetryIteratively$1(OptimisticTransactionImpl.scala:318)
+        at io.delta.standalone.internal.OptimisticTransactionImpl$$Lambda$1339/0x0000000840ab3840.apply$mcJ$sp(Unknown Source)
+        at scala.runtime.java8.JFunction0$mcJ$sp.apply(JFunction0$mcJ$sp.java:23)
+        at io.delta.standalone.internal.DeltaLogImpl.lockInterruptibly(DeltaLogImpl.scala:193)
+        at io.delta.standalone.internal.OptimisticTransactionImpl.doCommitRetryIteratively(OptimisticTransactionImpl.scala:310)
+        at io.delta.standalone.internal.OptimisticTransactionImpl.commit(OptimisticTransactionImpl.scala:153)
+        at io.streamnative.offload.impl.delta.writer.IndexWriter.preCommitSnapshot(IndexWriter.java:129)
+        at io.streamnative.offload.impl.delta.writer.DeltaWriter.commitFiles(DeltaWriter.java:191)
+        at io.streamnative.offload.impl.delta.writer.DeltaWriter.commit(DeltaWriter.java:129)
+        at io.streamnative.offload.impl.delta.writer.DeltaWriter.flushAndCommit(DeltaWriter.java:120)
+        - locked <0x00000000d520e228> (a io.streamnative.offload.impl.delta.writer.DeltaWriter)
+        at io.streamnative.offload.impl.delta.DeltaOffloadWriter.lambda$flushAsync$0(DeltaOffloadWriter.java:69)
+        at io.streamnative.offload.impl.delta.DeltaOffloadWriter$$Lambda$1532/0x0000000840be6040.run(Unknown Source)
+        at java.util.concurrent.CompletableFuture$AsyncRun.run(java.base@11.0.16/CompletableFuture.java:1736)
+        at java.util.concurrent.CompletableFuture$AsyncRun.exec(java.base@11.0.16/CompletableFuture.java:1728)
+        at java.util.concurrent.ForkJoinTask.doExec(java.base@11.0.16/ForkJoinTask.java:290)
+        at java.util.concurrent.ForkJoinPool$WorkQueue.topLevelExec(java.base@11.0.16/ForkJoinPool.java:1020)
+        at java.util.concurrent.ForkJoinPool.scan(java.base@11.0.16/ForkJoinPool.java:1656)
+        at java.util.concurrent.ForkJoinPool.runWorker(java.base@11.0.16/ForkJoinPool.java:1594)
+        at java.util.concurrent.ForkJoinWorkerThread.run(java.base@11.0.16/ForkJoinWorkerThread.java:183)
+
+   Locked ownable synchronizers:
+        - <0x00000000d3f54360> (a java.util.concurrent.locks.ReentrantLock$NonfairSync)
+```
+
+
+
+The stack shows that it runs `java.lang.ProcessImpl.forkAndExec` and didn't return, and the commit actions didn't succeed.

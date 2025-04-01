@@ -1,0 +1,37 @@
+## Feature request
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the issue title
+For example: [Feature Request][Spark] Title of my issue
+-->
+
+- [X] Spark
+- [X] Standalone
+- [ ] Flink
+- [X] Kernel
+- [ ] Other (fill in here)
+
+### Overview
+
+<!-- Provide a high-level description of the feature request. -->
+Support for categorical / enum / dictionary data type in delta tables and spark dataframes. This seems to be generally possible with parquet. Example data types: Arrow (Dictionary), pandas (categorical), duckdb (enum).
+
+### Motivation
+
+This would be useful to save space for large tables with low-cardinality columns, while also achieving simplicity by not having to create a separate dimension table and a PK - FK relationship just for a couple of value mapping.
+
+### Further details
+
+<!--
+Use this section to include any additional information about the feature. If you have a proposal for how to implement this feature, please include it here. For implementation guidelines, please read our contributor guidelines: https://github.com/delta-io/delta/blob/master/CONTRIBUTING.md
+If there are any specific requirements for this feature that are not immediately obvious please outline them here.
+-->
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [ ] Yes. I can contribute this feature independently.
+- [ ] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ X ] No. I cannot contribute this feature at this time.

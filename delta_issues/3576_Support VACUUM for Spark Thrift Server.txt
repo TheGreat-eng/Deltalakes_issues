@@ -1,0 +1,30 @@
+I run Spark Thrift Server with Delta Lake extension enabled
+```
+spark.sql.extensions                 io.delta.sql.DeltaSparkSessionExtension
+spark.sql.catalog.spark_catalog      org.apache.spark.sql.delta.catalog.DeltaCatalog
+```
+I'm able to run delta specific queries using beeline, for example
+```sql
+SELECT * FROM DELTA.`s3a://data/table_a`;
+CREATE TABLE table_a USING DELTA LOCATION 's3a://data/table_a';
+DESCRIBE HISTORY table_a;
+```
+
+But If I run `VACUUM table_a` I get the following error:
+```
+org.apache.hive.service.cli.HiveSQLException:
+   Error running query: org.apache.spark.sql.catalyst.parser.ParseException: mismatched input 'VACUUM'
+     expecting {'(', 'ADD', 'ALTER', 'ANALYZE', 'CACHE', 'CLEAR', 'COMMENT', 'COMMIT', 'CREATE', 'DELETE', 'DESC',
+     'DESCRIBE', 'DFS', 'DROP', 'EXPLAIN', 'EXPORT', 'FROM', 'GRANT', 'IMPORT', 'INSERT', 'LIST', 'LOAD', 'LOCK', 'MAP', 
+     'MERGE', 'MSCK', 'REDUCE', 'REFRESH', 'REPLACE', 'RESET', 'REVOKE', 'ROLLBACK', 'SELECT', 'SET', 'SHOW', 'START',
+     'TABLE', 'TRUNCATE', 'UNCACHE', 'UNLOCK', 'UPDATE', 'USE', 'VALUES', 'WITH'}(line 1, pos 0)
+   == SQL ==
+   VACUUM table_a
+```
+
+Is it possible to avoid this exception and be able to use VACUUM command in Spark Thrift Server?
+
+**Environment**
+ - Spark 3.1.2
+ - Delta Lake 1.0.0
+ - Java 11

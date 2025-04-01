@@ -1,0 +1,7 @@
+Refactor [GCSLogStore](https://github.com/delta-io/delta/blob/master/contribs/src/main/scala/io/delta/storage/GCSLogStore.scala) to Java for the new delta-storage artifact.
+
+This also includes moving the tests from `GCSLogStoreSuite` to class `PublicGCSLogStoreSuite` inside of `LogStoreSuite`. See the contributing section in the project issue below.
+
+Also, as the referenced contributing section states, leave the existing Scala file and Scala test suite alone for now.
+
+For the project overview, requirements, and how to contribute, please see the https://github.com/delta-io/delta/issues/951.

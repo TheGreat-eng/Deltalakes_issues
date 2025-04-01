@@ -1,0 +1,3 @@
+Currently if failing to initialize `JsonUtils.mapper` (likely `jackson-module-scala` incompatibility issue), class `JsonUtils$` will not be loaded. Because this is a class loading error, the root cause of initialization failure will be shown only once by JVM, and the following calls that touch `JsonUtils` will fail without a cause. This makes users hard to find out the root cause in their logs.
+
+This PR makes JsonUtils.mapper lazy so that the initialization failure will be shown every time `JsonUtils` is touched.

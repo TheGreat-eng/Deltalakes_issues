@@ -1,0 +1,18 @@
+The existing protocol doc mentions that a metadata action is required in the first version of a table, but it does not specify required or optional fields for the metadata action. I believe _schemaString_ should be required at a minimum in the v1 delta log entry.  
+
+This PR adds a short and sweet mention in the first paragraph of the `### Change Metadata` section to communicate that `schemaString` is required in the first `metadata` entry and transitively, the first log entry -- piggy backing on the existing mention that a `metadata` action [is required](https://github.com/delta-io/delta/blob/4277443703c5ab59a567c1e80189bbcdb7495817/PROTOCOL.md#change-metadata) in the first delta table version.
+
+Ideally, additional optional/required/required-if specifications for `metadata` properties should be provided in the protocol doc, because as it stands, an empty `metadata` object (i.e. `metadata: {}`) is permitted by the protocol doc which is not helpful to any human or computer. With this PR, I am interested in solving for absent schema in the first table version. Unfortunately, [some projects](https://github.com/delta-io/connectors/blob/master/golden-tables/src/test/resources/golden/canonicalized-paths-normal-a/_delta_log/00000000000000000000.json) are already leveraging the under-specification. A table with no schema metadata is not useable from a reader perspective, so should not be possible to create from a writer perspective IMHO. Hopefully, this PR should discourage folks following the protocol from creating scenarios that do not include metadata schema in the first log entry.
+
+I would like to see optional/required/required-if specifications added to the `metadata` section for all properties for v1 + n, but I cannot determine which properties fit which category other than that v1 must include `schemaString` at this time.
+
+---
+
+UPDATE
+
+After realizing the full implications of the existing protocol statement that:
+
+> Subsequent metaData actions completely overwrite the current metadata of the table.
+
+and also grokking the required/optional mentions by @houqp - I have changed the PR content significantly. Instead of a "short and sweet mention in the first paragraph" - I have gone all in on an optional/required column in the `metadata` field table + a mention that required properties must be included in every `metadata` action.
+

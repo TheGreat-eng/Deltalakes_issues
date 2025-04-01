@@ -1,0 +1,19 @@
+## Feature request
+
+### Overview
+
+Add delta lake library version to python api.
+
+I am unable find installed delta library version programmatically, when using python package.
+
+
+let me know if feature already exists, i didn't find it.
+
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [ ] Yes. I can contribute this feature independently.
+- [x] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.

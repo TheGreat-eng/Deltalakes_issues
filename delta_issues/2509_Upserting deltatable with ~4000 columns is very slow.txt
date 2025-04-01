@@ -1,0 +1,57 @@
+We are performing upserts on a delta table with ~4000 columns on Spark@K8s in cluster mode. 
+Between actual execution, i.e. writing/upserting the data and spawning up the executors and preparing the plan the duration is extremely long (~15mins). Existing table is the table in the source, new table is the table that we are trying to upsert existing with. New and existing table have same amount of columns but new has fewer rows than existing and pk are essentially the parition columns with one additional non-partition column (see code below). During these 15mins literally no job/task is executed or pending.
+We observe in the DEBUG spark logs the following behavior (driver logs):
+`DEBUG BaseSessionStateBuilder$$anon$1: Resolving 'col1 to col1#14457`
+So it seems like internally spark maps the columns of source table to target table although the naming is equivalent.
+The code we are using is:
+``` 
+    existing_delta_table = DeltaTable.forPath(
+        spark_session, f"s3a://{bucket}/{table_name}/"
+    )
+    primary_keys_condition = " and ".join(
+        [f"new.{x} = existing.{x}" for x in primary_keys]
+    )
+
+    existing_delta_table.alias("existing").merge(
+        table.alias("new"),
+        primary_keys_condition,
+    ).whenMatchedUpdateAll().whenNotMatchedInsertAll().execute()
+```
+We already tried with `whenMatchedUpdate` and `whenNotMatchedInsert` and setting column mapping explicitly but same phenomenom:
+```
+existing_delta_table = DeltaTable.forPath(
+        spark_session,  f"s3a://{bucket}/{table_name}/"
+    )
+primary_keys_condition = " and ".join(
+        [f"new.{x} = existing.{x}" for x in primary_keys]
+    )
+existing_delta_table.alias("existing").merge(
+        df.alias("new"),
+        primary_keys_condition,
+    ).whenMatchedUpdate(condition=primary_keys_condition, set={col: f"new.{col}" for col in df.columns}).whenNotMatchedInsert(condition=primary_keys_condition, values={col: f"new.{col}" for col in df.columns}).execute()
+```
+
+Below you can find the spark configs (Spark Version is 3.3.0 and delta 2.3.0):
+```
+{
+  "spark.driver.cores": 2,
+  "spark.driver.extraClassPath": "/opt/app-root/.ivy2/jars/io.delta_delta-core_2.12-2.3.0.jar:/opt/app-root/.ivy2/jars/io.delta_delta-storage-2.3.0.jar:/opt/app-root/.ivy2/jars/io.trino_trino-jdbc-405.jar:/opt/app-root/.ivy2/jars/com.amazonaws_aws-java-sdk-bundle-1.12.346.jar:/opt/app-root/.ivy2/jars/org.apache.hadoop_hadoop-aws-3.3.4.jar",
+  "spark.driver.memory": "4g",
+  "spark.driver.memoryOverheadFactor": 0.1,
+  "spark.executor.cores": 5,
+  "spark.executor.extraClassPath": "/opt/app-root/.ivy2/jars/io.delta_delta-core_2.12-2.3.0.jar:/opt/app-root/.ivy2/jars/io.delta_delta-storage-2.3.0.jar:/opt/app-root/.ivy2/jars/io.trino_trino-jdbc-405.jar:/opt/app-root/.ivy2/jars/com.amazonaws_aws-java-sdk-bundle-1.12.346.jar:/opt/app-root/.ivy2/jars/org.apache.hadoop_hadoop-aws-3.3.4.jar",
+  "spark.executor.instances": 2,
+  "spark.executor.memory": "16g",
+  "spark.executor.memoryOverheadFactor": 0.1,
+  "spark.kubernetes.driver.limit.cores": 2,
+  "spark.kubernetes.driver.request.cores": 0.1,
+  "spark.kubernetes.executor.limit.cores": 8,
+  "spark.kubernetes.executor.request.cores": 0.1,
+  "spark.sql.catalog.spark_catalog": "org.apache.spark.sql.delta.catalog.DeltaCatalog",
+  "spark.sql.extensions": "io.delta.sql.DeltaSparkSessionExtension",
+  "spark.sql.legacy.timeParserPolicy": "LEGACY",
+  "spark.sql.parquet.datetimeRebaseModeInWrite": "LEGACY",
+  "spark.sql.parquet.int96RebaseModeInWrite": "LEGACY"
+}
+```
+Any help would be highly appreciated! We performed upserts already with narrower tables ( <= 2000 columns) we also observe there this behaviour but not that drastically as above.

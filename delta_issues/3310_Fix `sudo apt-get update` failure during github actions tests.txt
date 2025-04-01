@@ -1,0 +1,57 @@
+Currently, our github actions tests are failing for all PRs (starting 2022-03-15 1:30pm PT)
+
+e.g. https://github.com/delta-io/delta/runs/5560487101?check_suite_focus=true
+
+From digging around online, it seems like adding `--allow-releaseinfo-change` should fix this.
+- https://stackoverflow.com/questions/68802802/repository-http-security-debian-org-debian-security-buster-updates-inrelease
+- https://www.reddit.com/r/debian/comments/ca3se6/for_people_who_gets_this_error_inrelease_changed/
+- https://community.ui.com/questions/APT-codename-change-from-unifi-5-5-to-unifi-5-6-errors/a6ee985c-0ed1-4bc8-adc4-232c96df26d7
+
+The documentation of this fix is that `--allow-relaseinfo-change`:
+```
+--allow-releaseinfo-change
+
+Allow the update command to continue downloading data from a repository which changed its information of the release contained in the repository indicating e.g a new major release. APT will fail at the update command for such repositories until the change is confirmed to ensure the user is prepared for the change. See also [apt-secure(8)](https://manpages.debian.org/unstable/apt/apt-secure.8.en.html) for details on the concept and configuration.
+Specialist options (--allow-releaseinfo-change-field) exist to allow changes only for certain fields like origin, label, codename, suite, version and defaultpin. See also [apt_preferences(5)](https://manpages.debian.org/unstable/apt/apt_preferences.5.en.html). Configuration Item: Acquire::AllowReleaseInfoChange.
+```
+
+Original error:
+
+```
+Run sudo apt-get update
+Hit:1 http://azure.archive.ubuntu.com/ubuntu focal InRelease
+Get:2 http://azure.archive.ubuntu.com/ubuntu focal-updates InRelease [114 kB]
+Get:3 http://security.ubuntu.com/ubuntu focal-security InRelease [114 kB]
+Get:4 https://packages.microsoft.com/ubuntu/20.04/prod focal InRelease [10.5 kB]
+Get:5 http://azure.archive.ubuntu.com/ubuntu focal-backports InRelease [108 kB]
+Hit:6 http://ppa.launchpad.net/ubuntu-toolchain-r/test/ubuntu focal InRelease
+Get:7 http://azure.archive.ubuntu.com/ubuntu focal-updates/main amd64 Packages [1642 kB]
+Get:8 http://azure.archive.ubuntu.com/ubuntu focal-updates/main Translation-en [312 kB]
+Get:9 http://azure.archive.ubuntu.com/ubuntu focal-updates/main amd64 c-n-f Metadata [14.8 kB]
+Get:10 http://azure.archive.ubuntu.com/ubuntu focal-updates/restricted amd64 Packages [853 kB]
+Get:11 http://azure.archive.ubuntu.com/ubuntu focal-updates/restricted Translation-en [1[22](https://github.com/delta-io/delta/runs/5560487101?check_suite_focus=true#step:5:22) kB]
+Get:12 http://azure.archive.ubuntu.com/ubuntu focal-updates/universe amd64 Packages [910 kB]
+Get:13 http://azure.archive.ubuntu.com/ubuntu focal-updates/universe Translation-en [202 kB]
+Get:14 http://azure.archive.ubuntu.com/ubuntu focal-updates/universe amd64 c-n-f Metadata [20.3 kB]
+Get:15 http://azure.archive.ubuntu.com/ubuntu focal-updates/multiverse amd64 Packages [[23](https://github.com/delta-io/delta/runs/5560487101?check_suite_focus=true#step:5:23).8 kB]
+Get:16 http://azure.archive.ubuntu.com/ubuntu focal-updates/multiverse amd64 c-n-f Metadata [580 B]
+Get:17 http://azure.archive.ubuntu.com/ubuntu focal-backports/main amd64 Packages [42.2 kB]
+Get:18 http://azure.archive.ubuntu.com/ubuntu focal-backports/main Translation-en [10.1 kB]
+Get:19 http://azure.archive.ubuntu.com/ubuntu focal-backports/universe amd64 Packages [22.7 kB]
+Get:20 http://azure.archive.ubuntu.com/ubuntu focal-backports/universe Translation-en [15.4 kB]
+Get:21 http://azure.archive.ubuntu.com/ubuntu focal-backports/universe amd64 c-n-f Metadata [804 B]
+Get:22 http://security.ubuntu.com/ubuntu focal-security/main amd64 Packages [1317 kB]
+Get:23 http://security.ubuntu.com/ubuntu focal-security/main Translation-en [231 kB]
+Get:[24](https://github.com/delta-io/delta/runs/5560487101?check_suite_focus=true#step:5:24) http://security.ubuntu.com/ubuntu focal-security/main amd64 c-n-f Metadata [9808 B]
+Get:[25](https://github.com/delta-io/delta/runs/5560487101?check_suite_focus=true#step:5:25) http://security.ubuntu.com/ubuntu focal-security/restricted amd64 Packages [799 kB]
+Get:26 http://security.ubuntu.com/ubuntu focal-security/restricted Translation-en [114 kB]
+Get:27 http://security.ubuntu.com/ubuntu focal-security/universe amd64 Packages [692 kB]
+Get:28 http://security.ubuntu.com/ubuntu focal-security/universe Translation-en [121 kB]
+Get:29 http://security.ubuntu.com/ubuntu focal-security/universe amd64 c-n-f Metadata [14.0 kB]
+Reading package lists...
+W: Conflicting distribution: https://packages.microsoft.com/ubuntu/20.04/prod focal InRelease (expected focal but got testing)
+E: Repository 'https://packages.microsoft.com/ubuntu/20.04/prod focal InRelease' changed its 'Origin' value from 'microsoft-ubuntu-focal-prod focal' to 'microsoft-ubuntu-focal-prod testing'
+E: Repository 'https://packages.microsoft.com/ubuntu/20.04/prod focal InRelease' changed its 'Label' value from 'microsoft-ubuntu-focal-prod focal' to 'microsoft-ubuntu-focal-prod testing'
+E: Repository 'https://packages.microsoft.com/ubuntu/20.04/prod focal InRelease' changed its 'Codename' value from 'focal' to 'testing'
+Error: Process completed with exit code 100.
+```

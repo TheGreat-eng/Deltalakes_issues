@@ -1,0 +1,20 @@
+One of the delta tables is partitioned by the year. I am trying to find what's the best way to write a query without doing full table scans. how can we construct a query with a delta that scans specific years? The first two approaches didn't work. Only the last approach worked but not sure if that scans only 2019 and 2020 partitions. 
+
+mytable
+      - year = 2018/*
+      - year = 2019/*
+      - year = 2020/*
+
+1)
+
+loc="s3:://mybucket/db/schmea/mytable/"
+df= datalake.spark.read.format("delta").option("replaceWhere", "year>2019").load(loc)
+
+2)
+loc="s3:://mybucket/db/schmea/mytable/"
+paths = [loc+"year=2019",loc+"year=2020"]
+df= datalake.spark.read.format("delta").load(*paths)
+
+3)
+loc="s3:://mybucket/db/schmea/mytable/"
+df= datalake.spark.read.format("delta").load(*paths).filter("year>=2019")

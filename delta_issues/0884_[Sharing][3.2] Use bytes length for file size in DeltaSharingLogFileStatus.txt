@@ -1,0 +1,7 @@
+## Description
+(cherry-pick e1dd541ce99389a79e8c70dbcf9045fd5d4112a7 to branch-3.2)
+
+Use bytes length for file size in DeltaSharingLogFileStatus, to match the actual size of the bytes in SeekableByteArrayInputStream, this is to avoid the length difference caused by non utf-8 characters.
+
+## How was this patch tested?
+Unit Test

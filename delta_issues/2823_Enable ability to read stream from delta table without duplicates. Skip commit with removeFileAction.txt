@@ -1,0 +1,15 @@
+## Description
+
+- Add an appendOnly:Boolean option to the stream source. When the option applies stream source will skip all commits with RemoveFileAction.
+- To understand motivation, please refer to the `motivation` part from issue #1490.
+ 
+Resolves #1490
+
+## How was this patch tested?
+
+There is a unit test for this patch.
+And also similar changes work in production for the last 2 weeks.
+
+## Does this PR introduce _any_ user-facing changes?
+
+Yes, it's introducing a new option for the delta Structure Stream.

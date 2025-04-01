@@ -1,0 +1,19 @@
+## Description
+Add the following integration tests to verify the sanity of staged maven artifacts for Kernel release signoff.
+* Reading a simple table w/o partitions
+* Reading a simple table with partitions
+* Reading only a subset of columns from a table
+* Reading a table with deletion vectors
+* Reading a table with deletion vectors and column mapping.
+* Reading a table with partition pruning (simple filter)
+* Reading a table with partition pruning (filter - combined with partition col filter and data col filter)
+
+## How was this patch tested?
+Here are the examples to run these tests
+```
+# To run with binaries built from the current repo
+<repo-root>/kernel/examples/run-kernel-examples.py --use-local
+
+# To run with staged artifacts at a particular location
+ <repo-root>/kernel/examples/run-kernel-examples.py --maven-repo=https://oss.sonatype.org/content/repositories/iodelta-1120 --version=3.0.0rc2
+```

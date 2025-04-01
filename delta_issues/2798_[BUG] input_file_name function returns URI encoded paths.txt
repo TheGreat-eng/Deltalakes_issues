@@ -1,0 +1,52 @@
+## Bug
+
+### Describe the problem
+
+The `input_file_name` function returns URI encoded paths. This seems to either be a bug, or an awkward user experience.
+
+#### Steps to reproduce
+
+```SQL
+CREATE TABLE default.uri_test (part string, y long) USING delta PARTITIONED BY (part);
+INSERT INTO default.uri_test VALUES ('a=b', 1);
+INSERT INTO default.uri_test VALUES ('a:b', 2);
+INSERT INTO default.uri_test VALUES ('a+b', 3);
+SELECT *, input_file_name() FROM default.uri_test;
+
++----+---+-----------------------------------------------------------------------------------------------------------------------+
+|part|  y|                                                                                                      input_file_name()|
++----+---+-----------------------------------------------------------------------------------------------------------------------+
+| a+b|  3|    file:/tmp/4949515722967688984/uri_test/part=a+b/part-00000-30050065-24eb-4df0-b43d-363c1cc9416c.c000.snappy.parquet|
+| a=b|  1|file:/tmp/4949515722967688984/uri_test/part=a%253Db/part-00000-a3d42cf8-58a1-47c6-b745-21a0666b69b2.c000.snappy.parquet|
+| a:b|  2|file:/tmp/4949515722967688984/uri_test/part=a%253Ab/part-00000-9da7c976-38c9-4bfb-bf04-8595f97b7b85.c000.snappy.parquet|
++----+---+-----------------------------------------------------------------------------------------------------------------------+
+```
+
+#### Observed results
+The paths are URI encoded.
+
+#### Expected results
+The expectation is for the paths to be plain URI decoded strings. For instance,
+`file:/tmp/4949515722967688984/uri_test/part=a%253Db/part-00000-a3d42cf8-58a1-47c6-b745-21a0666b69b2.c000.snappy.parquet` should be `file:/tmp/4949515722967688984/uri_test/part=a%3Db/part-00000-a3d42cf8-58a1-47c6-b745-21a0666b69b2.c000.snappy.parquet` (i.e., `%253D` should be unescaped to `%3D`).
+
+#### Further details
+
+<!--
+Include any additional details that may be useful for diagnosing the problem here. If including tracebacks, please include the full traceback. Large logs and files should be attached.
+-->
+
+### Environment information
+
+* Delta Lake version: 2.0.0
+* Spark version:
+* Scala version:
+
+Similar behaviour was observed with a recent version of the Databricks runtime.
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [ ] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute a bug fix at this time.

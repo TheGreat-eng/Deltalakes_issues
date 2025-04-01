@@ -1,0 +1,26 @@
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [X] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+Reorder checks in Delta Conflict Checker:
+- Move the check `checkIfDomainMetadataConflict` and `checkForUpdatedApplicationTransactionIdsThatCurrentTxnDependsOn` earlier to fail the transaction as early as possible.
+- Move Row Tracking reconciliation before file-level checks to ensure that files do no have duplicate row IDs.
+
+
+## How was this patch tested?
+
+Existing tests.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

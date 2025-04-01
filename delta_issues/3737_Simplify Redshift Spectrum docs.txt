@@ -1,0 +1,8 @@
+I am unable to find the source code that generates the online documentation here:
+https://docs.delta.io/latest/redshift-spectrum-integration.html
+
+The docs should be updated now that Redshift Spectrum supports Delta format (SymlinkTextInputFormat):
+https://docs.aws.amazon.com/redshift/latest/dg/c-spectrum-external-tables.html
+
+The approach for Athena and Spectrum are then broadly the same. There is no need for the extra View using SymlinkTextInputFormat.
+

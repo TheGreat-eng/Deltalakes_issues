@@ -1,0 +1,1 @@
+Minor edits in usage in the README.md.

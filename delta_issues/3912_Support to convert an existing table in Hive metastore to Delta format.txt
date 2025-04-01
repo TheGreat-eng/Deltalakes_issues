@@ -1,0 +1,1 @@
+Currently `CONVERT TO DELTA` doesn't support to convert an existing parquet table in Hive metastore. Once #85 is resolved, this feature can be supported.

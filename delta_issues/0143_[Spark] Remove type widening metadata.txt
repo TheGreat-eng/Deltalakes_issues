@@ -1,0 +1,47 @@
+## Description
+Type widening records type changes applied to a table in the table schema using the following metadata:
+```
+"metadata": {
+  "delta.typeChanges": [{
+    "toType": "short",
+    "fromType": "byte"
+  }]
+```
+The initial intent was to keep that metadata in schemas returned to users, e.g. via `df.schema`, as it may provide useful information.
+That is a bad idea though:
+- This allows type widening metadata to leak outside of the table, possibly to other tables. While this isn't expected to cause correctness issues - the type widening metadata is mostly informative - it would still be confusing.
+- It is ultimately internal Delta metadata that shouldn't be surfaced to users. Other features, such a column mapping, explicitly remove their related metadata before surfacing schemas to users.
+
+## How was this patch tested?
+- Updated existing tests to remove type widening metadata when checking for returned schema.
+- Added test to ensure we don't leak type widening metadata
+
+## Does this PR introduce _any_ user-facing changes?
+Type widening metadata that was visible in dataframe schemas isn't surfaced anymore:
+`df.schema`:
+Before:
+```
+"fields": [{
+  "name": "a",
+  "type": "integer",
+  "nullable": true,
+  "metadata": {
+    "delta.typeChanges": [{
+      "toType": "integer",
+      "fromType": "short"
+    }]
+  }
+}]
+```
+After:
+```
+"fields": [{
+  "name": "a",
+  "type": "integer",
+  "nullable": true,
+  "metadata": {}
+}]
+```
+
+
+

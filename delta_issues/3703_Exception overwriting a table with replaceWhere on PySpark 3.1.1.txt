@@ -1,0 +1,153 @@
+**Problem:**
+
+Overwriting a table using the `replaceWhere` syntax as described at https://docs.databricks.com/delta/delta-batch.html no longer works on the latest version of PySpark (3.1.1). The PySpark 3.0.X series does work as expected.
+
+**Versions**:
+
+Python: 3.9.2 (and 3.7.6)
+Delta: 0.8.0 (io.delta:delta-core_2.12:0.8.0)
+PySpark: 3.1.1 (PyPI)
+
+**Code**:
+```
+import datetime
+
+from pyspark.sql import SparkSession
+from pyspark.sql.types import DateType
+from pyspark.sql.types import StringType
+from pyspark.sql.types import StructField
+from pyspark.sql.types import StructType
+
+spark = SparkSession.builder.appName("ReplaceWhereTest") \
+    .config("spark.jars.packages", "io.delta:delta-core_2.12:0.8.0") \
+    .config("spark.sql.extensions", "io.delta.sql.DeltaSparkSessionExtension") \
+    .config("spark.sql.catalog.spark_catalog", "org.apache.spark.sql.delta.catalog.DeltaCatalog") \
+    .config("spark.databricks.delta.properties.defaults.compatibility.symlinkFormatManifest.enabled", "true") \
+    .getOrCreate()
+
+data = [
+    (datetime.date(2017, 1, 2),  "Hello"),
+    (datetime.date(2017, 1, 30), "World")]
+
+schema = StructType([
+    StructField("date", DateType()),
+    StructField("message", StringType())])
+
+df = spark.createDataFrame(data, schema=schema)
+df.write.format("delta") \
+    .partitionBy("date") \
+    .option("replaceWhere", "date >= '2017-01-01' AND date <= '2017-01-31'") \
+    .mode("overwrite") \
+    .save("./tmp/delta/events/")
+```
+
+**Exception**:
+```
+py4j.protocol.Py4JJavaError: An error occurred while calling o65.save.
+: java.lang.NoSuchMethodError: 'boolean org.apache.spark.sql.catalyst.expressions.ScalaUDF$.apply$default$6()'
+	at org.apache.spark.sql.delta.hooks.GenerateSymlinkManifestImpl.$anonfun$generatePartitionPathExpression$1(GenerateSymlinkManifest.scala:350)
+	at scala.collection.TraversableLike.$anonfun$flatMap$1(TraversableLike.scala:245)
+	at scala.collection.immutable.List.foreach(List.scala:392)
+	at scala.collection.TraversableLike.flatMap(TraversableLike.scala:245)
+	at scala.collection.TraversableLike.flatMap$(TraversableLike.scala:242)
+	at scala.collection.immutable.List.flatMap(List.scala:355)
+	at org.apache.spark.sql.delta.hooks.GenerateSymlinkManifestImpl.generatePartitionPathExpression(GenerateSymlinkManifest.scala:349)
+	at org.apache.spark.sql.delta.hooks.GenerateSymlinkManifestImpl.generatePartitionPathExpression$(GenerateSymlinkManifest.scala:345)
+	at org.apache.spark.sql.delta.hooks.GenerateSymlinkManifest$.generatePartitionPathExpression(GenerateSymlinkManifest.scala:41)
+	at org.apache.spark.sql.delta.hooks.GenerateSymlinkManifestImpl.withRelativePartitionDir(GenerateSymlinkManifest.scala:338)
+	at org.apache.spark.sql.delta.hooks.GenerateSymlinkManifestImpl.writeManifestFiles(GenerateSymlinkManifest.scala:262)
+	at org.apache.spark.sql.delta.hooks.GenerateSymlinkManifestImpl.$anonfun$generateFullManifest$1(GenerateSymlinkManifest.scala:180)
+	at scala.runtime.java8.JFunction0$mcV$sp.apply(JFunction0$mcV$sp.java:23)
+	at org.apache.spark.sql.delta.util.DeltaProgressReporter.withJobDescription(DeltaProgressReporter.scala:53)
+	at org.apache.spark.sql.delta.util.DeltaProgressReporter.withStatusCode(DeltaProgressReporter.scala:32)
+	at org.apache.spark.sql.delta.util.DeltaProgressReporter.withStatusCode$(DeltaProgressReporter.scala:27)
+	at org.apache.spark.sql.delta.hooks.GenerateSymlinkManifest$.withStatusCode(GenerateSymlinkManifest.scala:41)
+	at org.apache.spark.sql.delta.hooks.GenerateSymlinkManifestImpl.$anonfun$recordManifestGeneration$1(GenerateSymlinkManifest.scala:365)
+	at scala.runtime.java8.JFunction0$mcV$sp.apply(JFunction0$mcV$sp.java:23)
+	at com.databricks.spark.util.DatabricksLogging.recordOperation(DatabricksLogging.scala:77)
+	at com.databricks.spark.util.DatabricksLogging.recordOperation$(DatabricksLogging.scala:67)
+	at org.apache.spark.sql.delta.hooks.GenerateSymlinkManifest$.recordOperation(GenerateSymlinkManifest.scala:41)
+	at org.apache.spark.sql.delta.metering.DeltaLogging.recordDeltaOperation(DeltaLogging.scala:103)
+	at org.apache.spark.sql.delta.metering.DeltaLogging.recordDeltaOperation$(DeltaLogging.scala:89)
+	at org.apache.spark.sql.delta.hooks.GenerateSymlinkManifest$.recordDeltaOperation(GenerateSymlinkManifest.scala:41)
+	at org.apache.spark.sql.delta.hooks.GenerateSymlinkManifestImpl.recordManifestGeneration(GenerateSymlinkManifest.scala:364)
+	at org.apache.spark.sql.delta.hooks.GenerateSymlinkManifestImpl.generateFullManifest(GenerateSymlinkManifest.scala:167)
+	at org.apache.spark.sql.delta.hooks.GenerateSymlinkManifestImpl.generateFullManifest$(GenerateSymlinkManifest.scala:165)
+	at org.apache.spark.sql.delta.hooks.GenerateSymlinkManifest$.generateFullManifest(GenerateSymlinkManifest.scala:41)
+	at org.apache.spark.sql.delta.hooks.GenerateSymlinkManifestImpl.$anonfun$generateIncrementalManifest$1(GenerateSymlinkManifest.scala:94)
+	at scala.runtime.java8.JFunction0$mcV$sp.apply(JFunction0$mcV$sp.java:23)
+	at org.apache.spark.sql.delta.util.DeltaProgressReporter.withJobDescription(DeltaProgressReporter.scala:53)
+	at org.apache.spark.sql.delta.util.DeltaProgressReporter.withStatusCode(DeltaProgressReporter.scala:32)
+	at org.apache.spark.sql.delta.util.DeltaProgressReporter.withStatusCode$(DeltaProgressReporter.scala:27)
+	at org.apache.spark.sql.delta.hooks.GenerateSymlinkManifest$.withStatusCode(GenerateSymlinkManifest.scala:41)
+	at org.apache.spark.sql.delta.hooks.GenerateSymlinkManifestImpl.$anonfun$recordManifestGeneration$1(GenerateSymlinkManifest.scala:365)
+	at scala.runtime.java8.JFunction0$mcV$sp.apply(JFunction0$mcV$sp.java:23)
+	at com.databricks.spark.util.DatabricksLogging.recordOperation(DatabricksLogging.scala:77)
+	at com.databricks.spark.util.DatabricksLogging.recordOperation$(DatabricksLogging.scala:67)
+	at org.apache.spark.sql.delta.hooks.GenerateSymlinkManifest$.recordOperation(GenerateSymlinkManifest.scala:41)
+	at org.apache.spark.sql.delta.metering.DeltaLogging.recordDeltaOperation(DeltaLogging.scala:103)
+	at org.apache.spark.sql.delta.metering.DeltaLogging.recordDeltaOperation$(DeltaLogging.scala:89)
+	at org.apache.spark.sql.delta.hooks.GenerateSymlinkManifest$.recordDeltaOperation(GenerateSymlinkManifest.scala:41)
+	at org.apache.spark.sql.delta.hooks.GenerateSymlinkManifestImpl.recordManifestGeneration(GenerateSymlinkManifest.scala:364)
+	at org.apache.spark.sql.delta.hooks.GenerateSymlinkManifestImpl.generateIncrementalManifest(GenerateSymlinkManifest.scala:84)
+	at org.apache.spark.sql.delta.hooks.GenerateSymlinkManifestImpl.generateIncrementalManifest$(GenerateSymlinkManifest.scala:80)
+	at org.apache.spark.sql.delta.hooks.GenerateSymlinkManifest$.generateIncrementalManifest(GenerateSymlinkManifest.scala:41)
+	at org.apache.spark.sql.delta.hooks.GenerateSymlinkManifestImpl.run(GenerateSymlinkManifest.scala:69)
+	at org.apache.spark.sql.delta.hooks.GenerateSymlinkManifestImpl.run$(GenerateSymlinkManifest.scala:65)
+	at org.apache.spark.sql.delta.hooks.GenerateSymlinkManifest$.run(GenerateSymlinkManifest.scala:41)
+	at org.apache.spark.sql.delta.OptimisticTransactionImpl.$anonfun$runPostCommitHooks$2(OptimisticTransaction.scala:853)
+	at org.apache.spark.sql.delta.OptimisticTransactionImpl.$anonfun$runPostCommitHooks$2$adapted(OptimisticTransaction.scala:851)
+	at scala.collection.mutable.ResizableArray.foreach(ResizableArray.scala:62)
+	at scala.collection.mutable.ResizableArray.foreach$(ResizableArray.scala:55)
+	at scala.collection.mutable.ArrayBuffer.foreach(ArrayBuffer.scala:49)
+	at org.apache.spark.sql.delta.OptimisticTransactionImpl.runPostCommitHooks(OptimisticTransaction.scala:851)
+	at org.apache.spark.sql.delta.OptimisticTransactionImpl.runPostCommitHooks$(OptimisticTransaction.scala:841)
+	at org.apache.spark.sql.delta.OptimisticTransaction.runPostCommitHooks(OptimisticTransaction.scala:81)
+	at org.apache.spark.sql.delta.OptimisticTransactionImpl.$anonfun$commit$1(OptimisticTransaction.scala:453)
+	at scala.runtime.java8.JFunction0$mcJ$sp.apply(JFunction0$mcJ$sp.java:23)
+	at com.databricks.spark.util.DatabricksLogging.recordOperation(DatabricksLogging.scala:77)
+	at com.databricks.spark.util.DatabricksLogging.recordOperation$(DatabricksLogging.scala:67)
+	at org.apache.spark.sql.delta.OptimisticTransaction.recordOperation(OptimisticTransaction.scala:81)
+	at org.apache.spark.sql.delta.metering.DeltaLogging.recordDeltaOperation(DeltaLogging.scala:103)
+	at org.apache.spark.sql.delta.metering.DeltaLogging.recordDeltaOperation$(DeltaLogging.scala:89)
+	at org.apache.spark.sql.delta.OptimisticTransaction.recordDeltaOperation(OptimisticTransaction.scala:81)
+	at org.apache.spark.sql.delta.OptimisticTransactionImpl.commit(OptimisticTransaction.scala:390)
+	at org.apache.spark.sql.delta.OptimisticTransactionImpl.commit$(OptimisticTransaction.scala:388)
+	at org.apache.spark.sql.delta.OptimisticTransaction.commit(OptimisticTransaction.scala:81)
+	at org.apache.spark.sql.delta.commands.WriteIntoDelta.$anonfun$run$1(WriteIntoDelta.scala:68)
+	at org.apache.spark.sql.delta.commands.WriteIntoDelta.$anonfun$run$1$adapted(WriteIntoDelta.scala:64)
+	at org.apache.spark.sql.delta.DeltaLog.withNewTransaction(DeltaLog.scala:188)
+	at org.apache.spark.sql.delta.commands.WriteIntoDelta.run(WriteIntoDelta.scala:64)
+	at org.apache.spark.sql.delta.sources.DeltaDataSource.createRelation(DeltaDataSource.scala:148)
+	at org.apache.spark.sql.execution.datasources.SaveIntoDataSourceCommand.run(SaveIntoDataSourceCommand.scala:46)
+	at org.apache.spark.sql.execution.command.ExecutedCommandExec.sideEffectResult$lzycompute(commands.scala:70)
+	at org.apache.spark.sql.execution.command.ExecutedCommandExec.sideEffectResult(commands.scala:68)
+	at org.apache.spark.sql.execution.command.ExecutedCommandExec.doExecute(commands.scala:90)
+	at org.apache.spark.sql.execution.SparkPlan.$anonfun$execute$1(SparkPlan.scala:180)
+	at org.apache.spark.sql.execution.SparkPlan.$anonfun$executeQuery$1(SparkPlan.scala:218)
+	at org.apache.spark.rdd.RDDOperationScope$.withScope(RDDOperationScope.scala:151)
+	at org.apache.spark.sql.execution.SparkPlan.executeQuery(SparkPlan.scala:215)
+	at org.apache.spark.sql.execution.SparkPlan.execute(SparkPlan.scala:176)
+	at org.apache.spark.sql.execution.QueryExecution.toRdd$lzycompute(QueryExecution.scala:132)
+	at org.apache.spark.sql.execution.QueryExecution.toRdd(QueryExecution.scala:131)
+	at org.apache.spark.sql.DataFrameWriter.$anonfun$runCommand$1(DataFrameWriter.scala:989)
+	at org.apache.spark.sql.execution.SQLExecution$.$anonfun$withNewExecutionId$5(SQLExecution.scala:103)
+	at org.apache.spark.sql.execution.SQLExecution$.withSQLConfPropagated(SQLExecution.scala:163)
+	at org.apache.spark.sql.execution.SQLExecution$.$anonfun$withNewExecutionId$1(SQLExecution.scala:90)
+	at org.apache.spark.sql.SparkSession.withActive(SparkSession.scala:772)
+	at org.apache.spark.sql.execution.SQLExecution$.withNewExecutionId(SQLExecution.scala:64)
+	at org.apache.spark.sql.DataFrameWriter.runCommand(DataFrameWriter.scala:989)
+	at org.apache.spark.sql.DataFrameWriter.saveToV1Source(DataFrameWriter.scala:438)
+	at org.apache.spark.sql.DataFrameWriter.saveInternal(DataFrameWriter.scala:362)
+	at org.apache.spark.sql.DataFrameWriter.save(DataFrameWriter.scala:293)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:566)
+	at py4j.reflection.MethodInvoker.invoke(MethodInvoker.java:244)
+	at py4j.reflection.ReflectionEngine.invoke(ReflectionEngine.java:357)
+	at py4j.Gateway.invoke(Gateway.java:282)
+	at py4j.commands.AbstractCommand.invokeMethod(AbstractCommand.java:132)
+	at py4j.commands.CallCommand.execute(CallCommand.java:79)
+	at py4j.GatewayConnection.run(GatewayConnection.java:238)
+	at java.base/java.lang.Thread.run(Thread.java:834)

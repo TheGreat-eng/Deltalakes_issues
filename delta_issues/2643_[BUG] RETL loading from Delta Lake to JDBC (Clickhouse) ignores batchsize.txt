@@ -1,0 +1,125 @@
+## Bug
+
+For the last couple of days I'm researching a bug that is present when I'm trying to RETL from delta lake to clickhouse JDBC. After researching I've managed to isolate the problem to Delta Lake. 
+
+related issue:= https://github.com/ClickHouse/clickhouse-java/issues/1301
+
+I have had extensive support from Clickhouse and both of us are not able to find the problem. 
+
+I managed to exclude a possible Network issue with S3 (where the delta lake files are stored) by both testing CSV RETL loading from S3 and using a range of different S3 locations. (Local-hosted Minio, Digital Ocean Kubernetes Hosted Minio, Digitital Ocean Spaces (their S3 environment)) All resulted in the same issue.
+
+So it looks like Delta Lake + Clickhouse is causing the issue. 
+
+Before switching to Clickhouse I was using Postgres as warehouse. When the files became to large I switched, mostly because the loading took ages. I expect when I switch back I will see the same behavior. 
+
+### Describe the problem
+
+So, when I'm reading a table from Delta Lake and then writing it to Clickhouse it looks like the rows are being read and then written per line. Resulting in an extremely slow RETL process. 
+
+#### Steps to reproduce
+
+df = spark.read.format("delta").load("s3a://<file>")
+
+df.write.format("jdbc").option("driver", "com.clickhouse.jdbc.ClickHouseDriver")
+.option(
+"dbtable",
+(
+f"{client_write_args['database']}"
+f".{client_write_args['table']}"
+),
+)
+.option("ssl", client_write_args.get("enableSSL", False))
+.option("url", self.source)
+.option("user", client_write_args["user"])
+.option("password", client_write_args["password"])
+.option("batchsize", 100_000)
+.option("async_insert", "1")
+.option("isolationLevel", "NONE")
+.mode("append")
+.save()
+
+My spark session:
+from pyspark.sql import SparkSession
+from src.common.config.config import Config as Config
+
+builder = (
+SparkSession.builder.appName([Config.spark.app](http://config.spark.app/)_name)
+.master(Config.spark.master_url)
+.config("spark.submit.deployMode", "client")
+.config("spark.hadoop.fs.s3a.endpoint", [Config.data](http://config.data/)_lake.endpoint)
+.config("spark.hadoop.fs.s3a.access.key", [Config.data](http://config.data/)_lake.key)
+.config("spark.hadoop.fs.s3a.secret.key", [Config.data](http://config.data/)_lake.secret)
+.config("[spark.hadoop.fs.s3a.committer.name](http://spark.hadoop.fs.s3a.committer.name/)", "partitioned")
+.config("[spark.hadoop.fs.s3a.path.style](http://spark.hadoop.fs.s3a.path.style/).access", True)
+.config(
+"spark.hadoop.fs.s3a.impl", "org.apache.hadoop.fs.s3a.S3AFileSystem"
+)
+.config(
+"spark.jars",
+(
+"target/dataleaf-1.0-SNAPSHOT.jar,"
+"drivers/clickhouse-jdbc-0.4.1-all.jar"
+),
+)
+.config(
+"spark.driver.extraClassPath",
+"drivers/postgresql-42.4.1.jar:drivers/clickhouse-jdbc-0.4.1-all.jar",
+)
+.config("spark.driver.memory", "15g")
+.config("spark.sql.extensions", "[io.delta](http://io.delta/).sql.DeltaSparkSessionExtension")
+.config(
+"spark.sql.catalog.spark_catalog",
+"[org.apache.spark.sql.delta](http://org.apache.spark.sql.delta/).catalog.DeltaCatalog",
+)
+)
+spark = builder.getOrCreate()
+
+#### Observed results
+
+When enabling the logger there is some strange behavior going on. The per line inserts are not consistent. From the following logs you can see an per line insert:
+
+23/03/26 21:57:00 DEBUG AbstractClient: Connecting to: ClickHouseNode [uri=https://dyg19oq7id.eu-central-1.aws.clickhouse.cloud:8443/default, options={async_insert=1,rewriteBatchedInserts=true,wait_for_async_insert=0,max_partitions_per_insert_block=10000}]@-409586577
+23/03/26 21:57:00 DEBUG AbstractClient: Connection established: com.clickhouse.client.http.HttpUrlConnectionImpl@3410d4ed
+23/03/26 21:57:00 DEBUG ClickHouseHttpClient: Query: INSERT INTO galileo_warehouse.6d46d869c0 ("indeling_id","id","beleid_id","model","naam","niv1","niv1_code","niv2","niv2_code","niv3","niv3_code") VALUES (11,32,530,NULL,'HGSOORTGEWELD','Overig','Overig','Overig algemeen','Overig','Overig algemeen','Overig')
+23/03/26 21:57:01 DEBUG AbstractClient: Connecting to: ClickHouseNode [uri=https://dyg19oq7id.eu-central-1.aws.clickhouse.cloud:8443/default, options={async_insert=1,rewriteBatchedInserts=true,wait_for_async_insert=0,max_partitions_per_insert_block=10000}]@-409586577
+23/03/26 21:57:01 DEBUG AbstractClient: Connection established: com.clickhouse.client.http.HttpUrlConnectionImpl@35a5e199
+
+
+And then sometimes it is doing batch inserts:
+
+23/03/27 14:04:38 DEBUG AbstractClient: Connecting to: ClickHouseNode [uri=https://dyg19oq7id.eu-central-1.aws.clickhouse.cloud:8443/default]@-1248700257
+23/03/27 14:04:38 DEBUG AbstractClient: Connection established: com.clickhouse.client.http.HttpUrlConnectionImpl@137be25f
+23/03/27 14:04:38 DEBUG ClickHouseHttpClient: Query: INSERT INTO galileo_warehouse.b4fa28a8e4 ("gemeente_id","gemeente_naam","stedelijkheid")
+FORMAT RowBinary
+
+see the FORMAT RowBinary
+
+
+making me think that there is some buffer size doing this. A correlation between the number of columns and the change of doing batch inserts seems to be present. 
+
+#### Expected results
+
+The batchsize in the writing to a JDBC driver is not being adhered. Somewhere a spark optimization is causing this issue. 
+
+
+#### Further details
+
+It becomes even more strange; for example adding:
+
+df = spark.createDataFrame(df.toPandas(), schema=df.schema)
+
+does not help, and still results in the same problem. 
+
+### Environment information
+
+* Delta Lake version: 2.2.0
+* Spark version: 3.3.2
+* Scala version: 2.12
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [X ] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute a bug fix at this time.

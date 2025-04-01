@@ -1,0 +1,22 @@
+#### Which Delta project/connector is this regarding?
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [X] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+This PR basically reverts #4020 and then does a few minor additions.
+
+#4020 removed a duplicate verifyDeltaVersions function, however, upon retrospect, those two functions had slightly different semantics. Basically, after #4020, this function is called both when asking for the changes of a table between two versions, and when constructing a Snapshot. The error messages it currently throws is not applicable to both of these different callsite invocations.
+
+I tried a few times to keep it unified, but given that the code is so simple yet we want slightly different errors thrown, I decided just to revert the change.
+
+## How was this patch tested?
+
+Mainly just a revert. Existing UTs
+
+## Does this PR introduce _any_ user-facing changes?
+
+No.

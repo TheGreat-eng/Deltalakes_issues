@@ -1,0 +1,1 @@
+delta-io/connectors is deprecated. Remove its references from this repo.

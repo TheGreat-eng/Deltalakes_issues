@@ -1,0 +1,2 @@
+I really enjoyed working with delta tables on minio hive presto spark; in a batch mode and I am curious to know whether the delta tables are proper for spark or flink event processing with many insert and update events?
+Thanks

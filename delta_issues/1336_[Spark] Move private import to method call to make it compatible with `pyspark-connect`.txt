@@ -1,0 +1,21 @@
+#### Which Delta project/connector is this regarding?
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+This PR proposes to move import from `from pyspark.sql.column import _to_seq ` to `from pyspark.sql.classic.column import _to_seq `
+
+`pyspark.sql.column._to_seq` has moved to `pyspark.sql.classic.column._to_seq`, and `pyspark.sql.classic` does not exist in `pyspark-connect` package.
+
+## How was this patch tested?
+
+Manually tested.
+
+## Does this PR introduce _any_ user-facing changes?
+
+Yes, this makes `delta.tables` compatible with pure Python library `pyspark-connect` (in Spark development branch).

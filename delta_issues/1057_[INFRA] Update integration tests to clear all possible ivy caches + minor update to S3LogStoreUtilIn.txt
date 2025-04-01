@@ -1,0 +1,35 @@
+<!--
+Thanks for sending a pull request!  Here are some tips for you:
+  1. If this is your first time, please read our contributor guidelines: https://github.com/delta-io/delta/blob/master/CONTRIBUTING.md
+  2. If the PR is unfinished, add '[WIP]' in your PR title, e.g., '[WIP] Your PR title ...'.
+  3. Be sure to keep the PR description updated to reflect all changes.
+  4. Please write your PR title to summarize what this PR proposes.
+  5. If possible, provide a concise example to reproduce the issue for a faster review.
+  6. If applicable, include the corresponding issue number in the PR title and link it in the body.
+-->
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [X] Other (INFRA)
+
+## Description
+
+During integration testing and QA for the 4.0 preview release we noticed clearing the `~/.ivy2/` caches was not sufficient. This PR updates any scripts that clear artifacts to check for any subfolders that start with ".ivy" and clear any artifacts from there.
+
+Also removes the conf setting `ProfileCredentialsProvider` as the credential provider for `S3LogStoreUtilIntegrationTest`. The default credential chain provider should include `ProfileCredentialsProvider` anyways, and removing it allows us to provide credentials in any of the other ways supported in the chain provider.
+
+## How was this patch tested?
+
+Ran the `S3LogStoreUtilIntegrationTest` as well as ran `run-integration-tests.py` locally to check it clears the right caches.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No.

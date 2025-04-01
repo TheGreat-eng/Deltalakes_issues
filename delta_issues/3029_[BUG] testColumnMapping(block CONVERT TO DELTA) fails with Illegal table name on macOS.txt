@@ -1,0 +1,28 @@
+## Bug
+
+### Describe the problem
+
+```console
+$ build/sbt 'core/testOnly *.DeltaColumnMappingSuite -- -z "block CONVERT TO DELTA"'
+...
+[info] - block CONVERT TO DELTA *** FAILED *** (3 seconds, 426 milliseconds)
+[info]   Testing under mode: name Expected exception java.lang.UnsupportedOperationException to be thrown, but org.apache.spark.sql.catalyst.parser.ParseException was thrown (DeltaColumnMappingSuite.scala:1011)
+[info]   org.scalatest.exceptions.TestFailedException:
+[info]   at org.scalatest.Assertions.newAssertionFailedException(Assertions.scala:472)
+...
+[info]   Cause: org.apache.spark.sql.catalyst.parser.ParseException: Illegal table name parquet./private/var/folders/k_/4tl__g7d589cw78q8f11ykrw0000gn/T/spark-9f8c3862-387f-4457-ba30-60f6d1139f90(line 1, pos 17)
+[info]
+[info] == SQL ==
+[info] convert to delta parquet.`/private/var/folders/k_/4tl__g7d589cw78q8f11ykrw0000gn/T/spark-9f8c3862-387f-4457-ba30-60f6d1139f90` partitioned by (key1 String)
+[info] -----------------^^^
+[info]   at io.delta.sql.parser.DeltaSqlAstBuilder.$anonfun$visitTableIdentifier$1(DeltaSqlParser.scala:252)
+[info]   at org.apache.spark.sql.catalyst.parser.ParserUtils$.withOrigin(ParserUtils.scala:133)
+[info]   at io.delta.sql.parser.DeltaSqlAstBuilder.visitTableIdentifier(DeltaSqlParser.scala:249)
+...
+```
+
+### Environment information
+
+* Delta Lake version: commit 56e1b9b417e8815cd7003eaf1796988c670b8b0d
+* macOS Big Sur 11.6.6
+* openjdk version "11.0.15" (Temurin-11.0.15+10 (build 11.0.15+10))

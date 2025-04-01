@@ -1,0 +1,14 @@
+## Description
+
+Support following SQL queries on Delta tables to allow reading from a specific version
+```
+SELECT * FROM default.people10m VERSION AS OF 0;
+
+SELECT * FROM default.people10m TIMESTAMP AS OF '2019-01-29 00:37:58';
+```
+
+## How was this patch tested?
+Unit tests
+
+## Does this PR introduce _any_ user-facing changes?
+Now the user SQL queries `AS OF` are supported on Delta tables.

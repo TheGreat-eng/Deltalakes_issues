@@ -1,0 +1,20 @@
+
+
+#### Which Delta project/connector is this regarding?
+
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+This PR updates the comments of delta table property `delta.redirectReaderWriter-preview`.
+## How was this patch tested?
+
+No test needed
+
+## Does this PR introduce _any_ user-facing changes?
+NO.

@@ -1,0 +1,16 @@
+in the [doc](https://docs.delta.io/0.7.0/delta-utility.html#describe-detail)
+```
+DESCRIBE DETAIL '/data/events/'
+
+DESCRIBE HISTORY delta.`/data/events/`
+
+DESCRIBE HISTORY eventsTable
+```
+mybe it should like this:
+```
+DESCRIBE DETAIL '/data/events/'
+
+DESCRIBE DETAIL delta.`/data/events/`
+
+DESCRIBE DETAIL eventsTable
+```

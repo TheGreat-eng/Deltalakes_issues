@@ -1,0 +1,6 @@
+- move Dockerfile to a `docker` folder and supplied build/run example commands
+- The driver for doing this is isolation, which leads to solutions for the following issues:
+    + Dockerfile at root of repo forces a root build context (all files in the build context unless a docker ignore is used)
+    + Dockerfile in the root complicates a binder deployment accompanying the quickstart and other hands-on Delta/Delta docs content
+
+The current build instructions refer to the root build context and the resultant docker image is currently the same as it was prior to isolating the Dockerfile.  We may build upon this by leveraging docker ignore files or other strategies to have a more specific and compact build.

@@ -1,0 +1,7 @@
+When I reimplement this benchmark in my server, how can I download or make Input data `s3://devrel-delta-datasets/tpcds-2.13/tpcds_sf1_parquet/` and `s3://devrel-delta-datasets/tpcds-2.13/tpcds_sf3000_parquet/`?
+How can I download this dataset? Is it necessary to use an S3 bucket or how can I buy this input data? Alternatively, how can I generate `.parquet` format files from TPC-DS?
+
+I tried to use TPC-DS tool to generate `.dat` format files, but their schema is not included. And I have no idea how to generate or transform files into `.parquet` format files.
+
+I would greatly appreciate it if it could be resolved!
+Thanks!

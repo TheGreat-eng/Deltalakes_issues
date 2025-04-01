@@ -1,0 +1,19 @@
+#### Which Delta project/connector is this regarding?
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+For a long time now, `CheckpointsSuite` is the only class that implements the `CheckpointsSuiteBase` trait. The division serves no purpose, so fold the trait into the class.
+
+## How was this patch tested?
+
+Test-only change.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No.

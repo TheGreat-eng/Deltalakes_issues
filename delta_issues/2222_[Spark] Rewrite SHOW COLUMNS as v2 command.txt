@@ -1,0 +1,19 @@
+#### Which Delta project/connector is this regarding?
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+The Delta verison of SHOW COLUMNS command used to rely on a hacky custom SQL parser rule, but it turns out this is unnecessary -- we can simply add a new DeltaAnalysis rule to intercept the v2 `ShowColumns` command, and replace it with the Delta-specific `ShowDeltaTableColumnsCommand` (which we rename and also upgrade to v2, so it doesn't trigger extra catalog lookups any more).
+
+## How was this patch tested?
+
+Existing unit tests updated.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No.

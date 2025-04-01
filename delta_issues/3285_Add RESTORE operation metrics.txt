@@ -1,0 +1,22 @@
+This change adds the following metrics to Delta commit log as part of committing RESTORE changes.
+
+```
+    "tableSizeAfterRestore", // table size in bytes after restore
+    "numOfFilesAfterRestore", // number of files in the table after restore
+    "numRemovedFiles", // number of files removed by the restore operation
+    "numRestoredFiles", // number of files that were added as a result of the restore
+    "removedFilesSize", // size in bytes of files removed by the restore
+    "restoredFilesSize" // size in bytes of files added by the restore
+```
+
+Same metrics are output as command output.
+```
+   "table_size_after_restore"
+    "num_of_files_after_restore"
+    "num_removed_files"
+    "num_restored_files"
+    "removed_files_size"
+    "restored_files_size"
+```
+
+GitOrigin-RevId: 5cb482912aeab412eba1ec2fe371c8cf586f8fba

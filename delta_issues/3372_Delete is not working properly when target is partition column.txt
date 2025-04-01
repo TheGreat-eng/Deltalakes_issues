@@ -1,0 +1,16 @@
+
+I am trying to delete partition using pyspark dataframe
+
+```
+df = DeltaTable.forPath(spark, "s3a://421721-deltalake-test-bucket/data-l1/mart_1/")
+df.delete("state = 'Australian Capital Territory'")
+deltaTable = DeltaTable.forPath(spark, "s3a://421721-deltalake-test-bucket/data-l1/mart_1/")
+deltaTable.generate("symlink_format_manifest")
+```
+
+state is a partition column.
+
+expected : the directory and manifest file of the deleted partition in _symlink_format_manifest are deleted, and when user tries to query that delete partition in Athena(select * from testtable where state='Australian Capital Territory''), no data returns.
+
+actual result : if the deleting partition data includes space or dash('-'), manifest file is not deleted and user can query that data from Athena.  In above example, "Australian Capital Territory" has spaces, deleting partition does not work properly.
+

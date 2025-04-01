@@ -1,0 +1,15 @@
+## Description
+
+This PR is a follow-up of https://github.com/delta-io/delta/pull/1179, which added terraform for benchmarks infrastructure deployment. This PR, in turn, enables to run TCPDS performance benchmarks on AWS EKS.
+
+Please see the `benchmarks/infrastructure/aws/terraform/README.md` updates for more details.
+
+## How was this patch tested?
+
+I manually ran the benchmarks on AWS EKS.
+
+What is more, I ran benchmarks on AWS EMR and Google Dataproc to ensure nothing is broken.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No.

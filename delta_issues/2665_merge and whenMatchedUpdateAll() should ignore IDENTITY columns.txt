@@ -1,0 +1,21 @@
+## Feature request
+
+### Overview
+
+When using schema evolution having access to merge is valuable. However whenMatchedUpdateAll() doesn't ignore IDENTITY columns making the only solution manually map the specific columns.
+
+### Motivation
+
+<!-- How will this feature be used? Why is it important? Which users will benefit from it? -->
+
+### Further details
+
+I suggest that the merge whenMatchedUpdate(), whenNotMatchedInsert() etc should disregard the Identity columns
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [ ] Yes. I can contribute this feature independently.
+- [ ] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [X] No. I cannot contribute this feature at this time. (unsure of the technical expertise in our team)

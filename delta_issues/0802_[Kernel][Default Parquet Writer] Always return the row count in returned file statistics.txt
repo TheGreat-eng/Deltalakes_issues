@@ -1,0 +1,7 @@
+## Description
+Currently, the default Parquet writer returnes `numRows` statistics only if one or more column statistics are requested. This changes to always return the `numRows` in `DataFileStatus`. It is easy to compute the number of rows written without reading the Parquet footer. Reading parquet footer is needed for finding the column stats for written file.
+
+The `numRows` stat is needed for supporting writing into Uniform enabled tables.
+
+## How was this patch tested?
+Modify existing tests.

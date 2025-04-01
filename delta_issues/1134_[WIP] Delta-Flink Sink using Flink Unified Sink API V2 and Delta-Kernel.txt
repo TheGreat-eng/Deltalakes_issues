@@ -1,0 +1,15 @@
+#### Which Delta project/connector is this regarding?
+
+- [ ] Spark
+- [ ] Standalone
+- [X] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+TODO
+
+## How was this patch tested?
+
+TODO

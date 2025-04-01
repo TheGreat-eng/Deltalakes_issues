@@ -1,0 +1,18 @@
+```scala 
+ def merge(source: DataFrame, condition: String): DeltaMergeBuilder = {
+    merge(source, functions.expr(condition))
+  }
+def merge(source: DataFrame, condition: Column): DeltaMergeBuilder = {
+    DeltaMergeBuilder(this, source, condition)
+  }
+```
+The second parameters type is Column,but the doc is still same with the first merge's doc,like below:
+
+* Scala example to update a key-value Delta table with new key-values from a source DataFrame:
+```scala
+       deltaTable
+        .as("target")
+        .merge(
+          source.as("source"),
+          "target.key = source.key")
+```

@@ -1,0 +1,38 @@
+## Broad Picture
+Given that users need to run vacuum manually on the tables, one common way to achieve that is to have a periodic vacuum job that runs on all your tables.
+Running on all tables, could mean that we are running it even on tables where we haven't removed any file since the last time vacuum ran. 
+
+This could result in increased processing time as well as increased costs from the storage provider such as s3 for LIST calls.
+
+
+## Possible implementation
+
+An ideal solution would check if the table ever has had a vacuum run, and if so, has any new file been removed since then. 
+
+A simpler solution would be to see if the last command was vacuum
+
+```scala
+val lastCommand : Action  = deltaLog.commandLog.last
+lastCommand match {
+  case Vacuum => 
+  case _ => gc()
+}
+```
+
+## Blocker
+
+This solution requires that we log somewhere if VACUUM ran or not, and from the code it seems like the logging for Vacuum atleast so far is a no-op, here https://github.com/delta-io/delta/blob/6d9420539e9b00f8df8d5bc80ce6aa7a5a9f3b7d/src/main/scala/com/databricks/spark/util/DatabricksLogging.scala#L48-L57
+
+One overkilling way to achieve that would be to add it to transaction log in ? Along with all add/remove/convert operations we log in https://github.com/delta-io/delta/blob/master/src/main/scala/org/apache/spark/sql/delta/DeltaOperations.scala.
+
+
+I might be missing how much more work this could be or if it breaks certain ACID guarantees.
+
+
+### Alternative Ideas
+
+- Run VACUUM after writing. 
+	- The issue is that every writer needs to call it, and having multiple different writers/jobs that's basically code replication. Maybe having a post write trigger in delta tables could be helpful?
+
+- Bear the cost of compute/list
+- Create a log of `removedFiles` for each table. Therefore `deltaTable.removedFiles == lastTimeWhenJobRan.removedFiles` means nothing to do.

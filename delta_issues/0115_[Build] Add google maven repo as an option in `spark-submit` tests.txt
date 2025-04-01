@@ -1,0 +1,5 @@
+## Description
+Add Google maven repo as an option for dependency lookup. Currently it defaults to maven central which has lower rate limits.
+
+## How was this patch tested?
+Locally tested, by setting `0.0.0.0		https://repo1.maven.org/maven2/` in `/etc/hosts` (request to maven central fails and should try to use other repos)

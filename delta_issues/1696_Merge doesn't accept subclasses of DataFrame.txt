@@ -1,0 +1,8 @@
+I'm using [typedspark](https://github.com/kaiko-ai/typedspark/tree/main/docs/source) to set types for dataframes and when trying to merge a [DataSet](https://github.com/kaiko-ai/typedspark/blob/main/typedspark/_core/dataset.py) which sub classes  Dataframes the merge fails. with the error.
+
+"TypeError: Type of 'source' in merge must be DataFrame."
+
+the offending line is here 
+https://github.com/delta-io/delta/blob/49f2625423e16a7d0f6c7892145c7b3eed329052/python/delta/tables.py#L217
+
+can we change this to an isinstance instead of type ?

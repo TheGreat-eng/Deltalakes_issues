@@ -1,0 +1,26 @@
+I use sbt compile failed
+➜  ~/workspace/delta git:(branch-0.7) ✗ build/sbt compile
+[Info] Loading global plugins from /Users/sen/.sbt/0.13/plugins
+[info] Loading project definition from /Users/sen/workspace/delta/project/project
+[info] Loading project definition from /Users/sen/workspace/delta/project
+Missing bintray credentials /Users/sen/.bintray/.credentials. Some bintray features depend on this.
+[info] Set current project to delta-core (in build file:/Users/sen/workspace/delta/)
+[info] Executing in batch mode. For better performance use sbt's shell
+[info] scalastyle using config /Users/sen/workspace/delta/scalastyle-config.xml
+[info] scalastyle Processed 95 file(s)
+[info] scalastyle Found 0 errors
+[info] scalastyle Found 0 warning
+[info] scalastyle Found 0 infos
+[info] scalastyle Finished in 9 ms
+[success] created output: /Users/sen/workspace/delta/target
+[warn] Credentials file /Users/sen/.bintray/.credentials does not exist
+[info] Compiling 95 Scala sources and 6 Java sources to /Users/sen/workspace/delta/target/scala-2.12/classes...
+[error] bad option: -P:genjavadoc:out=/Users/sen/workspace/delta/target/java
+[error] bad option: -P:genjavadoc:strictVisibility=true
+[error] two errors found
+[error] (compile:compileIncremental) Compilation failed
+
+my java version is:
+java version "1.8.0_251"
+Java(TM) SE Runtime Environment (build 1.8.0_251-b08)
+Java HotSpot(TM) 64-Bit Server VM (build 25.251-b08, mixed mode)

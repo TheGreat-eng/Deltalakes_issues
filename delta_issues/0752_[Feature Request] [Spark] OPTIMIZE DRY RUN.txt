@@ -1,0 +1,24 @@
+## Feature request
+
+#### Which Delta project/connector is this regarding?
+- [X] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+### Overview
+Follow-up of https://github.com/delta-io/delta/issues/3081#issuecomment-2146199949.
+
+It would work similar to VACUUM DRY RUN, showing the list of files and its size, and a message of total number/size.
+
+### Motivation
+OPTIMIZE command can take several minutes to run, adding a DRY RUN option gives the user some idea of how many files are eligible for optimization and then they can plan accordingly.
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [ ] Yes. I can contribute this feature independently.
+- [ ] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [X] No. I cannot contribute this feature at this time.

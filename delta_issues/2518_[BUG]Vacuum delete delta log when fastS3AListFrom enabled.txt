@@ -1,0 +1,45 @@
+## Bug
+Vacuum delete delta log when fastS3AListFrom enabled
+### Describe the problem
+[#1210 ](https://github.com/delta-io/delta/pull/1210)
+when delta.enableFastS3AListFrom=true, We change the implementation to use the [startAfter](https://sdk.amazonaws.com/java/api/latest/software/amazon/awssdk/services/s3/model/ListObjectsV2Request.html#startAfter--) parameter such that we only get keys lexicographically greater or equal than the resolved path in the S3 list response.
+But S3ListRequest.v2 is recursive, and S3AFileSystem.listStatus is non-recursive. When vacuum gets allFilesAndDirs, it will not only get parquet data files, but also get delta log files, causing the delta log to be deleted.
+
+#### Steps to reproduce
+First set SparkSession config spark.hadoop.delta.enableFastS3AListFrom=true，and set s3 related connection information.
+```
+spark.range(10)
+      .write.mode("overwrite").format("delta")
+      .save(tempDir)
+spark.range(10)
+      .write.mode("overwrite").format("delta")
+      .save(tempDir)
+io.delta.tables.DeltaTable.forPath(tempDir).vacuum(0)
+```
+
+#### Observed results
+In addition to data files being cleaned up, log files are also cleaned up.
+<!-- What happened?  This could be a description, log output, etc. -->
+
+#### Expected results
+Clean data files only.
+<!-- What did you expect to happen? -->
+
+#### Further details
+
+<!--
+Include any additional details that may be useful for diagnosing the problem here. If including tracebacks, please include the full traceback. Large logs and files should be attached.
+-->
+
+### Environment information
+
+* Delta Lake version: 2.3.0
+* Spark version: 3.3.2
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [x] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute a bug fix at this time.

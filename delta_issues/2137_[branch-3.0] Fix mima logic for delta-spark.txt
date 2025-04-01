@@ -1,0 +1,21 @@
+## Description
+
+Previously, the command `build/sbt spark/mimaPreviousClassfiles` was failing with:
+
+```
+[info] Resolved  dependencies
+[error] sbt.librarymanagement.ResolveException: Error downloading io.delta:delta-spark_2.12:2.4.0
+[error]   Not found
+[error]   not found: /Users/scott.sandre/.ivy2/localio.delta/delta-spark_2.12/2.4.0/ivys/ivy.xml
+[error]   not found: https://repo1.maven.org/maven2/io/delta/delta-spark_2.12/2.4.0/delta-spark_2.12-2.4.0.pom
+```
+
+due to our previous logic in `Mima.scala`:
+- `getPrevSparkVersion(3.0.1-SNAPSHOT)` --> correctly returned `2.4.0`
+- `getPrevSparkName(3.0.1-SNAPSHOT)` --> incorrectly returned `delta-spark` (instead of `delta-core`)
+
+We need to better couple our logic of "prev version" and "prev spark name" so that there is no mismatch here. This PR does just that.
+
+## How was this patch tested?
+
+`build/sbt spark/mimaPreviousClassfiles` passes now.

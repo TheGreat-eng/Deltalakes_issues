@@ -1,0 +1,85 @@
+DELTA [protocol](https://github.com/delta-io/delta/blob/master/PROTOCOL.md#column-invariants) on Column Invariants Feature seems unclear/misleading:
+
+The example provided in the doc was:
+
+```json
+{
+    "type": "struct",
+    "fields": [
+        {
+            "name": "x",
+            "type": "integer",
+            "nullable": true,
+            "metadata": {
+                "delta.invariants": "{\"expression\": { \"expression\": \"x > 3\"} }"
+            }
+        }
+    ]
+}
+```
+
+This looks like legacy syntax to me. By using Delta 3.2.0, I couldn't find a way to create/alter a table to have `delta.invariants` field in the metadata.
+
+If I add an "invariant" like this:
+
+```sql
+CREATE TABLE default USING DELTA LOCATION '/tmp/delta/default';
+ALTER TABLE default ADD COLUMN val int;
+ALTER TABLE default ADD CONSTRAINT valPos CHECK (val > 0);
+```
+
+then  `2.json` is:
+
+```json
+{"commitInfo":{"timestamp":1722753492725,"operation":"ADD CONSTRAINT","operationParameters":{"name":"valPos","expr":"val > 0"},"readVersion":1,"isolationLevel":"Serializable","isBlindAppend":false,"operationMetrics":{},"engineInfo":"Apache-Spark/3.5.1 Delta-Lake/3.2.0","txnId":"ba0e9faf-1c97-4857-b5e9-7a6da876ec79"}}
+{"metaData":{"id":"1ff4890b-b799-4f11-a3ed-f01cd0468b9b","format":{"provider":"parquet","options":{}},"schemaString":"{\"type\":\"struct\",\"fields\":[{\"name\":\"val\",\"type\":\"integer\",\"nullable\":true,\"metadata\":{}}]}","partitionColumns":[],"configuration":{"delta.constraints.valpos":"val > 0"},"createdTime":1722753440028}}
+{"protocol":{"minReaderVersion":1,"minWriterVersion":3}}
+```
+
+we can see a new config `delta.constraints` rather than `delta.invariants`.
+
+I then altered the table to be reader version 3 & writer version 7:
+
+```sql
+ALTER TABLE default SET TBLPROPERTIES('delta.minReaderVersion' = '3', 'delta.minWriterVersion' = '7')
+```
+
+then `3.json` is:
+
+```json
+{"commitInfo":{"timestamp":1722754444383,"operation":"SET TBLPROPERTIES","operationParameters":{"properties":"{\"delta.minReaderVersion\":\"3\",\"delta.minWriterVersion\":\"7\"}"},"readVersion":2,"isolationLevel":"Serializable","isBlindAppend":true,"operationMetrics":{},"engineInfo":"Apache-Spark/3.5.1 Delta-Lake/3.2.0","txnId":"bfa8db47-32ae-4dd2-b62c-b37bb0b7e460"}}
+{"metaData":{"id":"1ff4890b-b799-4f11-a3ed-f01cd0468b9b","format":{"provider":"parquet","options":{}},"schemaString":"{\"type\":\"struct\",\"fields\":[{\"name\":\"val\",\"type\":\"integer\",\"nullable\":true,\"metadata\":{}}]}","partitionColumns":[],"configuration":{"delta.constraints.valpos":"val > 0"},"createdTime":1722753440028}}
+{"protocol":{"minReaderVersion":3,"minWriterVersion":7,"readerFeatures":[],"writerFeatures":["appendOnly","checkConstraints","invariants"]}}
+```
+
+As we can see, the "constraint" I added is essentially a combination of two features: "checkConstraints" & "invariants".
+
+So far, the only scenario I found that "invariants" appears alone is: adding "NOT NULL" constraint. 
+
+My experiments lead to me to the following belief:
+
+1) "Invariants" is a legacy feature that used to represent both "check constraint" and "not null constraint".
+2) Since version (reader 3, writer 7), if feature "invariants" exists but not "checkConstraints", then the table supports "NOT NULL" constraint but not "check constraint" (e.g. expression x > 3).
+
+I propose that we fix/amend the PROTOCOL doc. What remains unclear to me is, is it legal to have a table on version (reader 3, writer 7) to support only "invariants" but not "checkConstraints", AND has `"delta.invariants"` in column metadata?
+
+A clarification is much appreciated.
+
+References:
+1. [This comment](https://github.com/delta-io/delta/issues/1239#issuecomment-1189318770) suggests "invariants is being deprecated".
+2. https://docs.delta.io/latest/versioning.html#-table-version doesn't even mention "Invariants" (as of date 8/4/2024).
+3. [This comment](https://github.com/delta-io/delta/issues/1239#issuecomment-1698245202) by @wjones127 also suggests invariants should be narrowed to be only for "NOT NULL".
+
+### Environment information
+
+* Delta Lake version: 3.2.0
+* Spark version: 2.12
+* Scala version:
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [x] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute a bug fix at this time.

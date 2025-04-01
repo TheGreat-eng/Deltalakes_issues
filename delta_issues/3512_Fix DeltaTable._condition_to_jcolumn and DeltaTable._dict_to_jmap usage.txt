@@ -1,0 +1,3 @@
+Correct `DeltaTable._condition_to_jcolumn` and `DeltaTable._dict_to_jmap` usage and convert both from `@classmethod` to `@staticmethod`
+
+Closes #801

@@ -1,0 +1,71 @@
+## Bug
+The logic for when auto compaction is triggered does not work as documented: already compacted files (files that are >= minFileSize (or maxFileSize / 2) seem to be counted towards the minNumFiles for compaction to be triggered.
+
+
+#### Which Delta project/connector is this regarding?
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+### Describe the problem
+Already compacted files (files that are >= minFileSize (or maxFileSize / 2) seem to be counted towards the minNumFiles for compaction to be triggered. This results in compactions running more frequently as the number of compacted files increases and approaches minNumFiles.
+
+#### Steps to reproduce
+
+```
+# RUN ON CLUSTER w/ 2x8vCore Workers
+spark.conf.set("spark.databricks.delta.autoCompact.minNumFiles", "50")
+spark.conf.set("spark.databricks.delta.autoCompact.maxFileSize", "134217728b")
+
+spark.sql(f"""
+    CREATE TABLE dbo.ac_test
+    TBLPROPERTIES ('delta.autoOptimize.autoCompact' = 'true')
+""")
+
+import pyspark.sql.functions as sf
+
+for i in range(200):
+    data = spark.range(1_000_000) \
+            .withColumn("id", sf.monotonically_increasing_id()) \
+            .withColumn("category", sf.concat(sf.lit("category_"), (sf.col("id") % 10))) \
+            .withColumn("value1", sf.round(sf.rand() * (sf.rand() * 1000), 2)) \
+            .withColumn("value2", sf.round(sf.rand() * (sf.rand() * 10000), 2)) \
+            .withColumn("value3", sf.round(sf.rand() * (sf.rand() * 100000), 2)) \
+            .withColumn("date1", sf.date_add(sf.lit("2022-01-01"), sf.round(sf.rand() * 1000, 0).cast("int"))) \
+            .withColumn("date2", sf.date_add(sf.lit("2020-01-01"), sf.round(sf.rand() * 2000, 0).cast("int"))) \
+            .withColumn("is_cancelled", (sf.col("id") % 3 != 0))
+
+    data.write.mode('append').option("mergeSchema", "true").saveAsTable(f"dbo.ac_test")
+```
+
+
+#### Observed results
+I ran 200 iterations of writing to a Delta table in Databricks vs. OSS Delta and logged the active file count following each write operation and with the same exact configs and code, OSS Delta never exceeds the default minNumFiles of 50. As the accumulated right sized files approaches 50, every write operation triggers compaction to take place. In Databricks it is clear that minNumFiles is based only on uncompacted files.
+
+![Image](https://github.com/user-attachments/assets/7e1f9b70-bef9-45bc-ad03-955eb6d17062)
+
+In the above screenshot it can be seen that there's three different points where the compaction frequency increases until every single addition of ~ 16 files puts the total files over 50 and therefore runs compaction. 
+I ran inputFile() stats on various different versions that triggered compaction and see data like the below: the number of uncompacted files does not exceed 50 but the total number of files does.
+**Uncompacted files below minFileSize: 31**
+Compacted files below maxFileSize, above minFileSize: 33
+Total files: 64
+
+Here's what I'd expect to see (based off of running this same code in Databricks):
+![Image](https://github.com/user-attachments/assets/0d46ba3e-82be-4fce-98f3-ddc100eb187a)
+
+#### Expected results
+Auto-compaction should only trigger once files below minFileSize is >= 50.
+
+### Environment information
+
+* Delta Lake version: 3.2.0.8
+* Spark version: 3.5.1.5.4.20241017.1
+* Scala version: 2.12.17
+
+### Willingness to contribute
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [x] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute a bug fix at this time.

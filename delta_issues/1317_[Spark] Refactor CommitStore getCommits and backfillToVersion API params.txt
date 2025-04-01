@@ -1,0 +1,20 @@
+#### Which Delta project/connector is this regarding?
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+- We use optional startVersion and optional endVersion for getCommits now.
+- We use optional lastKnownBackfilledVersion and a required version for backfillToVersion now since the consumers of backfillToVersion must know the version.
+
+## How was this patch tested?
+
+Various existing UTs
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

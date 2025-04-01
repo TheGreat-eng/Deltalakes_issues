@@ -1,0 +1,5 @@
+## Description
+There have been a few changes to the API recently (eg. delta-io/delta#2383) that need an update to the usage docs and updated API docs.
+
+## How was this patch tested?
+View formatting/links in github rendering.

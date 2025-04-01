@@ -1,0 +1,22 @@
+#### Which Delta project/connector is this regarding?
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [X] Other (BUILD)
+
+## Description
+
+Configure scalafmt. This applies only to Kernel. Scalafmt checks passing is a requirement for Kernel compilation.
+
+- check if formatting is correct: `build/sbt scalafmtCheckAll`
+- fix formatting: `build/sbt scalafmtAll`
+
+## How was this patch tested?
+
+Existing CICD
+
+## Does this PR introduce _any_ user-facing changes?
+
+No.

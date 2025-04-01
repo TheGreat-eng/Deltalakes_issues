@@ -1,0 +1,65 @@
+## Bug
+
+
+### Describe the problem
+
+Using `Dict[str, Union[str, Column]]` in the method arguments makes it very hard to pass anything to the method without failing the type checker. Not only are custom mapping types unsupported (which is a rare use case, but still), but more importantly, the values *must* conform to the `Union[str, Column]` type, which means you cannot use `str`, you cannot use `Column`, it must be a Union of both. 
+
+This is not a useful type hint.
+
+Using a generic `collections.abc.Mapping` fixes this issue. `Mapping` has the added benefit of being an immutable type, which is good to show in the public interface if possible.
+
+*Note*: If you support Python versions below 3.9, use `typing.Mapping` instead, as the collections Mapping is not generic before 3.9.
+
+
+#### Steps to reproduce
+
+Using mypy to check the following code yields an error:
+
+```python
+from delta import DeltaTable
+from pyspark.sql import SparkSession
+
+spark: SparkSession = ...
+
+updates = spark.read.table("updates")
+update_column_dict = {"updates.a": "a"}
+DeltaTable.forName(spark, "target").merge(
+    updates, condition="target.id = updates.id"
+).whenMatchedUpdate(
+    set=update_column_dict
+).execute()
+```
+
+Running `mypy test.py`
+
+```
+error: Argument "values" to "whenMatchedUpdate" of "DeltaMergeBuilder" has incompatible type "Dict[str, str]"; expected "Dict[str, Union[str, Column]]"  [arg-type]
+note: "Dict" is invariant -- see https://mypy.readthedocs.io/en/stable/common_issues.html#variance
+note: Consider using "Mapping" instead, which is covariant in the value type
+```
+
+
+#### Further details
+
+This should be changed to `Mapping[str, ExpressionOrColumn]`
+
+https://github.com/delta-io/delta/blob/c264251a678732d0842d1efa9e5291f6842906bd/python/delta/_typing.py#L22
+
+and then here, check for any mapping instead of a dict:
+
+https://github.com/delta-io/delta/blob/c264251a678732d0842d1efa9e5291f6842906bd/python/delta/tables.py#L669-L671
+
+I might be missing something though.
+
+### Environment information
+
+* Delta Lake version: delta-spark 2.20
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [x] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute a bug fix at this time.

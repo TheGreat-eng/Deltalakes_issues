@@ -1,0 +1,5 @@
+
+org.apache.spark.sql.delta.DeltaIllegalStateException: Unrecognized file action AddFile(part-00000-625eb71e-ea1f-4225-a0d2-4f340755f793-c000.snappy.parquet,Map(),2327,1685071775186,true,null,null) with type class org.apache.spark.sql.delta.actions.AddFile.
+	at org.apache.spark.sql.delta.DeltaErrorsBase.unrecognizedFileAction(DeltaErrors.scala:1705)
+	at org.apache.spark.sql.delta.DeltaErrorsBase.unrecognizedFileAction$(DeltaErrors.scala:1704)
+	at org.apache.spark.sql.delta.DeltaErrors$.unrecognizedFileAction(DeltaErrors.scala:2264)

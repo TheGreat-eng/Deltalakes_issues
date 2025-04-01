@@ -1,0 +1,3 @@
+It is PR for issue with removing partitions in delta table. 
+It was discussed here https://delta-users.slack.com/archives/CJ70UCSHM/p1587048581235000
+And i implemened proposed solution https://delta-users.slack.com/archives/CJ70UCSHM/p1587068793244400

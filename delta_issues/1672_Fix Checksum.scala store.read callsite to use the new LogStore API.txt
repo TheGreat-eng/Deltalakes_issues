@@ -1,0 +1,24 @@
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+Cache the fileStatus of the last-read checksum file in SnapshotManagement.scala. This cache can then be used to potentially invoke the new LogStore read API in Checksum.scala.
+
+## How was this patch tested?
+
+- Assert that `readAsIterator(fileStatus, hadoopConf)` is called > 0 times for .crc files in UTs
+- Existing test suites
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

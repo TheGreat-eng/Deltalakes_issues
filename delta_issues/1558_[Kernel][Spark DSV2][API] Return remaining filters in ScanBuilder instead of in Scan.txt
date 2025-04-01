@@ -1,0 +1,37 @@
+## Feature request
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the issue title
+For example: [Feature Request][Spark] Title of my issue
+-->
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [X] Kernel
+- [ ] Other (fill in here)
+
+### Overview
+
+Currently Kernel supports filtering by providing a query predicate in `ScanBuilder.withFilter`. You are then able to retrieve the remaining predicates (that need to be evaluated on the returned data) after building the scan with `Scan.getRemainingFilter`.
+
+This conflicts with the Spark DSV2 APIs for predicate pushdown.
+- Spark has interface [SupportsPushDownV2Filters](https://github.com/apache/spark/blob/master/sql/catalyst/src/main/java/org/apache/spark/sql/connector/read/SupportsPushDownV2Filters.java) with method `pushPredicates` which returns the remaining predicate _during the scan building phase_:
+```
+  /**
+   * Pushes down predicates, and returns predicates that need to be evaluated after scanning.
+   * <p>
+   * Rows should be returned from the data source if and only if all of the predicates match.
+   * That is, predicates must be interpreted as ANDed together.
+   */
+  Predicate[] pushPredicates(Predicate[] predicates);
+```
+
+This is a suggestion to update Kernel's `ScanBuilder` interface to behave similarly and return the remaining predicate during scan building. We already have access to the table's Metadata (schema and partition info) during building so there is no additional work needed besides splitting the partition and data predicates.
+
+### Motivation
+
+- Unblock a potential future Spark DSV2 connector such that it can correctly get the remaining filter and not re-evaluate all predicates
+- Unblock any other potential connectors that have similar design
+

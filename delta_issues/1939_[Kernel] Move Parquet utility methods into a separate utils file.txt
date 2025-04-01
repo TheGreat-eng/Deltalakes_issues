@@ -1,0 +1,5 @@
+## Description
+Just a refactoring. Currently, the Parquet related utility methods are in the generic utility file. Move them to a separate file as the utility methods are going to increase (with #2374).
+
+## How was this patch tested?
+Existing tests.

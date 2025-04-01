@@ -1,0 +1,55 @@
+## Bug
+
+### Describe the problem
+
+When the target table of SHALLOW CLONE already exists, the SHLLOW CLONE will fails for the error below even CREATE OR REPLACE is used:
+```
+org.apache.spark.sql.delta.DeltaIllegalStateException: The clone destination table is non-empty. Please TRUNCATE or DELETE FROM the table before running CLONE.
+  at org.apache.spark.sql.delta.DeltaErrorsBase.cloneReplaceNonEmptyTable(DeltaErrors.scala:2610)
+  at org.apache.spark.sql.delta.DeltaErrorsBase.cloneReplaceNonEmptyTable$(DeltaErrors.scala:2609)
+  at org.apache.spark.sql.delta.DeltaErrors$.cloneReplaceNonEmptyTable(DeltaErrors.scala:2681)
+  at org.apache.spark.sql.delta.commands.CloneTableBase.runInternal(CloneTableBase.scala:196)
+  at org.apache.spark.sql.delta.commands.CloneTableCommand.run(CloneTableCommand.scala:106)
+```
+I think the expected behavior is overwriting the existing table (i.e., drop it and create a new one with the latest SHALLOW CLONE)
+
+#### Steps to reproduce
+
+Run the same SHALLOW CLONE commands on the same target table twice, e.g.,
+```
+CREATE OR REPLACE TABLE <target> SHALLOW CLONE <source>
+```
+<!--
+Please include copy-pastable code snippets if possible.
+1. _____
+2. _____
+3. _____
+-->
+
+#### Observed results
+
+<!-- What happened?  This could be a description, log output, etc. -->
+
+#### Expected results
+
+<!-- What did you expect to happen? -->
+
+#### Further details
+
+<!--
+Include any additional details that may be useful for diagnosing the problem here. If including tracebacks, please include the full traceback. Large logs and files should be attached.
+-->
+
+### Environment information
+
+* Delta Lake version: 2.3
+* Spark version: 3.3.2
+* Scala version: 2.12
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [ ] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute a bug fix at this time.

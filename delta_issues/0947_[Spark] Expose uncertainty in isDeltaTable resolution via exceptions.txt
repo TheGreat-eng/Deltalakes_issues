@@ -1,0 +1,38 @@
+<!--
+Thanks for sending a pull request!  Here are some tips for you:
+  1. If this is your first time, please read our contributor guidelines: https://github.com/delta-io/delta/blob/master/CONTRIBUTING.md
+  2. If the PR is unfinished, add '[WIP]' in your PR title, e.g., '[WIP] Your PR title ...'.
+  3. Be sure to keep the PR description updated to reflect all changes.
+  4. Please write your PR title to summarize what this PR proposes.
+  5. If possible, provide a concise example to reproduce the issue for a faster review.
+  6. If applicable, include the corresponding issue number in the PR title and link it in the body.
+-->
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+- Add a new codepath (disabled by default except in testing) to `findDeltaTableRoot` (which is the implementation of `isDeltaTable`), that throws the first exception if the passed in path is not accessible, and no accessible parent is found to contain a `_delta_log` folder.
+- This improves error reporting on permission errors, which current often get misreported as `t is not a DeltaTable`.
+- This also reduces the risk for transient cloud storage errors causing us to silently resolve a DeltaTable as a non-Delta table, which can lead to inconsistencies in how we process it when we check multiple times.
+  - Note that this is still not ideal, we could still end up with a situation where we the first path is accessible but a child of the Delta Table, such as a partition, but then when we check the path that actually does contain the `_delta_log` we get a transient error and wrongly resolve it as not a Delta table. Ultimately, this kind of parent resolution really has been and continues to be best-effort. But at least the case where we are pointed at the correct folder behaves more sane now.
+
+The new path is only enabled in unit tests for now. Flag flip PR will follow separately.
+
+## How was this patch tested?
+
+Existing tests (showing that there is no behaviour change in the "happy path").
+
+## Does this PR introduce _any_ user-facing changes?
+
+No, they will only apply on the flag-flip PR.

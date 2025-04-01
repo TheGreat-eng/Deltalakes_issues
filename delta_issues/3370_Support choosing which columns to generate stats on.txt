@@ -1,0 +1,5 @@
+A great enhancement to https://github.com/delta-io/delta/issues/923 would be to have some way to specifically select which columns to generate stats on. In our case, we have a heavily nested schema that would be tricky to order to take advantage of the number of columns to generate stats on option. And we can have potentially thousands of columns in some tables that I don't want to generate stats for and bloat the transaction log.
+
+I don't know what this would look like, only two initial thoughts would be:
+- Somehow use schema metadata like generated columns to opt-in a column to stats generation
+- Use a table property that's just a list of columns to generate stats on

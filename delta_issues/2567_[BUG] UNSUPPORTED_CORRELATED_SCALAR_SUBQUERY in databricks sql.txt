@@ -1,0 +1,26 @@
+## Bug
+
+UNSUPPORTED_CORRELATED_SCALAR_SUBQUERY 
+
+### Describe the problem
+The below function in Databricks gives UNSUPPORTED_CORRELATED_SCALAR_SUBQUERY error. We didn't have this issue though in Oracle. Is this a limitation of Databricks? Just to note the final result returns only one row. Thank you in advance
+
+ 
+
+#### Steps to reproduce
+
+create or replace function GET_PREV_DAY(vdate DATE, vdays_bef decimal(38) DEFAULT 1) returns DATE
+
+return
+
+  with cte as
+
+  ( select (t.DATE_FIELD), row_number() over (order by t.DATE_FIELD desc) rn
+
+  from time t
+
+  where t.DATE_FIELD = (p_date)
+
+  and t.WORK_DAYS = 1
+
+  ) select (cte.DATE_FIELD) as l_result from cte where rn= p_days_before;

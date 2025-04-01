@@ -1,0 +1,22 @@
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [X] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+Spark master compilation is currently broken due to this commit in Spark
+https://github.com/apache/spark/commit/a767f5cb1704075ee249169e8faf2ab3610b9dbc#diff-81eca9f7af2e9b23b13904131c3d32b0af9e9e1dcc7ddb5efba13201b00066c4 which changes the `Column` constructor. 
+
+To fix, change any instances of `new Column(...)` to `Column(...)` so that we can use the constructors in `object Column`.
+
+## How was this patch tested?
+
+Existing tests suffice.

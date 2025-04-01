@@ -1,0 +1,18 @@
+Last version of Databricks added support for identity column in Delta table.
+It is possible to define GENERATED ALWAYS AS IDENTITY in column specification.
+
+It would be nice to do the same using DeltaTableBuilder for example:
+
+DeltaTable.create(spark) \
+  .tableName("default.people10m") \
+  .addColumn("id", "BIGINT", generatedAlwaysAs="IDENTITY(START WITH 10 INCREMENT BY 10)") \
+  .addColumn("firstName", "STRING") \
+  .addColumn("middleName", "STRING") \
+  .addColumn("lastName", "STRING", comment = "surname") \
+  .addColumn("gender", "STRING") \
+  .addColumn("birthDate", "TIMESTAMP") \
+  .addColumn("dateOfBirth", DateType(), generatedAlwaysAs="CAST(birthDate AS DATE)") \
+  .addColumn("ssn", "STRING") \
+  .addColumn("salary", "INT") \
+  .partitionedBy("gender") \
+  .execute()

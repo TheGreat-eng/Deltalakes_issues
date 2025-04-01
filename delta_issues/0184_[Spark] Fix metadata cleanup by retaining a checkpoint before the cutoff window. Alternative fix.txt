@@ -1,0 +1,19 @@
+#### Which Delta project/connector is this regarding?
+- [X] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+Delete eligible delta log files only if there's a checkpoint newer than them before the cutoff window.
+
+Resolves #606
+
+Unit tests based on https://github.com/delta-io/delta/pull/2673
+
+## How was this patch tested?
+Unit Tests
+
+## Does this PR introduce _any_ user-facing changes?
+Yes, tables with low rate of commit/checkpoints will have increased log retention beyond the cutoff window

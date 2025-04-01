@@ -1,0 +1,34 @@
+## Feature request
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the issue title
+For example: [Feature Request][Spark] Title of my issue
+-->
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+### Overview
+
+The Delta UniForm announcement in Delta 3.0 attracted a lot of interest and feedback. The community found additional incompatibilities between Delta and Iceberg that we would like to resolve in the next Delta release.
+
+### Further details
+The IcebergCompatV1 table feature was released to ensure that a Delta table is compatible with Iceberg when generating Iceberg metadata. The current IcebergCompatV1 table feature has one major restriction: it cannot be enabled when a Delta table has List and Map. This is a major friction for users.
+That aside, because different Iceberg readers have different support and behaviors, the following issues may exist and affect query results:
+
+* Delta Uniform tables does not write partition values in parquet files; While OSS Spark and Iceberg is able to read those, some other Iceberg readers (eg, BigQuery, Athena) may rely on materialized partition values in parquet data files and show NULL as partition values in query results. 
+* Spark writes timestamp as int96 to parquet as default, while Iceberg spec defines timestamp as int64. OSS Spark and Iceberg can read int96 as timestamp, while some other Iceberg readers (eg, Athena) will throw error on reading parquet containing int96. 
+
+Thus this issue requests for enhanced Iceberg compatibility in Delta Uniform to address above pain points. 
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [ ] Yes. I can contribute this feature independently.
+- [x] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.

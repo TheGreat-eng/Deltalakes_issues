@@ -1,0 +1,1 @@
+@tdas fixed packaging a month ago; so we shouldn't need to add spPublishLocal packagedArtifacts to publishM2 anymore. This also fixes a warning when running build/sbt.

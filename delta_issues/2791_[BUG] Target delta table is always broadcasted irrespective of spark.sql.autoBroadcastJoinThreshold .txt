@@ -1,0 +1,65 @@
+## Bug
+When performing streaming merge with a large target table, Spark is using BroadCastHashJoin and broadcasting target table. I am getting OOM since driver does not have enough memory to process. 
+
+### Describe the problem
+I have 1M rows on Source which has been synced with Target, I am adding another 987 rows to source and running a streaming merge with Target Table. Spark performs BroadCastHashJoin by broadcasting the target table with 1M rows.
+Going through DAG it's clear that spark is trying to Broadcast larger target table instead of incoming source dataset which is much smaller. I have tried to explicitly set `spark.sql.autoBroadcastJoinThreshold` to 10mb. But spark does not seem to honour them as it is still broadcasting larger target table.
+
+<img width="605" alt="BroadcastHashJoin Screenshot" src="https://user-images.githubusercontent.com/115656400/207595725-33471a8c-f9e9-4ed5-a15e-52cb1911e9b6.png">
+
+I also tried by setting `spark.sql.autoBroadcastJoinThreshold=-1` now spark does not broadcast the table and does a SortMergeJoin Instead, our OOM issue has also been resolved by this setting.
+
+<img width="705" alt="SortMergeJoin Screenshot" src="https://user-images.githubusercontent.com/115656400/207598251-b08c43ed-ea26-480c-9699-faa7bd190eb0.png">
+
+I have also tried with larger datasets and spark still broadcasts Target Table.
+
+#### Steps to reproduce
+1. Run below java code with sourcePath and targetPath. 
+```java
+Dataset<Row> sourceDf = sparkSession
+    .readStream()
+    .format("delta")
+    .option("inferSchema", "true")
+    .load(sourcePath);
+
+DeltaTable deltaTable = DeltaTable.forPath(sparkSession, targetPath);
+
+sourceDf.createOrReplaceTempView("vTempView");
+
+StreamingQuery sq = sparkSession.sql("select * from vTempView").writeStream()
+    .format("delta")
+    .foreachBatch((microDf, id) -> {
+        deltaTable.alias("e").merge(microDf.alias("d"), "e.SALE_ID = d.SALE_ID")
+            .whenMatched().updateAll()
+            .whenNotMatched().insertAll()
+            .execute();
+    })
+    .outputMode("update")
+    .option("checkpointLocation", util.getFullS3Path(target)+"/_checkpoint")
+    .trigger(Trigger.Once())
+    .start();
+```
+2. Check DAG for execution plan.
+
+#### Observed results
+Spark is broadcasting larger target table and throwing an OOM.
+
+#### Expected results
+Spark should broadcast incoming stream data from source. Or at least Spark should honour `spark.sql.autoBroadcastJoinThreshold` and do a SortMergeJoin instead.
+
+#### Further details
+`None`
+
+### Environment information
+
+* Delta Lake version: 2.0.0
+* Spark version: 3.2.0
+* Scala version: 2.12
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [x] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute a bug fix at this time.

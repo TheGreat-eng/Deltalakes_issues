@@ -1,0 +1,4 @@
+Hi~
+I have a question:
+Can I write my data to the delta lake with a ip and port from a remote machine?
+I want to upload data from local machine to delta lake in server machine. Can I do it?

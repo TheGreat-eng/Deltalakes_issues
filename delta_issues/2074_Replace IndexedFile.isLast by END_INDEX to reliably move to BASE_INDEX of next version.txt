@@ -1,0 +1,41 @@
+<!--
+Thanks for sending a pull request!  Here are some tips for you:
+  1. If this is your first time, please read our contributor guidelines: https://github.com/delta-io/delta/blob/master/CONTRIBUTING.md
+  2. If the PR is unfinished, add '[WIP]' in your PR title, e.g., '[WIP] Your PR title ...'.
+  3. Be sure to keep the PR description updated to reflect all changes.
+  4. Please write your PR title to summarize what this PR proposes.
+  5. If possible, provide a concise example to reproduce the issue for a faster review.
+  6. If applicable, include the corresponding issue number in the PR title and link it in the body.
+-->
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [X] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+Remove `IndexedFile.isLast` and replace it by a `DeltaSourceOffset.END_INDEX` that is always included after the last entry.
+
+There were several problems with `isLast`. For one thing, we were not setting it for the last file in initial snapshots, so when a streaming query starts and processes the initial snapshot, it would stop at the last file in the snapshot. Then on the next trigger we would reconstruct the initial snapshot only to find out that we'd already processed all of it.
+
+Another problem with `isLast` is that it doesn't exist for empty commits or snapshots. As a result, the stream would not be able to move forward if it started at the `BASE_INDEX` of an empty commit.
+
+With this change, I added `END_INDEX` to the end of every snapshot (CDC and non-CDC), and also a BASE_INDEX to the start (even if it's technically not used, but it's good to be consistent).
+
+I also updated some tests in `DeltaCDCStreamSuite` that were incorrect. They restarted a query without a checkpoint, and then did checks assuming that the query had restarted from a checkpoint. I also changed some tests to be very specific about the offsets that they expect the batches in the stream to end at.  
+
+## How was this patch tested?
+
+New tests added for regular and CDC snapshots.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No. 

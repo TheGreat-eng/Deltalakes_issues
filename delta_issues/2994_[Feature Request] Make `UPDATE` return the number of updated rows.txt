@@ -1,0 +1,13 @@
+## Feature request
+
+### Overview
+
+Currently, the `UPDATE` command does not return anything to the user. It would be more useful if we returned the number of updated rows.
+
+### Motivation
+
+The number of updated rows is an obvious metric that users would want from this operation.
+
+### Further details
+
+This should be pretty straight forward to implement - we already have access to `metrics("numUpdatedRows")` inside of `UpdateCommand.scala`. Remember to add tests, please!

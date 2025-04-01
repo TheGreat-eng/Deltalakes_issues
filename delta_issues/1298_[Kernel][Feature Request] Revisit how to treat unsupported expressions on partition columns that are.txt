@@ -1,0 +1,34 @@
+## Feature request
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the issue title
+For example: [Feature Request][Spark] Title of my issue
+-->
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [X] Kernel
+- [ ] Other (fill in here)
+
+### Overview
+
+Currently if an unsupported expression involving a partition column is provided as a query filter the query will fail.
+
+For example, if I have a table with partition column "part_1" and data column "data_1":
+- If I provide a query filter over the partition column such as "part_1 % 10 = 0" the entire query will fail with an exception.
+- If I provide a query filter over the data column such as "data_1 % 10 = 0" the query will succeed with less file-pruning, and the query filter will be returned to me as part of the "remaining filter".
+  - This is because data skipping only generates filters for supported expressions and returns the rest back as a remaining filter.
+
+We should consider what behavior we expect for unsupported partition filters. Options may include
+- Query succeeds and any unsupported partition filters are returned as part of the remaining filter.
+- Query fails; it is the connector's responsibility to only build Kernel expressions that are supported by the engine expression handler.
+  - **This** is one of the main questions here; who's responsibility is it to ensure expressions are supported? And if it is the connector's, how will they be able to determine this?
+
+## Further details
+
+Some work has already been done for this w/o consensus on what behavior we want:
+- https://github.com/delta-io/delta/pull/2492 adds `ExpressionHandler.isSupported(...)`
+- https://github.com/delta-io/delta/pull/2491 returns the unsupported expression in the remaining predicate
+- https://github.com/delta-io/delta/pull/3018 removes `ExpressionHandler.isSupported(...)` for now until we have consensus

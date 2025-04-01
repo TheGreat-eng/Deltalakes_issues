@@ -1,0 +1,77 @@
+I do stream with spark with scala from kafka >> process stream with job 1 and write to DeltaTable 1 >> process stream with job 2 and write stream to Delta Table 2.
+
+The job2 runs for a while but then it fails because of the error below: The specified path does not exist.", 404, GET
+
+It appends to DeltaTable so I do not understand why it gets 404.
+
+By the way, using abfss ---> abfss does not help.
+
+scalaVersion := "2.12.12"
+sparkVersion = "3.2.1"
+hadoopVersion = "3.3.0"
+
+"com.microsoft.azure" % "azure-storage" % "8.6.6",
+"io.delta" %% "delta-core" % "1.2.1",
+
+destination storage account gen2
+
+job1: reads from kafka and writes to DeltaTable1 using wasbs schema and blob.core.windows.net endpoint.
+job2: reads from DeltaTable 1 using wasbs schema  and blob.core.windows.net endpoint and writes to DeltaTable 2 using abfss schema and dfs.core.windows.net endpoint.
+
+when I write stream I do use "append" mode and paritionBy multiple columns
+
+    df
+      .writeStream
+      .outputMode("append")
+      .partitionBy(partitioningCols: _*)
+      .format("delta")
+      .option("mergeSchema", "true")
+      .option("checkpointLocation", checkpointLocation)
+      .start(tablePath)
+
+The intended behaviour would be for the job not to fail.
+
+Spark uses this configuration for auth:
+spark.conf.set(s"fs.azure.account.key.$accountName.blob.core.windows.net", accountKey)
+
+What is the problem here and how to fix it?
+
+
+
+Caused by: Operation failed: "The specified path does not exist.", 404, GET, https://raddsstatsstorage.dfs.core.windows.net/stats-prod?upn=false&resource=filesystem&maxResults=500&directory=1h/per_customer_fqdn/_delta_log&timeout=90&recursive=false, PathNotFound, "The specified path does not exist. RequestId:6733a6ac-d01f-0074-18aa-99c477000000 Time:2022-07-17T06:54:17.9766705Z"
+                at org.apache.hadoop.fs.azurebfs.services.AbfsRestOperation.execute(AbfsRestOperation.java:146)
+                at org.apache.hadoop.fs.azurebfs.services.AbfsClient.listPath(AbfsClient.java:225)
+                at org.apache.hadoop.fs.azurebfs.AzureBlobFileSystemStore.listStatus(AzureBlobFileSystemStore.java:704)
+                at org.apache.hadoop.fs.azurebfs.AzureBlobFileSystemStore.listStatus(AzureBlobFileSystemStore.java:666)
+                at org.apache.hadoop.fs.azurebfs.AzureBlobFileSystem.listStatus(AzureBlobFileSystem.java:360)
+                ... 58 more
+22/07/17 06:54:18 INFO ShutdownHookManager: Shutdown hook called
+22/07/17 06:54:18 INFO ShutdownHookManager: Deleting directory /tmp/spark-b04ed4ee-f724-45e7-b724-0c902c6de8b1
+22/07/17 06:54:18 INFO ShutdownHookManager: Deleting directory /var/data/spark-f5e6d40d-907a-46d3-87b9-33cb85d7eb32/spark-dc28d981-c1b3-4578-be20-ada1a71003fd
+22/07/17 06:54:18 INFO MetricsSystemImpl: Stopping azure-file-system metrics system...
+22/07/17 06:54:18 INFO MetricsSystemImpl: azure-file-system metrics system stopped.
+22/07/17 06:54:18 INFO MetricsSystemImpl: azure-file-system metrics system shutdown complete.
+ 
+ 
+Caused by: Operation failed: "The specified path does not exist.", 404, GET, https://raddsstatsstorage.dfs.core.windows.net/stats-prod?upn=false&resource=filesystem&maxResults=500&directory=1h/per_customer_fqdn/_delta_log&timeout=90&recursive=false, PathNotFound, "The specified path does not exist. RequestId:6733a6ac-d01f-0074-18aa-99c477000000 Time:2022-07-17T06:54:17.9766705Z"
+                at org.apache.hadoop.fs.azurebfs.services.AbfsRestOperation.execute(AbfsRestOperation.java:146)
+                at org.apache.hadoop.fs.azurebfs.services.AbfsClient.listPath(AbfsClient.java:225)
+                at org.apache.hadoop.fs.azurebfs.AzureBlobFileSystemStore.listStatus(AzureBlobFileSystemStore.java:704)
+                at org.apache.hadoop.fs.azurebfs.AzureBlobFileSystemStore.listStatus(AzureBlobFileSystemStore.java:666)
+                at org.apache.hadoop.fs.azurebfs.AzureBlobFileSystem.listStatus(AzureBlobFileSystem.java:360)
+                ... 58 more
+ 
+22/07/17 06:54:17 INFO OptimisticTransaction: [tableId=bf7d1277,txnId=c48d284b] Committed delta #3080 to abfss:[//stats-prod@raddsstatsstorage.dfs.core.windows.net/1h/per_customer_fqdn/_delta_log](mailto://stats-prod@raddsstatsstorage.dfs.core.windows.net/1h/per_customer_fqdn/_delta_log)
+22/07/17 06:54:17 INFO DeltaLog: Try to find Delta last complete checkpoint before version 3080
+22/07/17 06:54:17 ERROR MicroBatchExecution: Query [id = 0147f9bb-9b4a-4a28-b364-d4cf15a02efa, runId = 649875a1-4ffa-4cb1-9dd5-6c8f429ec907] terminated with error
+java.io.FileNotFoundException: Operation failed: "The specified path does not exist.", 404, GET, https://raddsstatsstorage.dfs.core.windows.net/stats-prod?upn=false&resource=filesystem&maxResults=500&directory=1h/per_customer_fqdn/_delta_log&timeout=90&recursive=false, PathNotFound, "The specified path does not exist. RequestId:6733a6ac-d01f-0074-18aa-99c477000000 Time:2022-07-17T06:54:17.9766705Z"
+                at org.apache.hadoop.fs.azurebfs.AzureBlobFileSystem.checkException(AzureBlobFileSystem.java:1074)
+                at org.apache.hadoop.fs.azurebfs.AzureBlobFileSystem.listStatus(AzureBlobFileSystem.java:363)
+                at io.delta.storage.HadoopFileSystemLogStore.listFrom(HadoopFileSystemLogStore.java:59)
+                at org.apache.spark.sql.delta.storage.LogStoreAdaptor.listFrom(LogStore.scala:362)
+                at org.apache.spark.sql.delta.storage.DelegatingLogStore.listFrom(DelegatingLogStore.scala:125)
+                at org.apache.spark.sql.delta.Checkpoints.findLastCompleteCheckpoint(Checkpoints.scala:233)
+                at org.apache.spark.sql.delta.Checkpoints.findLastCompleteCheckpoint$(Checkpoints.scala:224)
+                at org.apache.spark.sql.delta.DeltaLog.findLastCompleteCheckpoint(DeltaLog.scala:64)
+                at org.apache.spark.sql.delta.SnapshotManagement.$anonfun$getSnapshotAt$1(SnapshotManagement.scala:568)
+                at scala.Option.orElse(Option.scala:447)

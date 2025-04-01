@@ -1,0 +1,9 @@
+For the issue https://github.com/delta-io/delta/issues/44, added delete implementation in `DeleteCommand`.
+
+Based on the modification, users can create a `DeltaTable` and delete rows of the table which matches the condition. The condition is optional and has `String` and 'Column' two types supported.
+
+sample usage:
+`deltaTable = new DeltaTable(spark.table(tableName))`
+`deltaTable.delete("key = 1")`
+`deltaTable.delete(functions.expr("key = 2"))`
+`deltaTable.delete()`

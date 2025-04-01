@@ -1,0 +1,24 @@
+## Bug
+
+#### Which Delta project/connector is this regarding?
+
+Spark
+
+### Describe the problem
+
+I have some questions for Delta Lake Multi-writer. I followed the [Delta 2.2 Multi-writer setup steps](https://docs.delta.io/2.2.0/delta-storage.html#setup-configuration-s3-multi-cluster) to enable the Delta Lake Multi-writer for S3. However, after following these steps, I still see the ConcurrentAppendException when I write to the same table (use Delta merge) from 2 EMR clusters (EMR version 6.10.0, Spark 3.3.1, Delta 2.2.0), and there was no entries in the DynamoDB after writing. It looks like I did not enable Delta Lake Multi-writer successfully. My questions are:
+
+1. How can I debug this? I checked online, but I did not find the useful solutions/debug steps
+2. I use the SparkSession.builder().appName().config(…) to config the spark session, and I printed the spark configurations and verified the spark session contains the DDB configs. Besides the spark configuration listed in the [Setup steps](https://docs.delta.io/2.2.0/delta-storage.html#setup-configuration-s3-multi-cluster), is there any required Spark configurations I need to setup?
+3. What does it mean that Delta Lake supports multi-cluster writes? I found an [answer in the Databricks community](https://community.databricks.com/t5/data-engineering/what-does-it-mean-that-delta-lake-supports-multi-cluster-writes/td-p/24455), can someone confirm if this is true?
+4. Does Delta Lake support writing to the same partition simultaneously?
+5. The Delta Lake multi-writer uses the DynamoDB as the logstore, am I supposed to see new entries after each table writes?
+
+
+
+### Environment information
+
+* Delta Lake version: 2.2.0
+* Spark version: 3.3.1
+* Scala version: 2.12
+

@@ -1,0 +1,15 @@
+## Feature request
+This is an uber issue for designing and implementing APIs for _writing/updating_ Delta tables. 
+
+Read side uber issue delta-io/delta#1783
+
+### Motivation
+Currently for a connector to write or update a Delta table requires a deeper understanding of the Delta protocol. For example, recently Delta added a feature called Deletion Vector that fundamentally changes the way DML operations are done.
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [ ] Yes. I can contribute this feature independently.
+- [x] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.

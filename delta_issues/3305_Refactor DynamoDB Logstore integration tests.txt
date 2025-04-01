@@ -1,0 +1,5 @@
+- Refactor `examples/python/dynamodb_logstore.py` into `storage-dynamodb/integration_tests` 
+- Move it to a separate test within `run-integration-tests.py`
+   - To run the test provide command line argument `--run-storage-dynamodb-integration-tests` (this runs only the DynamoDB logstore test and none of the other integration tests)
+
+- TODO: need to merge #990 into this and adjust code

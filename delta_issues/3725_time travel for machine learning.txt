@@ -1,0 +1,8 @@
+Hello,
+I've a improvement request about time travel. 
+Up to know, the default log retention is 30 days, and 7 days after a Vacuum action. Even if we can give a longer retention date, it is not always wanted for instance for storage or time access costs.
+My need is the following ; when we train a model in ML/DL , we need to access to a specific snapshot of the datasets. This may be an old snapshot if we want to compare an evolving model in the timeline. So, if we don't change the retention time and we make a vaccum, we loose this snapshot. The only means is then to duplicate the entire dataset at a specific time, which is not convenient indeed.
+An interesting feature should be to explicitely make a checkpoint action (snapshot) on a dataset ; this explicit version shoudn't be deleted while making a vacuum action, or when we are later than the given retenion time. The vaccuum action will keep the explicit versions and delete the implicit versions .
+regards
+xavier
+ps : an interesting other feature could be to allow masking on columns according to user rights :)

@@ -1,0 +1,1 @@
+When a partition column is using a generation expression, for example, a partition column `day` is defined as `cast(eventTime as date)`, we may be able to generate a partition filter when a query has a data filter (for example, we can generate `day <= '2021-12-31'` from a filter `eventTime < 2021-12-31 23:59:59`).

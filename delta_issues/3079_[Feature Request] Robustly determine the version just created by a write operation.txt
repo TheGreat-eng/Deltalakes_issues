@@ -1,0 +1,48 @@
+## Feature request
+
+### Overview
+
+If I write to a Delta table, the write operation updates the table's version. There is no way to determine what version was just created without a separate read operation, which opens the door to a race.
+
+```python
+data.write.format("delta").save(path)
+# The write operation could also be an update or a merge.
+deltaTable = DeltaTable.forPath(spark, path)
+
+# If someone else writes to this same table in the meantime, the version
+# we get below won't correspond to the version we created by our own
+# write operation just above.
+deltaTable.history(1).collect()[0]["version"]
+```
+
+### Motivation
+
+If you are trying to quasi-atomically publish updates to a set of tables, you can do that by pinning views to specific versions of Delta tables. But you need to carefully manage how and when you update those views, and you need to know exactly what Delta version you created and want to publish. Right now it doesn't seem to be possible to determine this information, because none of the write operations return any information about what they just did.
+
+### Further details
+
+API compatibility guarantees may make this feature impossible to implement, particularly in the case of `DataFrame.write`. But at a high level a possible solution would be to build an analog to [SQL Server's `OUTPUT` clause][1], or even [`SCOPE_IDENTITY()`][2].
+
+For example, in the case of `data.write`, a new method called `scopeHistory()` could return the table history only visible when the current SparkSession started:
+
+```python
+data.write.format("delta").save(path)
+# This ignores any versions not created by the current session and not visible
+# at the start of the session.
+DeltaTable.forPath(spark, path).scopeHistory()
+```
+
+Or, in the case of the remaining `DeltaTable` methods that update tables, `execute()` could perhaps be modified to return version information about what it just did. Or maybe a new method called something like `executeOutputHistory()` could do the job:
+
+```python
+deltaTable.merge(...).execute()  # returns the history of the just-executed operation
+```
+
+[1]: https://docs.microsoft.com/en-us/sql/t-sql/queries/output-clause-transact-sql
+[2]: https://docs.microsoft.com/en-us/sql/t-sql/functions/scope-identity-transact-sql
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [x] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.

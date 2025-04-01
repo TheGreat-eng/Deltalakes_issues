@@ -1,0 +1,6 @@
+Resolves #949 
+
+Uses ThreadUtils.parmap to parallelize the compaction instead of parallel collections. This improves a few different things:
+- The whole compaction will fail more eagerly then before, which would wait for all tasks to be attempted. Since this is based on `Future.sequence`, it will fail as soon as a task fails and all tasks submitted before it have completed. Still suboptimal, but not sure of a better approach that isn't polling all futures repeatedly.
+- Shuts down the threadpool when finished. This could have easily been added to the existing approach but now handled by the util functions automatically
+- I haven't verified, but I suspect this improves the "tail" of the compaction execution. It seems to be that the parallel collections method buckets each job into `maxThreads` groups and then executes each group with one of the threads in the pool. I think this is more of a proper queue based approach so any remaining tasks can be done by any free thread

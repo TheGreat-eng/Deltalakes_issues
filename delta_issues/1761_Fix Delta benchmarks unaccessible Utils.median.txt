@@ -1,0 +1,9 @@
+## What changes were proposed in this pull request?
+New Delta benchmarks for MERGE added in https://github.com/delta-io/delta/pull/1835 broke the benchmark build due to Spark helper `Utils.median` method being inaccessible for two reasons:
+- Spark `Utils` object is package private to `spark`
+- Delta benchmarks use an ancient Spark version that doesn't even define `Utils.median`.
+
+This change upgrades the Spark version used in benchmarks to 3.5.0. and exposes `Utils.median` to the benchmark package.
+
+## How was this patch tested?
+Compiled the benchmarks locally.

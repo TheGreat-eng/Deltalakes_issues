@@ -1,0 +1,4 @@
+This PR contains the following additions under the delta/examples fork:
+
+A directory named "blogs" where we will add the documentation and codes related to the delta OSS blogs.
+A sub-directory under delta/examples/blogs called delta1.1 which has example codes used for the delta1.1.0 blog.

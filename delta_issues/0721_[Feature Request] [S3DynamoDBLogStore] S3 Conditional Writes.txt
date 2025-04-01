@@ -1,0 +1,32 @@
+## Feature request
+
+Now that [S3 supports conditional writes](https://aws.amazon.com/about-aws/whats-new/2024/08/amazon-s3-conditional-writes/), it would be great to enable multi-cluster writes without the need for [S3DynamoDBLogStore](https://github.com/delta-io/delta/pull/1044).
+
+#### Which Delta project/connector is this regarding?
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [X] S3DynamoDBLogStore
+- [ ] Other (fill in here)
+
+### Overview
+
+For years, S3 has lacked a Put-If-Absent API. With the launch of S3 Conditional writes, this now changes. From the launch notes:
+
+>Amazon S3 adds support for conditional writes that can check for the existence of an object before creating it. This capability can help you more easily prevent applications from overwriting any existing objects when uploading data. You can perform conditional writes using PutObject or CompleteMultipartUpload API requests in both general purpose and directory buckets.
+>
+>Using conditional writes, you can simplify how distributed applications with multiple clients concurrently update data in parallel across shared datasets. Each client can conditionally write objects, making sure that it does not overwrite any objects already written by another client. This means you no longer need to build any client-side consensus mechanisms to coordinate updates or use additional API requests to check for the presence of an object before uploading data. Instead, you can reliably offload such validations to S3, enabling better performance and efficiency for large-scale analytics, distributed machine learning, and other highly parallelized workloads. To use conditional writes, you can add the HTTP if-none-match conditional header along with PutObject and CompleteMultipartUpload API requests.
+
+### Motivation
+
+This should simplify the use of delta table on S3 by enabling multi-cluster writers out of the box without any additional dependencies.
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [ ] Yes. I can contribute this feature independently.
+- [ ] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [X] No. I cannot contribute this feature at this time.

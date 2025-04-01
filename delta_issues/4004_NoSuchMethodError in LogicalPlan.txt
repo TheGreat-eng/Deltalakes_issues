@@ -1,0 +1,7 @@
+We are having the following issue while upgrading from EMR 5.28 to 5.29. Both EMR versions support Spark 2.4.4.  We rolled back due to this issue. is this issue specific to EMR the way packaging spark jars? Any idea?
+
+: java.lang.NoSuchMethodError: org.apache.spark.sql.catalyst.analysis.Analyzer.execute(Lorg/apache/spark/sql/catalyst/plans/logical/LogicalPlan;)Lorg/apache/spark/sql/catalyst/plans/logical/LogicalPlan;
+	at org.apache.spark.sql.delta.util.AnalysisHelper$class.tryResolveReferences(AnalysisHelper.scala:33)
+	at io.delta.tables.DeltaMergeBuilder.tryResolveReferences(DeltaMergeBuilder.scala:121)
+	at io.delta.tables.DeltaMergeBuilder$$anonfun$1.apply(DeltaMergeBuilder.scala:228)
+	at io.delta.tables.DeltaMergeBuilder$$anonfun$1.apply(DeltaMergeBuilder.scala:228)

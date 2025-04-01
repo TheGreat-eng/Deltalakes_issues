@@ -1,0 +1,73 @@
+## Feature request
+
+### Overview
+
+Delta tables schemas are currently being stored in HMS (Hive Metastore) as a single array:
+
+col array<string>
+
+### Motivation
+
+Currently, when the delta tables are created from delta jar, schema are not properly updated to HMS, which leads to an issue in discovery for tables and tables' columns for  discovery for hive users.
+
+Steps to reproduce:
+
+```
+spark-sql --packages io.delta:delta-core_2.12:2.2.0 --conf "spark.sql.extensions=io.delta.sql.DeltaSparkSessionExtension" --conf "spark.sql.catalog.spark_catalog=org.apache.spark.sql.delta.catalog.DeltaCatalog"
+```
+```
+CREATE TABLE IF NOT EXISTS delta_table_dwh.company_name (
+  id INT,
+  cname STRING
+) USING DELTA 
+```
+
+HMS:
+```
+SELECT column_name, type_name
+FROM COLUMNS_V2
+WHERE CD_ID IN (
+    SELECT CD_ID
+    FROM SDS
+    WHERE SD_ID = (
+        SELECT SD_ID
+        FROM TBLS
+        WHERE tbl_name = 'company_name'
+    )
+)
+ORDER BY column_name ASC;
+```
+
+Output:
+```
++-------------+---------------+
+| column_name | type_name     |
++-------------+---------------+
+| col         | array<string> |
++-------------+---------------+
+```
+
+Expected Output:
+```
++-------------+---------------+
+| column_name | type_name     |
++-------------+---------------+
+| cname       | string        |
+| id          | bigint        |
++-------------+---------------+
+```
+
+### Further details
+
+<!--
+Use this section to include any additional information about the feature. If you have a proposal for how to implement this feature, please include it here. For implementation guidelines, please read our contributor guidelines: https://github.com/delta-io/delta/blob/master/CONTRIBUTING.md
+If there are any specific requirements for this feature that are not immediately obvious please outline them here.
+-->
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [x] Yes. I can contribute this feature independently.
+- [x] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.

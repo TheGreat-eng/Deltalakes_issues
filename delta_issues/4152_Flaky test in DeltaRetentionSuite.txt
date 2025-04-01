@@ -1,0 +1,14 @@
+From PR https://github.com/delta-io/delta/pull/153 (which doesn't touch any code files), we had a test failure in DeltaRetentionSuite. 
+https://circleci.com/gh/delta-io/delta/316?utm_campaign=vcs-integration-link&utm_medium=referral&utm_source=github-build-link
+
+```
+DeltaRetentionSuite:
+[info] - delete expired logs (3 seconds, 915 milliseconds)
+[info] - log files being already deleted shouldn't fail log deletion job *** FAILED *** (18 seconds, 325 milliseconds)
+[info]   20 did not equal 15 Delta files before the last checkpoint version should have been deleted (DeltaRetentionSuite.scala:129)
+[info]   org.scalatest.exceptions.TestFailedException:
+```
+
+After some investigation, it looks like the test is flaky when it starts in the last ~200 seconds of a UTC day, because some of the commits (that should get cleaned up) fall across a date boundary.
+
+This is a bug in the test code, not any problem in the product code.

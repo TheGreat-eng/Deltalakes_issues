@@ -1,0 +1,30 @@
+Hello,
+
+
+I have 76 failure as the copy / paste :
+
+**[info] Tests: succeeded 71, failed 76, canceled 0, ignored 0, pending 0
+[info] *** 76 TESTS FAILED ***
+[error] Failed tests:
+[error]         org.apache.spark.sql.delta.DeltaRetentionSuite
+[error]         org.apache.spark.sql.delta.DeltaTimeTravelSuite
+[error]         org.apache.spark.sql.delta.LocalLogStoreSuite
+[error]         org.apache.spark.sql.delta.AzureLogStoreSuite
+[error]         org.apache.spark.sql.delta.HDFSLogStoreSuite
+[error]         org.apache.spark.sql.delta.DeltaSinkSuite
+[error]         org.apache.spark.sql.delta.DeltaLogSuite
+[error]         org.apache.spark.sql.delta.DeltaSuite
+[error]         org.apache.spark.sql.delta.DeltaSourceSuite
+[error]         org.apache.spark.sql.delta.EvolvabilitySuite
+[error] (test:test) sbt.TestsFailedException: Tests unsuccessful
+[error] Total time: 409 s, completed 13 juin 2019 à 16:36:45
+**
+
+
+
+Thank you in advance to help me repair It failures,
+
+Regards.
+
+
+Dorian ROSSE.

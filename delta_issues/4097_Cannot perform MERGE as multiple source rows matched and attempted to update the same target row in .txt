@@ -1,0 +1,27 @@
+```
+9/10/17 00:34:02 INFO DAGScheduler: ResultStage 9 (apply at DatabricksLogging.scala:77) finished in 0.026 s
+19/10/17 00:34:02 INFO DAGScheduler: Job 4 finished: apply at DatabricksLogging.scala:77, took 137.754938 s
+Exception in thread "main" java.lang.UnsupportedOperationException: Cannot perform MERGE as multiple source rows matched and attempted to update the same target row in the Delta table.
+	at org.apache.spark.sql.delta.DeltaErrors$.multipleSourceRowMatchingTargetRowInMergeException(DeltaErrors.scala:416)
+	at org.apache.spark.sql.delta.commands.MergeIntoCommand.org$apache$spark$sql$delta$commands$MergeIntoCommand$$findTouchedFiles(MergeIntoCommand.scala:218)
+	at org.apache.spark.sql.delta.commands.MergeIntoCommand$$anonfun$run$1$$anonfun$apply$1$$anonfun$1.apply(MergeIntoCommand.scala:125)
+	at org.apache.spark.sql.delta.commands.MergeIntoCommand$$anonfun$run$1$$anonfun$apply$1$$anonfun$1.apply(MergeIntoCommand.scala:125)
+	at com.databricks.spark.util.DatabricksLogging$class.recordOperation(DatabricksLogging.scala:77)
+	at org.apache.spark.sql.delta.commands.MergeIntoCommand.recordOperation(MergeIntoCommand.scala:88)
+	at org.apache.spark.sql.delta.metering.DeltaLogging$class.recordDeltaOperation(DeltaLogging.scala:103)
+	at org.apache.spark.sql.delta.commands.MergeIntoCommand.recordDeltaOperation(MergeIntoCommand.scala:88)
+	at org.apache.spark.sql.delta.commands.MergeIntoCommand$$anonfun$run$1$$anonfun$apply$1.apply(MergeIntoCommand.scala:124)
+	at org.apache.spark.sql.delta.commands.MergeIntoCommand$$anonfun$run$1$$anonfun$apply$1.apply(MergeIntoCommand.scala:121)
+	at org.apache.spark.sql.delta.DeltaLog.withNewTransaction(DeltaLog.scala:386)
+	at org.apache.spark.sql.delta.commands.MergeIntoCommand$$anonfun$run$1.apply(MergeIntoCommand.scala:121)
+	at org.apache.spark.sql.delta.commands.MergeIntoCommand$$anonfun$run$1.apply(MergeIntoCommand.scala:120)
+	at com.databricks.spark.util.DatabricksLogging$class.recordOperation(DatabricksLogging.scala:77)
+	at org.apache.spark.sql.delta.commands.MergeIntoCommand.recordOperation(MergeIntoCommand.scala:88)
+	at org.apache.spark.sql.delta.metering.DeltaLogging$class.recordDeltaOperation(DeltaLogging.scala:103)
+	at org.apache.spark.sql.delta.commands.MergeIntoCommand.recordDeltaOperation(MergeIntoCommand.scala:88)
+	at org.apache.spark.sql.delta.commands.MergeIntoCommand.run(MergeIntoCommand.scala:120)
+	at io.delta.tables.DeltaMergeBuilder.execute(DeltaMergeBuilder.scala:233)
+	at com.espn.deltalake.InsertUpdateRecords.main(InsertUpdateRecords.java:46)
+19/10/17 00:34:02 INFO SparkContext: Invoking stop() from shutdown hook
+
+```

@@ -1,0 +1,23 @@
+We are running Spark + delta on CDH platform, and delta tables are stored on HDFS. We also use [delta-rs](https://github.com/delta-io/delta-rs) project to read delta tables in some Python projects. Currently delta-rs does not support HDFS storage(https://github.com/delta-io/delta-rs/issues/300). So we have to use [Minio over HDFS](https://docs.min.io/docs/minio-gateway-for-hdfs.html) as a workaround for this issue.
+
+When we try to read delta table files through minio, it would return some error like following:
+
+```
+API: GetObject(bucket=some_bucket, object=some_delta_table/_delta_log/00000000000000000000.json)
+Time: 12:20:03 UTC 12/13/2021
+DeploymentID: 9af18baf-b9bd-45c7-b570-2d1a6e0d6f60
+RequestID: 16C04FCC5A225C8D
+RemoteHost: xx.xx.xx.xx
+Host: yy.yy.yy.yy:9011
+UserAgent: Botocore/1.21.21 Python/3.8.10 Windows/10
+Error: unsupported checksum type: 0 (*errors.errorString)
+       3: cmd/gateway/hdfs/gateway-hdfs.go:295:hdfs.hdfsToObjectErr()
+       2: cmd/gateway/hdfs/gateway-hdfs.go:636:hdfs.(*hdfsObjects).getObject()
+       1: cmd/gateway/hdfs/gateway-hdfs.go:597:hdfs.(*hdfsObjects).GetObjectNInfo.func1()
+```
+
+We also verified with `hadoop fs -checksum` command on delta log files, it would return `NONE` instead of some valid checksum code.
+
+After investigating the code in delta project, we found that checksum is explicitly disabled when creating log files: https://github.com/delta-io/delta/blob/2ddff5e95074097320d3287345ebbc9a562b0a4b/core/src/main/scala/org/apache/spark/sql/delta/storage/HDFSLogStore.scala#L103
+
+We are wondering what is the reason for this? And is there any recommended workaround for this issue? Thanks in advance.

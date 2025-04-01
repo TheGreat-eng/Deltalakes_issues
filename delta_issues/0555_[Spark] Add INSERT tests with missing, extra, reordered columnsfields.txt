@@ -1,0 +1,19 @@
+## Description
+Follow on https://github.com/delta-io/delta/pull/3605
+
+Adds more tests covering behavior for all ways of running insert with:
+- an extra column or struct field in the input, in `DeltaInsertIntoSchemaEvolutionSuite`
+- a missing column or struct field in the input, in `DeltaInsertIntoImplicitCastSuite`
+- a different column or field ordering than the table schema, in `DeltaInsertIntoColumnOrderSuite`
+
+Note: tests are spread across multiple suites as each test case covers 20 different ways to run inserts, quickly leading to large test suites.
+
+This change includes improvements to `DeltaInsertIntoTest`:
+- Group all types of inserts into categories that are easier to reference in tests:
+  - SQL vs. Dataframe inserts
+  - Position-based vs. name-based inserts
+  - Append vs. overwrite
+- Provide a mechanism to ensure that each test covers all existing insert types.
+
+## How was this patch tested?
+N/A: test only

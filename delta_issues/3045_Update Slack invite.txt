@@ -1,0 +1,11 @@
+## Description
+
+The current Slack invite has expired, updating it to a bit.ly link that is updated regularly.
+
+## How was this patch tested?
+
+Verified that it goes to the current Slack invite
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

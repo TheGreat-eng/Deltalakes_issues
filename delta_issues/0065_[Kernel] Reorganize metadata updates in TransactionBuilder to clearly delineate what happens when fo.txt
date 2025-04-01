@@ -1,0 +1,38 @@
+<!--
+Thanks for sending a pull request!  Here are some tips for you:
+  1. If this is your first time, please read our contributor guidelines: https://github.com/delta-io/delta/blob/master/CONTRIBUTING.md
+  2. If the PR is unfinished, add '[WIP]' in your PR title, e.g., '[WIP] Your PR title ...'.
+  3. Be sure to keep the PR description updated to reflect all changes.
+  4. Please write your PR title to summarize what this PR proposes.
+  5. If possible, provide a concise example to reproduce the issue for a faster review.
+  6. If applicable, include the corresponding issue number in the PR title and link it in the body.
+-->
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [X] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+Reorganizes the order of metadata updates and validation in `TransactionBuilder`. When building the transaction the metadata may be updated many different ways including new user provided properties, new user provided schema, transitive property changes based on enabled confs (e.g. enabling `IcebergCompatV2` enables column mapping). We should be sure to perform any validation AFTER any metadata changes have been made, less we miss something. This PR reorganizes the transformations to do transformations first and then validation.
+
+Examples of how this could go wrong
+- Right now we only block changing cmMode none -> id (which not allowed for existing tables) when newProperties are set by the user. However, cmMode confs may change after during the `IcebergCompat` checks. We should perform this validation only AFTER any config changes have been made.
+   - Note - currently this invalid change is not possible since we don't automatically enable table properties for iceberg compats, but this could change in the future.
+- Example in this PR where we should be using the latest updated metadata to perform validation https://github.com/delta-io/delta/pull/4196/files/70cdbc9067079705e3f68e2b9cbbc16156d19015#r1994099944 but this is not easy given the current set up
+
+## How was this patch tested?
+
+Existing tests suffice.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No.

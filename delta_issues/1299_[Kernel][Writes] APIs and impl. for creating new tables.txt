@@ -1,0 +1,7 @@
+## Description
+(Split from #2944)
+
+APIs and implementation for creating partitioned or unpartitioned tables. No data insertion yet. Will come in the next PR.
+
+## How was this patch tested?
+Test suite

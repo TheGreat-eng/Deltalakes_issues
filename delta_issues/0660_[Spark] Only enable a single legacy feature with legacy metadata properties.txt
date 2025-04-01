@@ -1,0 +1,19 @@
+#### Which Delta project/connector is this regarding?
+
+- [X] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+Currently enabling legacy features on legacy protocols with metadata properties results to enabling all preceding legacy features. For example, enabling enableChangeDataFeed results to protocol (1, 4). This is inconsistent with the rest protocol operations. In this PR, we fix this inconsistency by always enabling only the requested feature. This is a behavioral change.
+
+## How was this patch tested?
+
+Existing and new unit tests.
+
+## Does this PR introduce _any_ user-facing changes?
+
+Yes. When enabling a feature using a table property, e.g. by setting `delta.enableChangeDataFeed` to `true`, then in the previous situation you would typically get protocol `(1, 4)`. Now you would get `(1, 7, changeDataFeed)`. The user can get `(1, 4)` by also asking for `delta.minWriterVersion = 4`. This change is OK now because (a) enabling fewer features is safer than enabling more features, and (b) Deletion Vectors requires table features support, and it is very popular to implement, so many clients have added support table features, (c) users can easily get back to the legacy protocol by ALTERing the protocol and asking for `delta.minWriterVersion = 4`.

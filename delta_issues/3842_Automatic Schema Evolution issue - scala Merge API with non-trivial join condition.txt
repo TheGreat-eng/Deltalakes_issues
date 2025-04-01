@@ -1,0 +1,32 @@
+**Created table with schema:**
+root
+ |-- id: integer (nullable = true)
+ |-- name: string (nullable = true)
+ |-- modifieddate: timestamp (nullable = true)
+
+**Created a df with incremental update**
+root
+ |-- id: integer (nullable = false)
+ |-- name: string (nullable = true)
+ |-- type: string (nullable = true)
+ |-- modifieddate: timestamp (nullable = true)
+
+**When trying to merge using non-trivial join condition, it FAILS:**
+df_gold.as("t")
+    .merge(
+      deltadf.as("s"),
+      "rtrim(ltrim(lower(t.id))) = rtrim(ltrim(lower(s.id)))")
+    .whenMatched().updateAll()
+    .whenNotMatched().insertAll()
+    .execute()
+
+**However with a simplified condition, it works:**
+   df_gold.as("t")
+    .merge(
+      deltadf.as("s"),
+      "rtrim(t.id) = rtrim(s.id)")
+    .whenMatched().updateAll()
+    .whenNotMatched().insertAll()
+    .execute()
+
+

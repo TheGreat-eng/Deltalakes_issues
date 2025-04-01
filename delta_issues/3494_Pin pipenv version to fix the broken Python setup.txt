@@ -1,0 +1,48 @@
+Our Python setup is broken with the following error:
+
+```
+Traceback (most recent call last):
+  File "/usr/local/bin/pipenv", line 8, in <module>
+    sys.exit(cli())
+  File "/usr/local/lib/python3.8/dist-packages/pipenv/vendor/click/core.py", line 1137, in __call__
+    return self.main(*args, **kwargs)
+  File "/usr/local/lib/python3.8/dist-packages/pipenv/vendor/click/core.py", line 1062, in main
+    rv = self.invoke(ctx)
+  File "/usr/local/lib/python3.8/dist-packages/pipenv/vendor/click/core.py", line 1668, in invoke
+    return _process_result(sub_ctx.command.invoke(sub_ctx))
+  File "/usr/local/lib/python3.8/dist-packages/pipenv/vendor/click/core.py", line 1404, in invoke
+    return ctx.invoke(self.callback, **ctx.params)
+  File "/usr/local/lib/python3.8/dist-packages/pipenv/vendor/click/core.py", line 763, in invoke
+    return __callback(*args, **kwargs)
+  File "/usr/local/lib/python3.8/dist-packages/pipenv/vendor/click/decorators.py", line 84, in new_func
+    return ctx.invoke(f, obj, *args, **kwargs)
+  File "/usr/local/lib/python3.8/dist-packages/pipenv/vendor/click/core.py", line 763, in invoke
+    return __callback(*args, **kwargs)
+  File "/usr/local/lib/python3.8/dist-packages/pipenv/cli/command.py", line 440, in run
+    do_run(
+  File "/usr/local/lib/python3.8/dist-packages/pipenv/core.py", line 2456, in do_run
+    ensure_project(
+  File "/usr/local/lib/python3.8/dist-packages/pipenv/core.py", line 560, in ensure_project
+    ensure_pipfile(
+  File "/usr/local/lib/python3.8/dist-packages/pipenv/core.py", line 269, in ensure_pipfile
+    project.create_pipfile(python=python)
+  File "/usr/local/lib/python3.8/dist-packages/pipenv/project.py", line 710, in create_pipfile
+    from .vendor.pip_shims.shims import InstallCommand
+ImportError: cannot import name 'InstallCommand' from 'pipenv.vendor.pip_shims.shims' (/usr/local/lib/python3.8/dist-packages/pipenv/vendor/pip_shims/shims.py)
+```
+
+By comparing the build logs, I found it's because pipenv's new release `2021.11.5.post0` broke it.
+
+Green build log
+```
+Collecting pipenv
+  Downloading pipenv-2021.5.29-py2.py3-none-any.whl (3.9 MB)
+``` 
+
+Red build log
+```
+Collecting pipenv
+  Downloading pipenv-2021.11.5.post0-py2.py3-none-any.whl (3.9 MB)
+```
+
+This PR pins pipenv to 2021.5.29 (The previous one we use) to fix the build.

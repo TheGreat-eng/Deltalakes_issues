@@ -1,0 +1,19 @@
+#### Which Delta project/connector is this regarding?
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+This PR uses MutableProjection.create instead of directly generating the MutableProjection via GeneratMutableProjection.generate. As the latter forces codegen, it can fail if the generated code is too large, which, e.g., can happen for very wide schemas. The new code uses the correct Spark API to automatically fall back to an InterpretedMutableProjection if codegen fails for any reason.
+
+## How was this patch tested?
+
+This PR just uses the correct, higher-level API call to create a MutableProjection so existing tests are sufficient.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

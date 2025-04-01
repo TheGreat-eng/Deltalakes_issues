@@ -1,0 +1,17 @@
+When using delta to write I get that error:
+```
+java.lang.NoClassDefFoundError: Could not initialize class org.apache.spark.sql.delta.util.JsonUtils$
+	at org.apache.spark.sql.delta.DeltaOperations$Write.$anonfun$parameters$1(DeltaOperations.scala:58)
+	at scala.Option.map(Option.scala:230)
+	at org.apache.spark.sql.delta.DeltaOperations$Write.<init>(DeltaOperations.scala:58)
+	at org.apache.spark.sql.delta.commands.WriteIntoDelta.$anonfun$run$1(WriteIntoDelta.scala:66)
+	at org.apache.spark.sql.delta.commands.WriteIntoDelta.$anonfun$run$1$adapted(WriteIntoDelta.scala:64)
+	at org.apache.spark.sql.delta.DeltaLog.withNewTransaction(DeltaLog.scala:188)
+	at org.apache.spark.sql.delta.commands.WriteIntoDelta.run(WriteIntoDelta.scala:64)
+	at org.apache.spark.sql.delta.sources.DeltaDataSource.createRelation(DeltaDataSource.scala:134)
+```
+Using:
+1. spark 2.4.5 
+1. scala: 2.12 
+1. delta io.delta:delta-core_2.12:0.6.1
+1. Jackson 2.10.2

@@ -1,0 +1,1 @@
+Remove isBloomFiltered variable from VacuumCommand since is never used.

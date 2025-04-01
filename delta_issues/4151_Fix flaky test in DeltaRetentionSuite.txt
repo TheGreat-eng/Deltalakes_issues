@@ -1,0 +1,11 @@
+`DeltaRetentionSuite.log files being already deleted shouldn't fail log deletion job` is flaky because it fails when started in the last ~200 seconds of a UTC day.
+
+The test logic is as follows:
+* Make 25 commits 10 seconds apart, starting from the current time. 
+* Delete commits 5-15.
+* Advance the clock LOG_RETENTION (30) days + 1 day and run a cleanup.
+* Version 20 should be the latest checkpoint, and logs 1-19 should have been deleted.
+
+When the test starts in the last 190 seconds of the day, version 19 (or older) falls on the other side of a date boundary, and so does not get cleaned up. This change fixes this test by advancing the clock an extra day so that no matter when in the day the test starts, all log files are expired and the unnecessary ones can get cleaned up.
+
+Fixes https://github.com/delta-io/delta/issues/163.

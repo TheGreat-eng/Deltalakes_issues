@@ -1,0 +1,8 @@
+When we package the test-jar (for example, adding `publishArtifact in Test := true` to `build.sbt`), we get the error
+```
+[error] /Users/lajin/git/my/delta/src/test/java/io/delta/tables/JavaDeltaTableSuite.java:33: class TestSparkSession in package test cannot be accessed
+[error]   private transient TestSparkSession spark;
+[error]
+```
+
+So thie PR is to move `JavaDeltaTableSuite.java` to the right folder.

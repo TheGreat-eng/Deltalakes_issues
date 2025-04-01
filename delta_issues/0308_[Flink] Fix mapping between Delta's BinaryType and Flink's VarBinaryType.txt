@@ -1,0 +1,37 @@
+#### Which Delta project/connector is this regarding?
+
+- [ ] Spark
+- [ ] Standalone
+- [X] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+Resolves #3977
+
+This PR fixes a bug where the Delta-Flink connector would incorrectly map Delta's `BinaryType` (which is variable length) type to Flink's `BinaryType` (which is fixed length). Instead, this PR fixes it so that Delta's `BinaryType` is mapped to Flink's `VarBinaryType(MAX_LENGTH)`. As a comparison, Iceberg does the same [here](https://github.com/apache/iceberg/blob/8e2ffb35da2d4c5059e96cb78a30fd8c54cfbedf/flink/v1.18/flink/src/main/java/org/apache/iceberg/flink/TypeToFlinkType.java#L125).
+
+This incorrect logic caused the behaviour seen in #3977 because:
+- First, we had a source (datagen) table with Flink's BYTES (which is a synonym for VarBinaryType of MAX_LENGTH)
+- Second, we had a target (delta) table. Flink created it with schema BYTES and the Delta schema had delta type `BinaryType`.
+- All good so far. No problems yet.
+- When we tried to `INSERT INTO <target> SELECT * FROM <source>`, the DeltaCatalog would lookup the "flink schema" of the target Delta table. It would see Delta's BinaryType and map it incorrectly to flink's BinaryType (not Flink's BYTES or VarBinaryType)
+- Hence it would throw the error below
+
+```
+org.apache.flink.table.api.ValidationException: Column types of query result and sink for 'print_sink' do not match.
+Cause: Incompatible types for sink column 'binary_data' at position 1.
+Query schema: [id: BIGINT, binary_data: BYTES]
+Sink schema: [id: BIGINT, binary_data: BINARY(1)]
+```
+
+## How was this patch tested?
+
+Updated schema conversion tests.
+
+New e2e test which directly tests the problematic scenario brought up in #3977.
+
+## Does this PR introduce _any_ user-facing changes?
+
+Yes. We fix the mapping of Delta's BinaryType to flinks VarBinaryTYpe

@@ -1,0 +1,19 @@
+#### Which Delta project/connector is this regarding?
+
+- [X] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+Fix a number of tests in `DeltaTableCreationSuite` that were not correctly handling paths with special chars. Enable special char injection in `DeltaTableCreationIdColumnMappingSuite` and `DeltaTableCreationNameColumnMappingSuite` suites.
+
+## How was this patch tested?
+
+Test-only PR.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No.

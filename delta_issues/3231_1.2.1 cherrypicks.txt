@@ -1,0 +1,11 @@
+## Description
+Cherry-pick following PRs for 1.2.1 release
+* https://github.com/delta-io/delta/pull/1078
+* https://github.com/delta-io/delta/pull/1071
+* https://github.com/delta-io/delta/pull/1081
+
+
+## How was this patch tested?
+ * For [PR 1078](https://github.com/delta-io/delta/pull/1071): manually tested and an integration test is pending in https://github.com/delta-io/delta/pull/1081
+ * For https://github.com/delta-io/delta/pull/1071: UT and GCS manual testing.
+

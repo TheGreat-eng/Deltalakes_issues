@@ -1,0 +1,32 @@
+## Feature request
+
+#### Which Delta project/connector is this regarding?
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [x] Other  - TRINO
+
+### Overview
+
+Ability to set time travel option in Hive Metastore catalog for HMS-managed Delta Lake tables.
+
+### Motivation
+
+Need to provide time travel options from the metadata catalog to deliver users a historical view of the table if the time travel option is not explicitly specified in Spark. 
+For example, Hive Metastore / Catalog will provide either versionAsOf or timestampAsOf SerDe parameters (similar to path, which is already stored in SerDe parameter in table’s Storage Descriptor to specify location of Delta table) to achieve this goal.
+
+### Further details
+
+Time travel options from the Hive Metastore catalog will work the same as if it was set from Delta format options, only one versionAsOf or timestampAsOf is allowed.
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [ ] Yes. I can contribute this feature independently.
+- [x] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.
+
+Note: already have a patch for Spark available and do not have anything for Trino. 

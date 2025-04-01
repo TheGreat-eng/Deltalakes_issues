@@ -1,0 +1,18 @@
+#### Which Delta project/connector is this regarding?
+- [X] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+Disable 3 delta-spark tests from executing against Spark Master. They execute against Spark 3.5 only.
+
+## How was this patch tested?
+
+CI tests.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

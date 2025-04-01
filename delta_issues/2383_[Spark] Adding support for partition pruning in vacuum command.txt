@@ -1,0 +1,60 @@
+<!--
+Thanks for sending a pull request!  Here are some tips for you:
+  1. If this is your first time, please read our contributor guidelines: https://github.com/delta-io/delta/blob/master/CONTRIBUTING.md
+  2. If the PR is unfinished, add '[WIP]' in your PR title, e.g., '[WIP] Your PR title ...'.
+  3. Be sure to keep the PR description updated to reflect all changes.
+  4. Please write your PR title to summarize what this PR proposes.
+  5. If possible, provide a concise example to reproduce the issue for a faster review.
+  6. If applicable, include the corresponding issue number in the PR title and link it in the body.
+-->
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+- Currently, users have large tables with daily/hourly partitions for many years, among all these partitions only recent ones are subjected to change due to job reruns, corrections, and late arriving events.
+
+- When Vacuum is run on these tables, the listing of files is performed on all the partitions and it runs for several hours/days. This duration grows as tables grow and vacuum becomes a major overhead for customers especially when they have hundreds or thousands of such delta tables. File system scan takes the most amount of time in Vacuum operation for large tables, mostly due to the parallelism achievable and API throttling on the object stores.
+
+- This change does a parallel listing of partitions directories (not files) using partition column info from the delta log manifest. Then constructs a data frame to apply the filtering clause. The partition predicate filtering is only supported for the latest partition structure and when there is a change in partitioning user should run a normal vacuum first.
+
+- The parallel listing of partitions also helps default vacuum as it distributes file listing when there are too many partitioning columns.
+- Design Doc : https://docs.google.com/document/d/1vRTfMk3bRmCWLa-E4W-UaNOgFo_DyFCcCMVjB1GzrcU/edit?usp=sharing
+
+If this PR resolves an issue be sure to include "Resolves #1691" to correctly link and close the issue upon merge.
+
+## How was this patch tested?
+
+- Unit Testing  (` build/sbt 'testOnly org.apache.spark.sql.delta.DeltaVacuumSuite'`)
+   - SQL-based Vacuum on a table using complex predicates. eg: `vacuum db.table where v1=20 and v2>=3`
+   - Vacuum (with filter) on a non-partitioned table should return `Delta Vacuum filtering clause expects partition predicates and only supports partitioned tables`
+   - Vacuum on the partitioned table with a non partition predicate should fail with the `Predicate references non-partition column` Error
+
+- End  to End Test using Spark 3.4.1/3.3.1 on S3A FS (30 Executors with 25GB memory and 4 Cores)
+  -  Created a test delta table partitioned by 4 columns (year, month, day, hour). Added 10K mock files to each of the 48 partitions (2 days of data). Then executed vacuum dry run using
+   -  Delta 2.1 and Spark 3.3.1 
+      - Scanning ~480K files
+      - time taken: 142311665150 nanoseconds (~ 2.37 Minutes)
+  -  Delta 3 (this patch) and Spark 3.4.1 **without partition filer predicate**
+     - Scanning ~480K files
+     - time taken: 41901502337 nanoseconds **(~ 0.69 Minutes)**
+  -  Delta 3 (this patch) and Spark 3.4.1 **with partition filtering of 1 partition**
+     - Scanning ~10K Files
+     - time taken: 8365726464 nanoseconds **(~ 0.139 Minutes)**
+
+## Does this PR introduce _any_ user-facing changes?
+
+yes, the MR accepts an optional partition predicate filter from the user (similar to Optimize command).
+
+`VACUUM table_name [WHERE partition_predicate] [RETAIN num HOURS] [DRY RUN]`
+
+eg:  `VACUUM test_db.table where year||month >= '202307' RETAIN 168 HOURS dry run`

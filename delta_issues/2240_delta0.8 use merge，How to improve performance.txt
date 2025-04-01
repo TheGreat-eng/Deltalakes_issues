@@ -1,0 +1,39 @@
+## Feature request
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the issue title
+For example: [Feature Request][Spark] Title of my issue
+-->
+
+- [x] Spark
+
+
+### Overview
+use Spark-scala API merge delta table. 
+for example
+```scala
+DeltaTable.forPath(spark, "/data/events/")
+  .as("events")
+  .merge(
+    updatesDF.as("updates"),
+    "events.eventId = updates.eventId")
+  .whenMatched
+  .updateExpr(
+    Map("data" -> "updates.data"))
+  .whenNotMatched
+  .insertExpr(
+    Map(
+      "date" -> "updates.date",
+      "eventId" -> "updates.eventId",
+      "data" -> "updates.data"))
+  .execute()
+```
+
+***
+my delta table number of partitions 700 and 700 million data, each partition size of 130MB.
+How to improve performance,Should I increase or decrease the number of partitions?
+
+
+
+

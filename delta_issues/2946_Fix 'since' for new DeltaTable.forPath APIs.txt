@@ -1,0 +1,3 @@
+## Description
+
+New `DeltaTable.forPath` APIs missed `2.1.0` release. Changed `since` to `2.2.0`.

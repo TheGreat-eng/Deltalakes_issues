@@ -1,0 +1,5 @@
+## Description
+Write the `timestamp` as `INT64` physical format in Parquet. Currently, it is written as `INT96` which is a very old method of writing timestamp and deprecated a long time ago. Also, collect statistics, for `timestamp` type columns.
+
+## How was this patch tested?
+Update the existing tests.

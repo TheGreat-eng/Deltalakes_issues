@@ -1,0 +1,18 @@
+Extension to #321 
+
+When using an api like the one below, the only supported method to write metadata is through the use of the sparkSession which works until a single spark session is performing multiple writes simultaneously. In this case, manipulating the spark session still doesn't provide the ability to pass accurate metadata to the table. Could we find a way to ensure metadata writes are possible at the writer level even when using the following syntax?
+Thanks
+
+cc @zsxwing 
+
+```
+DeltaTable.forPath(target.tableLocation).alias("target")
+  .merge(updatesDF, mergeCondition)
+  .whenMatched
+  .updateAll()
+  .whenNotMatched
+  .insertAll()
+  .execute()
+```
+
+Thank you

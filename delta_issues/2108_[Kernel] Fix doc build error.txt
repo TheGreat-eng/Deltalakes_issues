@@ -1,0 +1,2 @@
+## Description
+Quality the class reference with full namespace in `package-info`.

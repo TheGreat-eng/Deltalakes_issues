@@ -1,0 +1,6 @@
+In the standalone lib, the AddFile has the field Map<String, String> tags.
+https://github.com/delta-io/delta/blob/57df2c0c5d1e25e70aac1d5ce5c6ac7dba54d0f9/connectors/standalone/src/main/java/io/delta/standalone/actions/AddFile.java#L52C5-L52C44
+
+
+In the kernel lib, the AddFile schema misses the field `tags`, we need to make the kernel lib compatible with the standalone lib
+https://github.com/delta-io/delta/blob/57df2c0c5d1e25e70aac1d5ce5c6ac7dba54d0f9/kernel/kernel-api/src/main/java/io/delta/kernel/internal/actions/AddFile.java#L50-L58

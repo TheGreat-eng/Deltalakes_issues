@@ -1,0 +1,43 @@
+<!--
+Thanks for sending a pull request!  Here are some tips for you:
+  1. If this is your first time, please read our contributor guidelines: https://github.com/delta-io/delta/blob/master/CONTRIBUTING.md
+  2. If the PR is unfinished, add '[WIP]' in your PR title, e.g., '[WIP] Your PR title ...'.
+  3. Be sure to keep the PR description updated to reflect all changes.
+  4. Please write your PR title to summarize what this PR proposes.
+  5. If possible, provide a concise example to reproduce the issue for a faster review.
+  6. If applicable, include the corresponding issue number in the PR title and link it in the body.
+-->
+
+## Description
+Adds support for Spark data source V2 batch reads. I've been playing around with this for a while and finally have gotten all the tests to pass. This PR is mostly to see if there's any interest in moving this direction and as a reference. There's a lot going on so if there was interest this could potentially be broken up into multiple PRs or I could try to write a design doc or something. 
+
+The idea was to feature flag this and disable it by default. It is enabled in this PR to show the tests passing. While all the tests are passing, I know there are a few missing features compared to the current V1 reader:
+- Snapshot isolation outside of a current transaction (I guess there's no tests for that?)
+- Reuse of snapshot scans for the same plan when creating a PreparedDeltaFileIndex
+- CDC reads will fallback to the V1 reader
+
+The main benefit or reason this path could be useful is that a good amount of new development happening for data source V2 that could benefit Delta. One example would be aggregate pushdown without having to write custom optimizer rules. This PR has a test demonstrating existing Parquet aggregate pushdown works out of the box (as long as column mapping isn't enabled). I have a separate branch where I have been playing around with custom aggregate pushdown based on the Delta log where I have nearly everything possible working (count/min/max with group by and filtering on partition columns).
+
+<!--
+- Describe what this PR changes.
+- Describe why we need the change.
+ 
+If this PR resolves an issue be sure to include "Resolves #XXX" to correctly link and close the issue upon merge.
+-->
+
+## How was this patch tested?
+A lot of the tests had to be updated because they were looking for a `FileSourceScanExec`. I made all these types of things compatible with both v1 and v2 reads. 
+
+<!--
+If tests were added, say they were added here. Please make sure to test the changes thoroughly including negative and positive cases if possible.
+If the changes were tested in any way other than unit tests, please clarify how you tested step by step (ideally copy and paste-able, so that other reviewers can test and check, and descendants can verify in the future).
+If the changes were not tested, please explain why.
+-->
+
+## Does this PR introduce _any_ user-facing changes?
+
+<!--
+If yes, please clarify the previous behavior and the change this PR proposes - provide the console output, description and/or an example to show the behavior difference if possible.
+If possible, please also clarify if this is a user-facing change compared to the released Delta Lake versions or within the unreleased branches such as master.
+If no, write 'No'.
+-->

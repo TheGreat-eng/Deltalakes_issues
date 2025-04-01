@@ -1,0 +1,32 @@
+## Feature request
+
+#### Which Delta project/connector is this regarding?
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+### Overview
+This feature request tracks the remaining effort to fully implement [Row Tracking](https://github.com/delta-io/delta/pull/1747).
+The feature required changes in Spark that are being released with Spark 3.5. With Spark 3.5 being released, fully implementing the feature is now unblocked. 
+
+### Further details
+
+Row tracking specification was added with https://github.com/delta-io/delta/commit/8dfa534b11c300319b00d1ab62b6be9150a16177 and https://github.com/delta-io/delta/pull/1747. See [Row ID design document](https://docs.google.com/document/d/1ji3zIWURSz_qugpRHjIV_2BUZPVKxYMiEFaDORt_ULA/edit?usp=sharing)  for the initial design.
+
+Support for writing fresh row IDs / row commit versions was introduced in the following PRs and didn't require any changes in Spark:
+- https://github.com/delta-io/delta/pull/1723
+- https://github.com/delta-io/delta/pull/1781
+- https://github.com/delta-io/delta/pull/1896
+
+Reading and preserving row IDs / row commit versions on the other does require changes that are shipping with Spark 3.5 (see e.g. https://github.com/apache/spark/pull/40677 and https://github.com/apache/spark/pull/40545). With Spark 3.5 we can now implement reading and preserving row tracking information
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [X] Yes. I can contribute this feature independently.
+- [ ] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.

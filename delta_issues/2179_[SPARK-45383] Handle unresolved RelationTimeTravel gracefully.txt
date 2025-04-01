@@ -1,0 +1,19 @@
+#### Which Delta project/connector is this regarding?
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+Spark doesn't handle unresolved `RelationTimeTravel` very gracefully (throwing spark internal error instead of `AnalysisException`). It will eventually get fixed, but meanwhile Delta needs a workaround.
+
+## How was this patch tested?
+
+New unit test
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

@@ -1,0 +1,3 @@
+`DeltaSourceBase` is a `SupportsAdmissionControl` but all the methods are in `DeltaSource` (looks like a leftover after a code refactor?) They should be moved off of `DeltaSource` to `DeltaSourceBase`.
+
+/cc @scottsand-db 

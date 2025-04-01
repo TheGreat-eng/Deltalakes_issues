@@ -1,0 +1,13 @@
+## Description
+Querying a wide table (containing more than 100 leaf-level columns) with deletion vectors throws unsupported operation exceptions
+
+This is happening for wide tables which have more than 100 columns. When we are reading more than 100 columns, Sparks code generator makes a decision ([1](https://github.com/apache/spark/blob/master/sql/core/src/main/scala/org/apache/spark/sql/execution/DataSourceScanExec.scala#L560), [2](https://github.com/apache/spark/blob/master/sql/core/src/main/scala/org/apache/spark/sql/execution/DataSourceScanExec.scala#L541)) to not use the codegen. When not using codegen, Spark sets options to get rows instead of columnar batches from the Parquet reader. This causes the [vectorized Parquet reader]((https://github.com/apache/spark/blob/master/sql/core/src/main/scala/org/apache/spark/sql/execution/datasources/parquet/ParquetFileFormat.scala#L189)) to return row abstraction over each column in the columnar batch. This row abstraction doesn't allow modification of the contents.
+
+Fix the issue by handling the `ColumnarBatchRow` by copying and making the updates. This is not efficient, but it affects only the wide tables.
+
+More details at delta-io/delta#2246
+
+Fixes delta-io/delta#2246
+
+## How was this patch tested?
+Added a unit test

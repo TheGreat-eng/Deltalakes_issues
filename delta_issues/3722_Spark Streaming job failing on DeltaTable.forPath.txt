@@ -1,0 +1,36 @@
+Hi,
+
+We have been running Spark streaming jobs along with Delta Lake for past couple of months. But for last couple of days we have been getting the below error while writing to DeltaLake location on S3. This happens mainly when we try for a "merge" using the DeltaTable.forPath command. IF we try to do direct insert it working fine.  Can you please let me know what we may be doing wrong here?
+
+py4j.protocol.Py4JJavaError: An error occurred while calling z:io.delta.tables.DeltaTable.forPath.
+: java.util.concurrent.ExecutionException: org.apache.spark.sql.catalyst.errors.package$TreeNodeException: execute, tree:
+
+Caused by: java.util.NoSuchElementException: None.get
+
+This happens when we call:
+
+df = spark.read.format("delta").load(source_bucket) 
+
+or when we call
+
+DeltaTable.forPath
+
+Details of the streaming job:
+
+Apache Spark: 3.0.1
+Delta Lake: 0.7.0
+Python: 3.6.9
+Object Store: AWS S3
+openjdk version: "1.8.0_275"
+
+
+Note: If we rewrite the delta location using pyspark terminal and then run the same spark job it works fine. But then again starts failing on the next run.
+
+
+Can you let me know the probable cause of the error?
+
+Pyspark Command used:
+PYSPARK_DRIVER_PYTHON=ipython $SPARK_HOME/bin/pyspark --packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.0.1,org.apache.spark:spark-avro_2.12:3.0.1,za.co.absa:abris_2.12:3.2.1,io.delta:delta-core_2.12:0.7.0,org.apache.hadoop:hadoop-aws:3.2.0,org.apache.hadoop:hadoop-common:3.2.0 --repositories https://packages.confluent.io/maven/ --conf spark.delta.logStore.class=org.apache.spark.sql.delta.storage.S3SingleDriverLogStore
+
+Regards,
+Nimesh.

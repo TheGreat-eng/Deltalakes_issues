@@ -1,0 +1,5 @@
+See #1783 for details.
+
+This PR just sets up the `kernel/` subdirectory and sbt for future development.
+
+https://github.com/delta-io/delta/pull/1786 updates the github actions and is based off of this PR

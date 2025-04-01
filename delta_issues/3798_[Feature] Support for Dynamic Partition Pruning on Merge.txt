@@ -1,0 +1,5 @@
+Hi,
+
+Spark 3.0 has support for dynamic partition pruning, so it will be very good if delta supports this feature on merge. Today is necessary to collect() partition values from the new dataframe to make a filter condition in delta merge.
+
+With this feature it will be much easier to make the merge and probably a lot of performances improvements.

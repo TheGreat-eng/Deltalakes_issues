@@ -1,0 +1,33 @@
+## Overview
+
+We propose to introduce Liquid Clustering, a new effort to revamp how clustering works in Delta, which addresses the shortcomings of Hive-style partitioning and current ZORDER clustering.
+
+
+## Motivation
+
+Partitioning/clustering is a common technique to manage datasets to reduce unnecessary data processing. Hive-style partitioning and ZORDER (multi-dimensional) clustering are existing solutions in Delta, but both have limitations.
+
+
+### Hive-style partitioning
+
+Hive-style partitioning clusters data such that every file contains exactly one distinct combination of partition column values. Although Hive-style partitioning works well if tuned correctly, there are limitations:
+
+
+
+* Since partition values are physical boundaries for files, Hive-style partitioning by high cardinality columns will create many small files that cannot be combined, resulting in poor scan performance.
+* In Spark/Delta, once a table is partitioned, its partition strategy cannot be changed, thus being unable to adapt to new use cases such as query pattern changes, etc.
+
+
+### ZORDER clustering
+
+ZORDER is a muti-dimensional clustering technique used in Delta. The `OPTIMIZE ZORDER BY` command applies ZORDER clustering and improves the performance of queries that utilize `ZORDER BY` columns in their predicates. However, it has the following limitations:
+
+
+
+* Any new data ingested after the `OPTIMIZE ZORDER BY` run is not automatically clustered, and the user needs to rerun the command to cluster the new data.
+* `OPTIMIZE ZORDER BY` reclusters already well-clustered data, resulting in high write amplification.
+* `ZORDER BY` columns are not persisted and the user is required to remember the previous `ZORDER BY` columns, often causing user errors.
+
+
+## Detailed Design
+Please refer to the document [here](https://docs.google.com/document/d/1FWR3odjOw4v4-hjFy_hVaNdxHVs4WuK1asfB6M6XEMw/edit?usp=sharing).

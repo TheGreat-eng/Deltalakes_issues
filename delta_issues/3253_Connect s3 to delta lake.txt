@@ -1,0 +1,7 @@
+Hello,
+
+I want to connect s3 (not aws s3) on my device to delta lake.
+I have information about "AccessKeyId", "SecretAccessKey", endpoint (ip address, port)
+Looks like there are no instructions for setting this up. Please help me how to connect my s3 to delta lake.
+
+Thank you.

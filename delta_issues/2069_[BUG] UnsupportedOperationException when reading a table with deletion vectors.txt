@@ -1,0 +1,81 @@
+## Bug
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the issue title
+For example: [BUG][Spark] Title of my issue
+-->
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+### Describe the problem
+
+I have a delta table with deletion vectors and with the following features enabled written by Databricks (Databricks-Runtime/13.3.x-photon-scala2.12)
+![image](https://github.com/delta-io/delta/assets/22160983/f99220ef-4d30-47df-b037-04cec666811b)
+
+When I try to read it using pyspark 3.4.1 with delta-lake 2.4.0 which I think is compliant with the requested reader protocol versión, I'm getting a ```java.lang.UnsupportedOperationException``` error.
+
+
+
+#### Steps to reproduce
+
+1.  Write a table with deletion vectors enabled using Databricks-Runtime/13.3.x-photon-scala2.12
+2.  Try to read that table using the open source delta-lake package versión 2.4.0
+
+#### Observed results
+
+When trying to do a simple "show" command, it responds with the following error:
+
+``` 
+23/10/27 15:15:57 ERROR Executor: Exception in task 0.0 in stage 28.0 (TID 356)]
+java.lang.UnsupportedOperationException
+	at org.apache.spark.sql.vectorized.ColumnarBatchRow.update(ColumnarBatchRow.java:193)
+	at org.apache.spark.sql.catalyst.InternalRow.setLong(InternalRow.scala:50)
+	at org.apache.spark.sql.delta.DeltaParquetFileFormat.$anonfun$iteratorWithAdditionalMetadataColumns$13(DeltaParquetFileFormat.scala:268)
+	at org.apache.spark.sql.delta.DeltaParquetFileFormat.$anonfun$iteratorWithAdditionalMetadataColumns$13$adapted(DeltaParquetFileFormat.scala:266)
+	at scala.Option.foreach(Option.scala:407)
+	at org.apache.spark.sql.delta.DeltaParquetFileFormat.$anonfun$iteratorWithAdditionalMetadataColumns$8(DeltaParquetFileFormat.scala:266)
+	at org.apache.spark.sql.execution.datasources.RecordReaderIterator$$anon$1.next(RecordReaderIterator.scala:62)
+	at org.apache.spark.sql.execution.datasources.FileScanRDD$$anon$1.next(FileScanRDD.scala:211)
+	at scala.collection.Iterator$$anon$10.next(Iterator.scala:461)
+	at scala.collection.Iterator$$anon$12.hasNext(Iterator.scala:514)
+	at scala.collection.Iterator$$anon$10.hasNext(Iterator.scala:460)
+	at org.apache.spark.sql.execution.SparkPlan.$anonfun$getByteArrayRdd$1(SparkPlan.scala:388)
+	at org.apache.spark.rdd.RDD.$anonfun$mapPartitionsInternal$2(RDD.scala:888)
+	at org.apache.spark.rdd.RDD.$anonfun$mapPartitionsInternal$2$adapted(RDD.scala:888)
+	at org.apache.spark.rdd.MapPartitionsRDD.compute(MapPartitionsRDD.scala:52)
+	at org.apache.spark.rdd.RDD.computeOrReadCheckpoint(RDD.scala:364)
+	at org.apache.spark.rdd.RDD.iterator(RDD.scala:328)
+	at org.apache.spark.scheduler.ResultTask.runTask(ResultTask.scala:92)
+	at org.apache.spark.TaskContext.runTaskWithListeners(TaskContext.scala:161)
+	at org.apache.spark.scheduler.Task.run(Task.scala:139)
+	at org.apache.spark.executor.Executor$TaskRunner.$anonfun$run$3(Executor.scala:554)
+	at org.apache.spark.util.Utils$.tryWithSafeFinally(Utils.scala:1529)
+	at org.apache.spark.executor.Executor$TaskRunner.run(Executor.scala:557)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+	at java.lang.Thread.run(Thread.java:750)
+```
+
+#### Expected results
+
+It should show the content of the table.
+
+
+### Environment information
+
+* Delta Lake version: 2.4.0
+* Spark version: 3.4.1
+* Scala version: 2.12
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [ ] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [x] No. I cannot contribute a bug fix at this time.

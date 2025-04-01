@@ -1,0 +1,78 @@
+## Feature request
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the issue title
+For example: [Feature Request][Spark] Title of my issue
+-->
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [x] Other: Delta Protocol
+
+### Overview
+
+This issues talks about problems related to checkpoint and how could they be handled using _Log Compactions_.
+
+### Motivation
+
+Frequent Checkpointing is a major issue especially for large size tables. Today we checkpoint every 10th commit. Frequent checkpointing causes following issues:
+
+- Latency - Checkpoints involve full state reconstruction which is a slow operation. It could take more than 3-4 minutes for large delta tables even on large spark clusters.
+- Write Amplification - As we duplicate the majority of actions again. Amplification is O(N) where N is the number of files in the table – so total size of all checkpoints is O(N**2). Checkpoints generally have a lifespan of 30 days by default.
+
+
+#### Why are frequent Checkpoints needed:
+We try to reduce the total number of delta files below a certain threshold to make sure performance doesn’t go down.
+
+More deltas => more files to read for State reconstruction => more tail latencies
+
+### Requirements
+- Increase the Checkpoint Interval to 20 without affecting the performance of Read/Write operations
+- Avoid any Protocol/TableFeature upgrades
+
+### Further details
+
+#### Proposal sketch
+Today DeltaLog has following files:
+##### Commit File
+**00000000000000000005.json** -> Represents a Delta file for a given version.
+##### Checkpoint File
+**00000000000000000010.checkpoint.parquet** -> Represents a Checkpoint file which captures everything from commit 0.
+
+We could introduce a new "Log Compaction" file.
+
+##### Log Compaction
+A Log Compaction represents compaction of deltas between version ‘X’ and version ‘Y’ (both bounds inclusive). It can have following structure:
+
+**x.y.compact.json** -> Represents all the changes from commit ‘X’ through commit ‘Y’. e.g. 00000000000000000100.00000000000000000200.compact.json
+
+Instead of doing a full checkpoint every 10 commits, We could do a mix of minor compactions or full checkpointing. We could use different heuristics/policies to decide when to do minor compaction as against full checkpoint.
+We could use a post-commit hook to trigger creating the minor compactions.
+
+#### When to trigger MinorCompaction, Checkpointing
+**Old Rule**
+- Trigger a checkpoint every ‘x’ commits
+
+**New Rule**
+- Trigger a checkpoint every ‘y’ commits
+- Trigger a minor-compaction every ‘x’ commits if all individual ‘x’ commits are small
+- Trigger a checkpoint if a large commit lands
+
+#### Metadata Cleanup
+We could apply LOG_RETENTION (defaults to 30 days) even to compacted delta files. i.e. when we delete all old checkpoints before a given version ‘X’, we also delete all compacted deltas that have startVersion <= X.
+
+#### Compatibility with older Delta versions
+Older Delta versions won’t have capability to read/write compacted delta files. They will ignore such files and create a Snapshot backed by the last available checkpoint and delta files.
+
+
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [x] Yes. I can contribute this feature independently.
+- [ ] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.

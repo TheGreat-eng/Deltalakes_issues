@@ -1,0 +1,25 @@
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+This PR proposes to replace the default pattern matching for `LogicalRelation` to newly introduced pattern object `LogicalRelationWithTable` which will be available in upcoming Spark 4.0.
+
+This change helps the project to modify less pieces of code when Spark makes the change to the LogicalRelation; most pattern matchings with LogicalRelation only extract the relation and catalog table, hence they fit with LogicalRelationWithTable.
+
+## How was this patch tested?
+
+Existing tests would suffice.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No.

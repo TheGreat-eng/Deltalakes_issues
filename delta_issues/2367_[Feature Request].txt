@@ -1,0 +1,37 @@
+## Feature request
+
+#### Which Delta project/connector is this regarding?
+<!--
+ [Feature Request][pySpark] Size of deltatable 
+For example: [Feature Request][Spark] Title of my issue
+-->
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+### Overview
+
+Hi, I'm trying to calculate size of delta table using pyspark. The only way i found that I can convert pyspark dataframe to pandas and then pyarrow table which is an inefficient method because it increase the size of the table. can you please suggest how I can calculate size of the pyspark delta table.
+
+### Motivation
+
+All
+
+### Further details
+
+<!--
+Pyspark dataframe deltatable size calculation.
+df = spark.read.format("delta").load(table_url)
+how i can calculate size of the df without converting to pandas or pyarrow
+-->
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [ ] Yes. I can contribute this feature independently.
+- [ ] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.

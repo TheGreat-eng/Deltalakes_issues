@@ -1,0 +1,64 @@
+**Issue:** 
+
+I have tried to upgrade the delta protocol on a newly created delta table by providing a invalid bigger 3 digit minWriterVersion number  and surprisingly it accepted and updated on the 00000000000000000001.json . This will make entire delta table unusable after upgrade. 
+
+**Though it rejecting further upgrades with any value with below exception :** 
+
+_com.databricks.sql.transaction.tahoe.actions.InvalidProtocolVersionException: Delta protocol version is too new for this version of the Databricks Runtime. Please upgrade to a newer release._ 
+
+**Tested on:**
+Databricks Runtime : DBR 9.1 LTS , SPARK 3.1.2 (on Azure)
+Delta created on : Azure Gen 2 storage
+Delta Lake : 1.0.0
+ 
+
+**Steps to reproduce:** 
+
+ 
+1. Create sample dataframe and written as delta : 
+```
+df=spark.createDataFrame( 
+
+  [(1,'test1',33,'Q1'), 
+
+   (2,'test2',48,'Q1'), 
+
+   (3,'test3',22,'Q1'), 
+
+   (4,'test4',88,'Q2'), 
+
+   (5,'test5',None,'Q2'), 
+
+   (6,'test6',42,'Q2') 
+
+  ],'id int,test_name string,score int,quarter string' 
+
+) 
+
+ df_to_write=df.repartition(1,['id']) 
+
+df_to_write.write.format('delta').mode('overwrite').save('abfss://test_container@test_account.dfs.core.windows.net/global/test_data/delta_test/sample1') 
+```
+
+![df](https://user-images.githubusercontent.com/40335002/194321623-b2c163e7-7d90-4ebc-bc0a-74cf32c29f6b.png)
+
+2. **Read the written data using python delta library's  class method delta.tables.DeltaTable.forPath:** 
+
+```
+from delta.tables import DeltaTable 
+
+dt=DeltaTable.forPath(spark,'abfss://test_container@test_account.dfs.core.windows.net/global/test_data/delta_test/sample1') 
+```
+![delta_read](https://user-images.githubusercontent.com/40335002/194322825-78126f67-fba6-430a-8c7e-6a5efaa0bfa3.png)
+
+3. **Upgraded the delta table protocol version:**
+
+`dt.upgradeTableProtocol(1,101) `  
+![protocol_upgrade](https://user-images.githubusercontent.com/40335002/194322879-9ba69751-1022-4fa5-aef4-0f7208237997.png)
+
+4. **The invalid minWriter version is updated on  00000000000000000001.json:** 
+
+![upgraded_json](https://user-images.githubusercontent.com/40335002/194322920-8e43ce40-a40d-4fa1-ad19-eef38fa187d1.png)
+
+
+

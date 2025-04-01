@@ -1,0 +1,13 @@
+#### Which Delta project/connector is this regarding?
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [x] Kernel
+- [ ] Other (fill in here)
+
+## Description
+Part of delta-io/delta#2071 (Partition Pruning in Kernel). This PR integrates the different pieces added in previous PRs to have an end-to-end partition pruning.
+
+## How was this patch tested?
+Added `PartitionPruningSuite`

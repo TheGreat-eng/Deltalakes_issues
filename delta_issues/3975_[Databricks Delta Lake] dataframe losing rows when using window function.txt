@@ -1,0 +1,27 @@
+I'm questioning my sanity right now, it looks to me like a very apparent bug. I have the following code
+
+```
+//returns 200648
+(delta_table.count) - (delta_table.withColumn("MaxUpdateDate", max('UpdateDate).over(Window.partitionBy('id))).count)
+
+delta_table.write.saveAsTable("foo")
+
+// returns 0
+(spark.read.table("foo").count) - (spark.read.table("foo").withColumn("MaxUpdateDate", max('UpdateDate).over(Window.partitionBy('id))).count)
+```
+
+
+The only difference I can see between the two tables is that the first one is a delta table that is continuously updated and partitioned by "UpdateDate". I ran vacuum before running the code above with the same result.
+
+As you can see, I cannot explain the behvaiour in my delta table when using the window function to add a column. Speaking of explain, here is the execution plan for the window function:
+
+```
+InMemoryTableScan [id#23370, UpdateDate#23378, MaxUpdateDate#25199]
+   +- InMemoryRelation [id#23370, UpdateDate#23378, MaxUpdateDate#25199], StorageLevel(disk, memory, deserialized, 1 replicas)
+         +- Window [id#243, UpdateDate#251, max(UpdateDate#251) windowspecdefinition(id#243, specifiedwindowframe(RowFrame, unboundedpreceding$(), unboundedfollowing$())) AS MaxUpdateDate#10529], [id#243]
+            +- Sort [id#243 ASC NULLS FIRST], false, 0
+               +- Exchange hashpartitioning(id#243, 200), [id=#8639]
+                  +- *(1) FileScan parquet [id#243,UpdateDate#251] Batched: true, DataFilters: [], Format: Parquet, Location: PreparedDeltaFileIndex[dbfs.....]
+```
+
+I do not understand how this can happen at all. Adding columns should in my understanding never ever decrease the amount of rows.

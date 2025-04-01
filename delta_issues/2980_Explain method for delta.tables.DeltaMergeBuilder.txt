@@ -1,0 +1,23 @@
+## Feature request
+
+### Overview
+
+Provide a method to retrieve query plans without executing the operation through the DeltaMergeBuilder.  
+
+Proposed that next to the `execute()` method is an `explain()` method, which returns the query plan without carrying out the merge.
+
+### Motivation
+
+Costly operations can often be avoided by checking the query plan prior to execution to ensure that configuration is as expected. We've been unable to find a way to get the query plan through any other means than running the operation.
+
+### Further details
+
+Seems like this previous issue is related to this. I'm not sure if the response rules out the proposed approach as well though: https://github.com/delta-io/delta/issues/773
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [ ] Yes. I can contribute this feature independently.
+- [x] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.

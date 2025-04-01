@@ -1,0 +1,23 @@
+## Description
+Adding support for **in-place** converting Iceberg to Delta using the CONVERT TO DELTA command in Apache Spark. Specifically, this PR supports converting a Parquet-based Iceberg table inside a path/directory to Delta Lake format.
+
+Here's an example flow:
+1. Given a Spark environment
+2. Follow the Iceberg setup [here](https://iceberg.apache.org/docs/latest/spark-configuration/#catalogs). **Please use the hadoop directory based catalog** so we could find Iceberg in a path.
+3. Suppose now we have an iceberg table sitting inside `s3://bucket/catalog/db/table`
+4. Run the following command
+```
+CONVERT TO DELTA iceberg.`s3://bucket/catalog/db/table`
+```
+5. Now you have a Delta table at the same location!
+6. To bring this Delta table into any Spark catalog, simply run `CREATE TABLE delta_table USING delta LOCATION 's3://bucket/catalog/db/table'`
+
+See more detail in this ticket: https://github.com/delta-io/delta/issues/1462.
+
+## How was this patch tested?
+New unit tests.
+
+We have tested Iceberg version from 0.13.1 to 1.0.0.
+
+## Does this PR introduce _any_ user-facing changes?
+It introduces a `iceberg-delta-compat` module that contains all the Iceberg + Spark dependencies, please include this module during Spark startup so CONVERT TO DELTA command could work.

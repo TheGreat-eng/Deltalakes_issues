@@ -1,0 +1,21 @@
+## Feature request
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the issue title
+For example: [Feature Request][Spark] Title of my issue
+-->
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [X] Kernel
+- [ ] Other (fill in here)
+
+### Overview
+
+#2415 adds support for `COALESCE` for boolean type expressions. We should support all data types.
+
+### Further details
+
+#2415 already adds the needed changes. To support more data types we just need to add tests and remove the check that allows only boolean type in `DefaultExpressionEvaluator`.

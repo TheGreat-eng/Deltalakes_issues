@@ -1,0 +1,8 @@
+Whenever a partition gets added to the delta table, we regenerating the manifest to get the updated partitions list. Following is the approach to generate manifest as mentioned in the doc.
+
+`val deltaTable = DeltaTable.forPath(pathToDeltaTable)
+deltaTable.generate("symlink_format_manifest")`
+
+When it comes to deleting a partition and regenerating the manifest, I could still see the deleted partition in my manifest directory. Eventually it should get removed from the manifest directory.
+
+When I manually delete the mainfest directory and generate the manifest, that time I don't see the deleted partition on my manifest directory.

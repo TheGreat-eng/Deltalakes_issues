@@ -1,0 +1,5 @@
+This PR is part of the feature: Support Delta tables with deletion vectors (more details at https://github.com/delta-io/delta/issues/1485)
+
+This PR adds support for SHALLOW CLONEing a Delta table with deletion vectors. The main change is to convert the relative path of DV file in `AddFile` to absolute path when cloning the table.
+
+Added tests

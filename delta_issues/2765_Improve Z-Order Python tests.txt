@@ -1,0 +1,7 @@
+## Description
+Followup from test failures in [2.1 branch](https://github.com/delta-io/delta/commit/d8c4fc17c25d6b5e0e9b3ebe1ff4cba39ecb39c5)
+- The expected number of files added/removed is hard coded which could change depending upon the Spark version (For example [change](https://issues.apache.org/jira/browse/SPARK-40407) causes different number of output files between Spark 3.3.0 and Spark 3.3.1 Update the test to get the number of files from query.
+- Change `assertTrue` to `assertEqual`.
+
+## How was this patch tested?
+Existing tests

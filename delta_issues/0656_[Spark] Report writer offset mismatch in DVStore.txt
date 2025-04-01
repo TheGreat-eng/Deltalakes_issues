@@ -1,0 +1,21 @@
+#### Which Delta project/connector is this regarding?
+
+- [X] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+We identified a potential issue with the API used to write DV to files, where the `DataOutputStream.size()` method may not return the correct file size. Our investigation revealed that `DataOutputStream` maintains its own byte count, but its `write(data)` method does not increment this counter `DataOutputStream` has multiple subclasses, which might override the counter or the `write(data)` method to update the counter correctly. We want to find out which class is being used when the issue occurs, thus this PR.
+
+To address this, we introduced our own mechanism to track the number of bytes written, which will be used solely for logging. If there is a discrepancy between the system's reported file size and our own record, a Delta event will be triggered.
+
+## How was this patch tested?
+
+Not needed.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No.

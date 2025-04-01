@@ -1,0 +1,55 @@
+## Bug
+
+### Describe the problem
+
+When creating a delta table specifying the location on spark local the delta_log files appear on the proper path but the table is registered in the metastore with a prefix to the path!
+
+#### Steps to reproduce
+
+Here is a sample sbt project: https://github.com/adrianabreu/delta-1.1.0-table-location-error-example/blob/master/src/test/scala/example/HelloSpec.scala
+
+```scala
+    val spark = SparkSession
+    .builder()
+    .enableHiveSupport()
+    .master("local")
+    .appName("test-session")
+    .getOrCreate()
+
+    spark.sql("""CREATE DATABASE IF NOT EXISTS bronze""")
+    spark.sql("""CREATE TABLE bronze.users (
+    |  name string,
+    |  active boolean
+    |)
+    |USING delta
+    |LOCATION 'spark-warehouse/users'""".stripMargin)
+
+```
+
+#### Observed results
+
+The table location in the metastore is registered as:
+
+`spark-warehouse/bronze.db/spark-warehouse/users`
+
+#### Expected results
+
+The table location should be: `spark-warehouse/users`
+
+#### Further details
+
+When no db is specified it works as expected
+
+### Environment information
+
+* Delta Lake version: 1.1.0
+* Spark version: 3.2.1
+* Scala version: 2.12
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [X] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute a bug fix at this time.

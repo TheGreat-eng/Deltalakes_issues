@@ -1,0 +1,5 @@
+## Description
+Add support for collecting statistics for columns as part of the Parquet file writing.
+
+## How was this patch tested?
+Refactored existing tests to make them concise. Added tests for stats collection and verifying the stats using the Spark reader. Also added a few special cases around collecting stats when the input contains NaN, -0.0 or 0.0.

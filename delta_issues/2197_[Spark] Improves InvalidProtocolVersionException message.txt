@@ -1,0 +1,20 @@
+#### Which Delta project/connector is this regarding?
+- [X] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+Improve the InvalidProtocolVersionException error message. Fix #2082
+
+## How was this patch tested?
+
+Unit tests
+
+## Does this PR introduce _any_ user-facing changes?
+
+Yes, the error message changed to:
+
+Delta protocol version is not supported by this version of Delta Lake: table "**tableNameOrPath**" requires reader version **readerRequired** and writer version **writerRequired**, client supports reader versions **supportedReaders** and writer versions **supportedWriters**. Please upgrade to a newer release.

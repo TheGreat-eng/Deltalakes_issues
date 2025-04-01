@@ -1,0 +1,2 @@
+- Added merge, update, delete to the Python DeltaTable class.
+- Added new unit tests to test_deltatable.py.

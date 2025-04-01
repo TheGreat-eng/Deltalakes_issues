@@ -1,0 +1,28 @@
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+Currently, it is possible for BinPackingIterator to create Deletion Vector files that are much bigger than the target size specified (default 2MB) because DeletionVectorData.size() only returns the size of the intermediate results and not the combined size with the persisted deletion vector.
+
+In this PR,
+
+* We add the size of the existing persistent DV to the size calculation in DeletionVectorData.
+* We add some additional safeguards around the DV target size -- we bound it to [0, 1.5GB].
+* If we detect overflow in DeletionVectorData, we will bump the size to Int.Max so that the erroneous item goes into its own bin. If the size is overflowing, it will likely fail later when we try to write the DV since it's oversized.
+* We add the fixed cost of adding checksums to every DV to the size of DeletionVectorData to get better estimates.
+
+## How was this patch tested?
+New tests that fail without this fix.
+
+## Does this PR introduce _any_ user-facing changes?
+No.

@@ -1,0 +1,16 @@
+#### Which Delta project/connector is this regarding?
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [x] Kernel
+- [ ] Other (fill in here)
+
+## Description
+Part of delta-io/delta#2071 (Partition Pruning in Kernel). We need a way to reference the `partitionValues` nested column in scan file `ColumnarBatch`.
+
+Currently, the `Column` expression can only be used to refer to a top-level column. There is no way to refer to a nested column. This PR updates the `Column` expression to be a multi-part identifier. This is similar to the Spark's [`NamedReference`](https://github.com/apache/spark/blob/master/sql/catalyst/src/main/java/org/apache/spark/sql/connector/expressions/NamedReference.java) DSv2 expression. 
+
+Fixes delta-io/delta#2040 (also contains different approaches to refer to a nested column).
+
+## How was this patch tested?
+Added a UT

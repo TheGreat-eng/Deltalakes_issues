@@ -1,0 +1,10 @@
+## What changes were proposed in this pull request?
+This PR introduces the `DeltaArbitraryColumnNameSuite` that tests arbitrary column names that contains special characters such as `% , #` which weren't allowed before, but are now supported for table under column mapping.
+
+## How was this patch tested?
+
+This test should be automatically run.
+
+Closes https://github.com/delta-io/delta/issues/957.
+
+GitOrigin-RevId: ac504fb7f5840bd9d7867ed2f240fe47cc9a651d

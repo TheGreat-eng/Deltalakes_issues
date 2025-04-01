@@ -1,0 +1,1 @@
+In Python examples', remove the try-except block in favor of `shutil`'s native error handling, avoiding possible inconsistencies that could come from the high extent of the pure `except` statement.

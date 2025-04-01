@@ -1,0 +1,7 @@
+We want to have the thinnest, most-lightweight read schema during LogReplay (parsing AddFiles and RemoveFiles, to yield the active add files in the table).
+
+Thus, we should only read the AddFile statistics field when
+1) there exists a query filter, and
+2) the connector is able to evaluate the stats-min/max etc. query (used to perform data skipping for that input query filter)
+
+If either of 1 or 2 is false, then we should skip reading the add file stats column during LogReplay json/checkpoint parsing.

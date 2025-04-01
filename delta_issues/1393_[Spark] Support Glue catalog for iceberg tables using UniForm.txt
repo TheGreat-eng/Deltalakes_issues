@@ -1,0 +1,29 @@
+
+#### Which Delta project/connector is this regarding?
+- [X] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+- Adds GlueCatalog support for Iceberg tables using Uniform. 
+- Accepts GlueCatalog as `catalog-impl` spark configuration property. 
+
+```
+spark-shell  --conf spark.sql.extensions=io.delta.sql.DeltaSparkSessionExtension  \
+--conf spark.sql.catalog.spark_catalog=org.apache.spark.sql.delta.catalog.DeltaCatalog  \
+--conf spark.databricks.delta.allowArbitraryProperties.enabled=true \
+--conf spark.sql.catalog.spark_catalog.catalog-impl=org.apache.iceberg.aws.glue.GlueCatalog \ 
+--conf spark.sql.catalog.spark_catalog.warehouse=s3://warehouse/path/delta/  \
+--conf spark.jars=/home/hadoop/delta-iceberg_2.12-3.1.0.jar,/home/hadoop/url-connection-client-2.20.160.jar
+```
+
+## How was this patch tested?
+- Created Delta table with uniform property - `'delta.universalFormat.enabledFormats' = 'iceberg'` 
+- Verified Iceberg table created in Glue 
+- Successfully read data from Iceberg table
+
+## Does this PR introduce _any_ user-facing changes?
+
+Yes, Users can use GlueCatalog for saving Iceberg tables to Aws Glue  

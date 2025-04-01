@@ -1,0 +1,8 @@
+my cluster using spark 2.3 on CDH 5.13.3, when i try delta on the cluster, it always gets error message like below: 
+
+"data.write.format('delta').save('/tmp/delta-table01')"
+
+"py4j.protocol.Py4JJavaError: An error occurred while calling o62.save.
+: com.google.common.util.concurrent.ExecutionError: java.lang.NoClassDefFoundError: org/apache/spark/sql/catalyst/plans/logical/AnalysisHelper$"
+
+however, i run same command on standalone mode spark 2.4.2, it works well. so if i want to use delta on CDH cluster, how could i setup the envirorment? thanks. 

@@ -1,0 +1,43 @@
+Hi,
+
+We have been running Spark streaming jobs along with Delta Lake for past couple of months. But for last 2 days we have been getting the below error while writing to S3. Can you please let me know what we may be doing wrong here?
+
+"org.apache.http.ConnectionClosedException: Premature end of Content-Length delimited message body (expected: 43,688; received: 28,617)"
+
+Details of the streaming job:
+Apache Spark: 3.0.1
+Delta Lake: 0.7.0
+Python: 3.7.9
+Object Store: AWS S3
+
+Can you let me know the probable cause of the error?
+
+Pyspark Command used:
+PYSPARK_DRIVER_PYTHON=ipython $SPARK_HOME/bin/pyspark --packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.0.1,org.apache.spark:spark-avro_2.12:3.0.1,za.co.absa:abris_2.12:3.2.1,io.delta:delta-core_2.12:0.7.0,org.apache.hadoop:hadoop-aws:2.7.4,org.apache.hadoop:hadoop-common:2.7.4 --repositories https://packages.confluent.io/maven/ --conf spark.delta.logStore.class=org.apache.spark.sql.delta.storage.S3SingleDriverLogStore 
+
+Sample Code snippet used to replicate the error:
+
+`
+import boto3
+from pyspark import SparkConf, SparkContext
+from pyspark.sql import SparkSession, Window
+import pyspark.sql.functions as F
+
+spark = pyspark.sql.SparkSession.builder.appName("MyApp") \
+.config("spark.sql.extensions", "io.delta.sql.DeltaSparkSessionExtension") \
+.config("spark.sql.catalog.spark_catalog", "org.apache.spark.sql.delta.catalog.DeltaCatalog") \
+.getOrCreate()
+
+spark.sparkContext._jsc.hadoopConfiguration().set("fs.s3a.endpoint", "s3.ap-south-1.amazonaws.com")
+spark.sparkContext._jsc.hadoopConfiguration().set("spark.hadoop.fs.s3a.impl", "org.apache.hadoop.fs.s3a.S3AFileSystem")
+spark.sparkContext.setSystemProperty("com.amazonaws.services.s3.enableV4", "true")
+spark.conf.set("spark.databricks.delta.schema.autoMerge.enabled", "true")
+spark.conf.set("spark.delta.merge.repartitionBeforeWrite", "true")
+spark.conf.set("delta.compatibility.symlinkFormatManifest.enabled", "true")
+
+from delta.tables import *
+deltaTable = DeltaTable.forPath(spark, "s3a://BUCKET_NAME/STREAMING_PATH") 
+deltaTable.generate("symlink_format_manifest")
+
+`
+

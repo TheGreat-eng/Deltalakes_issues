@@ -1,0 +1,3 @@
+Reverts delta-io/delta#2896
+
+It was merged too soon before the tests were completed. Unfortunately, the tests have a failure.

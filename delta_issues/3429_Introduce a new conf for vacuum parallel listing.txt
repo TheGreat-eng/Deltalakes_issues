@@ -1,0 +1,4 @@
+Currently, vacuum uses `spark.sql.sources.parallelPartitionDiscovery.parallelism` to control the parallelism for files and directories listing for vacuum and the default value is 10000. 
+This PR introduces a new Delta SQL conf `DELTA_VACUUM_FILE_LISTING_PARALLELISM` to control the file listing parallelism for vacuum command. The default value for this conf is 200.  
+
+Closes #859

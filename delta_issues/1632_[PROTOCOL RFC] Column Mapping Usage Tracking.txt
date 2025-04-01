@@ -1,0 +1,19 @@
+#### Which Delta project/connector is this regarding?
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [x] Other (fill in here)
+
+## Description
+
+Adds the proposal for spec change Column Mapping Usage Tracking (see https://github.com/delta-io/delta/issues/2682) to the RFC folder.
+
+## How was this patch tested?
+
+N/A
+
+## Does this PR introduce _any_ user-facing changes?
+
+N/A

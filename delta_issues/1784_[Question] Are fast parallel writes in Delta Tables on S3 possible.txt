@@ -1,0 +1,26 @@
+## Are fast parallel writes in Delta Tables on S3 possible?
+
+#### Which Delta project/connector is this regarding?
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [x] Other (Spark Connect)
+
+### Overview
+
+I have set up a Spark Connect kubernetes cluster (Spark v3.5.0) that reads from and writes to a set of Delta Tables (using Delta 3.0.0). I am using AWS S3 as storage, AWS Glue as metastore, and have configured S3DynamoDBLogStore for concurrent writes.
+
+I have also carefully partitioned the tables, and I'm trying to operate concurrently and in parallel for different partitions. The problem is that I see the performance of the system degrade very quickly (in terms of Spark computations) as the parallel requests increase in number. 
+
+If one job alone requires 2 minutes to complete, two jobs slow down to 3 minutes, 10 jobs slow down to 15-18 minutes, even though the Spark cluster utilization is quite low. Increasing resources/executors does virtually nothing. 
+
+I believe the slowdown is due to the locking mechanism of the delta tables. 
+
+I even tried the S3SingleDriverLogStore but no improvements.
+
+I also tried disabling the snapshotCache (setting spark.databricks.delta.snapshotCache.storageLevel to NONE) to no avail.
+
+### Question
+
+Are fast parallel writes in Delta Tables possible at all on S3? Are there other configurations that I can explore that could help me in my quest?

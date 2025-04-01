@@ -1,0 +1,44 @@
+I am running spark (3.0.1) with delta (0.8.0) locally.
+I can create a table in spark-warehouse:
+```
+from pyspark.sql import SparkSession
+
+spark = (
+    SparkSession.builder.appName("MyApp")
+    .config("spark.jars.packages", "io.delta:delta-core_2.12:0.8.0")
+    .config("spark.sql.extensions", "io.delta.sql.DeltaSparkSessionExtension")
+    .config(
+        "spark.sql.catalog.spark_catalog",
+        "org.apache.spark.sql.delta.catalog.DeltaCatalog",
+    )
+    .getOrCreate()
+)
+(
+     df
+     .write
+    .format("delta")
+    .saveAsTable("mytable")
+)
+
+spark.sql("SHOW tables").show()
++--------+---------+-----------+
+|database|tableName|isTemporary|
++--------+---------+-----------+
+| default|     mytable|      false|
++--------+---------+-----------+
+```
+
+The dataframe is saved under spark-warehouse, with the delta logs.
+However if I restart a new spark session, I am not able to see the table anymore in the catalog, although the data are still there.
+
+```
+spark.sql("SHOW tables").show()
+
+spark.sql("SHOW tables").show()
++--------+---------+-----------+
+|database|tableName|isTemporary|
++--------+---------+-----------+
++--------+---------+-----------+
+```
+
+Is there a way for persisting the tables in the catalog, and not only in the filesystem?

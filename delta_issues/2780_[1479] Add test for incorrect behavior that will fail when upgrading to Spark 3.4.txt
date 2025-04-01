@@ -1,0 +1,1 @@
+See #1479 this test checks for the **incorrect** behavior we are seeing and should fail when upgrading to Spark 3.4.

@@ -1,0 +1,7 @@
+## Description
+(Split from #2944)
+
+Adds support for inserting data into the table.
+
+## How was this patch tested?
+Tests for inserting into partitioned and unpartitioned tables with various combinations of the types, partition values etc. Also tests the checkpoint is ready to create.

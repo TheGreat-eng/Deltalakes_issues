@@ -1,0 +1,147 @@
+## Bug
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the issue title
+For example: [BUG][Spark] Title of my issue
+-->
+
+- [X] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+### Describe the problem
+When copying a folder having `delta` format from local machine or HDFS to S3, transaction log timestamps change from the original values to the time of copying the files.
+
+#### Steps to reproduce
+
+<!--
+Please include copy-pastable code snippets if possible.
+1. _____
+2. _____
+3. _____
+-->
+
+1. Create a delta folder with history
+```scala
+val path = "/tmp/delta_test"
+
+// Generate a test data frame
+val exampleDf1 = spark.createDataFrame(Seq(
+  (1, "a", 1.0),
+  (2, "b", 2.0),
+  (3, "c", 3.0)
+)).toDF("id", "name", "value")
+
+// Generate the dataframe for the append
+val exampleDf2 = exampleDf1.select(
+  $"name",
+  ($"id" + 10).as("ID"),
+  $"value"
+)
+
+exampleDf1.write.format("delta").save(path)
+
+// simulate the time passed between 2 transactions 
+sleep(10000)
+
+exampleDf2.write.format("delta").mode(SaveMode.Append).save(path)
+
+// show history
+val deltaTable = DeltaTable.forPath(spark, path)
+val fullHistoryDF = deltaTable.history() 
+fullHistoryDF.show(false)
+```
+
+When copy the folder to an S3 bucket.
+
+#### Observed results
+
+<!-- What happened?  This could be a description, log output, etc. -->
+
+You will notice when getting history from both locations:
+local (correct):
+```
++-------+-----------------------+------+--------+---------+------------------------------------------+----+--------+---------+-----------+--------------+-------------+-----------------------------------------------------------+------------+-----------------------------------+
+|version|timestamp              |userId|userName|operation|operationParameters                       |job |notebook|clusterId|readVersion|isolationLevel|isBlindAppend|operationMetrics                                           |userMetadata|engineInfo                         |
++-------+-----------------------+------+--------+---------+------------------------------------------+----+--------+---------+-----------+--------------+-------------+-----------------------------------------------------------+------------+-----------------------------------+
+|1      |2023-08-03 15:40:03.296|null  |null    |WRITE    |{mode -> Append, partitionBy -> []}       |null|null    |null     |0          |Serializable  |true         |{numFiles -> 2, numOutputRows -> 3, numOutputBytes -> 1851}|null        |Apache-Spark/3.4.1 Delta-Lake/2.4.0|
+|0      |2023-08-03 14:26:07.888|null  |null    |WRITE    |{mode -> ErrorIfExists, partitionBy -> []}|null|null    |null     |null       |Serializable  |true         |{numFiles -> 2, numOutputRows -> 3, numOutputBytes -> 1851}|null        |Apache-Spark/3.4.1 Delta-Lake/2.4.0|
++-------+-----------------------+------+--------+---------+------------------------------------------+----+--------+---------+-----------+--------------+-------------+-----------------------------------------------------------+------------+-----------------------------------+
+
+```
+S3 (wrong):
+```
++-------+-----------------------+------+--------+---------+------------------------------------------+----+--------+---------+-----------+--------------+-------------+-----------------------------------------------------------+------------+-----------------------------------+
+|version|timestamp              |userId|userName|operation|operationParameters                       |job |notebook|clusterId|readVersion|isolationLevel|isBlindAppend|operationMetrics                                           |userMetadata|engineInfo                         |
++-------+-----------------------+------+--------+---------+------------------------------------------+----+--------+---------+-----------+--------------+-------------+-----------------------------------------------------------+------------+-----------------------------------+
+|1      |2023-08-03 15:50:52.001|null  |null    |WRITE    |{mode -> Append, partitionBy -> []}       |null|null    |null     |0          |Serializable  |true         |{numFiles -> 2, numOutputRows -> 3, numOutputBytes -> 1851}|null        |Apache-Spark/3.4.1 Delta-Lake/2.4.0|
+|0      |2023-08-03 15:50:52    |null  |null    |WRITE    |{mode -> ErrorIfExists, partitionBy -> []}|null|null    |null     |null       |Serializable  |true         |{numFiles -> 2, numOutputRows -> 3, numOutputBytes -> 1851}|null        |Apache-Spark/3.4.1 Delta-Lake/2.4.0|
++-------+-----------------------+------+--------+---------+------------------------------------------+----+--------+---------+-----------+--------------+-------------+-----------------------------------------------------------+------------+-----------------------------------+
+
+```
+
+See the `timestamp` field in both tables.
+
+#### Expected results
+
+There should be a way to preserve timestamps when migrating data from HDFS or any other location to S3.
+In S3 it is not possible to change the modification time of an object (https://stackoverflow.com/a/42729819/1038282).
+
+Proper timestamps are already stored in the transaction log:
+
+00000000000000000000.json:
+```json
+{
+  "commitInfo": {
+    "timestamp": 1691065567576,
+    "operation": "WRITE",
+    "operationParameters": {
+      "mode": "ErrorIfExists",
+      "partitionBy": "[]"
+    },
+    ...
+}
+```
+
+00000000000000000001.json:
+```json
+{
+  {
+  "commitInfo": {
+    "timestamp": 1691070003040,
+    "operation": "WRITE",
+    "operationParameters": {
+      "mode": "Append",
+      "partitionBy": "[]"
+    },
+    ...
+}
+```
+
+but there is no way to instruct the `delta` format reader to use these timestamps in time travel queries.
+
+#### Further details
+
+<!--
+Include any additional details that may be useful for diagnosing the problem here. If including tracebacks, please include the full traceback. Large logs and files should be attached.
+-->
+
+Related discussion: https://github.com/delta-io/delta/issues/1293
+
+### Environment information
+
+* Delta Lake version: 2.4.0
+* Spark version: 3.4.1
+* Scala version: 2.12
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [X] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute a bug fix at this time.
+

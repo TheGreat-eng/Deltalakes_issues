@@ -1,0 +1,9 @@
+Hello! I found out that you cannot query a local Delta Lake using SQL directly from the files if you don't use the full path (from root to the Delta Lake directory). I know that Delta Lakes are not supposed to be used in standalone clusters or non-distributed file system but for testing and (perhaps in the future, general public reachment) it's not a bad idea to generate a Delta Lake in a local directory to try it out when you are working in Visual Studio Code or another IDE, that change the _working directory_ to the folder that you have opened and let you use 'relative paths'.
+
+If you try to use data/delta-test (example) and in a PySpark session you try to make a query on that delta-lake, you get:
+_`pyspark.sql.utils.AnalysisException: Unsupported data source type for direct query on files: delta;;_
+But if you do /home/gabmartini/data/delta-test it works.
+
+Very frustrating for beginners to be truly honest. Perhaps a very explicit remark in the documentation will help to clear that out.
+
+Thanks and keep up the good work!

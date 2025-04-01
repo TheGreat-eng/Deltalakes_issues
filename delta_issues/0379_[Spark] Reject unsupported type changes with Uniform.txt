@@ -1,0 +1,48 @@
+## Description
+Iceberg only supports a subset of the type changes that Delta's type widening feature covers.
+See https://iceberg.apache.org/spec/#schema-evolution.
+Unsupported type changes areL
+- integers -> decimal
+- integers -> double
+- decimal scale increase
+- date -> timestamp_ntz
+
+This change makes using Uniform with Iceberg compatibility mutually exclusive with using one of these unsupported type changes, e.p.:
+- Fail when trying to apply an unsupported type change if Uniform with Iceberg compatibility enabled.
+- Fail when trying to enable Uniform with Iceberg compatibility if an unsupported type change was applied in the past.
+- Don't automatically widen type during schema evolution if Uniform with Iceberg compatibility is enabled and the type promotion isn't supported by Iceberg.
+
+## How was this patch tested?
+- Added suite `TypeWideningUniformSuite` covering all cases listed above. E.p. for schema evolution, covers MERGE and a sample of INSERTs, including streaming writes.
+
+## Does this PR introduce _any_ user-facing changes?
+Note: all the unsupported Iceberg type changes covered here will only be supported in Delta starting with Delta 4.0, so this doesn't impact any released Delta version except for 4.0 preview.
+
+Applying a type change not supported by Iceberg when Uniform with Iceberg compatibility now fails with:
+```
+CREATE TABLE t (a DECIMAL(10, 2)) TBLPROPERTIES (
+  'delta.enableTypeWidening' = 'true',
+  'delta.IcebergCompatV2' = 'true',
+  'delta.universalFormat.enabledFormats' = 'iceberg'
+);
+
+ALTER TABLE t CHANGE COLUMN a TYPE DECIMAL(12, 4);
+[DELTA_ICEBERG_COMPAT_VIOLATION.UNSUPPORTED_TYPE_WIDENING] 
+IcebergCompatV2 is incompatible with a type change applied to this table: Field a was changed from DECIMAL(10, 2) to DECIMAL(12, 4)."
+```
+
+Enabling Uniform with Iceberg compatibility on a table that had an unsupported type change applied in the past now fails with:
+```
+CREATE TABLE t (a DECIMAL(10, 2)) TBLPROPERTIES ('delta.enableTypeWidening' = 'true');
+ALTER TABLE t CHANGE COLUMN a TYPE DECIMAL(12, 4);
+
+
+ALTER TABLE t SET TBLPROPERTIES (
+  'delta.IcebergCompatV2' = 'true',
+  'delta.universalFormat.enabledFormats' = 'iceberg'
+);
+[DELTA_ICEBERG_COMPAT_VIOLATION.UNSUPPORTED_TYPE_WIDENING] 
+IcebergCompatV2 is incompatible with a type change applied to this table: Field a was changed from DECIMAL(10, 2) to DECIMAL(12, 4)."
+```
+
+Type changes not supported by Iceberg aren't eligible anymore for automatic type widening with schema evolution in MERGE/INSERT operation when Uniform with Iceberg compatibility is enabled.

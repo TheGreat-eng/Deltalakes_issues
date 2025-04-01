@@ -1,0 +1,42 @@
+#### Which Delta project/connector is this regarding?
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+
+## What changes were proposed in this pull request?
+This change is part of the type widening table feature.
+Type widening feature request: https://github.com/delta-io/delta/issues/2622
+Type Widening protocol RFC: https://github.com/delta-io/delta/pull/2624
+
+It introduces metadata to record information about type changes that were applied using `ALTER TABLE`. This metadata is stored in table schema, as specified in https://github.com/delta-io/delta/pull/2624/files#diff-114dec1ec600a6305fe7117bed7acb46e94180cdb1b8da63b47b12d6c40760b9R28
+
+For example, changing a top-level column `a` from `int` to `long` will update the schema to include metadata:
+```
+{
+    "name" : "a",
+    "type" : "long",
+    "nullable" : true,
+    "metadata" : { 
+      "delta.typeChanges": [
+        {
+          "tableVersion": 1,
+          "fromType": "integer",
+          "toType": "long"
+        },
+        {
+          "tableVersion": 5,
+          "fromType": "integer",
+          "toType": "long"
+        }
+      ]
+    }
+  }
+```
+
+## How was this patch tested?
+- A new test suite `DeltaTypeWideningMetadataSuite` is created to cover methods handling type widening metadata.
+- Tests covering adding metadata to the schema when running `ALTER TABLE CHANGE COLUMN` are added to `DeltaTypeWideningSuite`

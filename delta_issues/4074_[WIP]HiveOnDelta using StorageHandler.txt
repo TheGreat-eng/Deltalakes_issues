@@ -1,0 +1,19 @@
+Implement HiveOnDelta with StorageHandler
+DDL:
+```
+create external table deltaTbl(a string, b int)
+stored by 'io.delta.hive.DeltaStorageHandler'
+with serdeproperties("delta.table.path" = '/test/delta')
+```
+- must be external table
+- must not be a Hive partition table
+- if DeltaTable is a partitionTable, then the partition column should be after data column when creating Hive table
+- Hive's schema should be match with the under delta'schema ,including column number &column name
+- the delta.table.path should be existed
+
+Read:
+- support read a non-partition or a partition table
+- support push down filter with delta's partition column, currently support predicate (=,!=,>,>=,<,<=,in,like)
+- auto-detected delta's partition change
+
+Unit Tests Added(`build/sbt "test:testOnly *HiveConnectorSuite"`)

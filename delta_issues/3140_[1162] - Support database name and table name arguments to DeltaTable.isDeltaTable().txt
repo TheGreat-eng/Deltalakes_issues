@@ -1,0 +1,1 @@
+This resolves [1162](https://github.com/delta-io/delta/issues/1162) 

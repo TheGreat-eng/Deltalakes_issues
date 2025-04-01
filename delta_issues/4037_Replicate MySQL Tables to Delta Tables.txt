@@ -1,0 +1,15 @@
+delta lake There is no such example implementation. thank you
+Read mysql data in real time
+
+spark.readStream
+  .format("preview-cdcFromMysql")
+  .option("host", <host>)
+  .option("username", <username>)
+  .option("password", dbutils.secrets.get(<scope>, <mysql_password>)
+  .option("database",  <database>)
+  .option("table", <table>)
+  .load()
+  .writeStream
+  .format("preview-cdcToDelta")
+  .option("checkpointLocation", <checkpoint location>)
+  .start(<path to Delta table target>)

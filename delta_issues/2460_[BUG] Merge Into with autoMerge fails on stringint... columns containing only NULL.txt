@@ -1,0 +1,87 @@
+## Bug
+
+### Describe the problem
+
+Using merge into with schema.autoMerge enabled and specifying the columns to ingest in the update/insert clause fails when a new column is added that only contains NULLs, even if the data type of the column is *not* void.
+
+
+#### Steps to reproduce
+
+```sql
+SET spark.databricks.delta.schema.autoMerge.enabled = true;
+
+create or replace table merge_test
+(
+    id int,
+    old_column string
+);
+
+insert into merge_test
+values (1, "a");
+
+create or replace table merge_test_updates
+(
+    id int,
+    old_column string,
+    new_column string,
+    __change_operation string
+);
+
+insert into merge_test_updates
+values (1, "a_old", null, "U");
+ 
+insert into merge_test_updates
+values (2, "b_old", null, "I");
+
+merge into merge_test target
+using dev.merge_test_updates updates
+on target.id = updates.id
+when matched and updates.__change_operation = "U"
+  then update set old_column = updates.old_column, new_column = updates.new_column
+when not matched
+  then insert (id, old_column, new_column) values (updates.id, updates.old_column, updates.new_column)
+```
+
+Alternatively, merge in python:
+
+```python
+from delta import DeltaTable
+target = DeltaTable.forName(spark, "merge_test")
+updates = spark.read.table("merge_test_updates")
+update_column_dict = {"old_column": "updates.old_column", "new_column": "updates.new_column"}
+
+target.alias("target").merge(
+    updates.alias("updates"), condition="target.id = updates.id"
+).whenMatchedUpdate(
+    condition=F.col("updates.__change_operation") == F.lit("U"), set=update_column_dict
+).whenNotMatchedInsert(
+    values=update_column_dict
+).execute()
+``` 
+
+#### Observed results
+
+`AnalysisException: cannot resolve new_column in UPDATE clause given columns target.id, target.old_column; line 1 pos 0`
+
+#### Expected results
+
+That the new_column is added to the merge_test table.
+
+#### Further details
+
+Very much related to #944 but this also happens for int/string/.. columns, not only void columns. The example above ensures that the updates table has the correct data types and no void columns.
+While I understand that void columns are not supported, our approach explicitly avoids void columns and still fails. At the very least, a more helpful error message and an info box in the docs would be nice, it took us a long time to get to the root of this problem because there is no mention anywhere that void or NULL-only columns are not supported.
+
+### Environment information
+
+* Delta Lake version: tested with 2.3, 2.4
+* Spark version: 3.3.2
+* Scala version: 2.12
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [ ] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [x] No. I cannot contribute a bug fix at this time.

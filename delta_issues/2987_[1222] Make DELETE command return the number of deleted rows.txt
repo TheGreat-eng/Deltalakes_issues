@@ -1,0 +1,21 @@
+## Description
+
+This PR makes the `DELETE` command in Delta Lake return the numAffectedRows metric.
+
+## How was this patch tested?
+
+Updated tests inside of `DeleteMetricsSuite` which now test for `numAffectedRows`. I also added a test to check explicitly for the case of deletes along partition boundaries.
+
+## Does this PR introduce _any_ user-facing changes?
+
+Yes. Deletes will now return the number of deleted rows.
+
+For example,
+
+```SQL
+DELETE FROM TABLE table WHERE ...
+```
+
+will now return a DataFrame with one row with column `num_affected_rows` of type Long.
+
+Resolves delta-io/delta#1222

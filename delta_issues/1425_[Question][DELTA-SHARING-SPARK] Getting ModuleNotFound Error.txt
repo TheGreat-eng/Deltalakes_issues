@@ -1,0 +1,194 @@
+## Bug
+
+Following the documentation from [1](https://github.com/delta-io/delta/releases), [2](https://github.com/delta-io/delta-sharing/blob/main/README.md), results in
+ModuleNotFoundError: No module named 'delta.exceptions.captured'; 'delta.exceptions' is not a package
+
+#### Which Delta project/connector is this regarding?
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [X] Other - Delta-Sharing-Spark 3.1.0
+
+### Describe the problem
+While using the open dataset from delta.io and while I am able to list the shared tables
+
+> [Table(name='COVID_19_NYT', share='delta_sharing', schema='default'), Table(name='boston-housing', share='delta_sharing', schema='default'), Table(name='flight-asa_2008', share='delta_sharing', schema='default'), Table(name='lending_club', share='delta_sharing', schema='default'), Table(name='nyctaxi_2019', share='delta_sharing', schema='default'), Table(name='nyctaxi_2019_part', share='delta_sharing', schema='default'), Table(name='owid-covid-data', share='delta_sharing', schema='default')]
+
+#### Steps to reproduce
+1. Use Databricks 14.3 LTS as to have Spark 3.5
+2. Install delta-sharing-spark_2.12 release 3.1.0
+3. In the databricks cluster - advanced options - spark environment add:
+
+> spark.sql.extensions io.delta.sql.DeltaSparkSessionExtension
+spark.sql.catalog.spark_catalog org.apache.spark.sql.delta.catalog.DeltaCatalog
+
+4. Create the notebook 
+```python
+%pip install delta-sharing
+
+import delta_sharing
+
+# Point to the profile file. 
+profile_file = "/dbfs/FileStore/open_datasets.share"
+
+# Create a SharingClient.
+client = delta_sharing.SharingClient(profile_file)
+
+# List all shared tables.
+print(client.list_all_tables())
+
+# [Table(name='COVID_19_NYT', share='delta_sharing', schema='default'), Table(name='boston-housing', share='delta_sharing', schema='default'), Table(name='flight-asa_2008', share='delta_sharing', schema='default'), Table(name='lending_club', share='delta_sharing', schema='default'), Table(name='nyctaxi_2019', share='delta_sharing', schema='default'), Table(name='nyctaxi_2019_part', share='delta_sharing', schema='default'), Table(name='owid-covid-data', share='delta_sharing', schema='default')]
+
+df1 = spark.read.format("deltaSharing").load(table_url) \
+	.where("iso_code == 'USA'") \
+	.select("iso_code", "total_cases", "human_development_index") \
+	.show()
+
+```
+
+#### Observed results
+Without the library installed we are getting: 
+
+> Py4JJavaError: An error occurred while calling o395.load.
+: java.io.FileNotFoundException: /6883957851411948/dbfs/FileStore/open_datasets.share
+	at shaded.databricks.org.apache.hadoop.fs.azure.NativeAzureFileSystem.open(NativeAzureFileSystem.java:3046)
+	at com.databricks.common.filesystem.LokiFileSystem.open(LokiFileSystem.scala:243)
+	at com.databricks.backend.daemon.data.client.DatabricksFileSystemV2.$anonfun$open$2(DatabricksFileSystemV2.scala:712)
+	at com.databricks.s3a.S3AExceptionUtils$.convertAWSExceptionToJavaIOException(DatabricksStreamUtils.scala:66)
+	at com.databricks.backend.daemon.data.client.DatabricksFileSystemV2.$anonfun$open$1(DatabricksFileSystemV2.scala:710)
+	at com.databricks.logging.UsageLogging.$anonfun$recordOperation$1(UsageLogging.scala:573)
+	at com.databricks.logging.UsageLogging.executeThunkAndCaptureResultTags$1(UsageLogging.scala:669)
+	at com.databricks.logging.UsageLogging.$anonfun$recordOperationWithResultTags$4(UsageLogging.scala:687)
+	at com.databricks.logging.UsageLogging.$anonfun$withAttributionContext$1(UsageLogging.scala:426)
+	at scala.util.DynamicVariable.withValue(DynamicVariable.scala:62)
+	at com.databricks.logging.AttributionContext$.withValue(AttributionContext.scala:216)
+	at com.databricks.logging.UsageLogging.withAttributionContext(UsageLogging.scala:424)
+	at com.databricks.logging.UsageLogging.withAttributionContext$(UsageLogging.scala:418)
+	at com.databricks.backend.daemon.data.client.DatabricksFileSystemV2.withAttributionContext(DatabricksFileSystemV2.scala:636)
+	at com.databricks.logging.UsageLogging.withAttributionTags(UsageLogging.scala:472)
+	at com.databricks.logging.UsageLogging.withAttributionTags$(UsageLogging.scala:455)
+	at com.databricks.backend.daemon.data.client.DatabricksFileSystemV2.withAttributionTags(DatabricksFileSystemV2.scala:636)
+	at com.databricks.logging.UsageLogging.recordOperationWithResultTags(UsageLogging.scala:664)
+	at com.databricks.logging.UsageLogging.recordOperationWithResultTags$(UsageLogging.scala:582)
+	at com.databricks.backend.daemon.data.client.DatabricksFileSystemV2.recordOperationWithResultTags(DatabricksFileSystemV2.scala:636)
+	at com.databricks.logging.UsageLogging.recordOperation(UsageLogging.scala:573)
+	at com.databricks.logging.UsageLogging.recordOperation$(UsageLogging.scala:542)
+	at com.databricks.backend.daemon.data.client.DatabricksFileSystemV2.recordOperation(DatabricksFileSystemV2.scala:636)
+	at com.databricks.backend.daemon.data.client.DatabricksFileSystemV2.open(DatabricksFileSystemV2.scala:710)
+	at com.databricks.backend.daemon.data.client.DatabricksFileSystemV2.open(DatabricksFileSystemV2.scala:717)
+	at com.databricks.backend.daemon.data.client.DatabricksFileSystem.open(DatabricksFileSystem.scala:90)
+	at io.delta.sharing.client.DeltaSharingFileProfileProvider.<init>(DeltaSharingProfileProvider.scala:68)
+	at io.delta.sharing.DeltaSharingCredentialsProvider.<init>(DeltaSharingCredentialsProvider.scala:64)
+	at sun.reflect.NativeConstructorAccessorImpl.newInstance0(Native Method)
+	at sun.reflect.NativeConstructorAccessorImpl.newInstance(NativeConstructorAccessorImpl.java:62)
+	at sun.reflect.DelegatingConstructorAccessorImpl.newInstance(DelegatingConstructorAccessorImpl.java:45)
+	at java.lang.reflect.Constructor.newInstance(Constructor.java:423)
+	at io.delta.sharing.client.DeltaSharingRestClient$.apply(DeltaSharingClient.scala:997)
+	at io.delta.sharing.spark.DeltaSharingDataSource.autoResolveBaseRelationForSnapshotQuery(DeltaSharingDataSource.scala:347)
+	at io.delta.sharing.spark.DeltaSharingDataSource.createRelation(DeltaSharingDataSource.scala:254)
+	at org.apache.spark.sql.execution.datasources.DataSource.resolveRelation(DataSource.scala:395)
+	at org.apache.spark.sql.DataFrameReader.loadV1Source(DataFrameReader.scala:389)
+	at org.apache.spark.sql.DataFrameReader.$anonfun$load$2(DataFrameReader.scala:345)
+	at scala.Option.getOrElse(Option.scala:189)
+	at org.apache.spark.sql.DataFrameReader.load(DataFrameReader.scala:345)
+	at org.apache.spark.sql.DataFrameReader.load(DataFrameReader.scala:245)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at py4j.reflection.MethodInvoker.invoke(MethodInvoker.java:244)
+	at py4j.reflection.ReflectionEngine.invoke(ReflectionEngine.java:397)
+	at py4j.Gateway.invoke(Gateway.java:306)
+	at py4j.commands.AbstractCommand.invokeMethod(AbstractCommand.java:132)
+	at py4j.commands.CallCommand.execute(CallCommand.java:79)
+	at py4j.ClientServerConnection.waitForCommands(ClientServerConnection.java:199)
+	at py4j.ClientServerConnection.run(ClientServerConnection.java:119)
+	at java.lang.Thread.run(Thread.java:750)
+File <command-3075199559424312>, line 1
+----> 1 df1 = spark.read.format("deltaSharing").load(table_url) \
+      2 	.where("iso_code == 'USA'") \
+      3 	.select("iso_code", "total_cases", "human_development_index") \
+      4 	.show()
+
+With the library installed (io.delta:delta-sharing-spark_2.12:3.1.0) we are getting:
+ModuleNotFoundError: No module named 'delta.exceptions.captured'; 'delta.exceptions' is not a package
+
+> File <command-3075199559424312>, line 1
+----> 1 df1 = spark.read.format("deltaSharing").load(table_url) \
+      2 	.where("iso_code == 'USA'") \
+      3 	.select("iso_code", "total_cases", "human_development_index") \
+      4 	.show()
+File /databricks/spark/python/pyspark/instrumentation_utils.py:47, in _wrap_function.<locals>.wrapper(*args, **kwargs)
+     45 start = time.perf_counter()
+     46 try:
+---> 47     res = func(*args, **kwargs)
+     48     logger.log_success(
+     49         module_name, class_name, function_name, time.perf_counter() - start, signature
+     50     )
+     51     return res
+File /databricks/spark/python/pyspark/sql/readwriter.py:312, in DataFrameReader.load(self, path, format, schema, **options)
+    310 self.options(**options)
+    311 if isinstance(path, str):
+--> 312     return self._df(self._jreader.load(path))
+    313 elif path is not None:
+    314     if type(path) != list:
+File /databricks/spark/python/lib/py4j-0.10.9.7-src.zip/py4j/java_gateway.py:1355, in JavaMember.__call__(self, *args)
+   1349 command = proto.CALL_COMMAND_NAME +\
+   1350     self.command_header +\
+   1351     args_command +\
+   1352     proto.END_COMMAND_PART
+   1354 answer = self.gateway_client.send_command(command)
+-> 1355 return_value = get_return_value(
+   1356     answer, self.gateway_client, self.target_id, self.name)
+   1358 for temp_arg in temp_args:
+   1359     if hasattr(temp_arg, "_detach"):
+File /databricks/spark/python/pyspark/errors/exceptions/captured.py:226, in capture_sql_exception.<locals>.deco(*a, **kw)
+    224     return f(*a, **kw)
+    225 except Py4JJavaError as e:
+--> 226     converted = convert_exception(e.java_exception)
+    227     if not isinstance(converted, UnknownException):
+    228         # Hide where the exception came from that shows a non-Pythonic
+    229         # JVM exception message.
+    230         raise converted from None
+File /local_disk0/spark-6388c286-3262-462c-9bed-a41b16a4079d/userFiles-a19c48b6-0148-490b-9d7c-6fc90c89bfa9/io_delta_delta_spark_2_12_3_1_0.jar/delta/exceptions.py:160, in _patch_convert_exception.<locals>.convert_delta_exception(e)
+    158 if delta_exception is not None:
+    159     return delta_exception
+--> 160 return original_convert_sql_exception(e)
+File /databricks/spark/python/pyspark/errors/exceptions/captured.py:194, in convert_exception(e)
+    190     return SparkNoSuchElementException(origin=e)
+    192 # BEGIN-EDGE
+    193 # For Delta exception improvement.
+--> 194 from delta.exceptions.captured import _convert_delta_exception
+    196 delta_exception = _convert_delta_exception(e)
+    197 if delta_exception is not None:
+
+
+#### Expected results
+
+To be able to read delta tables.
+
+#### Further details
+If we investigate in another notebook trying to import 
+```python
+from delta.exceptions.captured import _convert_delta_exception
+```
+
+With io.delta:delta-sharing-spark_2.12:3.1.0 gives the same module not found error. Uninstalling the library from the cluster the import is successful. It seems some old examples are using also delta-core as the installed library which has become delta spark 3.1.0 but it does not make a difference. 
+
+Trying also this brings the aforementioned problem
+```python
+owid_covid_data = delta_sharing.load_as_spark(url=table_url)
+```
+
+### Environment information
+
+According to databricks runtime 14.3 LTS page:
+
+* Delta Lake version: 3.1.0
+* Spark version: 3.5.0
+* Scala version: 2.12.15
+
+### Willingness to contribute
+I am willing to contribute, in any case since the documentation in the old delta-sharing repository is outdated. The same happens also with the delta sharing server docker image and delta sharing pypi package. On maven both server and client are in 1.0.4

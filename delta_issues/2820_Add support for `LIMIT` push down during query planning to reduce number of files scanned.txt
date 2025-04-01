@@ -1,0 +1,11 @@
+## Description
+
+This PR adds support for limit pushdown, where we will "push down" any `LIMIT`s during query planning so that we scan the minimum number of files necessary.
+
+## How was this patch tested?
+
+New test suite.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No.

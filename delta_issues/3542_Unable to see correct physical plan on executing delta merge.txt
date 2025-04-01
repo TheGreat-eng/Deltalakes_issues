@@ -1,0 +1,67 @@
+Environment: DBR 8.3 | Spark 3.1.1 | Scala 2.12
+
+Trying to reproduce what is given at https://kb.databricks.com/delta/delta-merge-into.html
+
+Ran the following code:
+```scala
+val df = spark.range(30000000)
+    .withColumn("par", ($"id" % 1000).cast(IntegerType))
+    .withColumn("ts", current_timestamp())
+    .write
+      .format("delta")
+      .mode("overwrite")
+      .partitionBy("par")
+      .saveAsTable("delta_merge_into")
+
+val updatesTableName = "update"
+val targetTableName = "delta_merge_into"
+val updates = spark.range(100).withColumn("id", (rand() * 30000000 * 2).cast(IntegerType))
+    .withColumn("par", ($"id" % 2).cast(IntegerType))
+    .withColumn("ts", current_timestamp())
+    .dropDuplicates("id")
+updates.createOrReplaceTempView(updatesTableName)
+
+val fdf = spark.sql(s"""
+    |MERGE INTO $targetTableName
+    |USING $updatesTableName
+    |ON $targetTableName.id = $updatesTableName.id
+    |WHEN MATCHED THEN
+    |  UPDATE SET $targetTableName.ts = $updatesTableName.ts
+    |WHEN NOT MATCHED THEN
+    |  INSERT (id, par, ts) VALUES ($updatesTableName.id, $updatesTableName.par, $updatesTableName.ts)
+ """.stripMargin)
+
+fdf.explain()
+```
+
+The physical plan shown is this:
+
+```scala
+== Physical Plan ==
+Execute MergeIntoCommandEdge
+   +- MergeIntoCommandEdge SubqueryAlias update, SubqueryAlias spark_catalog.default.delta_merge_into, 
+   Delta[version=7, dbfs:/user/hive/warehouse/delta_merge_into], (id#4334L = cast(id#4319 
+   as bigint)), [Update    [actions: [`id` = id#4334L, `par` = par#4335, `ts` = ts#4324]]], 
+   [Insert [actions: [`id` = cast(id#4319 as bigint), `par` =  par#4321, `ts` = ts#4324]]], 
+   StructType(StructField(id,LongType,true), StructField(par,IntegerType,true),
+      StructField(ts,TimestampType,true))
+```
+This does not give me insight into the partitions read. How do I access the physical plans shown on the page linked above? (Spark UI also doesn't show the detailed physical plan anywhere)
+
+
+When using the merge API, something like so: (taken from examples)
+
+```scala
+    deltaTable.as("oldData")
+      .merge(
+        newData.as("newData"),
+        "oldData.id = newData.id")
+      .whenMatched
+      .update(Map("id" -> col("newData.id")))
+      .whenNotMatched
+      .insert(Map("id" -> col("newData.id")))
+      .execute()
+```
+
+In this case, I'm not even sure what to call explain on to see the physical plan, but I'm required to for my use case.
+I need to check whether partition pruning is happening or not for certain specific scenarios.

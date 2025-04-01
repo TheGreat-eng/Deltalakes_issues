@@ -1,0 +1,75 @@
+<!--
+Thanks for sending a pull request!  Here are some tips for you:
+  1. If this is your first time, please read our contributor guidelines: https://github.com/delta-io/delta/blob/master/CONTRIBUTING.md
+  2. If the PR is unfinished, add '[WIP]' in your PR title, e.g., '[WIP] Your PR title ...'.
+  3. Be sure to keep the PR description updated to reflect all changes.
+  4. Please write your PR title to summarize what this PR proposes.
+  5. If possible, provide a concise example to reproduce the issue for a faster review.
+  6. If applicable, include the corresponding issue number in the PR title and link it in the body.
+-->
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+<!--
+- Describe what this PR changes.
+- Describe why we need the change.
+ 
+If this PR resolves an issue be sure to include "Resolves #XXX" to correctly link and close the issue upon merge.
+-->
+
+Currently, protocol transitions can be hard to manage. A few examples:
+- It is hard to predict the output of certain operations.
+- Once a legacy protocol transitions to a Table Features protocol it is quite hard to transition back to a legacy protocol.
+- Adding a feature in a protocol and then removing it might lead to a different protocol.
+- Adding an explicit feature to a legacy protocol always leads to a table features protocol although it might not be necessary.
+- Dropping features from legacy protocols is not supported. As a result, the order the features are dropped matters.  
+- Default protocol versions are ignored in some cases.
+- Enabling table features by default results in feature loss in legacy protocols.
+- CREATE TABLE ignores any legacy versions set if there is also a table feature in the definition.
+
+This PR proposes several protocol transition improvements in order to simplify user journeys. The high level proposal is the following: 
+
+Two protocol representations with singular operational semantics. This means that we have two ways to represent a protocol: a) The legacy representation and b) the table features representation. The latter representation is more powerful than the former, i.e the table features representation can represent all legacy protocols but the opposite is not true. This is followed by three simple rules:
+
+1. All operations should be allowed to be performed on both protocol representations and should yield equivalent results.
+2. The result should always be represented with the weaker form when possible.
+3. Conversely, if the result of an operation on a legacy protocol cannot be represented with the legacy representation, use the Table Features representation.
+
+**The PR introduces the following behavioural changes:**
+
+1. Now all protocol operations are followed by denormalisation and then normalisation. Up to now, normalisation would only be performed after dropping a features.
+2. Legacy features can now be dropped directly from a legacy protocol. The result is represented with table features if it cannot be represented with a legacy protocol.
+3. Operations on table feature protocols now take into account the default versions. For example, enabling deletion vectors on table results to protocol `(3, 7, AppendOnly, Invariants, DeletionVectors)`.
+5. Operations on table feature protocols now take into account any protocol versions set on the table. For example, creating a table with protocol `(1, 3)` and deletion vectors results to protocol `(3, 7, AppendOnly, Invariants, CheckConstraints, DeletionVectors)`.
+6. It is not possible now to have a table features protocol without table features. For example, creating a table with `(3, 7)` and no table features is now normalised to `(1, 1)`.
+7. Column Mapping can now be automatically enabled on legacy protocols when the mode is changed explicitly.
+
+## How was this patch tested?
+Added `DeltaProtocolTransitionsSuite`. Also modified existing tests in `DeltaProtocolVersionSuite`.
+
+<!--
+If tests were added, say they were added here. Please make sure to test the changes thoroughly including negative and positive cases if possible.
+If the changes were tested in any way other than unit tests, please clarify how you tested step by step (ideally copy and paste-able, so that other reviewers can test and check, and descendants can verify in the future).
+If the changes were not tested, please explain why.
+-->
+
+## Does this PR introduce _any_ user-facing changes?
+
+<!--
+If yes, please clarify the previous behavior and the change this PR proposes - provide the console output, description and/or an example to show the behavior difference if possible.
+If possible, please also clarify if this is a user-facing change compared to the released Delta Lake versions or within the unreleased branches such as master.
+If no, write 'No'.
+-->
+Yes.

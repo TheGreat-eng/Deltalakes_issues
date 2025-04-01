@@ -1,0 +1,7 @@
+Resolves #833 
+
+This PR adds code to `test_pip_utils.py` to make sure that the pip utils tests are actually run.
+
+When the tests are run, we initially had an error in `pip_utils.py` where `No package metadata was found for delta_spark` (see https://github.com/delta-io/delta/runs/4231985720?check_suite_focus=true)
+
+To solve this, we rearrange the order of tests to ensure we locally generate `delta-spark` before we run that test.

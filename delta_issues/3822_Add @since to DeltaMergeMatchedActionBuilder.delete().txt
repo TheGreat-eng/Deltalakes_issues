@@ -1,0 +1,5 @@
+This small PR adds a `@since 0.3.0` annotation to `DeltaMergeMatchedActionBuilder.delete()`, which seems to be the only public API function missing this.
+
+I also noticed that this function is missing a `@Evolving` tag. Is this intentional?
+
+CC: @rapoth @suhsteve @imback82 

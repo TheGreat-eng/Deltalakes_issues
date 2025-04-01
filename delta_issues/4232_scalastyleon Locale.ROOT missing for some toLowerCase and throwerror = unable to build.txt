@@ -1,0 +1,17 @@
+1st test running 
+error on build ()
+
+```
+error] C:\Users\Mario_Amatucci\gitlab\delta\src\main\scala\org\apache\spark\sql\delta\schema\SchemaUtils.scala:157:44:
+[error]       Are you sure that you want to use toUpperCase or toLowerCase without the root locale? In most cases, you
+[error]       should use toUpperCase(Locale.ROOT) or toLowerCase(Locale.ROOT) instead.
+[error]       If you must use toUpperCase or toLowerCase without the root locale, wrap the code block with
+[error]       // scalastyle:off caselocale
+[error]       .toUpperCase
+[error]       .toLowerCase
+[error]       // scalastyle:on caselocale
+```
+because 
+https://github.com/delta-io/delta/blob/08c6e75b84b1dc18d663c6cc97118fd34298f3c8/src/main/scala/org/apache/spark/sql/delta/util/PartitionUtils.scala#L449
+and other lines
+

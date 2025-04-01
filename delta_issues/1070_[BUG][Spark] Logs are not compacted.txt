@@ -1,0 +1,56 @@
+## Bug
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the issue title
+For example: [BUG][Spark] Title of my issue
+-->
+
+- [X] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+### Describe the problem
+Logs don't seem to be deleted after retention or after checkpoint
+#### Steps to reproduce
+I am using zeppelin notebook and loading my data from HDFS do an update I ran this command many times and I have a lot of checkpoints on hdfs but none of the logs are deleted
+![image](https://github.com/delta-io/delta/assets/46136768/87d7b2a0-a17a-4559-ad88-2a128b1051d4)
+Here is my table description
+![image](https://github.com/delta-io/delta/assets/46136768/c1b9e1a7-ff5a-4cc7-bb00-f0387f852183)
+
+<!--
+Please include copy-pastable code snippets if possible.
+1. _____
+2. _____
+3. _____
+-->
+
+#### Observed results
+
+<!-- What happened?  This could be a description, log output, etc. -->
+None of the logs are deleted +100 files
+#### Expected results
+
+<!-- What did you expect to happen? -->
+older logs to be deleted especially the ones before the checkpoint
+#### Further details
+
+<!--
+Include any additional details that may be useful for diagnosing the problem here. If including tracebacks, please include the full traceback. Large logs and files should be attached.
+-->
+
+### Environment information
+
+* Delta Lake version: delta-core_2.12-2.0.2.jar
+* Spark version: 3.2.1
+* Scala version:
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [X] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute a bug fix at this time.

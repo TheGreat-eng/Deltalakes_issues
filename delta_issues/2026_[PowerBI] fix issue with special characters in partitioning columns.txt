@@ -1,0 +1,24 @@
+Fixes the issue as described in bug https://github.com/delta-io/delta/issues/2280
+
+#### Which Delta project/connector is this regarding?
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [x] Other (PowerBI)
+
+## Description
+
+<!--
+- Describe what this PR changes.
+- Describe why we need the change.
+ 
+If this PR resolves an issue be sure to include "Resolves #XXX" to correctly link and close the issue upon merge.
+-->
+
+## How was this patch tested?
+patch was tested with the code provided in the bug description and some additional cases
+
+## Does this PR introduce _any_ user-facing changes?
+No

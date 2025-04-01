@@ -1,0 +1,20 @@
+## Feature request
+Enable Clone of Delta Lake tables
+
+### Overview
+Clones a source Delta table to a target destination at a specific version. A clone can be either deep or shallow: deep clones copy over the data from the source and shallow clones do not.
+
+### Motivation
+For business continuity disaster recovery to streamlining DevOps, cloning of Delta Lake tables 
+
+
+### Further details
+The context for this functionality can be found at https://docs.databricks.com/spark/latest/spark-sql/language-manual/delta-clone.html
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [X] Yes. I can contribute this feature independently.
+- [ ] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.

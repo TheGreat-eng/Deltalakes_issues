@@ -1,0 +1,67 @@
+Wait for https://github.com/delta-io/delta/issues/1182 first. This PR needs to use the same feature flag that is created for that issue.
+
+## Bug
+
+### Describe the problem
+
+There are various inconsistencies in the SQL API when writing metadata using `OPTIONS` and `TBLPROPERTIES`.
+Specifically
+
+##### Case 1
+when using `TBLPROPERTIES`, we incorrectly write properties that do not start with `.delta`. This happens using any of `CREATE TABLE`, `REPLACE TABLE`, `CREATE OR REPLACE`
+
+##### Case 2
+when using `CREATE TABLE` (not using `AS SELECT`) using `path` and using `OPTIONS`
+  - we incorrectly write options that do not start with `.delta`
+  - we incorrectly duplicate options with `option.$key`
+
+#### Steps to reproduce
+##### Case 1
+```sql
+CREATE TABLE tbl (id INT) USING DELTA
+TBLPROPERTIES('logRetentionDuration'='interval 60 days', 'delta.checkpointInterval'=20)
+```
+
+##### Case 2
+```sql
+CREATE TABLE tbl (id INT) USING DELTA
+OPTIONS('dataSkippingNumIndexedCols'=33,'delta.deletedFileRetentionDuration'='interval 2 weeks')
+LOCATION '/private/var/folders/mv/gj5n7hvn78n7td5pp1c_jgjh0000gp/T/spark-69b43bf6-b143-459f-a05b-751bdbf4308a'
+```
+
+#### Observed results
+
+##### Case 1
+The following is written out as table metadata
+```
+logRetentionDuration -> interval 60 days
+delta.checkpointInterval -> 20  
+```
+
+however what we really want to be written out is
+
+```
+delta.checkpointInterval -> 20  
+```
+
+##### Case 2
+The following is written out as table metadata
+```
+delta.deletedFileRetentionDuration -> interval 2 weeks
+dataSkippingNumIndexedCols -> 33
+option.delta.deletedFileRetentionDuration -> interval 2 weeks
+option.dataSkippingNumIndexedCols -> 33
+```
+
+however what we really want to be written out is
+
+```
+delta.deletedFileRetentionDuration -> interval 2 weeks
+```
+
+### Implementation Requirement
+
+After you fix this issue, please update the test and test output table here: https://github.com/delta-io/delta/blob/master/core/src/test/scala/org/apache/spark/sql/delta/DeltaWriteConfigsSuite.scala#L316
+
+Also, please add tests with the feature from #1182 flag enabled/disabled, as well as by reading an "older" table with these invalid delta properties (this should go into [EvolvabilitySuite](https://github.com/delta-io/delta/blob/master/core/src/test/scala/org/apache/spark/sql/delta/EvolvabilitySuite.scala)).
+

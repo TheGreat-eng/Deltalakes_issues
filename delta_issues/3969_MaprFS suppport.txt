@@ -1,0 +1,44 @@
+I tried to use delta lake lib with spark 2.4.4 and a working environment for writing to MPARFS filesystem.
+
+That is, I can successfully read/write to `spark.write.format("parquet").save(maprfs:///<path>)` 
+but if I do that `spark.write.format("org.apache.spark.sql.delta.sources.DeltaDataSource").save(maprfs:///<path>)`
+
+I get those exception:
+
+> 20/03/05 15:28:15 INFO BlockManagerInfo: Removed broadcast_0_piece0 on 10.225.8.62:43673 in memory (size: 36.8 KB, free: 970.2 MB)
+
+> 20/03/05 15:28:15 WARN DeltaLog: Failed to parse maprfs:<path>/_delta_log/_last_checkpoint. This may happen if there was an error during read operation, or a file appears to be partial. Sleeping and trying again.
+> org.apache.hadoop.fs.UnsupportedFileSystemException: fs.AbstractFileSystem.maprfs.impl=null: No AbstractFileSystem configured for scheme: maprfs
+> 	at org.apache.hadoop.fs.AbstractFileSystem.createFileSystem(AbstractFileSystem.java:169)
+> 	at org.apache.hadoop.fs.AbstractFileSystem.get(AbstractFileSystem.java:258)
+> 	at org.apache.hadoop.fs.FileContext$2.run(FileContext.java:331)
+> 	at org.apache.hadoop.fs.FileContext$2.run(FileContext.java:328)
+> 	at java.security.AccessController.doPrivileged(Native Method)
+> 	at javax.security.auth.Subject.doAs(Subject.java:422)
+> 	at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1682)
+> 	at org.apache.hadoop.fs.FileContext.getAbstractFileSystem(FileContext.java:328)
+> 	at org.apache.hadoop.fs.FileContext.getFileContext(FileContext.java:454)
+> 	at org.apache.spark.sql.delta.storage.HDFSLogStore.getFileContext(HDFSLogStore.scala:53)
+> 	at org.apache.spark.sql.delta.storage.HDFSLogStore.read(HDFSLogStore.scala:57)
+> 	at org.apache.spark.sql.delta.Checkpoints$class.loadMetadataFromFile(Checkpoints.scala:139)
+> 	at org.apache.spark.sql.delta.Checkpoints$class.lastCheckpoint(Checkpoints.scala:133)
+> 	at org.apache.spark.sql.delta.DeltaLog.lastCheckpoint(DeltaLog.scala:58)
+> 	at org.apache.spark.sql.delta.DeltaLog.<init>(DeltaLog.scala:139)
+> 	at org.apache.spark.sql.delta.DeltaLog$$anon$3$$anonfun$call$1$$anonfun$apply$10.apply(DeltaLog.scala:744)
+> 	at org.apache.spark.sql.delta.DeltaLog$$anon$3$$anonfun$call$1$$anonfun$apply$10.apply(DeltaLog.scala:744)
+> 	at org.apache.spark.sql.catalyst.plans.logical.AnalysisHelper$.allowInvokingTransformsInAnalyzer(AnalysisHelper.scala:194)
+> 	at org.apache.spark.sql.delta.DeltaLog$$anon$3$$anonfun$call$1.apply(DeltaLog.scala:743)
+> 	at org.apache.spark.sql.delta.DeltaLog$$anon$3$$anonfun$call$1.apply(DeltaLog.scala:743)
+> 	at com.databricks.spark.util.DatabricksLogging$class.recordOperation(DatabricksLogging.scala:77)
+> 	at org.apache.spark.sql.delta.DeltaLog$.recordOperation(DeltaLog.scala:671)
+> 	at org.apache.spark.sql.delta.metering.DeltaLogging$class.recordDeltaOperation(DeltaLogging.scala:103)
+> 	at org.apache.spark.sql.delta.DeltaLog$.recordDeltaOperation(DeltaLog.scala:671)
+> 	at org.apache.spark.sql.delta.DeltaLog$$anon$3.call(DeltaLog.scala:742)
+> 	at org.apache.spark.sql.delta.DeltaLog$$anon$3.call(DeltaLog.scala:740)
+> 	at com.google.common.cache.LocalCache$LocalManualCache$1.load(LocalCache.java:4792)
+> 	at com.google.common.cache.LocalCache$LoadingValueReference.loadFuture(LocalCache.java:3599)
+...
+
+
+Is it expected ? Should'nt it be supported/working with the HDFS LogStore ?
+

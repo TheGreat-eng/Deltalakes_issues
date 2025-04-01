@@ -1,0 +1,62 @@
+Hi All,
+
+I am trying to use the hive connector to read a delta table from hive (Hive 2.3.7). 
+
+**Version:**
+Spark 2.4.7
+Scala 2.12.
+Using delta-hive-assembly_2.12-0.2.0.jar but I get the below error while creating the table. 1 additional question:
+
+**Steps:**
+1.  Create a delta table from spark-shell to a bucket location
+     `df.write.format("delta").save("gs://base_path/delta_table")`
+
+2. From beeline, add the jar, set hive and tez input formats and create the external table. 
+
+```
+add jar gs://delta_lib/delta-hive-assembly_2.12-0.2.0.jar;
+
+SET hive.input.format=io.delta.hive.HiveInputFormat;
+SET hive.tez.input.format=io.delta.hive.HiveInputFormat;
+
+CREATE EXTERNAL TABLE deltaTable(col1 INT, col2 STRING)
+STORED BY 'io.delta.hive.DeltaStorageHandler'
+LOCATION 'gs://base_path/delta_table';
+```
+
+**Questions:**
+1. Can I create the hive external table under any schema?
+2. When I create the external table it gets stuck and fails with the below error.
+
+**Error:**
+```
+ERROR : FAILED: Execution Error, return code 1 from org.apache.hadoop.hive.ql.exec.DDLTask. com.google.common.util.concurrent.UncheckedExecutionException: java.lang.ArrayIndexOutOfBoundsException: 12111
+Error: org.apache.hive.service.cli.HiveSQLException: Error while processing statement: FAILED: Execution Error, return code 1 from org.apache.hadoop.hive.ql.exec.DDLTask. com.google.common.util.concurrent.UncheckedExecutionException: java.lang.ArrayIndexOutOfBoundsException: 12111
+	at org.apache.hive.service.cli.operation.Operation.toSQLException(Operation.java:380)
+	at org.apache.hive.service.cli.operation.SQLOperation.runQuery(SQLOperation.java:257)
+	at org.apache.hive.service.cli.operation.SQLOperation.access$800(SQLOperation.java:91)
+	at org.apache.hive.service.cli.operation.SQLOperation$BackgroundWork$1.run(SQLOperation.java:348)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at javax.security.auth.Subject.doAs(Subject.java:422)
+	at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1926)
+	at org.apache.hive.service.cli.operation.SQLOperation$BackgroundWork.run(SQLOperation.java:362)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+	at java.lang.Thread.run(Thread.java:748)
+Caused by: org.apache.hadoop.hive.ql.metadata.HiveException: com.google.common.util.concurrent.UncheckedExecutionException: java.lang.ArrayIndexOutOfBoundsException: 12111
+	at org.apache.hadoop.hive.ql.metadata.Hive.createTable(Hive.java:863)
+	at org.apache.hadoop.hive.ql.metadata.Hive.createTable(Hive.java:868)
+	at org.apache.hadoop.hive.ql.exec.DDLTask.createTable(DDLTask.java:4356)
+	at org.apache.hadoop.hive.ql.exec.DDLTask.execute(DDLTask.java:354)
+	at org.apache.hadoop.hive.ql.exec.Task.executeTask(Task.java:199)
+	at org.apache.hadoop.hive.ql.exec.TaskRunner.runSequential(TaskRunner.java:100)
+	at org.apache.hadoop.hive.ql.Driver.launchTask(Driver.java:2184)
+	at org.apache.hadoop.hive.ql.Driver.execute(Driver.java:1839)
+	at org.apache.hadoop.hive.ql.Driver.runInternal(Driver.java:1526)
+	at org.apache.hadoop.hive.ql.Driver.run(Driver.java:1237)
+	at org.apache.hadoop.hive.ql.Driver.run(Driver.java:1232)
+	at org.apache.hive.service.cli.operation.SQLOperation.runQuery(SQLOperation.java:255)
+	... 11 more
+```

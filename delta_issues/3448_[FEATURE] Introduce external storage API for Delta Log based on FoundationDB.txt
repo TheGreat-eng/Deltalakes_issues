@@ -1,0 +1,15 @@
+There is a very good concept about storing Delta Log in DynamoDB, introduced in [this PR](https://github.com/delta-io/delta/pull/848). 
+
+However, DynamoDB might not be the tool of choice for users who are using other clouds or having an on-premise setup. Distributed KV storages with transaction support,  such as [FoundationDB](https://www.foundationdb.org/) could be a nice extension for Delta Log storage.
+
+Another benefit is that using such an external system it becomes possible to introduce multi-table transactions with explicit API, for example (just a concept, indeed the final API shall be revised):
+
+```scala
+
+val transaction = DeltaTransactionManager.beginTransaction()
+
+df1.write.format("delta").withTransaction(transaction).saveAsTable("some_db.some_table_1")
+df2.write.format("delta").withTransaction(transaction).saveAsTable("some_db.some_table_2")
+
+transaction.commit()
+```

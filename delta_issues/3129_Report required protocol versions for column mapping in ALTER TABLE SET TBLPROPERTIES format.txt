@@ -1,0 +1,60 @@
+## Bug
+
+It's a usability issue than a bug. When executing the following command an end user is faced with a `DeltaColumnMappingUnsupportedException` that does say what the root cause is but the suggestion could include the exact steps in  `ALTER TABLE SET TBLPROPERTIES` format so it's just a matter of copying and pasting relevant text.
+
+```sql
+CREATE TABLE delta101 AS VALUES 0 t(id)
+```
+
+```sql
+ALTER TABLE delta101 SET TBLPROPERTIES (
+  'delta.columnMapping.mode' = 'name'
+)
+```
+
+```text
+org.apache.spark.sql.delta.DeltaColumnMappingUnsupportedException:
+Your current table protocol version does not support changing column mapping modes
+using delta.columnMapping.mode.
+
+Required Delta protocol version for column mapping:
+Protocol(2,5)
+Your table's current Delta protocol version:
+Protocol(1,2)
+
+Please upgrade your table's protocol version using ALTER TABLE SET TBLPROPERTIES and try again.
+
+
+  at org.apache.spark.sql.delta.DeltaErrors$.changeColumnMappingModeOnOldProtocol(DeltaErrors.scala:1305)
+  at org.apache.spark.sql.delta.DeltaColumnMappingBase.verifyAndUpdateMetadataChange(DeltaColumnMapping.scala:120)
+  at org.apache.spark.sql.delta.DeltaColumnMappingBase.verifyAndUpdateMetadataChange$(DeltaColumnMapping.scala:90)
+  at org.apache.spark.sql.delta.DeltaColumnMapping$.verifyAndUpdateMetadataChange(DeltaColumnMapping.scala:418)
+  at org.apache.spark.sql.delta.OptimisticTransactionImpl.updateMetadataInternal(OptimisticTransaction.scala:303)
+  at org.apache.spark.sql.delta.OptimisticTransactionImpl.updateMetadataInternal$(OptimisticTransaction.scala:290)
+  at org.apache.spark.sql.delta.OptimisticTransaction.updateMetadataInternal(OptimisticTransaction.scala:98)
+  at org.apache.spark.sql.delta.OptimisticTransactionImpl.updateMetadata(OptimisticTransaction.scala:283)
+  at org.apache.spark.sql.delta.OptimisticTransactionImpl.updateMetadata$(OptimisticTransaction.scala:278)
+  at org.apache.spark.sql.delta.OptimisticTransaction.updateMetadata(OptimisticTransaction.scala:98)
+  ...
+```
+
+#### Observed results
+
+```
+Required Delta protocol version for column mapping:
+Protocol(2,5)
+Your table's current Delta protocol version:
+Protocol(1,2)
+```
+
+#### Expected results
+
+```
+Please upgrade your table's protocol version using ALTER TABLE SET TBLPROPERTIES as follows and try again.
+
+ALTER TABLE tableName SET TBLPROPERTIES (
+  'delta.minReaderVersion' = '2',
+  'delta.minWriterVersion' = '5',
+  'delta.columnMapping.mode' = 'name'
+)
+```

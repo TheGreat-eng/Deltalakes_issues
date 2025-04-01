@@ -1,0 +1,203 @@
+## Bug
+
+We have a streaming app that uses `foreachBatch` to merge data into Delta tables. App runs multiple streaming queries inside. Also, the logic in `foreachBatch` is to optimize/vacuum the target table every N batches. 
+
+This is the function we use:
+
+```
+def delta_compact_v2(
+    spark_session: SparkSession,
+    path: str,
+    logger: ProteusLogger,
+    retain_hours: float = 48,
+    compact_from_predicate: Optional[str] = None,
+    target_file_size_bytes: Optional[int] = None,
+    refresh_cache=False,
+) -> None:
+    """
+      Runs bin-packing optimization to reduce number of files/increase average file size in the table physical storage.
+      Refreshes delta cache after opt/vacuum have been finished.
+      https://docs.delta.io/latest/optimizations-oss.html#optimizations
+
+    :param spark_session: Spark session that will perform the operation.
+    :param path: Path to delta table, filesystem or hive.
+    :param logger: Logger instance to report compaction stats.
+    :param retain_hours: Age of data to retain, defaults to 48 hours.
+    :param compact_from_predicate: Optional predicate to select a subset of data to compact (sql string).
+    :param target_file_size_bytes: Optional target file size in bytes. Defaults to system default (1gb for Delta 2.1) if not provided.
+    :param refresh_cache: Refreshes table cache for this spark session.
+    :return:
+    """
+    spark_session.conf.set("spark.databricks.delta.optimize.repartition.enabled", "true")
+
+    if target_file_size_bytes:
+        spark_session.conf.set("spark.databricks.delta.optimize.minFileSize", str(target_file_size_bytes))
+        spark_session.conf.set("spark.databricks.delta.optimize.maxFileSize", str(target_file_size_bytes))
+
+    table_to_compact = (
+        DeltaTable.forPath(sparkSession=spark_session, path=path)
+        if "://" in path
+        else DeltaTable.forName(sparkSession=spark_session, tableOrViewName=path)
+    )
+
+    stats = (
+        table_to_compact.optimize().where(compact_from_predicate).executeCompaction()
+        if compact_from_predicate
+        else table_to_compact.optimize().executeCompaction()
+    )
+
+    metrics = stats.head().metrics
+    logger.info(
+        "Compacted a delta table {path}. Files added {files_added}, removed {files_removed}, new average file size {file_size}",
+        path=path,
+        files_added=metrics.numFilesAdded,
+        files_removed=metrics.numFilesRemoved,
+        file_size=math.ceil(metrics.filesAdded.avg / 1024 / 1024),
+    )
+
+    logger.info("Vacuuming table {path} to last {retain_hours} hours", path=path, retain_hours=round(retain_hours, 2))
+    table_path = f"delta.`{path}`" if "://" in path else path
+
+    if "delta.logRetentionDuration" not in table_to_compact.detail().head().properties:
+        spark_session.sql(
+            f"ALTER table {table_path} SET TBLPROPERTIES ('delta.logRetentionDuration'='interval {round(retain_hours)} hours')"
+        )
+
+    # not reporting vacuum stats as python API returns an empty dataframe for some reason
+    table_to_compact.vacuum(retentionHours=retain_hours)
+
+    logger.info("Refreshing cache for table {path}", path=path)
+    if refresh_cache:
+        if "://" in path:
+            spark_session.sql(f"refresh {path}")
+        else:
+            spark_session.sql(f"refresh table {path}")
+```
+
+We are running spark with `k8s:/` master url. I've noticed recently that for some tables, regardless of their size, optimize step can get stuck for hours, like, >10 hours with no progress. When I check the logs on the executor running such task, I see these errors
+
+```
+23/03/24 08:49:47 ERROR BlockingThreadPoolExecutorService: Could not submit task to executor java.util.concurrent.ThreadPoolExecutor@6abb3d43[Running, pool size = 4, active threads = 4, queued tasks = 12, completed tasks = 2625]
+```
+
+and then no activity except for BlockManager removing RDDs. If I kill the task, our app will restart the query and the batch, and compaction will go through. Sometimes it takes several restarts to get the compaction completed.
+
+#### Steps to reproduce
+
+Write a simple Spark streaming app with filesource that upserts batches as described here https://docs.delta.io/latest/delta-update.html#id4:
+
+```
+  foreach_batch_function = lambda batch_df, batch_id: process_batch(
+            batch_df=batch_df,
+            batch_id=batch_id,
+            spark_session=spark_session,
+        )
+
+query = spark_session.readStream.option("cleanSource", "archive")
+            .option(
+                "sourceArchiveDir", "{archiveLocation}"
+            )
+            .schema(target_schema)
+            .parquet("{path_to_source_data}")
+            .writeStream.queryName("test")
+            .option(
+                "checkpointLocation", "{some_location}"
+            )
+            .foreachBatch(foreach_batch_function)
+            .start()
+```
+`process_batch` can be the exact one described in delta docs, with a small change:
+
+```
+def process_batch(microBatchOutputDF: DataFrame, batchId: Long, spark_session: SparkSession) {
+  deltaTable.as("t")
+    .merge(
+      microBatchOutputDF.as("s"),
+      "s.key = t.key")
+    .whenMatched().updateAll()
+    .whenNotMatched().insertAll()
+    .execute()
+
+  if batchId % 100 == 0:
+    delta_compact_v2(...)
+}
+```
+
+#### Observed results
+
+One of the compaction jobs gets stuck at this stage:
+
+![image](https://user-images.githubusercontent.com/14901777/227497416-0ea73b10-7e5e-4820-8b6c-62fc763c3a4f.png)
+
+Stage view:
+
+![image](https://user-images.githubusercontent.com/14901777/227497523-84e2562f-fa1a-4be0-9170-6c18d780a5bf.png)
+
+Log from the executor:
+
+```
+...
+23/03/24 10:19:58 INFO CodeGenerator: Code generated in 10.351314 ms
+23/03/24 10:19:58 INFO CodeGenerator: Code generated in 18.084158 ms
+23/03/24 10:19:58 INFO CodecConfig: Compression: SNAPPY
+23/03/24 10:19:58 INFO CodecConfig: Compression: SNAPPY
+23/03/24 10:19:58 INFO ParquetOutputFormat: Parquet block size to 134217728
+23/03/24 10:19:58 INFO ParquetOutputFormat: Validation is off
+23/03/24 10:19:58 INFO ParquetOutputFormat: Maximum row group padding size is 8388608 bytes
+23/03/24 10:19:58 INFO ParquetOutputFormat: Parquet properties are:
+Parquet page size to 1048576
+Parquet dictionary page size to 1048576
+Dictionary is true
+Writer version is: PARQUET_1_0
+Page size checking is: estimated
+Min row count for page size check is: 100
+Max row count for page size check is: 10000
+Truncate length for column indexes is: 64
+Truncate length for statistics min/max  is: 2147483647
+Bloom filter enabled: false
+Max Bloom filter size for a column is 1048576
+Bloom filter expected number of distinct values are: null
+Page row count limit to 20000
+Writing page checksums is: on
+23/03/24 10:19:58 INFO ParquetWriteSupport: Initialized Parquet WriteSupport with Catalyst schema:
+... (table schema printed)
+
+       
+23/03/24 10:20:12 ERROR BlockingThreadPoolExecutorService: Could not submit task to executor java.util.concurrent.ThreadPoolExecutor@1ea95c95[Running, pool size = 4, active threads = 4, queued tasks = 12, completed tasks = 3083]
+23/03/24 10:20:24 ERROR BlockingThreadPoolExecutorService: Could not submit task to executor java.util.concurrent.ThreadPoolExecutor@1ea95c95[Running, pool size = 4, active threads = 4, queued tasks = 12, completed tasks = 3099]
+23/03/24 10:21:52 INFO BlockManager: Removing RDD 321737
+23/03/24 10:21:52 INFO BlockManager: Removing RDD 321793
+23/03/24 10:23:59 INFO BlockManager: Removing RDD 326762
+23/03/24 10:23:59 INFO BlockManager: Removing RDD 326828
+23/03/24 10:23:59 INFO BlockManager: Removing RDD 329508
+23/03/24 10:24:05 INFO BlockManager: Removing RDD 326828
+23/03/24 10:24:05 INFO BlockManager: Removing RDD 326762
+23/03/24 10:24:05 INFO BlockManager: Removing RDD 329508
+23/03/24 10:24:06 INFO BlockManager: Removing RDD 353582
+23/03/24 10:24:43 INFO BlockManager: Removing RDD 353582
+23/03/24 10:27:15 INFO BlockManager: Removing RDD 349133
+23/03/24 10:29:00 INFO BlockManager: Removing RDD 349133
+... -> no task progress from here
+```
+
+#### Expected results
+
+Compaction finishes within sane time intervals
+
+#### Further details
+
+N/A (yet) - happy to answer any questions.
+
+### Environment information
+
+* Delta Lake version: 2.1.0
+* Spark version: 3.3.1 on Kubernetes.
+* Scala version: N/A (Python 3.9)
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [ ] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [x] No. I cannot contribute a bug fix at this time.

@@ -1,0 +1,1 @@
+For java docs, we copy the jquery library file generated in the Scala API docs and inject it into the Java API docs and using it later to show the "evolving" badges. scala docs changed. However, the jquery library was changed (probably due to scala 2.11 to scala 2.12 dependency change) from `jquery.js` to `jquery.min.js` causing the script to fail. 

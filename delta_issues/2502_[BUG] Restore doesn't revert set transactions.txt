@@ -1,0 +1,44 @@
+## Bug
+
+### Describe the problem
+RESTORE operations on Delta tables don't remove set transactions. Discovered this while trying to recover from https://github.com/apache/spark/pull/41089. We had a corrupt checkpoint and we needed to rerun the last batch. I deleted the latest commit/offset from the checkpoint, and restored the Delta table to the version before that batch. But the set transaction remained at the version I was trying to rerun, so Delta things it already ran that version and did nothing. We had to just manually delete the delta log entries to completely rollback to retry the batch.
+
+#### Steps to reproduce
+No exact code right now to recreate.
+
+<!--
+Please include copy-pastable code snippets if possible.
+1. _____
+2. _____
+3. _____
+-->
+
+#### Observed results
+Rerun batch was skipped.
+
+<!-- What happened?  This could be a description, log output, etc. -->
+
+#### Expected results
+Rerun batch was processed and written to the Delta table
+
+<!-- What did you expect to happen? -->
+
+#### Further details
+
+<!--
+Include any additional details that may be useful for diagnosing the problem here. If including tracebacks, please include the full traceback. Large logs and files should be attached.
+-->
+
+### Environment information
+
+* Delta Lake version: 2.4.0
+* Spark version: 3.4.0
+* Scala version: 2.12
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [ ] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [X] No. I cannot contribute a bug fix at this time.

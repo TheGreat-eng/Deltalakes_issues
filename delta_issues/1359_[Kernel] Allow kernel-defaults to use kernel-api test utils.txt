@@ -1,0 +1,20 @@
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [x] Kernel
+- [ ] Other (fill in here)
+
+## Description
+Allows kernel-defaults module to take advantage of kernel-api test utils (in preparation for refactor containing these changes).
+
+## How was this patch tested?
+N/A.
+
+## Does this PR introduce _any_ user-facing changes?
+No.

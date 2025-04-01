@@ -1,0 +1,32 @@
+## Feature request
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the issue title
+For example: [Feature Request][Spark] Title of my issue
+-->
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [X] Kernel
+- [ ] Other (fill in here)
+
+### Overview
+
+We would like to support metrics and event logging in Kernel to improve our observability.
+
+See this design doc for details on motivation, goals, and the planned design https://docs.google.com/document/d/1W1NTmHg14qYq-QEIcDtFFSMy3B0GjrV82ll6BtX21fE/edit?tab=t.0
+
+### Pull requests
+
+
+| Number | Description | Link | Depends on | Status |
+| ----- | -------- | ------- | --------| ----- |
+| 1 | Initial interfaces and classes  | https://github.com/delta-io/delta/pull/3902 | None | MERGED |
+| 2 | SnapshotReport | https://github.com/delta-io/delta/pull/3903 | 1 | MERGED |
+| 3 | JSON serializer + LoggingMetricsReporter | https://github.com/delta-io/delta/pull/3904 | 2 | MERGED |
+| 4 | Counter | https://github.com/delta-io/delta/pull/3906 | 1 | MERGED |
+| 5 | Minor refactor | https://github.com/delta-io/delta/pull/4029 | None | MERGED |
+| 6 | TransactionReport | https://github.com/delta-io/delta/pull/4037 | None | MERGED |
+| 7 | ScanReport| https://github.com/delta-io/delta/pull/4068 | NONE | IN REVIEW |

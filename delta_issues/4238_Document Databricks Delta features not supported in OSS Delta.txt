@@ -1,0 +1,8 @@
+Explicitly describe those Databricks features that are not supported in OSS Delta. There repeated slack questions about this especially regarding Delta-specific SQL commands.
+
+For example:
+- DESCRIBE HISTORY my_table
+- DESCRIBE DETAIL my_table
+- SELECT * FROM my_table VERSION AS OF 5 
+- Merge syntax
+           

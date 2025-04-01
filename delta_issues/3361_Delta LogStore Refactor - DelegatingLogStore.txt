@@ -1,0 +1,9 @@
+Refactor [DelegatingLogStore](https://github.com/delta-io/delta/blob/master/core/src/main/scala/org/apache/spark/sql/delta/storage/DelegatingLogStore.scala) to Java for the new delta-storage artifact.
+
+For the test, you should be able to make `DelegatingLogStoreSuite` be an abstract class (`DelegatingLogStoreSuiteBase`) and create both Internal and Public child implementations.
+
+Each child could implement a method to instantiate the right LogStore, e.g. to replace the `new DelegatingLogStore()` call inside of `testDelegatingLogStore`.
+
+A similar example to this is [LineCloseableIteratorSuite](https://github.com/delta-io/delta/blob/master/core/src/test/scala/org/apache/spark/sql/delta/storage/LineClosableIteratorSuite.scala)
+
+For the project overview, requirements, and how to contribute, please see the https://github.com/delta-io/delta/issues/951.

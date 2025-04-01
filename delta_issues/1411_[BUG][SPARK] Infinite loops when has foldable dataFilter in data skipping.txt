@@ -1,0 +1,62 @@
+## Bug
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the issue title
+For example: [BUG][Spark] Title of my issue
+-->
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+### Describe the problem
+After push extra predicate through join may produce foldable predicate like `1=1`, then cause `DataFiltersBuilder.constructDataFilters` infinite loop. 
+#### Steps to reproduce
+```
+Seq((1, 2)).toDF("a", "b").write.format("delta").save(dir.getAbsolutePath + "/t1")
+Seq(1).toDF("a").write.format("delta").save(dir.getAbsolutePath + "/t2")
+Seq((1, 2)).toDF("a", "c").write.format("delta").save(dir.getAbsolutePath + "/t3")
+spark.read.format("delta").load(dir.getAbsolutePath + "/t1").createTempView("t1")
+spark.read.format("delta").load(dir.getAbsolutePath + "/t2").createTempView("t2")
+spark.read.format("delta").load(dir.getAbsolutePath + "/t3").createTempView("t3")
+spark.sql(
+  """
+    |select t.*,t3.a as c from
+    |(
+    |select * from t1
+    |union all
+    |select *,1 as b from t2
+    |) t, t3
+    |where t.a=t3.a
+    |and (t.a > 1 or (t.b = 1 and t3.c=1))
+    |""".stripMargin).collect()
+````
+
+#### Observed results
+Infinite loop.
+
+#### Expected results
+
+Got result.
+#### Further details
+
+<!--
+Include any additional details that may be useful for diagnosing the problem here. If including tracebacks, please include the full traceback. Large logs and files should be attached.
+-->
+
+### Environment information
+
+* Delta Lake version: 2.x, 3.x
+* Spark version: 3.x
+* Scala version: 2.12, 2.13
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [x] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute a bug fix at this time.

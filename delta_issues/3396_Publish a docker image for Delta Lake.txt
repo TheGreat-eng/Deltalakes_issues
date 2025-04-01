@@ -1,0 +1,5 @@
+Currently it's not convenient to try out Delta Lake. People need to install Spark first, and following multiple steps in https://docs.delta.io/latest/quick-start.html#set-up-apache-spark-with-delta-lake
+
+It would be great if we can publish a docker image for Delta Lake so that people can try it out using a simple docker command.
+
+For such docker image, we can maintain a Dockerfile in the GitHub repo and publish a new image to https://hub.docker.com/u/deltaio in each release.

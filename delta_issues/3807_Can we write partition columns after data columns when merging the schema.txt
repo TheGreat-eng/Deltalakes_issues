@@ -1,0 +1,1 @@
+Suppose we have schema (name string, id int) and (id) is the partition column. We write a new dataframe which has a new column, say (dt string), after merging the schema, the schema string in metastore looks like (name string, id int, dt string). Can we write it to (name string, dt string, id int)?

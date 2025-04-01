@@ -1,0 +1,20 @@
+#### Which Delta project/connector is this regarding?
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [X] Other (Build)
+
+## Description
+MiMaExcludes.scala theoretically has being renamed to SparkMimaExcludes.scala:
+https://github.com/delta-io/delta/pull/1952/files#diff-e7ee88f4ceae7019f7bff3eef41ee5cee6da1e54c436df887e3fd4c96c282eda
+
+For some reason both files exist, the former not being used.
+
+@allisonport-db 
+
+## How was this patch tested?
+Unit Tests
+
+## Does this PR introduce _any_ user-facing changes?
+No

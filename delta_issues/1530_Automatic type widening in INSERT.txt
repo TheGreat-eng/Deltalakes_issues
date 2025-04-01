@@ -1,0 +1,38 @@
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [X] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+This change is part of the type widening table feature.
+Type widening feature request: https://github.com/delta-io/delta/issues/2622
+Type Widening protocol RFC: https://github.com/delta-io/delta/pull/2624
+
+It adds automatic type widening as part of schema evolution in INSERT. During resolution, when schema evolution and type widening are enabled, type differences between the input query and the target table are handled as follows:
+- If the type difference qualifies for automatic type evolution: the input type is left as is, the data will be inserted with the new type and the table schema will be updated in `ImplicitMetadataOperation` (already implemented as part of MERGE support)
+- If the type difference doesn't qualify for automatic type evolution: the current behavior is preserved: a cast is added from the input type to the existing target type.
+
+## How was this patch tested?
+- Tests are added to `DeltaTypeWideningAutomaticSuite` to cover type evolution in INSERT
+
+## This PR introduces the following *user-facing* changes
+The table feature is available in testing only, there's no user-facing changes as of now.
+
+When automatic schema evolution is enabled in INSERT and the source schema contains a type that is wider than the target schema:
+
+With type widening disabled: the type in the target schema is not changed. A cast is added to the input to insert to match the expected target type.
+
+With type widening enabled: the type in the target schema is updated to the wider source type. 
+```
+-- target: key int, value short
+-- source: key int, value int
+INSERT INTO target SELECT * FROM source
+```
+After the INSERT operation, the target schema is `key int, value int`.

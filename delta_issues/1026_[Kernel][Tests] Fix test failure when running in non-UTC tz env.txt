@@ -1,0 +1,5 @@
+## Description
+Currently, Spark interprets the timestamp partition columns in the local zone and Kernel in UTC. Delta protocol specifies no details on what timezone to use. This is a known issue and in Kernel we decided to always interpret as UTC to avoid timezone issues. Fix here is when getting the expected results using Spark, set the timezone to UTC to get the same values as Kernel.
+
+## How was this patch tested?
+Ran locally on Pacific timezone test env

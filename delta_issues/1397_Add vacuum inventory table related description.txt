@@ -1,0 +1,19 @@
+#### Which Delta project/connector is this regarding?
+
+- [X] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+We have added [a new feature](https://github.com/delta-io/delta/commit/7d41fb7bbf63af33ad228007dd6ba3800b4efe81) for VACUUM command that allows users to provide a inventory table to specify the files to be considered by VACUUM. This PR updates the documentation to reflect this feature.
+
+## How was this patch tested?
+
+N/A. Doc updates only.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

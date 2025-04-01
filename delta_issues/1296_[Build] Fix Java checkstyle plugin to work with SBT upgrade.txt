@@ -1,0 +1,44 @@
+<!--
+Thanks for sending a pull request!  Here are some tips for you:
+  1. If this is your first time, please read our contributor guidelines: https://github.com/delta-io/delta/blob/master/CONTRIBUTING.md
+  2. If the PR is unfinished, add '[WIP]' in your PR title, e.g., '[WIP] Your PR title ...'.
+  3. Be sure to keep the PR description updated to reflect all changes.
+  4. Please write your PR title to summarize what this PR proposes.
+  5. If possible, provide a concise example to reproduce the issue for a faster review.
+  6. If applicable, include the corresponding issue number in the PR title and link it in the body.
+-->
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [X] Other (fill in here)
+
+## Description
+
+https://github.com/delta-io/delta/pull/2828 upgrades the SBT version from 1.5.5 to 1.9.9 which causes `projectName/checkstyle` to fail with
+```
+sbt:delta> kernelApi/checkstyle
+[error] stack trace is suppressed; run last kernelApi / checkstyle for the full output
+[error] (kernelApi / checkstyle) org.xml.sax.SAXParseException; lineNumber: 18; columnNumber: 10; DOCTYPE is disallowed when the feature "http://apache.org/xml/features/disallow-doctype-decl" set to true.
+[error] Total time: 0 s, completed May 1, 2024 2:59:48 PM
+```
+
+This failure was silent in our CI runs for some reason, if you search the logs before that commit you can see "checkstyle" in them but no instances after. This is a little concerning but don't really have time to figure out why this was silent.
+
+For now, upgrades versions to match Spark's current plugins which fixes the issue. See the matching Spark PR here https://github.com/apache/spark/pull/38481.
+
+## How was this patch tested?
+
+Ran `kernelApi/checkstyle` locally.
+TODO: verify it's present in the CI runs after as well
+
+## Does this PR introduce _any_ user-facing changes?
+
+No.

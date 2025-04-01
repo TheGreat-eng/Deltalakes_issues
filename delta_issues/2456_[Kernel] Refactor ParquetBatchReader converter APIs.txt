@@ -1,0 +1,4 @@
+As noted in the comments here https://github.com/delta-io/delta/pull/1856#discussion_r1239171329 https://github.com/delta-io/delta/pull/1856#discussion_r1239172398 refactor the changes in that PR.
+
+- Change `moveToNextRow()` --> `moveToNextRow(long index)` everywhere
+- Update `FileRowIndexColumnConverter` to not extend `LongColumnConverter`

@@ -1,0 +1,3 @@
+My delta Lake program can run locally, but writing HDFS errors are as follows:
+error
+java.lang.ClassNotFoundException: Failed to find data source: delta. Please find packages at http://spark.apache.org/third-party-projects.html

@@ -1,0 +1,8 @@
+It throws `No such file or directory` when running test in IDEA:
+![image](https://user-images.githubusercontent.com/5399861/56707622-340db600-674c-11e9-9e60-ca706ab8d3a9.png)
+
+The reason is that `NOTICE` is changed to `NOTICE.txt`. This PR update the link to `NOTICE.txt`.
+
+**After this PR**:
+![image](https://user-images.githubusercontent.com/5399861/56707853-2c9adc80-674d-11e9-9876-dfc26c56787e.png)
+

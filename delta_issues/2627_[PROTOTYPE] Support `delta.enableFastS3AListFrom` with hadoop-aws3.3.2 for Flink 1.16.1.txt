@@ -1,0 +1,6 @@
+## Description
+
+Flink 1.16.1 uses hadoop-aws:3.3.2 (for S3 operations). Configuring Flink to also work with hadoop-aws:3.3.1 takes a lot of work. Also, the `delta.enableFastS3AListFrom` feature (which uses hadoop-aws APIs) uses one such API that changed between 3.3.1 and 3.3.2. Let's prototype getting this feature to work with 3.3.2.
+
+## How was this patch tested?
+TODO

@@ -1,0 +1,7 @@
+## Description
+
+Update the logInfo statement in DelegatingLogStore to include the actual implementation class of the LogStoreAdapter
+
+## How was this patch tested?
+
+published jars locally and tested with pyspark

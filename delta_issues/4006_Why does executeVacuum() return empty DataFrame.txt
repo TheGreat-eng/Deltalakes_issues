@@ -1,0 +1,3 @@
+Is there a design reason why `executeVacuum()` [returns an empty `DataFrame`?](https://github.com/delta-io/delta/blob/master/src/main/scala/io/delta/tables/execution/DeltaTableOperations.scala#L110)  This seems even less useful than just returning `Unit`.
+
+Could we modify it to return some useful stats?

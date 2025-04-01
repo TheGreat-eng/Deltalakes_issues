@@ -1,0 +1,44 @@
+## Bug
+
+### Describe the problem
+
+I've upgraded python `delta-spark` to 1.2.0 (and `pyspark` to 3.3.0). When I run `pyspark`, I see the below error (in observed results).
+
+I believe as part of #954, the `LogStore` class was [changed](https://github.com/delta-io/delta/commit/c068f5abd6146f8d94e87b29cddb6af51a6b6d44#diff-f0c18983a6b0029c674bdd12a930103afc7ed09baebb1b9fbc238a5af55d87d0R153) to now use `io.delta.storage.S3SingleDriverLogStore`.
+
+The problem appears to be that the `LogStore` class isn't present in the [python artefact](https://github.com/delta-io/delta/releases/tag/v1.2.0) leading to the below error. Is this an oversight in the packaging, or should I be specifying an extra dependency to bring in this class?
+
+I also see errors about the `S3SingleDriverLogStore`, which I assume are consequences of this.
+
+#### Steps to reproduce
+
+Upgrade to `delta-spark` `1.2.0`, and run via python (with the default logger).
+
+#### Observed results
+
+```
+py4j.protocol.Py4JJavaError: An error occurred while calling o2176.execute.
+5679E                   : com.google.common.util.concurrent.ExecutionError: java.lang.NoClassDefFoundError: io/delta/storage/LogStore
+```
+
+#### Expected results
+
+A successful run, using the `LogStore` class to log to S3.
+
+#### Further details
+
+n/a
+
+### Environment information
+
+* Delta Lake version: 1.2.0
+* Spark version: 3.2.1
+* Scala version: n/a
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [x] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute a bug fix at this time.

@@ -1,0 +1,77 @@
+This PR fixes an issue with schema evolution in Delta Lake where adding a new field to a struct within a map and renaming an existing top level field caused the operation to fail.
+
+The fix includes logic to handle these transformations properly, ensuring that new fields are added without conflicts.
+
+It also resolved a ToDo of casting map types in the [DeltaAnalysis.scala](https://github.com/Richard-code-gig/delta/blob/feature/schema-evolution-with-map-fix/spark/src/main/scala/org/apache/spark/sql/delta/DeltaAnalysis.scala) module.
+
+### Changes:
+- Updated schema evolution logic to support complex map transformations.
+- Enabled schema evolution for both map keys, simple and nested values
+- Added additional case statements to handle MapTypes in addCastToColumn method in DeltaAnalysis.scala module.
+- Modified TypeWideningInsertSchemaEvolutionSuite test to support schema evolution of maps.
+- Added an additional method (addCastsToMaps) to DeltaAnalysis.scala module.
+- Changed argument type of addCastToColumn from attributes to namedExpression
+- Added [EvolutionWithMap](https://github.com/Richard-code-gig/delta/blob/feature/schema-evolution-with-map-fix/examples/scala/src/main/scala/example/EvolutionWithMap.scala) in the example modules to demonstrate use case.
+- Modified nested struct type evolution with field upcast test in map in TypeWideningInsertSchemaEvolutionSuite.scala
+- Added new tests cases for maps to DeltaInsertIntoTableSuite.scala
+
+### Related Issues:
+- Resolves: #3227 
+
+
+<!--
+Thanks for sending a pull request!  Here are some tips for you:
+  1. If this is your first time, please read our contributor guidelines: https://github.com/delta-io/delta/blob/master/CONTRIBUTING.md
+  2. If the PR is unfinished, add '[WIP]' in your PR title, e.g., '[WIP] Your PR title ...'.
+  3. Be sure to keep the PR description updated to reflect all changes.
+  4. Please write your PR title to summarize what this PR proposes.
+  5. If possible, provide a concise example to reproduce the issue for a faster review.
+  6. If applicable, include the corresponding issue number in the PR title and link it in the body.
+-->
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [✓] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+<!--
+- Describe what this PR changes.
+- Describe why we need the change.
+ 
+If this PR resolves an issue be sure to include "Resolves #XXX" to correctly link and close the issue upon merge.
+-->
+
+## How was this patch tested?
+Tested through:
+- Integration Tests: Validated changes with Delta Lake and Spark integration. See [EvolutionWithMap](https://github.com/Richard-code-gig/delta/blob/feature/schema-evolution-with-map-fix/examples/scala/src/main/scala/example/EvolutionWithMap.scala).
+- Validated the test suites passed and [TypeWideningInsertSchemaEvolutionSuite](https://github.com/Richard-code-gig/delta/blob/feature/schema-evolution-with-map-fix/spark/src/test/scala/org/apache/spark/sql/delta/typewidening/TypeWideningInsertSchemaEvolutionSuite.scala) to add support for maps.
+- Added additional tests cases in [DeltaInsertIntoTableSuite](https://github.com/Richard-code-gig/delta/blob/feature/schema-evolution-with-map-fix/spark/src/test/scala/org/apache/spark/sql/DeltaInsertIntoTableSuite.scala) to cover complex map transformations
+
+
+<!--
+If tests were added, say they were added here. Please make sure to test the changes thoroughly including negative and positive cases if possible.
+If the changes were tested in any way other than unit tests, please clarify how you tested step by step (ideally copy and paste-able, so that other reviewers can test and check, and descendants can verify in the future).
+If the changes were not tested, please explain why.
+-->
+
+## Does this PR introduce _any_ user-facing changes?
+No, it doesn't introduce any user-facing changes. It only resolved an issue even in the released versions of Delta Lake.
+
+The previous behaviour was an error message when attempting operations involving adding extra fields to StructField in maps:
+[[DATATYPE_MISMATCH.CAST_WITHOUT_SUGGESTION](https://docs.databricks.com/error-messages/error-classes.html#datatype_mismatch.cast_without_suggestion)] Cannot resolve "metrics" due to data type mismatch: cannot cast "MAP<STRING, STRUCT<id: INT, value: INT, comment: STRING>>" to "MAP<STRING, STRUCT<id: INT, value: INT>>". 
+
+
+<!--
+If yes, please clarify the previous behavior and the change this PR proposes - provide the console output, description and/or an example to show the behavior difference if possible.
+If possible, please also clarify if this is a user-facing change compared to the released Delta Lake versions or within the unreleased branches such as master.
+If no, write 'No'.
+-->

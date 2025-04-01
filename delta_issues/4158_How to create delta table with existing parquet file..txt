@@ -1,0 +1,27 @@
+I have existing parquet file , when I am creating delta-table out of that and trying to update one of the column , Its giving me error below
+```
+Exception in thread "main" org.apache.spark.sql.catalyst.analysis.UnresolvedException: Invalid call to dataType on unresolved object, tree: 'Hello
+	at org.apache.spark.sql.catalyst.analysis.UnresolvedAttribute.dataType(unresolved.scala:105)
+	at org.apache.spark.sql.catalyst.expressions.BinaryArithmetic.dataType(arithmetic.scala:119)
+	at org.apache.spark.sql.delta.UpdateExpressionsSupport$class.castIfNeeded(UpdateExpressionsSupport.scala:43)
+	at org.apache.spark.sql.delta.PreprocessTableUpdate.castIfNeeded(PreprocessTableUpdate.scala:26)
+	at org.apache.spark.sql.delta.UpdateExpressionsSupport$$anonfun$generateUpdateExpressions$2.apply(UpdateExpressionsSupport.scala:111)
+	at org.apache.spark.sql.delta.UpdateExpressionsSupport$$anonfun$generateUpdateExpressions$2.apply(UpdateExpressionsSupport.scala:91)
+	at scala.collection.TraversableLike$$anonfun$map$1.apply(TraversableLike.scala:234)
+	at scala.collection.TraversableLike$$anonfun$map$1.apply(TraversableLike.scala:234)
+	at scala.collection.immutable.List.foreach(List.scala:392)
+	at scala.collection.TraversableLike$class.map(TraversableLike.scala:234)
+	at scala.collection.immutable.List.map(List.scala:296)
+	at org.apache.spark.sql.delta.UpdateExpressionsSupport$class.generateUpdateExpressions(UpdateExpressionsSupport.scala:91)
+	at org.apache.spark.sql.delta.PreprocessTableUpdate.generateUpdateExpressions(PreprocessTableUpdate.scala:26)
+	at org.apache.spark.sql.delta.UpdateExpressionsSupport$class.generateUpdateExpressions(UpdateExpressionsSupport.scala:152)
+	at org.apache.spark.sql.delta.PreprocessTableUpdate.generateUpdateExpressions(PreprocessTableUpdate.scala:26)
+	at org.apache.spark.sql.delta.PreprocessTableUpdate.apply(PreprocessTableUpdate.scala:38)
+	at io.delta.tables.execution.DeltaTableOperations$class.executeUpdate(DeltaTableOperations.scala:88)
+	at io.delta.tables.DeltaTable.executeUpdate(DeltaTable.scala:41)
+	at io.delta.tables.DeltaTable.updateExpr(DeltaTable.scala:358)
+	at com.espn.deltalake.Test.main(Test.java:99)```
+
+It seems like I am comparing binary to string , It seems like parquet compression happened twiced . 
+
+  

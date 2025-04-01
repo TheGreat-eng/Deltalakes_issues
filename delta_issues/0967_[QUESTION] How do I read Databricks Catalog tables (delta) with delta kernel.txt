@@ -1,0 +1,13 @@
+It seems that all the examples are using local delta-files.
+
+How would I provide the correct auth (or PAT) and table locations to delta-kernel to read?
+I guess somehow with the HadoopConfiguration?
+
+Tried to start with the BaseTableReader examples, but didn't get far.
+
+And passing an s3 location for the table path yielded just an error:
+
+```
+Exception in thread "main" java.lang.RuntimeException: org.apache.hadoop.fs.UnsupportedFileSystemException: No FileSystem for scheme "s3"
+	at io.delta.kernel.internal.TableImpl.forPath(TableImpl.java:33)
+```

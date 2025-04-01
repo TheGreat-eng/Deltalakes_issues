@@ -1,0 +1,1 @@
+Closes https://github.com/delta-io/delta/issues/618

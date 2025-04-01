@@ -1,0 +1,11 @@
+Apache Spark has a [bug](https://issues.apache.org/jira/browse/SPARK-34720) where MERGE's INSERT/UPDATE * expansion and resolution by Apache Spark is done by column position, not by name. This can lead to incorrect source columns be assigned to the target columns by star. 
+
+Delta should not have been affected by this bug because it tries to skip the OSS MERGE resolution to perform its own resolution with potentially schema evolution enabled. The logic to skip the resolution is based on whether the target table is a DataSourceV2Relation that supports its own schema resolution. However, this logic breaks when there is a View on top of the DataSourceV2Relation, thus causing the Apache spark's resolution to kick and do incorrect star expansion. Until the bug in this logic is fixed in Apache Spark, this cannot be fixed in OSS Delta.
+
+This affects the following versions
+- Delta 0.7.0 on Spark 3.0.x 
+- Delta 0.8.0 on Spark 3.1.x 
+
+Workarounds
+1. Remove the view.
+2. Use Scala/Python APIs.

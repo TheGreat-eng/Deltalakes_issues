@@ -1,0 +1,10 @@
+Hello , i want to delete multiple rows in a delta table , I've got a list of ids that i will delete  in a spark dataframe, I've tried something like that : 
+
+`df.foreach(r => {
+        DeltaTable.forPath(spark, deltaLakePath).as("delta").delete(f"delta.$id_name = '" + r.mkString + "'")
+      })`
+
+but this code run too slow .
+thanks .
+
+note : df = contain ids to be deleted.

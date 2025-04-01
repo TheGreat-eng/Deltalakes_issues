@@ -1,0 +1,21 @@
+#### Which Delta project/connector is this regarding?
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+`DeltaOptions` are equipped to accept case-insensitive values of boolean flags, but CDCReader was not, resulting in not-accepting 'True'. Make it case insensitive. 
+
+A separate bug in Spark Connect was causing "True" to be passed from Python boolean True. That is being fixed by https://github.com/apache/spark/pull/47790
+
+## How was this patch tested?
+
+Tests added.
+
+## Does this PR introduce _any_ user-facing changes?
+
+Datasource option to enable CDC should now accept "True" and other mixed-case variants and not only "true".

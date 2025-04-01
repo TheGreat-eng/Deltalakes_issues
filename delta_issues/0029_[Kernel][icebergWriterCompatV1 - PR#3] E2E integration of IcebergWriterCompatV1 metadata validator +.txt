@@ -1,0 +1,38 @@
+<!--
+Thanks for sending a pull request!  Here are some tips for you:
+  1. If this is your first time, please read our contributor guidelines: https://github.com/delta-io/delta/blob/master/CONTRIBUTING.md
+  2. If the PR is unfinished, add '[WIP]' in your PR title, e.g., '[WIP] Your PR title ...'.
+  3. Be sure to keep the PR description updated to reflect all changes.
+  4. Please write your PR title to summarize what this PR proposes.
+  5. If possible, provide a concise example to reproduce the issue for a faster review.
+  6. If applicable, include the corresponding issue number in the PR title and link it in the body.
+-->
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [X] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+Parent issue https://github.com/delta-io/delta/issues/4289
+
+Integrates the `IcebergWriterCompatV1MetadataValidatorAndUpdater` added in https://github.com/delta-io/delta/pull/4291 to the transaction write path. This means after this PR when writing to a table with `IcebergWriterCompatV1` enabled, or when enabling `IcebergWriterCompatV1` we will perform the necessary metadata validations and updates.
+
+We currently limit this feature to only be enabled on new tables.
+
+## How was this patch tested?
+
+`IcebergWriterCompatV1MetadataValidatorAndUpdater` is already thoroughly tested in `IcebergWriterCompatV1MetadataValidatorAndUpdaterSuite` but we also add an E2E test suite that tests all the validation  & use cases (& covers the protocol upgrades for this feature).
+
+
+## Does this PR introduce _any_ user-facing changes?
+
+Yes, after all tasks in https://github.com/delta-io/delta/issues/4289 are complete a new writer feature will be supported.

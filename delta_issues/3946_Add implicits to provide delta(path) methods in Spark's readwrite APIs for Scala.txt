@@ -1,0 +1,9 @@
+The main goal of this Pull Request is to create a ```delta``` function which replaces the ```.format("delta")``` we use whenever we want to read/write from/in a delta table .
+I used the Scala "Pimp My Library" Pattern in order to extend the following APIs : 
+
+- DataFrameReader
+- DataStreamReader
+- DataFrameWriter
+- DataStreamWriter
+
+I tested this feature by replacing, in the ```DeltaSourceSuite.scala```, all the ```.format("delta")``` by the function ```.delta(path)```

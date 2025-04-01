@@ -1,0 +1,45 @@
+Trying to run
+
+`./spark-shell --packages io.delta:delta-core_2.11:0.1.0`
+
+& 
+
+`val df = spark.read.format("delta").load(deltaPath)`
+
+This error get thrown
+
+```
+java.util.ServiceConfigurationError: org.apache.spark.sql.sources.DataSourceRegister: Provider org.apache.spark.sql.delta.sources.DeltaDataSource could not be instantiated
+  at java.base/java.util.ServiceLoader.fail(ServiceLoader.java:581)
+  at java.base/java.util.ServiceLoader$ProviderImpl.newInstance(ServiceLoader.java:803)
+  at java.base/java.util.ServiceLoader$ProviderImpl.get(ServiceLoader.java:721)
+  at java.base/java.util.ServiceLoader$3.next(ServiceLoader.java:1394)
+  at scala.collection.convert.Wrappers$JIteratorWrapper.next(Wrappers.scala:44)
+  at scala.collection.Iterator.foreach(Iterator.scala:941)
+  at scala.collection.Iterator.foreach$(Iterator.scala:941)
+  at scala.collection.AbstractIterator.foreach(Iterator.scala:1429)
+  at scala.collection.IterableLike.foreach(IterableLike.scala:74)
+  at scala.collection.IterableLike.foreach$(IterableLike.scala:73)
+  at scala.collection.AbstractIterable.foreach(Iterable.scala:56)
+  at scala.collection.TraversableLike.filterImpl(TraversableLike.scala:250)
+  at scala.collection.TraversableLike.filterImpl$(TraversableLike.scala:248)
+  at scala.collection.AbstractTraversable.filterImpl(Traversable.scala:108)
+  at scala.collection.TraversableLike.filter(TraversableLike.scala:262)
+  at scala.collection.TraversableLike.filter$(TraversableLike.scala:262)
+  at scala.collection.AbstractTraversable.filter(Traversable.scala:108)
+  at org.apache.spark.sql.execution.datasources.DataSource$.lookupDataSource(DataSource.scala:630)
+  at org.apache.spark.sql.DataFrameReader.load(DataFrameReader.scala:194)
+  at org.apache.spark.sql.DataFrameReader.load(DataFrameReader.scala:178)
+  ... 49 elided
+Caused by: java.lang.NoClassDefFoundError: org/apache/spark/internal/Logging$class
+  at org.apache.spark.sql.delta.sources.DeltaDataSource.<init>(DeltaDataSource.scala:42
+```
+
+
+Environment 
+
+```
+Scala 2.11.12
+Spark 2.4.2
+```
+

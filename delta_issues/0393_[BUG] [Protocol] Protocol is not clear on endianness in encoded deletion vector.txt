@@ -1,0 +1,59 @@
+## Bug
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the issue title
+For example: [BUG][Spark] Title of my issue
+-->
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ x ] Other (The PROTOCOL.md spec)
+
+### Describe the problem
+
+The spec does not clearly describe the encoded deletion vector format, so I had to read the Java implementation to understand how deletion vectors are stored. I found two issues:
+
+Firstly, the `deletionVectorDescriptor`'s `sizeInBytes` field is described as 
+
+> Size of the serialized DV in bytes (raw data size, i.e. before base85 encoding, if inline).
+
+This is not accurate, the `sizeInBytes` field appears to be the size of the deletion vector, without its size and checksum. So, in code, it is necessary to read `sizeInBytes + 8` bytes total.
+
+(As an aside, this is pretty counterintuitive; sizeInBytes notably does include delta's magic number, so it's not just describing the length of the roaring treemap.)
+
+It would be helpful to describe this in more detail, perhaps something like:
+
+> Size of the serialized DV, without its checksum or size, in bytes (raw data size, i.e. before base85 encoding, if inline). This should be equal to the serialize size, if not inline.
+
+Secondly, the checksum and size fields are both serialized as big endian integers, while everything else here is serialized as little endian. It would be easier to implement this spec if this were spelled out explicitly.
+
+#### Steps to reproduce
+
+1. Read the spec
+2. Try to implement it
+3. Be confused when my tests failed.
+
+#### Observed results
+
+I tried to run some tests using some example tables contained in this repo, and failed to deserialize deletion vectors correctly.
+
+#### Expected results
+
+I would like it if the spec were accurate to how deletion vector serialization needs to be implemented.
+
+#### Further details
+
+### Environment information
+
+* Delta Lake version: n/a
+* Spark version: n/a
+* Scala version: n/a
+
+### Willingness to contribute
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [ ] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [ x ] No. I cannot contribute a bug fix at this time.

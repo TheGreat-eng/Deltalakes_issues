@@ -1,0 +1,3 @@
+
+* Added Python docs generation using Sphinx 
+* modified `generate_api_docs` to generate Python docs

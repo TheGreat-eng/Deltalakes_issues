@@ -1,0 +1,3 @@
+See the project plan at #1105
+
+Adds miscellaneous tests for CDF

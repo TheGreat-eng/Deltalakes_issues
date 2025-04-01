@@ -1,0 +1,19 @@
+Prototype implementation for the type widening table feature in Delta Kernel.
+
+## Description
+This prototype allows reading tables that had a type change applied using the type widening table feature, typically by running `ALTER TABLE t CHANGE COLUMN col TYPE type` using Delta spark.
+
+These tables contain parquet files that have different physical schemas: data files written before a type change contain the old type, data files written after contain the new type.
+
+This prototype includes the following changes to support this:
+- Having the ability to use a per-file read schema to pass to the parquet handler instead of a constant schema for the whole table. This changes how application code using kernel which must now call `Scan.getPhysicalDataReadSchema` for each file being read instead of calling `ScanStateRow.getPhysicalDataReadSchema` once for all files.
+- Parsing type widening metadata serialized in the table schema, which is then used together with the default row commit version of each file to infer the actual physical read schema for that file.
+- Converting values in `transformPhysicalData` from their physical type to the expected type in the table schema when needed. A proper `Cast` expression (mostly reusing the existing `ImplicitCastExpression`) is introduced for this purpose.
+
+## Testing
+Generate golden files for the table that is used by the type widening test and run that test:
+```
+GENERATE_GOLDEN_TABLES=1 build/sbt 'goldenTables/testOnly *GoldenTables -- -z "type-widening"'
+build/sbt 'delta-kernel-defaults/testOnly *DeltaTableReadsSuite -- -z "type widening"'
+```
+Note: table generation uses Delta Spark which already supports type widening

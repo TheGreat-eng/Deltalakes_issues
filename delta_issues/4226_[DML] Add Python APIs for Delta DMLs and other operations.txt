@@ -1,0 +1,1 @@
+Other issues track the Scala/Java APIs for Merge, Delete, etc. This issue track adding Python APIs for these operations. We will be using Py4j to call into the Scala APIs.

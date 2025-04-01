@@ -1,0 +1,19 @@
+#### Which Delta project/connector is this regarding?
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [x] Other (storage module)
+
+## Description
+
+This PR takes the existing definitions in CommitCoordinatorClient.scala and converts them to java classes/interfaces in the storage module. This is in preparation for replacing the CommitCoordinatorClient in Spark Delta with a generic java-based module that can be implemented in any Delta client.
+
+## How was this patch tested?
+
+This PR only copies existing definitions to java classes/interfaces in the storage module. These new classes/interfaces are not in use yet so no tests are required.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

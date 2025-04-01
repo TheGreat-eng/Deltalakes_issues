@@ -1,0 +1,64 @@
+## Bug
+
+### Describe the problem
+When performing an update with a data predicate, there is no schema pruning so the entire contents of all files has to be loaded. This is because the nonDeterministic filter function for the row SQL metrics prevents schema pruning with the select afterwards.
+
+#### Steps to reproduce
+Python code:
+```python
+>>> import pyspark.sql.functions as F
+>>> from delta.tables import DeltaTable
+>>> table = DeltaTable.forPath(spark, "test")
+>>> table.toDF().printSchema()
+root
+ |-- key: string (nullable = true)
+ |-- value: long (nullable = true)
+
+>>> table.update("key = 'c'", set={'value': F.lit(6)})
+```
+
+<!--
+Please include copy-pastable code snippets if possible.
+1. _____
+2. _____
+3. _____
+-->
+
+#### Observed results
+
+<!-- What happened?  This could be a description, log output, etc. -->
+
+Snippet of the execution plan from the Spark UI:
+```
+(1) Scan parquet 
+Output [2]: [key#526, value#527L]
+Batched: true
+Location: TahoeBatchFileIndex [file:.../projects/delta/test]
+PushedFilters: [IsNotNull(key), EqualTo(key,c)]
+ReadSchema: struct<key:string,value:bigint>
+```
+
+#### Expected results
+`value` isn't needed for the condition check, so it should be schema pruned.
+
+<!-- What did you expect to happen? -->
+
+#### Further details
+
+<!--
+Include any additional details that may be useful for diagnosing the problem here. If including tracebacks, please include the full traceback. Large logs and files should be attached.
+-->
+
+### Environment information
+
+* Delta Lake version: 1.2.1
+* Spark version: 3.2.1
+* Scala version: 2.12
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [x] Yes. I can contribute a fix for this bug independently.
+- [ ] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute a bug fix at this time.

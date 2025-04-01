@@ -1,0 +1,8 @@
+This PR adds support for IBM Cloud Object Storage (IBM COS) by creating `COSLogStore` which extends the `HadoopFileSystemLogStore` and relies on IBM COS ability to handle [atomic writes using Etags](https://cloud.ibm.com/docs/cloud-object-storage?topic=cloud-object-storage-upload#upload-conditional).
+
+The support for IBM COS relies on the following properties:
+1. Write on COS is all-or-nothing, whether overwrite or not.
+2. List-after-write is consistent.
+3. Write is atomic when using the [Stocator - Storage Connector for Apache Spark](https://github.com/CODAIT/stocator) (v1.1.1+) and setting the configuration `fs.cos.atomic.write` to `true`.
+
+In addition I propose the following [documentation](https://docs.google.com/document/d/1ued0rajmIZPZXJZ65uvvUTb088rcsxLl3zct1Y5A4p8/edit) to be added to the [Storage Configuration](https://docs.delta.io/latest/delta-storage.html) page.

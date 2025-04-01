@@ -1,0 +1,13 @@
+#### Which Delta project/connector is this regarding?
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [x] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+Protocol RFC for adding collation support to Delta
+
+[Design doc](https://docs.google.com/document/d/1cwztlKt7b2hWF6Uu1S895ko6jPfRlP9x-V5POUcXtXk/edit?usp=sharing)

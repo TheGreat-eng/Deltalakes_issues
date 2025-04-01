@@ -1,0 +1,6 @@
+## Description
+Currently the `DefaultExpressionHandler` only supports a few expressions. If a user passes an unsupported expression, Kernel partition pruning fails with an unsupported operation exception. Instead, this PR changes it to return the unsupported part of the expression in the remaining filter of `Scan`. It makes use of `ExpressionHandler.getPredicateEvaluator` to decide whether an expression is supported or not.
+
+## How was this patch tested?
+Unit tests and integration tests.
+

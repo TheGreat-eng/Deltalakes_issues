@@ -1,0 +1,5 @@
+Wrap the return value of convertToDelta in a DeltaTable.
+
+Author: Tom Lynch <lync0143@gmail.com>
+
+Close #726.

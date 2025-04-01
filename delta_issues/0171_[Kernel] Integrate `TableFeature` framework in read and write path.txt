@@ -1,0 +1,7 @@
+## Description
+This integrates the end-to-end TableFeatures framework in read and write path.
+
+It also adds support for appending into a table with `deletionVectors`, `v2Checkpoint` and 'timestampNtz` are supported.
+
+## How was this patch tested?
+Existing and new tests.

@@ -1,0 +1,21 @@
+#### Which Delta project/connector is this regarding?
+
+
+- [X] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+Enable injection of special chars in temporary directories in two tests in ConvertToDeltaSuite. The previous issues have been resolved in 90c1b2a26a86ce0c16e8218ec4188c81b9f7a21c.
+
+
+## How was this patch tested?
+
+Test-only change.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

@@ -1,0 +1,198 @@
+## Bug
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the issue title
+For example: [BUG][Spark] Title of my issue
+-->
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+### Describe the problem
+When using DeltaTableBuilder to create deltaTable and specify location on window environment
+```scala 
+DeltaTable.createIfNotExists(spark).location("C:\\mzhfrjauwxtekgncvdpqslyoib")
+``` 
+
+program will throw error: 
+```CREATE TABLE contains two different locations: C:\mzhfrjauwxtekgncvdpqslyoib and file:/C:/lxcrgyujzpqdnsboewmaihfkvt```
+
+Steps to reproduce
+run scala spark application on window environment
+
+``` scala
+import io.delta.tables.DeltaTable
+import org.apache.spark.sql.types.StructType
+object test {
+  def main(args: Array[String]): Unit = {
+    val path = "C:\\mzhfrjauwxtekgncvdpqslyoib"
+    DeltaTable
+      .createIfNotExists()
+      .addColumns(new StructType())
+      .location(path)
+      .execute()
+  }
+}
+
+```
+
+#### Observed results
+
+```
+CREATE TABLE contains two different locations: C:\lxcrgyujzpqdnsboewmaihfkvt and file:/C:/lxcrgyujzpqdnsboewmaihfkvt.
+You can remove the LOCATION clause from the CREATE TABLE statement, or set
+spark.databricks.delta.legacy.allowAmbiguousPathsInCreateTable to true to skip this check.
+
+org.apache.spark.sql.delta.DeltaAnalysisException: CREATE TABLE contains two different locations: C:\lxcrgyujzpqdnsboewmaihfkvt and file:/C:/lxcrgyujzpqdnsboewmaihfkvt.
+
+You can remove the LOCATION clause from the CREATE TABLE statement, or set
+spark.databricks.delta.legacy.allowAmbiguousPathsInCreateTable to true to skip this check.
+
+	at org.apache.spark.sql.delta.DeltaErrorsBase.ambiguousPathsInCreateTableException(DeltaErrors.scala:2045)
+	at org.apache.spark.sql.delta.DeltaErrorsBase.ambiguousPathsInCreateTableException$(DeltaErrors.scala:2044)
+	at org.apache.spark.sql.delta.DeltaErrors$.ambiguousPathsInCreateTableException(DeltaErrors.scala:2794)
+	at org.apache.spark.sql.delta.catalog.DeltaCatalog.$anonfun$createDeltaTable$1(DeltaCatalog.scala:114)
+	at org.apache.spark.sql.delta.metering.DeltaLogging.recordFrameProfile(DeltaLogging.scala:140)
+	at org.apache.spark.sql.delta.metering.DeltaLogging.recordFrameProfile$(DeltaLogging.scala:138)
+	at org.apache.spark.sql.delta.catalog.DeltaCatalog.recordFrameProfile(DeltaCatalog.scala:57)
+	at org.apache.spark.sql.delta.catalog.DeltaCatalog.org$apache$spark$sql$delta$catalog$DeltaCatalog$$createDeltaTable(DeltaCatalog.scala:87)
+	at org.apache.spark.sql.delta.catalog.DeltaCatalog.$anonfun$createTable$1(DeltaCatalog.scala:286)
+	at org.apache.spark.sql.delta.metering.DeltaLogging.recordFrameProfile(DeltaLogging.scala:140)
+	at org.apache.spark.sql.delta.metering.DeltaLogging.recordFrameProfile$(DeltaLogging.scala:138)
+	at org.apache.spark.sql.delta.catalog.DeltaCatalog.recordFrameProfile(DeltaCatalog.scala:57)
+	at org.apache.spark.sql.delta.catalog.DeltaCatalog.createTable(DeltaCatalog.scala:278)
+	at org.apache.spark.sql.delta.catalog.DeltaCatalog.createTable(DeltaCatalog.scala:269)
+	at org.apache.spark.sql.execution.datasources.v2.CreateTableExec.run(CreateTableExec.scala:44)
+	at org.apache.spark.sql.execution.datasources.v2.V2CommandExec.result$lzycompute(V2CommandExec.scala:43)
+	at org.apache.spark.sql.execution.datasources.v2.V2CommandExec.result(V2CommandExec.scala:43)
+	at org.apache.spark.sql.execution.datasources.v2.V2CommandExec.executeCollect(V2CommandExec.scala:49)
+	at org.apache.spark.sql.execution.QueryExecution$$anonfun$eagerlyExecuteCommands$1.$anonfun$applyOrElse$1(QueryExecution.scala:98)
+	at org.apache.spark.sql.execution.SQLExecution$.$anonfun$withNewExecutionId$6(SQLExecution.scala:118)
+	at org.apache.spark.sql.execution.SQLExecution$.withSQLConfPropagated(SQLExecution.scala:195)
+	at org.apache.spark.sql.execution.SQLExecution$.$anonfun$withNewExecutionId$1(SQLExecution.scala:103)
+	at org.apache.spark.sql.SparkSession.withActive(SparkSession.scala:827)
+	at org.apache.spark.sql.execution.SQLExecution$.withNewExecutionId(SQLExecution.scala:65)
+	at org.apache.spark.sql.execution.QueryExecution$$anonfun$eagerlyExecuteCommands$1.applyOrElse(QueryExecution.scala:98)
+	at org.apache.spark.sql.execution.QueryExecution$$anonfun$eagerlyExecuteCommands$1.applyOrElse(QueryExecution.scala:94)
+	at org.apache.spark.sql.catalyst.trees.TreeNode.$anonfun$transformDownWithPruning$1(TreeNode.scala:512)
+	at org.apache.spark.sql.catalyst.trees.CurrentOrigin$.withOrigin(TreeNode.scala:104)
+	at org.apache.spark.sql.catalyst.trees.TreeNode.transformDownWithPruning(TreeNode.scala:512)
+	at org.apache.spark.sql.catalyst.plans.logical.LogicalPlan.org$apache$spark$sql$catalyst$plans$logical$AnalysisHelper$$super$transformDownWithPruning(LogicalPlan.scala:31)
+	at org.apache.spark.sql.catalyst.plans.logical.AnalysisHelper.transformDownWithPruning(AnalysisHelper.scala:267)
+	at org.apache.spark.sql.catalyst.plans.logical.AnalysisHelper.transformDownWithPruning$(AnalysisHelper.scala:263)
+	at org.apache.spark.sql.catalyst.plans.logical.LogicalPlan.transformDownWithPruning(LogicalPlan.scala:31)
+	at org.apache.spark.sql.catalyst.plans.logical.LogicalPlan.transformDownWithPruning(LogicalPlan.scala:31)
+	at org.apache.spark.sql.catalyst.trees.TreeNode.transformDown(TreeNode.scala:488)
+	at org.apache.spark.sql.execution.QueryExecution.eagerlyExecuteCommands(QueryExecution.scala:94)
+	at org.apache.spark.sql.execution.QueryExecution.commandExecuted$lzycompute(QueryExecution.scala:81)
+	at org.apache.spark.sql.execution.QueryExecution.commandExecuted(QueryExecution.scala:79)
+	at org.apache.spark.sql.execution.QueryExecution.assertCommandExecuted(QueryExecution.scala:133)
+	at org.apache.spark.sql.execution.QueryExecution.optimizedPlan$lzycompute(QueryExecution.scala:138)
+	at org.apache.spark.sql.execution.QueryExecution.optimizedPlan(QueryExecution.scala:135)
+	at org.apache.spark.sql.execution.QueryExecution.assertOptimized(QueryExecution.scala:153)
+	at org.apache.spark.sql.execution.QueryExecution.executedPlan$lzycompute(QueryExecution.scala:171)
+	at org.apache.spark.sql.execution.QueryExecution.executedPlan(QueryExecution.scala:168)
+	at org.apache.spark.sql.execution.SQLExecution$.$anonfun$withNewExecutionId$6(SQLExecution.scala:115)
+	at org.apache.spark.sql.execution.SQLExecution$.withSQLConfPropagated(SQLExecution.scala:195)
+	at org.apache.spark.sql.execution.SQLExecution$.$anonfun$withNewExecutionId$1(SQLExecution.scala:103)
+	at org.apache.spark.sql.SparkSession.withActive(SparkSession.scala:827)
+	at org.apache.spark.sql.execution.SQLExecution$.withNewExecutionId(SQLExecution.scala:65)
+	at io.delta.tables.DeltaTableBuilder.execute(DeltaTableBuilder.scala:360)
+	at jobs.LoadedToDelta.createDeltaTableIfNotExists(LoadedToDelta.scala:21)
+	at jobs.LoadedToDelta.createDeltaTableIfNotExists$(LoadedToDelta.scala:19)
+	at jobs.LoadedToDeltaSpec$$anon$1.createDeltaTableIfNotExists(LoadedToDeltaSpec.scala:11)
+	at jobs.LoadedToDeltaSpec.$anonfun$new$1(LoadedToDeltaSpec.scala:25)
+	at org.scalatest.OutcomeOf.outcomeOf(OutcomeOf.scala:85)
+	at org.scalatest.OutcomeOf.outcomeOf$(OutcomeOf.scala:83)
+	at org.scalatest.OutcomeOf$.outcomeOf(OutcomeOf.scala:104)
+	at org.scalatest.Transformer.apply(Transformer.scala:22)
+	at org.scalatest.Transformer.apply(Transformer.scala:20)
+	at org.scalatest.flatspec.AnyFlatSpecLike$$anon$5.apply(AnyFlatSpecLike.scala:1812)
+	at org.scalatest.TestSuite.withFixture(TestSuite.scala:196)
+	at org.scalatest.TestSuite.withFixture$(TestSuite.scala:195)
+	at org.scalatest.flatspec.AnyFlatSpec.withFixture(AnyFlatSpec.scala:1685)
+	at org.scalatest.flatspec.AnyFlatSpecLike.invokeWithFixture$1(AnyFlatSpecLike.scala:1810)
+	at org.scalatest.flatspec.AnyFlatSpecLike.$anonfun$runTest$1(AnyFlatSpecLike.scala:1822)
+	at org.scalatest.SuperEngine.runTestImpl(Engine.scala:306)
+	at org.scalatest.flatspec.AnyFlatSpecLike.runTest(AnyFlatSpecLike.scala:1822)
+	at org.scalatest.flatspec.AnyFlatSpecLike.runTest$(AnyFlatSpecLike.scala:1804)
+	at org.scalatest.flatspec.AnyFlatSpec.runTest(AnyFlatSpec.scala:1685)
+	at org.scalatest.flatspec.AnyFlatSpecLike.$anonfun$runTests$1(AnyFlatSpecLike.scala:1880)
+	at org.scalatest.SuperEngine.$anonfun$runTestsInBranch$1(Engine.scala:413)
+	at scala.collection.immutable.List.foreach(List.scala:431)
+	at org.scalatest.SuperEngine.traverseSubNodes$1(Engine.scala:401)
+	at org.scalatest.SuperEngine.runTestsInBranch(Engine.scala:390)
+	at org.scalatest.SuperEngine.$anonfun$runTestsInBranch$1(Engine.scala:427)
+	at scala.collection.immutable.List.foreach(List.scala:431)
+	at org.scalatest.SuperEngine.traverseSubNodes$1(Engine.scala:401)
+	at org.scalatest.SuperEngine.runTestsInBranch(Engine.scala:396)
+	at org.scalatest.SuperEngine.runTestsImpl(Engine.scala:475)
+	at org.scalatest.flatspec.AnyFlatSpecLike.runTests(AnyFlatSpecLike.scala:1880)
+	at org.scalatest.flatspec.AnyFlatSpecLike.runTests$(AnyFlatSpecLike.scala:1879)
+	at org.scalatest.flatspec.AnyFlatSpec.runTests(AnyFlatSpec.scala:1685)
+	at org.scalatest.Suite.run(Suite.scala:1112)
+	at org.scalatest.Suite.run$(Suite.scala:1094)
+	at org.scalatest.flatspec.AnyFlatSpec.org$scalatest$flatspec$AnyFlatSpecLike$$super$run(AnyFlatSpec.scala:1685)
+	at org.scalatest.flatspec.AnyFlatSpecLike.$anonfun$run$1(AnyFlatSpecLike.scala:1925)
+	at org.scalatest.SuperEngine.runImpl(Engine.scala:535)
+	at org.scalatest.flatspec.AnyFlatSpecLike.run(AnyFlatSpecLike.scala:1925)
+	at org.scalatest.flatspec.AnyFlatSpecLike.run$(AnyFlatSpecLike.scala:1923)
+	at jobs.LoadedToDeltaSpec.org$scalatest$BeforeAndAfterAll$$super$run(LoadedToDeltaSpec.scala:10)
+	at org.scalatest.BeforeAndAfterAll.liftedTree1$1(BeforeAndAfterAll.scala:213)
+	at org.scalatest.BeforeAndAfterAll.run(BeforeAndAfterAll.scala:210)
+	at org.scalatest.BeforeAndAfterAll.run$(BeforeAndAfterAll.scala:208)
+	at jobs.LoadedToDeltaSpec.run(LoadedToDeltaSpec.scala:10)
+	at org.scalatest.tools.SuiteRunner.run(SuiteRunner.scala:45)
+	at org.scalatest.tools.Runner$.$anonfun$doRunRunRunDaDoRunRun$13(Runner.scala:1322)
+	at org.scalatest.tools.Runner$.$anonfun$doRunRunRunDaDoRunRun$13$adapted(Runner.scala:1316)
+	at scala.collection.immutable.List.foreach(List.scala:431)
+	at org.scalatest.tools.Runner$.doRunRunRunDaDoRunRun(Runner.scala:1316)
+	at org.scalatest.tools.Runner$.$anonfun$runOptionallyWithPassFailReporter$24(Runner.scala:993)
+	at org.scalatest.tools.Runner$.$anonfun$runOptionallyWithPassFailReporter$24$adapted(Runner.scala:971)
+	at org.scalatest.tools.Runner$.withClassLoaderAndDispatchReporter(Runner.scala:1482)
+	at org.scalatest.tools.Runner$.runOptionallyWithPassFailReporter(Runner.scala:971)
+	at org.scalatest.tools.Runner$.run(Runner.scala:798)
+	at org.scalatest.tools.Runner.run(Runner.scala)
+	at org.jetbrains.plugins.scala.testingSupport.scalaTest.ScalaTestRunner.runScalaTest2or3(ScalaTestRunner.java:43)
+	at org.jetbrains.plugins.scala.testingSupport.scalaTest.ScalaTestRunner.main(ScalaTestRunner.java:26)
+
+
+```
+
+#### Expected results
+
+DeltaTable created successfully at C:\lxcrgyujzpqdnsboewmaihfkvt
+
+#### Further details
+If I replace all the backward slash to forward slash then the code will also execute successfully 
+
+Using spark to create and empty dataframe and write using delta format with same path work correctly.
+```scala
+sparkSession
+        .createDataFrame(
+          sparkSession.sparkContext
+            .emptyRDD[Row],
+          new StructType()
+        )
+        .write
+        .format("delta")
+        .save("C:\\lxcrgyujzpqdnsboewmaihfkvt")
+```
+However, creating deltaTable this way does not retain column nullability
+### Environment information
+
+* Delta Lake version: 2.4.0
+* Spark version: 3.4.1
+* Scala version: 2.12.15
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [x] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute a bug fix at this time.

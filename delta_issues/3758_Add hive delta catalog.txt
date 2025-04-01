@@ -1,0 +1,3 @@
+Currently Delta catalog create a table in HiveMetastore but delta-io connectors cannot use it because it's not hive compatible.
+ 
+The hive delta catalog create a delta table compatible with Spark SQL and Hive Tez

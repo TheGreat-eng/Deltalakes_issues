@@ -1,0 +1,1 @@
+Since ADLS gen 2 provides HDFS compatibility I am thinking it should be possible to use it without the list after write issues related to s3.

@@ -1,0 +1,21 @@
+#### Which Delta project/connector is this regarding?
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+This PR is part of https://github.com/delta-io/delta/issues/1959
+
+In this PR, we introduce the `GenerateIdentityValues` UDF used for populating Identity Column values. The UDF is not used in Delta in this PR yet.
+
+`GenerateIdentityValues` is a simple non-deterministic UDF which keeps a counter with the user specified `start` and `step`. It counts in increments of `numPartitions` so that it can be parallelized in different tasks.
+
+## How was this patch tested?
+New test suite and unit tests for the UDF.
+
+## Does this PR introduce _any_ user-facing changes?
+No.

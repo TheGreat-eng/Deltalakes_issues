@@ -1,0 +1,66 @@
+## Bug
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the issue title
+For example: [BUG][Spark] Title of my issue
+-->
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+### Describe the problem
+DELETE fails with AnalysisException on tables with CHAR(N) columns
+
+#### Steps to reproduce
+```scala
+import io.delta.tables.DeltaTable
+spark.sql("create table test (a char(5)) using delta")
+DeltaTable.forName(spark, "test").delete()
+```
+
+#### Observed results
+```
+org.apache.spark.sql.delta.DeltaAnalysisException: [DELTA_UNSUPPORTED_SOURCE] DELETE destination only supports Delta sources.
+Some(DeleteFromTable true
++- SubqueryAlias spark_catalog.default.test
+   +- Project [staticinvoke(class org.apache.spark.sql.catalyst.util.CharVarcharCodegenUtils, StringType, readSidePadding, a#51, 5, true, false, true) AS a#52]
+      +- Relation spark_catalog.default.test[a#51] parquet
+)
+  at org.apache.spark.sql.delta.DeltaErrorsBase.notADeltaSourceException(DeltaErrors.scala:536)
+  at org.apache.spark.sql.delta.DeltaErrorsBase.notADeltaSourceException$(DeltaErrors.scala:534)
+  at org.apache.spark.sql.delta.DeltaErrors$.notADeltaSourceException(DeltaErrors.scala:3382)
+  at org.apache.spark.sql.delta.DeltaAnalysis$$anonfun$apply$1.applyOrElse(DeltaAnalysis.scala:465)
+  at org.apache.spark.sql.delta.DeltaAnalysis$$anonfun$apply$1.applyOrElse(DeltaAnalysis.scala:81)
+```
+
+#### Expected results
+`DELETE` is performed.
+
+#### Further details
+It fails because the following code returns multiple indices:
+
+```scala
+val indices = newTarget.collect {
+  case DeltaFullTable(_, index) => index
+}
+```
+
+when `newTarget` is a `Project` with a `Relation` as a child. The project node is added by Spark to add `CharVarcharCodegenUtils.readSidePadding`.
+
+### Environment information
+
+* Delta Lake version: 3.2.1
+* Spark version: 3.5.4
+* Scala version: 2.12.18
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [x] Yes. I can contribute a fix for this bug independently.
+- [ ] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute a bug fix at this time.

@@ -1,0 +1,5 @@
+I would like to be able to `spark.read.format("delta").schema(mySchema)`. 
+
+My reason is that I use Delta and another source in tandem and would like to be able to union the Dataset objects from the two sources. My schemas change over time with new fields being added as `Option`s. If the schema is out of date in the Delta lake, I cannot cast the `Row` I have read from Delta lake to the type required using my encoder. This is because the `Row` may lack the recently added column present in the schema, which is also present in the second data source.
+
+Would it be possible in later releases to support user-specified schemas at read time?

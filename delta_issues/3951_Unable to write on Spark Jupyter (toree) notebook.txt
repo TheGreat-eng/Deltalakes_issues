@@ -1,0 +1,79 @@
+I have a simple example that fail on a Jupyter Spark 2.4.4./Scala 2.11.12/ Java 1.8 notebook, 
+trying to **write a dataframe**.
+With the same notebook, **I can succesfully read a delta dataset** (created with a fat jar job)
+
+Code:
+
+``` scala
+%AddDeps io.delta delta-core_2.11 0.5.0 --transitive --repository <myrepositories>
+
+val data = spark.range(0, 5)
+data.write.format("delta").mode("append").save("/tmp/test_1")  -> this fails
+
+val read = spark.read.format("delta").load("/tmp/test_2") -> this is ok
+```
+
+The error stack is:
+
+```
+Name: org.apache.spark.SparkException
+Message: Job aborted.
+StackTrace:   at org.apache.spark.sql.execution.datasources.FileFormatWriter$.write(FileFormatWriter.scala:198)
+  at org.apache.spark.sql.delta.files.TransactionalWrite$$anonfun$writeFiles$1.apply(TransactionalWrite.scala:138)
+  at org.apache.spark.sql.delta.files.TransactionalWrite$$anonfun$writeFiles$1.apply(TransactionalWrite.scala:130)
+  at org.apache.spark.sql.execution.SQLExecution$$anonfun$withNewExecutionId$1.apply(SQLExecution.scala:78)
+  at org.apache.spark.sql.execution.SQLExecution$.withSQLConfPropagated(SQLExecution.scala:125)
+  at org.apache.spark.sql.execution.SQLExecution$.withNewExecutionId(SQLExecution.scala:73)
+  at org.apache.spark.sql.delta.files.TransactionalWrite$class.writeFiles(TransactionalWrite.scala:130)
+  at org.apache.spark.sql.delta.OptimisticTransaction.writeFiles(OptimisticTransaction.scala:77)
+  at org.apache.spark.sql.delta.files.TransactionalWrite$class.writeFiles(TransactionalWrite.scala:103)
+  at org.apache.spark.sql.delta.OptimisticTransaction.writeFiles(OptimisticTransaction.scala:77)
+  at org.apache.spark.sql.delta.commands.WriteIntoDelta.write(WriteIntoDelta.scala:104)
+  at org.apache.spark.sql.delta.commands.WriteIntoDelta$$anonfun$run$1.apply(WriteIntoDelta.scala:65)
+  at org.apache.spark.sql.delta.commands.WriteIntoDelta$$anonfun$run$1.apply(WriteIntoDelta.scala:64)
+  at org.apache.spark.sql.delta.DeltaLog.withNewTransaction(DeltaLog.scala:388)
+  at org.apache.spark.sql.delta.commands.WriteIntoDelta.run(WriteIntoDelta.scala:64)
+  at org.apache.spark.sql.delta.sources.DeltaDataSource.createRelation(DeltaDataSource.scala:131)
+  at org.apache.spark.sql.execution.datasources.SaveIntoDataSourceCommand.run(SaveIntoDataSourceCommand.scala:45)
+  at org.apache.spark.sql.execution.command.ExecutedCommandExec.sideEffectResult$lzycompute(commands.scala:70)
+  at org.apache.spark.sql.execution.command.ExecutedCommandExec.sideEffectResult(commands.scala:68)
+  at org.apache.spark.sql.execution.command.ExecutedCommandExec.doExecute(commands.scala:86)
+  at org.apache.spark.sql.execution.SparkPlan$$anonfun$execute$1.apply(SparkPlan.scala:131)
+  at org.apache.spark.sql.execution.SparkPlan$$anonfun$execute$1.apply(SparkPlan.scala:127)
+  at org.apache.spark.sql.execution.SparkPlan$$anonfun$executeQuery$1.apply(SparkPlan.scala:155)
+  at org.apache.spark.rdd.RDDOperationScope$.withScope(RDDOperationScope.scala:151)
+  at org.apache.spark.sql.execution.SparkPlan.executeQuery(SparkPlan.scala:152)
+  at org.apache.spark.sql.execution.SparkPlan.execute(SparkPlan.scala:127)
+  at org.apache.spark.sql.execution.QueryExecution.toRdd$lzycompute(QueryExecution.scala:80)
+  at org.apache.spark.sql.execution.QueryExecution.toRdd(QueryExecution.scala:80)
+  at org.apache.spark.sql.DataFrameWriter$$anonfun$runCommand$1.apply(DataFrameWriter.scala:676)
+  at org.apache.spark.sql.DataFrameWriter$$anonfun$runCommand$1.apply(DataFrameWriter.scala:676)
+  at org.apache.spark.sql.execution.SQLExecution$$anonfun$withNewExecutionId$1.apply(SQLExecution.scala:78)
+  at org.apache.spark.sql.execution.SQLExecution$.withSQLConfPropagated(SQLExecution.scala:125)
+  at org.apache.spark.sql.execution.SQLExecution$.withNewExecutionId(SQLExecution.scala:73)
+  at org.apache.spark.sql.DataFrameWriter.runCommand(DataFrameWriter.scala:676)
+  at org.apache.spark.sql.DataFrameWriter.saveToV1Source(DataFrameWriter.scala:285)
+  at org.apache.spark.sql.DataFrameWriter.save(DataFrameWriter.scala:271)
+  at org.apache.spark.sql.DataFrameWriter.save(DataFrameWriter.scala:229)
+  ... 44 elided
+Caused by: org.apache.spark.SparkException: Job aborted due to stage failure: ClassNotFound with classloader: scala.reflect.internal.util.ScalaClassLoader$URLClassLoader@583dc3ca
+  at org.apache.spark.scheduler.DAGScheduler.org$apache$spark$scheduler$DAGScheduler$$failJobAndIndependentStages(DAGScheduler.scala:1889)
+  at org.apache.spark.scheduler.DAGScheduler$$anonfun$abortStage$1.apply(DAGScheduler.scala:1877)
+  at org.apache.spark.scheduler.DAGScheduler$$anonfun$abortStage$1.apply(DAGScheduler.scala:1876)
+  at scala.collection.mutable.ResizableArray$class.foreach(ResizableArray.scala:59)
+  at scala.collection.mutable.ArrayBuffer.foreach(ArrayBuffer.scala:48)
+  at org.apache.spark.scheduler.DAGScheduler.abortStage(DAGScheduler.scala:1876)
+  at org.apache.spark.scheduler.DAGScheduler$$anonfun$handleTaskSetFailed$1.apply(DAGScheduler.scala:926)
+  at org.apache.spark.scheduler.DAGScheduler$$anonfun$handleTaskSetFailed$1.apply(DAGScheduler.scala:926)
+  at scala.Option.foreach(Option.scala:257)
+  at org.apache.spark.scheduler.DAGScheduler.handleTaskSetFailed(DAGScheduler.scala:926)
+  at org.apache.spark.scheduler.DAGSchedulerEventProcessLoop.doOnReceive(DAGScheduler.scala:2110)
+  at org.apache.spark.scheduler.DAGSchedulerEventProcessLoop.onReceive(DAGScheduler.scala:2059)
+  at org.apache.spark.scheduler.DAGSchedulerEventProcessLoop.onReceive(DAGScheduler.scala:2048)
+  at org.apache.spark.util.EventLoop$$anon$1.run(EventLoop.scala:49)
+  at org.apache.spark.scheduler.DAGScheduler.runJob(DAGScheduler.scala:737)
+  at org.apache.spark.SparkContext.runJob(SparkContext.scala:2061)
+  at org.apache.spark.sql.execution.datasources.FileFormatWriter$.write(FileFormatWriter.scala:167)
+```
+
+Do you have any hints on what could be the root cause ?

@@ -1,0 +1,1 @@
+The main goal of this simple Pull Request is to provide a simple enhancement of the existing code by avoiding to use a mutable dataframe variable in the ```withRelativePartitionDir``` method.

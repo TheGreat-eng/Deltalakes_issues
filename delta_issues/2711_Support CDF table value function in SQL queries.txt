@@ -1,0 +1,28 @@
+## Description
+
+Adds support for change data feed functions `table_changes` and `table_changes_by_path` in SQL to read CDF data.
+
+This is done by injecting into spark's table function registry in `DeltaSparkSessionExtension`. We then resolve these expressions in `DeltaAnalysis`.
+
+## How was this patch tested?
+
+Adds unit tests in `DeltaCDCSQLSuite`
+
+## Does this PR introduce _any_ user-facing changes?
+
+Yes, users will now be able to use functions `table_changes` and `table_changes_by_path` to read the CDF data from Delta tables.
+
+For example:
+```
+SELECT * FROM table_changes('tbl', 0, 2)
+```
+```
++---+------------+---------------+--------------------+
+| id|_change_type|_commit_version|   _commit_timestamp|
++---+------------+---------------+--------------------+
+|  2|      insert|              1|2023-02-16 14:22:...|
+|  3|      insert|              1|2023-02-16 14:22:...|
+|  1|      insert|              1|2023-02-16 14:22:...|
+|  5|      insert|              2|2023-02-16 14:22:...|
++---+------------+---------------+--------------------+
+```

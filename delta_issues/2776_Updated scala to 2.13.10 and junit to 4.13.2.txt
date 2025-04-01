@@ -1,0 +1,25 @@
+Signed-off-by: Marcus Åberg <marcussaberg12@gmail.com>
+
+<!--
+Thanks for sending a pull request!  Here are some tips for you:
+  1. If this is your first time, please read our contributor guidelines: https://github.com/delta-io/delta/blob/master/CONTRIBUTING.md
+  2. If the PR is unfinished, add '[WIP]' in your PR title, e.g., '[WIP] Your PR title ...'.
+  3. Be sure to keep the PR description updated to reflect all changes.
+  4. Please write your PR title to summarize what this PR proposes.
+  5. If possible, provide a concise example to reproduce the issue for a faster review.
+  6. If applicable, include the corresponding issue number in the PR title and link it in the body.
+-->
+
+## Description
+
+- Updated scala to 2.13.10 and junit to 4.13.2.
+- Resolves #1518 the current versions of these packages have security issues according to Maven.
+
+## How was this patch tested?
+
+Set up a working copy of this repository and run the examples Apache Spark version 3.3 and made sure you could do https://docs.delta.io/latest/quick-start.html#language-python, Python 3.11.2, jre1.8.0_351, spark-3.3.1-bin-hadoop3
+on Windows 11 following the guide here https://phoenixnap.com/kb/install-spark-on-windows-10 but with newer specs. 
+
+## Does this PR introduce _any_ user-facing changes?
+
+'No'.

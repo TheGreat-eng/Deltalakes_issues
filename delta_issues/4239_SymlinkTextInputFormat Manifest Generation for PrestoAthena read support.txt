@@ -1,0 +1,5 @@
+Delta's use of MVCC causes external readers (presto, hive, etc) to see inconsistent or duplicate data. The `SymlinkTextInputFormat` allows these systems to read a set of _manifest files_, each containing a list of file paths, in order to determine which data files to read (rather that listing the files present on the file system).
+
+This issue tracks adding support for generating these manifest files from the Delta transaction log, automatically after each commit.
+
+This feature would give support for reading Delta tables from Presto.  Hive would require some addition work on the Hive side, as Hive does not use the file extension to determine the final `InputFormat` to use to decode the data (and as such interprets the files incorrectly as text).

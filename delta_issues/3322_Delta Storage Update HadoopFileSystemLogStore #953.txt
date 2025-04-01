@@ -1,0 +1,2 @@
+- Update HadoopFileSystemLogStore.java to include writeWithRename
+- Required for child classes  [[AzureLogStore](https://github.com/delta-io/delta/blob/master/core/src/main/scala/org/apache/spark/sql/delta/storage/AzureLogStore.scala)](url)

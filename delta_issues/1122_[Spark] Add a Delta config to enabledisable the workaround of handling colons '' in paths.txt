@@ -1,0 +1,19 @@
+#### Which Delta project/connector is this regarding?
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+This PR follows https://github.com/delta-io/delta/pull/3153 and introduces a Delta config to enable or disable the workaround of handling colons ':' in paths. The value of this config is `true` by default.
+
+## How was this patch tested?
+
+Existing tests.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No, unless the user encountered any problem, which is very unlikely. 

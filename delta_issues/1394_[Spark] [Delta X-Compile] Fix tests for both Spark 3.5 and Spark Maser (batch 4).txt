@@ -1,0 +1,18 @@
+#### Which Delta project/connector is this regarding?
+- [X] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+This PR is batch 4. This PR fixes 20 tests in 1 suite for Delta on Spark Master using shimming.
+
+## How was this patch tested?
+
+Existing UTs
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

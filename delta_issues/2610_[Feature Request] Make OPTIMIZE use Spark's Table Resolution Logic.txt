@@ -1,0 +1,23 @@
+## Feature request
+
+### Overview
+
+Today, the OPTIMIZE command in Delta directly references its target table through either a path or a table identifier. This means that it has to perform its own, manual table resolution in order to determine whether the provided path/identifier references a valid Delta table and if it is valid, to obtain the corresponding `DeltaLog`. On the other hand, Spark already performs table resolution during query analysis and the custom table resolution in OPTIMIZE causes code duplication and a larger surface area for bugs due to the complexity of table resolution. OPTIMIZE should reuse Spark's table resolution and remove the unnecessary code that is currently required to perform the manual table resolution.
+
+### Motivation
+
+This feature is an internal enhancement to the Delta code base, which would allow to simplify table resolution for OPTIMIZE by reusing Spark's existing table resolution logic. This would provide a cleaner code base by unifying table resolution in a single place and make table resolution less prone to bugs by avoiding manual resolution that can miss or wrongly handle specific corner cases.
+
+### Further details
+
+The high-level idea is to rewrite `OptimizeTableCommand` to have a child `LogicalPlan` that references the target Delta table. This requires to change it from a `LeafRunnableCommand` (which does not have any child plan nodes) to a `UnaryLike` node. The child plan node will be created as an `UnresolvedTable` by the parser, which will cause it to be resolved by Spark when the command is analyzed.
+
+As OPTIMIZE can take either a table identifier or a raw path, a new `LogicalPlan` that represents just the raw path should also be introduced. This is used to signal to Spark that the command is intended to run against a path and no table resolution is necessary.
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [x] Yes. I can contribute this feature independently.
+- [ ] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.

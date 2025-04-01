@@ -1,0 +1,5 @@
+Commit https://github.com/delta-io/delta/commit/59d5ea234bcf1d84ddf5c6114a4208eae80cce6c replaced the usage of `AnalysisException` with `DeltaAnalysisException`. This caused the Python API exception conversion to not work. Earlier the exception `AnalysisException` used to be convertd to PySpark's `AnalysisException` (code is [here](https://github.com/databricks/runtime/blob/master/python/pyspark/sql/utils.py#L156)). With https://github.com/delta-io/delta/commit/59d5ea234bcf1d84ddf5c6114a4208eae80cce6c, exception `DeltaAnalysisException` is thrown directly as a Py4JError.
+
+Revert the usage of `DeltaAnalysisException` to not break the Python API compatibility.
+
+This is for next release branch only. Once Delta upgrades to Spark 3.3, this change is not needed anymore.

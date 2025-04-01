@@ -1,0 +1,19 @@
+#### Which Delta project/connector is this regarding?
+
+- [X] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+Commit d07a7bd50 introduced a bug in `COLUMN_MAPPING_METADATA_KEYS`: The list should contain `PARQUET_FIELD_NESTED_IDS_METADATA_KEY` and not `PARQUET_MAP_VALUE_FIELD_NAME`. This commit fixes this issue.
+
+## How was this patch tested?
+
+UTs.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

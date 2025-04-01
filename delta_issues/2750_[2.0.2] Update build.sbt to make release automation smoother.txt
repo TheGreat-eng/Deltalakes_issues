@@ -1,0 +1,7 @@
+cherry-pick ee121d786bd58beef4aa5368dd32b156df840ce1 to branch-2.0
+
+## Description
+This PR lets us get the sonatype credentials and GPG passphrase from environmental variables during releases.
+
+## How was this patch tested?
+Locally tests against sonatype.

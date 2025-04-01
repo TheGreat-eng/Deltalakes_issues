@@ -1,0 +1,23 @@
+## Feature request
+
+### Overview
+
+Currently when column mapping tables are overwritten with `.mode("overwrite")` and `.option("overwriteSchema", "true")`, it recomputes physical names for new data files. This would break previously analyzed dataframes and streaming queries because of schema being unreadable, even when the logical schema are the same.
+
+We can improve this by reusing datatype compatible columns' physical names.
+
+### Motivation
+
+As described.
+
+### Further details
+
+As described
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [x] Yes. I can contribute this feature independently.
+- [ ] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.

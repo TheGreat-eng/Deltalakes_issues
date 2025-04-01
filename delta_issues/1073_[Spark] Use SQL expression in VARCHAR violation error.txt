@@ -1,0 +1,19 @@
+#### Which Delta project/connector is this regarding?
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+Small fix to use the SQL expression instead of the internal catalyst representation of an expression in the error message for a VARCHAR length constraint violation.
+
+## How was this patch tested?
+
+Modified an existing test
+
+## Does this PR introduce _any_ user-facing changes?
+
+Yes, the error message for the class `DELTA_EXCEED_CHAR_VARCHAR_LIMIT` will use different formatting for the expression of the violated constraint. For example, the user will now see `((value IS NULL) OR (length(value) <= 12))` instead of `(isnull('value) OR (length('value) <= 12))`

@@ -1,0 +1,4 @@
+I think it's useful to record some time cost in the history display.
+
+add execution time in operation_metrics
+add scan & rewrite time in operation_metrics for Update&Delete

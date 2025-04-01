@@ -1,0 +1,22 @@
+#### Which Delta project/connector is this regarding?
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [X] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+Followup to #4035.
+
+Our SnapshotManager LogSegment construction logic is ... a bit messy, to say the least. This PR makes `getLogSegmentForVersion` _not_ return an Optional LogSegment.
+
+I also start documenting some of the key steps in constructing a LogSegment. More steps, refactors, and comments will come in future PRs.
+
+## How was this patch tested?
+
+Mainly just a refactor. Existing UTs.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No.

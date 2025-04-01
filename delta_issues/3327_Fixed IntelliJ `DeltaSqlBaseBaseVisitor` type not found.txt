@@ -1,0 +1,27 @@
+## Problem
+A common error I have seen when developing Delta Lake using IntelliJ is the following (below). These errors prevent IntelliJ from running unit tests (though, running unit tests via `build/sbt core/test` still works fine).
+
+```
+Error:(46, 28) object DeltaSqlBaseParser is not a member of package io.delta.sql.parser
+import io.delta.sql.parser.DeltaSqlBaseParser._
+Error:(143, 34) not found: type DeltaSqlBaseBaseVisitor
+class DeltaSqlAstBuilder extends DeltaSqlBaseBaseVisitor[AnyRef] {
+Error:(84, 53) not found: type DeltaSqlBaseParser
+  protected def parse[T](command: String)(toResult: DeltaSqlBaseParser => T): T = {
+Error:(71, 13) value visit is not a member of io.delta.sql.parser.DeltaSqlAstBuilder
+    builder.visit(parser.singleStatement()) match {
+Error:(85, 21) not found: type DeltaSqlBaseLexer
+    val lexer = new DeltaSqlBaseLexer(
+Error:(91, 22) not found: type DeltaSqlBaseParser
+    val parser = new DeltaSqlBaseParser(tokenStream)
+```
+
+<img width="1470" alt="screen_shot 2022-03-04 at 18 02 16" src="https://user-images.githubusercontent.com/59617782/157290816-99ca325f-5d1e-4728-9a34-9b65b8c253ff.png">
+
+## Solution
+
+`Project Settings` > `modules` > `delta-core` > `source folders` > remove any of the `target` folders. should only be `src/main/scala`
+
+
+Credits to Ah Lag for bringing this to my attention.
+

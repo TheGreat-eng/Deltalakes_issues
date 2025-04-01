@@ -1,0 +1,65 @@
+<!--
+Thanks for sending a pull request!  Here are some tips for you:
+  1. If this is your first time, please read our contributor guidelines: https://github.com/delta-io/delta/blob/master/CONTRIBUTING.md
+  2. If the PR is unfinished, add '[WIP]' in your PR title, e.g., '[WIP] Your PR title ...'.
+  3. Be sure to keep the PR description updated to reflect all changes.
+  4. Please write your PR title to summarize what this PR proposes.
+  5. If possible, provide a concise example to reproduce the issue for a faster review.
+  6. If applicable, include the corresponding issue number in the PR title and link it in the body.
+-->
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [X] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+<!--
+- Describe what this PR changes.
+- Describe why we need the change.
+ 
+If this PR resolves an issue be sure to include "Resolves #XXX" to correctly link and close the issue upon merge.
+-->
+
+Taking inspiration from https://github.com/delta-io/delta/pull/339, this PR adds a Commit Owner Client which uses DynamoDB as the backend. Each Delta table managed by a DynamoDB instance will have one corresponding entry in a DynamoDB table. The table schema is as follows:
+
+* tableId: String --- The unique identifier for the entry. This is a UUID.
+* path: String --- The fully qualified path of the table in the file system. e.g. s3://bucket/path.
+* acceptingCommits: Boolean --- Whether the commit owner is accepting new commits. This will only
+*  be set to false when the table is converted from managed commits to file system commits.
+* tableVersion: Number --- The version of the latest commit.
+* tableTimestamp: Number --- The inCommitTimestamp of the latest commit.
+* schemaVersion: Number --- The version of the schema used to store the data.
+* commits: --- The list of unbackfilled commits.
+  -  version: Number --- The version of the commit.
+  -  inCommitTimestamp: Number --- The inCommitTimestamp of the commit.
+  -  fsName: String --- The name of the unbackfilled file.
+  -  fsLength: Number --- The length of the unbackfilled file.
+  -  fsTimestamp: Number --- The modification time of the unbackfilled file.
+
+For a table to be managed by DynamoDB, `registerTable` must be called for that Delta table. This will create a new entry in the db for this Delta table. Every `commit` invocation appends the UUID delta file status to the `commits` list in the table entry. `commit` is performed through a conditional write in DynamoDB.
+
+## How was this patch tested?
+
+<!--
+If tests were added, say they were added here. Please make sure to test the changes thoroughly including negative and positive cases if possible.
+If the changes were tested in any way other than unit tests, please clarify how you tested step by step (ideally copy and paste-able, so that other reviewers can test and check, and descendants can verify in the future).
+If the changes were not tested, please explain why.
+-->
+Added a new suite called `DynamoDBCommitOwnerClient5BackfillSuite` which uses a mock DynamoDB client. + plus manual testing against a DynamoDB instance.
+
+## Does this PR introduce _any_ user-facing changes?
+
+<!--
+If yes, please clarify the previous behavior and the change this PR proposes - provide the console output, description and/or an example to show the behavior difference if possible.
+If possible, please also clarify if this is a user-facing change compared to the released Delta Lake versions or within the unreleased branches such as master.
+If no, write 'No'.
+-->

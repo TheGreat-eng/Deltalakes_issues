@@ -1,0 +1,5 @@
+Spark now has the ability to specify partition columns that are computed automatically from other columns in the table using a set of fixed [transformations](https://github.com/apache/spark/tree/master/sql/catalyst/src/main/java/org/apache/spark/sql/catalog/v2/expressions). This mechanism is better than manually performing this computation as it preserves the functional dependency between columns, allowing partition filtering to occur in some cases where query predicates only exist against the original value.
+
+For example: Given a table with a column `event_time TIMESTAMP` and a partition column `date DATE`, we could perform partition filtering even when there is only a predicate on `date`. Without this feature the user would have to manually write redundant predicates against both columns.
+
+This feature can also be used to as the basis to implement bucketing.

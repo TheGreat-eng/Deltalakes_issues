@@ -1,0 +1,132 @@
+<!--
+Thanks for sending a pull request!  Here are some tips for you:
+  1. If this is your first time, please read our contributor guidelines: https://github.com/delta-io/delta/blob/master/CONTRIBUTING.md
+  2. If the PR is unfinished, add '[WIP]' in your PR title, e.g., '[WIP] Your PR title ...'.
+  3. Be sure to keep the PR description updated to reflect all changes.
+  4. Please write your PR title to summarize what this PR proposes.
+  5. If possible, provide a concise example to reproduce the issue for a faster review.
+  6. If applicable, include the corresponding issue number in the PR title and link it in the body.
+-->
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [x] Storage
+- [x] storageS3DynamoDB
+
+## Description
+
+<!--
+- Describe what this PR changes.
+- Describe why we need the change.
+ 
+If this PR resolves an issue be sure to include "Resolves #XXX" to correctly link and close the issue upon merge.
+-->
+
+The AWS SDK for Java 1.x is being deprecated will enter maintenance mode on July 31, 2024. The end-of-support is effective December 31, 2025 ([Official Announcement Link](https://aws.amazon.com/blogs/developer/announcing-end-of-support-for-aws-sdk-for-java-v1-x-on-december-31-2025/)).
+To address the sdk deprecation, we’ll need to upgrade AWS SDK Java 1.x to AWS SDK Java 2.x.
+SDK v2 is a major rewrite of the version 1.x code base. For detailed differences, please refer to [What's different between the AWS SDK for Java 1.x and 2.x](https://docs.aws.amazon.com/sdk-for-java/latest/developer-guide/migration-whats-different.html).
+
+List of files in delta main branch that are currently leveraging AWS SDK v1 APIs. [These are the files](https://github.com/search?q=repo%3Adelta-io%2Fdelta%20com.amazonaws&type=code) that we need to update for this upgrade.
+
+## How was this patch tested?
+
+<!--
+If tests were added, say they were added here. Please make sure to test the changes thoroughly including negative and positive cases if possible.
+If the changes were tested in any way other than unit tests, please clarify how you tested step by step (ideally copy and paste-able, so that other reviewers can test and check, and descendants can verify in the future).
+If the changes were not tested, please explain why.
+-->
+
+Unit Test
+
+* ```build/sbt storageS3DynamoDB/test```: passed
+* ```build/sbt storage/test```: passed
+* ```build/sbt spark/'testOnly org.apache.spark.sql.delta.coordinatedcommits.*'``` passed
+
+S3 LogStore Integration Test
+```
+run-integration-tests.py --s3-log-store-util-only
+[info] - setup empty delta log
+[info] - empty
+[info] - small
+[info] - medium
+[info] - large
+[info] S3LogStoreUtilTest:
+[info] Run completed in 22 seconds, 503 milliseconds.
+[info] Total number of tests run: 5
+[info] Suites: completed 3, aborted 0
+[info] Tests: succeeded 5, failed 0, canceled 0, ignored 0, pending 0
+[info] All tests passed.
+[success] Total time: 24 s, completed Apr 23, 2024, 9:36:04 AM
+```
+
+Manual Testing
+```
+spark-sql \
+--conf spark.delta.logStore.s3a.impl=io.delta.storage.S3DynamoDBLogStore \
+--conf spark.io.delta.storage.S3DynamoDBLogStore.ddb.tableName=delta_log1 \
+--conf spark.io.delta.storage.S3DynamoDBLogStore.ddb.region=us-east-1 \
+--conf spark.sql.extensions=io.delta.sql.DeltaSparkSessionExtension \
+--conf spark.sql.catalog.spark_catalog=org.apache.spark.sql.delta.catalog.DeltaCatalog \
+--jars /usr/share/aws/delta/lib/delta-storage-s3-dynamodb.jar
+```
+```
+CREATE TABLE my_delta_table_1 (
+id INT,
+value INT
+) USING delta;
+
+INSERT INTO my_delta_table_1
+VALUES
+(1, 100),
+(2, 200),
+(3, 300),
+(4, 400),
+(5, 500),
+(6, 600),
+(7, 700),
+(8, 800),
+(9, 900),
+(10, 1000);
+
+select * from my_delta_table_1;
+6	600
+7	700
+3	300
+4	400
+5	500
+6	600
+7	700
+8	800
+9	900
+10	1000
+3	300
+4	400
+5	500
+8	800
+9	900
+10	1000
+1	100
+2	200
+1	100
+2	200
+Time taken: 1.175 seconds, Fetched 20 row(s)
+```
+## Does this PR introduce _any_ user-facing changes?
+
+<!--
+If yes, please clarify the previous behavior and the change this PR proposes - provide the console output, description and/or an example to show the behavior difference if possible.
+If possible, please also clarify if this is a user-facing change compared to the released Delta Lake versions or within the unreleased branches such as master.
+If no, write 'No'.
+-->
+Yes, users will need to specify the SDK V2 credential provider instead of SDK V1 for delta configurations
+Ex: ```io.delta.storage.credentials.provider=com.amazonaws.auth.profile.ProfileCredentialsProvider``` -> ```software.amazon.awssdk.auth.credentials.ProfileCredentialsProvider```
+
+Closes: #3556 

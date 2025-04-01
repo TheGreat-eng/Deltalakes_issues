@@ -1,0 +1,43 @@
+## Feature request
+
+### Overview
+
+This is a proposal to support column default values for Delta Lake tables.
+Users should be able to associate default values with Delta Lake columns at table creation time or thereafter.
+
+### Motivation
+
+Support for column defaults is a key requirement to facilitate updating the  table schema over time and performing  DML operations on wide tables with sparse data.
+
+### Further details
+
+Please refer to an open design doc [here](https://docs.google.com/document/d/e/2PACX-1vTyozwH8A4lemW_wNq7YC7GpuTzNn19NUZQ_pw9dDJNYBuhmdqDunauqmLr0qIuD8kQRNI7a4x72c55/pub).
+
+This should integrate with [Apache Spark's column default feature](https://issues.apache.org/jira/browse/SPARK-38334), and also represent the column metadata in a general way such that other Delta Lake clients can understand it.
+
+* Users must be able to CREATE and and ALTER tables to assign non-NULL default values to columns.
+* The system should support defaults of NULL, literals, or constant expressions based on built-in functions. 
+* The system should support omitting columns from explicit column lists in INSERT commands and MERGE INSERT actions.
+* The system should support DEFAULT can be specified in VALUES lists and top-level SELECT queries when used in an INSERT command or MERGE INSERT action.
+* DESCRIBE commands should show default column values if requested.
+
+For example:
+
+```
+-- The CREATE TABLE statement may specify a DEFAULT value for a column.
+CREATE TABLE T (a INT, c STRING DEFAULT CONCAT(‘abc’, ‘def’))
+  USING DELTA;
+INSERT INTO T(a) VALUES (42);
+INSERT INTO T VALUES (43, DEFAULT);
+SELECT * FROM T;
+(42, ‘abcdef’)
+(43, ‘abcdef’)
+```
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [X] Yes. I can contribute this feature independently.
+- [ ] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.

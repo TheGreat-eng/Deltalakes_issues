@@ -1,0 +1,10 @@
+Currently, we are using version spark 3.2.1 with deltalake 2.0.1.
+
+And when I checked the compatibility metric below,
+https://docs.delta.io/latest/releases.html#compatibility-with-apache-spark
+
+I saw that deltalake 3.2.0 is compatible with spark 3.5.x. However, the release note says just spark 3.5.x support, which is confusing.
+
+The intention of my question is **if the minimum compatible spark version of deltalake 3.2.0 is 3.5.x.**
+
+Also, I know that when you do deltalake version up, things like protocol version are important. Is there a guide document for upgrading the delta-lake version?

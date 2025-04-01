@@ -1,0 +1,99 @@
+
+---
+
+## Bug
+
+#### Which Delta project/connector is this regarding?
+
+- [x] Spark  
+- [ ] Standalone  
+- [ ] Flink  
+- [ ] Kernel  
+- [ ] Other (fill in here)
+
+---
+
+### Describe the problem
+
+In **Delta Lake 3.3.0**, I tried to use the **Liquid Clustering** feature in a **local Kubernetes cluster** with **Apache Spark 3.5.5**. The goal was to test **incremental optimization** behavior as described in the Delta Lake documentation.
+
+---
+
+### Steps to reproduce
+
+1. I created a Delta table and enabled Liquid Clustering:
+
+   ```sql
+   ALTER TABLE my_table CLUSTER BY (my_column);
+   ```
+
+2. I inserted approximately **40 GB of data** into the table.
+
+3. I executed:
+
+   ```sql
+   OPTIMIZE my_table;
+   ```
+
+   ✔️ This successfully clustered the data (as expected).
+
+4. For testing incremental behavior, I **appended an additional 1 GB** of data.
+
+5. I then ran `OPTIMIZE` again on the table.
+
+---
+
+### Observed results
+
+Instead of optimizing only the newly appended 1 GB of data, **Spark scanned, shuffled, and rewrote the entire 41 GB**, including the 40 GB that had already been clustered.
+
+This behavior contradicts the expected performance improvement of **incremental optimization with Liquid Clustering**. According to the documentation and Liquid Clustering goals, previously optimized data should be skipped unless re-clustering is required — which was not the case here.
+
+✔️ I had not changed the clustering column.  
+❌ Yet, the entire dataset was reprocessed and rewritten.
+
+---
+
+### Expected results
+
+I expected that:
+
+- Only the newly appended **1 GB of unclustered data** would be optimized.
+- The already optimized 40 GB of clustered data would be **left untouched**.
+- Spark would **avoid full shuffle and rewrite**, leading to **incremental performance gain**.
+
+---
+
+### Further details
+
+This behavior occurred consistently. It looks like **OPTIMIZE is not incremental**, even when using Liquid Clustering. It behaves like a full-table re-optimization regardless of data changes.
+
+Please confirm:
+
+- Is this behavior expected in Delta Lake 3.3.0?
+- Does Delta track previously clustered ranges internally?
+- Is there a bug or missing configuration that prevents incremental behavior?
+- Is there a way to force optimization to be incremental only?
+
+---
+
+### Environment information
+
+- **Delta Lake version**: 3.3.0  
+- **Spark version**: 3.5.5  
+- **Scala version**: 2.12  
+- **Cluster Type**: Local Kubernetes cluster  
+- **Storage**: Local disk storage (no cloud/S3)  
+- **Data Size**: Initial 40 GB, then 1 GB appended  
+
+---
+
+### Willingness to contribute
+
+- [ ] Yes. I can contribute a fix for this bug independently.  
+- [ ] Yes. I would be willing to contribute a fix with guidance from the Delta Lake community.  
+- [x] No. I cannot contribute a bug fix at this time.
+
+---
+
+ 

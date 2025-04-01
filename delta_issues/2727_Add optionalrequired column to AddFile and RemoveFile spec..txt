@@ -1,0 +1,14 @@
+## Description
+
+Resolves #1566
+
+Add the optional/required column to AddFile and RemoveFile spec. I used the Scala source code as source of truth.
+I also formatted the markdown table, so every column is aligned.
+
+## How was this patch tested?
+
+Docs only
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

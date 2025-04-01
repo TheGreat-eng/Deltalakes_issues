@@ -1,0 +1,1 @@
+I want to get the data of data warehouse dwd details change. How to implement it in batch processing? I don’t find the related API. By comparing the difference between two snapshots, the cost will be very high, or I can parse the add File in the metadata corresponding to the latest history. Is there a better way to get the changed data?

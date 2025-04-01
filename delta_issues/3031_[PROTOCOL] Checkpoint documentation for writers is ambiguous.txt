@@ -1,0 +1,8 @@
+Checkpoint documentation in protocol specification is ambiguous and could be more concrete.
+[Requirements for writers](https://github.com/delta-io/delta/blob/master/PROTOCOL.md#checkpoint-format) says that each row in checkpoint is an action.
+Later, [checkpoint schema](https://github.com/delta-io/delta/blob/master/PROTOCOL.md#checkpoint-schema) indicates that every row has all the actions (i.e. it has 5 columns). Also, every action has a different schema.
+
+What is the parquet schema for the checkpoint? 
+
+[Delta log entries](https://github.com/delta-io/delta/blob/master/PROTOCOL.md#delta-log-entries) documentation is clear, it says that there are multiple actions in the log separated by newline.
+Looks like similar thing is intended for checkpoint after reconciliation. Looking for clarity on the schema.

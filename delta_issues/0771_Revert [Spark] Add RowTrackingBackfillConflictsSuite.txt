@@ -1,0 +1,14 @@
+Reverts delta-io/delta#3540
+
+This broke the master branch.
+
+https://github.com/delta-io/delta/actions/runs/10376120753/job/28727313492
+
+```
+[error] /home/runner/work/delta/delta/spark/src/test/scala/org/apache/spark/sql/delta/IdentityColumnConflictSuite.scala:177:11: ambiguous reference to overloaded definition,
+[error] both method unblockCommit in trait TransactionExecutionTestMixin of type (observer: org.apache.spark.sql.delta.fuzzer.PhaseLockingTransactionExecutionObserver)Unit
+[error] and  method unblockCommit in trait TransactionExecutionTestMixin of type (observer: org.apache.spark.sql.delta.fuzzer.PhaseLockingTransactionExecutionObserver)Unit
+[error] match argument types (org.apache.spark.sql.delta.fuzzer.PhaseLockingTransactionExecutionObserver)
+[error]           unblockCommit(txnObserver)
+[error]           ^
+```

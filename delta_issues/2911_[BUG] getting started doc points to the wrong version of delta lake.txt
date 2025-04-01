@@ -1,0 +1,68 @@
+## Bug
+Go to https://delta.io/learn/getting-started and copy the python instructions.
+
+They say to use the command line with `--packages` set to `io.delta:delta-core_2.12:1.0.0 `
+
+Try that with `quickstart.py`:
+
+```
+$ spark-submit --packages io.delta:delta-core_2.12:1.0.0 \
+>   --conf "spark.sql.extensions=io.delta.sql.DeltaSparkSessionExtension" \
+>   --conf "spark.sql.catalog.spark_catalog=org.apache.spark.sql.delta.catalog.DeltaCatalog" quickstart.py
+```
+
+And get:
+```
+Traceback (most recent call last):
+  File "/Users/adam/Source/quickstart.py", line 36, in <module>
+    data = spark.range(0, 5)
+  File "/Users/adam/.pyenv/versions/3.9.11/lib/python3.9/site-packages/pyspark/python/lib/pyspark.zip/pyspark/sql/session.py", line 492, in range
+  File "/Users/adam/.pyenv/versions/3.9.11/lib/python3.9/site-packages/pyspark/python/lib/py4j-0.10.9.5-src.zip/py4j/java_gateway.py", line 1321, in __call__
+  File "/Users/adam/.pyenv/versions/3.9.11/lib/python3.9/site-packages/pyspark/python/lib/pyspark.zip/pyspark/sql/utils.py", line 190, in deco
+  File "/Users/adam/.pyenv/versions/3.9.11/lib/python3.9/site-packages/pyspark/python/lib/py4j-0.10.9.5-src.zip/py4j/protocol.py", line 326, in get_return_value
+py4j.protocol.Py4JJavaError: An error occurred while calling o31.range.
+: java.lang.IncompatibleClassChangeError: class org.apache.spark.sql.catalyst.plans.logical.DeltaDelete has interface org.apache.spark.sql.catalyst.plans.logical.UnaryNode as super class
+```
+
+Fix is to replace `io.delta:delta-core_2.12:1.0.0` with `io.delta:delta-core_2.12:2.1.0` on https://delta.io/learn/getting-started
+
+
+### Describe the problem
+
+See above.
+
+#### Steps to reproduce
+`pip install pyspark delta-spark`
+
+`curl -o quickstart.py https://raw.githubusercontent.com/delta-io/delta/master/examples/python/quickstart.py`
+
+```
+$ spark-submit --packages io.delta:delta-core_2.12:1.0.0 \
+>   --conf "spark.sql.extensions=io.delta.sql.DeltaSparkSessionExtension" \
+>   --conf "spark.sql.catalog.spark_catalog=org.apache.spark.sql.delta.catalog.DeltaCatalog" quickstart.py
+```
+
+
+#### Observed results
+
+See the stack trace above. 
+
+#### Expected results
+
+The quickstart works.
+
+#### Further details
+
+### Environment information
+
+* Delta Lake version: 2.12
+* Spark version: 3.3.0
+* Scala version: N/A
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [ ] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute a bug fix at this time.

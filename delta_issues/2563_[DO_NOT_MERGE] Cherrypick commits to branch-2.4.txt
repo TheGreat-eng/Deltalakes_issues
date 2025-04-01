@@ -1,0 +1,14 @@
+1e58c384cbd78ca040dc669a16fe3a9840a83549 Enable SQL support for WHEN NOT MATCHED BY SOURCE
+2183394c9cb05c4af7573fc0117ff75a031f7f2e Remove the check that disables writes to Delta tables with deletion vectors
+4d0d098a59eab72d4aaef604517cfe6733a51b1a Fix statistics computation issues with Delta tables with DVs
+97f84e069601269c6ad75e4db791b9bed7fa20bb Adds tests for REPLACE WHERE SQL syntax
+d7001d5a729f496866d7a9dcc651a64fae349b13 SHALLOW CLONE support for Delta tables with deletion vectors.
+2fabd7b348b9cb5f08cb5c46929345123342cb03 Disallow overwriteSchema with dynamic partitions overwrite
+536d6725c63ec643eef2cb5662686f458d8e6ce8 RESTORE support for Delta tables with deletion vectors
+ea18cee Implement PURGE to remove DVs from Delta tables
+c1bfa72 Support insert-into-by-name for generated columns
+296e76b Fix a test in DeltaVacuumSuite to pass locally
+8a7045074f006d936ce01bd85ac7c8302af5342f Write the number of deleted rows for DELETEs with DV
+601704db70884167cd4978af8f2a959a41ad9c61 Fix incorrect row index filter in CDCReader
+33faae01ca4e74bc07969cfe8f8fc3e53c3db824 Unify predicate strings in CommitInfo to record the information in a consistent way (needed for the following commit)
+a4ac3edd13ce6e5fecdad8fbc217e16ed73a991e Add REORG operation details in commit history

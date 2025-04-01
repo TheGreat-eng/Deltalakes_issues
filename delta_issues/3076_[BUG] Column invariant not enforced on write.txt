@@ -1,0 +1,92 @@
+## Bug
+
+### Describe the problem
+
+I'm trying to understand the column invariant enforcement in delta lake, so it can implement it in delta-rs. However, I am unable to get PySpark to throw an error when writing values that violate the invariant. Am I misunderstanding the spec? Or is this a bug?
+
+#### Steps to reproduce
+
+```python
+import pyarrow as pa
+import pyspark
+import pyspark.sql.types
+import pyspark.sql.functions as F
+import delta
+from delta.tables import DeltaTable
+
+def get_spark():
+    builder = (
+        pyspark.sql.SparkSession.builder.appName("MyApp")
+        .config("spark.sql.extensions", "io.delta.sql.DeltaSparkSessionExtension")
+        .config(
+            "spark.sql.catalog.spark_catalog",
+            "org.apache.spark.sql.delta.catalog.DeltaCatalog",
+        )
+    )
+    return delta.configure_spark_with_delta_pip(builder).getOrCreate()
+
+spark = get_spark()
+
+schema = pyspark.sql.types.StructType([
+    pyspark.sql.types.StructField(
+        "c1", 
+        dataType = pyspark.sql.types.IntegerType(), 
+        nullable = False, 
+        metadata = { "delta.invariants": "c1 > 3" } 
+    )
+])
+
+table = DeltaTable.create(spark) \
+    .tableName("testTable") \
+    .addColumns(schema) \
+    .execute()
+
+# This should fail, but doesn't
+spark.createDataFrame([(2,)], schema=schema).write.saveAsTable(
+    "testTable",
+    mode="append",
+    format="delta",
+)
+```
+
+#### Observed results
+
+The write succeeds, even though the `delta.invariants` key is clearly in schema, the writer protocol is set to 2, and the min value of the write clearly violates the invariant.
+
+First log file:
+
+```
+{"protocol":{"minReaderVersion":1,"minWriterVersion":2}}
+{"metaData":{"id":"e8204eae-cd90-41c2-b685-92f22126b54a","format":{"provider":"parquet","options":{}},"schemaString":"{\"type\":\"struct\",\"fields\":[{\"name\":\"c1\",\"type\":\"integer\",\"nullable\":false,\"metadata\":{\"delta.invariants\":\"c1 > 3\"}}]}","partitionColumns":[],"configuration":{},"createdTime":1656459957813}}
+{"commitInfo":{"timestamp":1656459957820,"operation":"CREATE TABLE","operationParameters":{"isManaged":"true","description":null,"partitionBy":"[]","properties":"{}"},"isolationLevel":"Serializable","isBlindAppend":true,"operationMetrics":{},"engineInfo":"Apache-Spark/3.2.1 Delta-Lake/1.2.1","txnId":"6d370f8e-211f-4624-8a40-6fbd67e905c8"}}
+```
+
+Second log:
+
+```
+{"add":{"path":"part-00000-0d61b29d-60ee-47d1-a121-2641fbc3ae1d-c000.snappy.parquet","partitionValues":{},"size":326,"modificationTime":1656459958951,"dataChange":true,"stats":"{\"numRecords\":0,\"minValues\":{},\"maxValues\":{},\"nullCount\":{}}"}}
+{"add":{"path":"part-00003-b30e416e-c616-4d80-87b6-182baf8f0830-c000.snappy.parquet","partitionValues":{},"size":479,"modificationTime":1656459958981,"dataChange":true,"stats":"{\"numRecords\":1,\"minValues\":{\"c1\":2},\"maxValues\":{\"c1\":2},\"nullCount\":{\"c1\":0}}"}}
+{"commitInfo":{"timestamp":1656459958996,"operation":"WRITE","operationParameters":{"mode":"Append","partitionBy":"[]"},"readVersion":0,"isolationLevel":"Serializable","isBlindAppend":true,"operationMetrics":{"numFiles":"2","numOutputRows":"1","numOutputBytes":"805"},"engineInfo":"Apache-Spark/3.2.1 Delta-Lake/1.2.1","txnId":"00a036ec-243d-4543-b7d2-186f031ca2f1"}}
+```
+
+#### Expected results
+
+I expected it to throw an exception. This should be identical to this unit test, right?  https://github.com/delta-io/delta/blob/5d3d73fe714f47bbe30e0414a8f9132000d8932c/core/src/test/scala/org/apache/spark/sql/delta/schema/InvariantEnforcementSuite.scala#L218-L232
+
+#### Further details
+
+<!--
+Include any additional details that may be useful for diagnosing the problem here. If including tracebacks, please include the full traceback. Large logs and files should be attached.
+-->
+
+### Environment information
+
+* Delta Lake version: 1.2.1
+* Spark version: 3.2.1
+* Scala version:
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+I have no experience with Scala, so if this is a bug I may not be able to fix it. But I'd be happy to add further clarification to the Protocol spec to clear up the expectations around `delta.invariants`.

@@ -1,0 +1,3 @@
+Just attempting to save a delta dataframe with S3SingleDriverLogStore enabled causes a NullPointerException on line 166. 
+
+Looking at the code, it looks like perhaps some reordering was introduced in a merge conflict or something? If the CountingOutputStream construction on line 166 was incorporated with the stream construction on line 167, or after, it would be fine.

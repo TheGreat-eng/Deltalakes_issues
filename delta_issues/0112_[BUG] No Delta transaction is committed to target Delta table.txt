@@ -1,0 +1,49 @@
+## Bug
+
+#### Which Delta project/connector is this regarding?
+- [ ] Spark
+- [ ] Standalone
+- [X] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+### Describe the problem
+We have multiple FLINK jobs that cannot commit data into Delta table. The job runs without any exception. Can do checkpoint. But when querying data from target Delta table, no data existed in it.
+After checking some further, we found parquet files have been created on S3(Delta table is saved on S3), but no new delta transaction is added into delta log.
+Delta table is OK.
+We use FLINK 1.20 and **io.delta:delta-flink:3.3.0**
+
+#### Steps to reproduce
+
+1. Launch the job reading from Kinesis, and append transformed data into Delta tables. There are multiple Delta sinks. We use **forRowData** to create Delta sink, with one partition column and enabled schema merge.
+2. Leave the job run. For initial multiple FLINK checkpoints, we can see corresponding commit records in Delta log.
+3. After running for a while, job runs well, but we cannot query new data in target Delta tables. Also no corresponding commit records in delta log.
+
+#### Observed results
+
+We checked log but did not find any significant issue. The only thing we noticed is in FLINK checkpoint, it gets bigger and bigger and can see many parquet file paths in checkpoint data.
+
+#### Expected results
+
+For each FLINK checkpoint, the data should be committed into Delta table
+
+#### Further details
+
+<!--
+Include any additional details that may be useful for diagnosing the problem here. If including tracebacks, please include the full traceback. Large logs and files should be attached.
+-->
+
+### Environment information
+
+* Delta FLINK Connector version: 3.3
+* Spark version: N/A
+* Scala version: 2.12
+* FLINK version: 1.20
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [X] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute a bug fix at this time.

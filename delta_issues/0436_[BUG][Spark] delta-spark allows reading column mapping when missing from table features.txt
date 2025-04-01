@@ -1,0 +1,71 @@
+## Bug
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the issue title
+For example: [BUG][Spark] Title of my issue
+-->
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+### Describe the problem
+
+TLDR you can relatively easily create a table which (according to the protocol) shouldn't allow column mapping, but is read with column mapping in delta-spark.
+
+I think there are two pieces to this issue:
+1. [bug] delta-spark uses column mapping to read a table without column mapping in table reader features
+2. [api sharp edge?] delta's `upgradeTableProtocol` will upgrade from reader version 2 to reader version 3 without adding any table features. This is a problem since it effectively silently turns of column mapping. (since it is enabled/supported in reader version 2 but requires that the table feature be present when reader version is 3)
+
+#### Steps to reproduce
+See example below for code implementing these steps:
+1. the table is created with reader version 2 and writer version 7 with `"writerFeatures":["columnMapping","icebergCompatV1"]` and `delta.columnMapping.mode = name`
+2. then `upgradeTableProtocol(3, 7)` gives reader version 3 with no reader features. this effectively turns off column mapping.
+3. when reading the table it looks like it is read with `columnMapping = name`
+
+```python
+# using pyspark
+df = get_sample_data(spark)
+delta_path = str(Path(case.delta_root).absolute())
+# table at version 0
+delta_table: DeltaTable = (
+    DeltaTable.create(spark)
+    .location(delta_path)
+    .addColumns(df.schema)
+    .property("delta.enableIcebergCompatV1", "true")
+    .execute()
+)
+delta_table.upgradeTableProtocol(3, 7)
+df.repartition(1).write.format("delta").mode("append").save(case.delta_root)
+```
+
+#### Observed results
+Read with column mapping
+<!-- What happened?  This could be a description, log output, etc. -->
+
+#### Expected results
+Should not be read with column mapping
+<!-- What did you expect to happen? -->
+
+#### Further details
+
+<!--
+Include any additional details that may be useful for diagnosing the problem here. If including tracebacks, please include the full traceback. Large logs and files should be attached.
+-->
+
+### Environment information
+
+* Delta Lake version: `3.2.1`
+* Spark version: 3.5?
+* Scala version:
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [x] Yes. I can contribute a fix for this bug independently.
+- [ ] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute a bug fix at this time.

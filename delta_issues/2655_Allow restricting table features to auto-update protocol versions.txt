@@ -1,0 +1,17 @@
+## Description
+
+This PR allows marking a metadata table feature as "auto-update capable", such that during ALTER TABLE when its metadata requirements are satisfied, the table's protocol will be automatically and silently bumped to the required version.
+
+Note that this mechanism only applies to "metadata requirements". `'delta.feature.featureName' = 'supported'` table prop will still auto-update the table's protocol to support table features.
+
+Also, this mechanism only affects existing tables. For new tables, the protocol is always set to the min version that satisfies all enabled features, aka. all features are auto-update capable.
+
+For compatibility, legacy table features (features supported by `Protocol(2, 6)`) are always auto-update capable. Specifically, Column Mapping implements its own mechanism to block the usage without protocol version bumps.
+
+## How was this patch tested?
+
+New tests.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No. This PR affects only feature developers.

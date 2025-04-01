@@ -1,0 +1,25 @@
+#### Which Delta project/connector is this regarding?
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+It turns out `NonFateSharingFuture` can propagate the exception from a failed future between sessions, causing spurious failures in my session if it waits on a future launched by a job that got canceled.
+
+The fix has several pieces:
+* Non-fatal exceptions are completely ignored (other than being logged)
+* Fatal exceptions only propagate (once) to a caller with the same session that created the future.
+* Change `DeltaThreadPool` to use Java futures, because Scala futures do not handle fatal exceptions gracefully (they swallow the exception while leaving the future permanently unfinished).
+
+## How was this patch tested?
+
+A new unit test validates the expected behavior of `NonFateSharingFuture`. 
+Existing unit tests validate other use sites of `DeltaThreadPool`.
+
+## Does this PR introduce _any_ user-facing changes?
+
+Yes -- spurious exceptions no longer thrown in my session, if a shared future launched by somebody else's session fails.

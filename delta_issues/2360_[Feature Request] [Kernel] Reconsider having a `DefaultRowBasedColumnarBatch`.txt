@@ -1,0 +1,5 @@
+Currently, #1939 is using `DefaultRowBasedColumnarBatch::withDeletedColumnAt` to remove the `RemoveFile` column at ordinal 1 during log replay, to yield a columnar batch with only 1 `AddFile` column.
+
+Either
+- improve the performance of `withDeletedColumnAt`, or
+- re-think why we are having a `DefaultRowBasedColumnarBatch` to begin with

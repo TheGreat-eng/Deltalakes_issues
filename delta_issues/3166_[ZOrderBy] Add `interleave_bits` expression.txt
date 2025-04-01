@@ -1,0 +1,8 @@
+This PR is part of https://github.com/delta-io/delta/issues/1134.
+
+It implements `interleave_bits(col1:int, col2:int, …. col_n:int) -> byte array (Z-order value)`. This expression is used to combine multiple Z-order by columns into a [Z-order value](https://en.wikipedia.org/wiki/Z-order_curve). This Z-order value is used to layout the data such that the records with Z-Order By column having close values remain close when stored in files.
+
+Detailed design details are [here](https://docs.google.com/document/d/1TYFxAUvhtYqQ6IHAZXjliVuitA5D1u793PMnzsH_3vs/edit?usp=sharing),
+specifically [this](https://docs.google.com/document/d/1TYFxAUvhtYqQ6IHAZXjliVuitA5D1u793PMnzsH_3vs/edit#bookmark=id.pngsryg3gbl2) section.
+
+GitOrigin-RevId: ffc1bbf8562c37d316d1d798789db618f03a540c

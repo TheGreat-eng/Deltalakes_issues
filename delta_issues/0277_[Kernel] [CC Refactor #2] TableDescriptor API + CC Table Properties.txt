@@ -1,0 +1,18 @@
+#### Which Delta project/connector is this regarding?
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [X] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+This PR adds the `TableDescriptor` class (a parameter for some of the future Commit Coordinator Client interfaces) as well the Coordinated Commits table properties.
+
+## How was this patch tested?
+
+Trivial UTs.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No.

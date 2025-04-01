@@ -1,0 +1,21 @@
+## Bug
+
+During write operation in multi cluster write setup, we configured dynamo db to handle concurrent writes.
+Delta is creating .tmp folder under _delta_log. 
+But this is never getting deleted, I see in the below documentation on how to delete them using AWS s3 api and s3 expiration rules 
+
+Instead it would be Great! if it handled in Delta through VACCUM action.
+
+### Environment information
+
+* Delta Lake version: 2.3
+* Spark version: 3.3.1
+* Scala version: 2.12
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [x] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute a bug fix at this time.

@@ -1,0 +1,11 @@
+Hi Guys
+
+I created a delta dataset with year-month partition, each partition has 1.5gb - 2.5gb, so start my streaming job with merge. I enabled the option spark.delta.merge.repartitionBeforeWrite like documentation recommend.
+Problably delta is running repartition(partition_column) and creates bigger files, like 2gb, 2.5gb.
+
+Is there any way to tells delta repartition in more files? It could be a new feature?
+
+<img width="1654" alt="Captura de Tela 2020-08-25 às 22 15 07" src="https://user-images.githubusercontent.com/36298331/91244320-6f463d80-e722-11ea-9fc0-4e4db8f61ee9.png">
+
+
+Thank you

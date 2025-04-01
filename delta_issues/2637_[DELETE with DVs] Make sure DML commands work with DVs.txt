@@ -1,0 +1,13 @@
+## Description
+
+This PR adds some tests to make sure that DML commands are able to read Delta tables having DVs. Specifically:
+
+- `UPDATE` and `MERGE` can read DVs, and will re-write a file to materialize DV if rows within are modified.
+- `DELETE` can write DVs.
+
+## How was this patch tested?
+
+New tests.
+
+## Does this PR introduce _any_ user-facing changes?
+No, this is a test-only PR.

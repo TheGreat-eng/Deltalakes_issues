@@ -1,0 +1,13 @@
+I am using delta lakes from databricks, and using storage as AWS s3.. I have created mounted point in DBFS.. 
+
+Everything is fine.. But when I am trying to create symlink_format_manifest in mount folder of DBFS, its showing error
+
+DeltaTable deltaTable = DeltaTable.forPath(spark, '/mnt/folder);
+deltaTable.generate("symlink_format_manifest");
+
+Error: 
+**java.lang.UnsupportedOperationException: com.databricks.backend.daemon.data.client.DBFSV1.resolvePathOnPhysicalStorage(path: Path)**
+
+But it is working fine when I am hardcoding the S3 bucket instead of /mnt/folder..
+
+Can you please let me know where the issue ? And how It will be possible to create manifest file using dataframe command in DBFS mounted folder

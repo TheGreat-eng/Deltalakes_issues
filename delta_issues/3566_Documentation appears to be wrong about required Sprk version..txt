@@ -1,0 +1,53 @@
+I was trying to use the quick start guide against Spark 3.0.2 and ran into errors starting the shell like.
+
+```
+java.lang.BootstrapMethodError: java.lang.NoClassDefFoundError: org/apache/spark/sql/catalyst/SQLConfHelper
+  at io.delta.sql.DeltaSparkSessionExtension.apply(DeltaSparkSessionExtension.scala:84)
+  at io.delta.sql.DeltaSparkSessionExtension.apply(DeltaSparkSessionExtension.scala:73)
+  at org.apache.spark.sql.SparkSession$.$anonfun$applyExtensions$1(SparkSession.scala:1160)
+  at org.apache.spark.sql.SparkSession$.$anonfun$applyExtensions$1$adapted(SparkSession.scala:1155)
+  at scala.collection.mutable.ResizableArray.foreach(ResizableArray.scala:62)
+  at scala.collection.mutable.ResizableArray.foreach$(ResizableArray.scala:55)
+  at scala.collection.mutable.ArrayBuffer.foreach(ArrayBuffer.scala:49)
+  at org.apache.spark.sql.SparkSession$.org$apache$spark$sql$SparkSession$$applyExtensions(SparkSession.scala:1155)
+  at org.apache.spark.sql.SparkSession$Builder.getOrCreate(SparkSession.scala:940)
+  at org.apache.spark.repl.Main$.createSparkSession(Main.scala:106)
+  ... 55 elided
+Caused by: java.lang.NoClassDefFoundError: org/apache/spark/sql/catalyst/SQLConfHelper
+  at java.lang.ClassLoader.defineClass1(Native Method)
+  at java.lang.ClassLoader.defineClass(ClassLoader.java:756)
+  at java.security.SecureClassLoader.defineClass(SecureClassLoader.java:142)
+  at java.net.URLClassLoader.defineClass(URLClassLoader.java:468)
+  at java.net.URLClassLoader.access$100(URLClassLoader.java:74)
+  at java.net.URLClassLoader$1.run(URLClassLoader.java:369)
+  at java.net.URLClassLoader$1.run(URLClassLoader.java:363)
+  at java.security.AccessController.doPrivileged(Native Method)
+  at java.net.URLClassLoader.findClass(URLClassLoader.java:362)
+  at java.lang.ClassLoader.loadClass(ClassLoader.java:418)
+  at java.lang.ClassLoader.loadClass(ClassLoader.java:351)
+  at java.lang.ClassLoader.defineClass1(Native Method)
+  at java.lang.ClassLoader.defineClass(ClassLoader.java:756)
+  at java.security.SecureClassLoader.defineClass(SecureClassLoader.java:142)
+  at java.net.URLClassLoader.defineClass(URLClassLoader.java:468)
+  at java.net.URLClassLoader.access$100(URLClassLoader.java:74)
+  at java.net.URLClassLoader$1.run(URLClassLoader.java:369)
+  at java.net.URLClassLoader$1.run(URLClassLoader.java:363)
+  at java.security.AccessController.doPrivileged(Native Method)
+  at java.net.URLClassLoader.findClass(URLClassLoader.java:362)
+  at java.lang.ClassLoader.loadClass(ClassLoader.java:418)
+  at java.lang.ClassLoader.loadClass(ClassLoader.java:351)
+  ... 65 more
+Caused by: java.lang.ClassNotFoundException: org.apache.spark.sql.catalyst.SQLConfHelper
+  at java.net.URLClassLoader.findClass(URLClassLoader.java:382)
+  at java.lang.ClassLoader.loadClass(ClassLoader.java:418)
+  at java.lang.ClassLoader.loadClass(ClassLoader.java:351)
+  ... 87 more
+```
+
+I stared to look for a solution and found that the README for 1.0.0 indicates that 3.0.0 is required
+
+https://github.com/delta-io/delta/blob/v1.0.0/README.md#compatibility-with-apache-spark-versions
+
+And so does the branch-1.0 but it has been removed from the default branch.
+
+The build.sbt shows that it needs Spark 3.1.1. It would really be nice to have the docs explain what the requirements are.

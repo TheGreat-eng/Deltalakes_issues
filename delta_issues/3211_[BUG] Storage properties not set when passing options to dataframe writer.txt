@@ -1,0 +1,38 @@
+## Bug
+
+### Describe the problem
+Spark's default behavior when calling saveAsTable on a DataFrame is to take unrecognized options and add them to the storage properties of the table.  When calling saveAsTable with the delta format these options are ignored.
+
+#### Steps to reproduce
+
+1. ` df.write.mode("overwrite").options(Map("x" -> "y")).format("delta").saveAsTable("t")`
+2. `spark.sql("DESCRIBE EXTENDED t").show(false)`
+
+#### Observed results
+
+```
++---------------------------+----------------------------------------------------------------------+---+
+|...                                             |                                                                                                                         |      |      
+|...                                             |                                                                                                                         |      |      
+|# Detailed Table Information|                                                                                                                         |      |
+|Table Properties                    |[Type=MANAGED,delta.minReaderVersion=1,delta.minWriterVersion=2]|      |
++---------------------------+----------------------------------------------------------------------+---+
+```
+
+#### Expected results
+
+```
++---------------------------+----------------------------------------------------------------------+---+
+|...                                             |                                                                                                                         |      |  
+|...                                             |                                                                                                                         |      |        
+|# Detailed Table Information|                                                                                                                         |      |
+|Table Properties                    |[Type=MANAGED,delta.minReaderVersion=1,delta.minWriterVersion=2]|      |  
+|Storage Properties                |[x=y]                                                                                                                |      |
++---------------------------+----------------------------------------------------------------------+---+
+```
+
+### Environment information
+
+* Delta Lake version: 1.2.1
+* Spark version: 3.2.1
+* Scala version: 2.12.14

@@ -1,0 +1,5 @@
+See the project plan at https://github.com/delta-io/delta/issues/1105.
+
+This PR adds CDF write functionality to the DELETE command, as well as a test suite DeleteCDCSuite. At a high level, during the DELETE command, when we realize that we need to delete some rows in some files (but not the entire file), then instead of creating a new DataFrame which just contains the non-deleted rows (thus, in this new delta version, the previous rows were logically deleted), we instead partition the DataFrame into CDF-deleted columns and non-deleted columns.
+
+Then, when writing out the parquet files, we write the CDF-deleted columns into their own CDF parquet file, and we write the non deleted rows into a standard main-table parquet file (same as usual). We then also add an extra AddCDCFile action to the transaction log.

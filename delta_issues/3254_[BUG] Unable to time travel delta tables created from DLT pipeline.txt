@@ -1,0 +1,41 @@
+## Bug
+
+### Describe the problem
+Unable to time travel delta tables created from DLT pipeline. 
+
+Describe History schema.create_target_table_from_dlt_pipeline does not work either and gives below error
+Error in SQL statement: AnalysisException: DESCRIBE HISTORY is only supported for Delta tables.
+
+select count(*) from schema.create_target_table_from_dlt_pipeline version as of 2 gives below error
+ schema.create_target_table_from_dlt_pipeline 
+
+Environment Details:
+Databricks Runtime Version 10.3 (includes Apache Spark 3.2.1, Scala 2.12)
+
+#### Expected results
+
+Expecting time travel feature to work on delta tables even though they are created in DLT pipeline using create_table and create_target_table syntax.
+
+#### Further details
+
+Error in SQL statement: AnalysisException: Cannot time travel views.
+com.databricks.backend.common.rpc.DatabricksExceptions$SQLExecutionException: org.apache.spark.sql.AnalysisException: Cannot time travel views.
+	at org.apache.spark.sql.errors.QueryCompilationErrors$.timeTravelUnsupportedError(QueryCompilationErrors.scala:2403)
+	at com.databricks.sql.transaction.tahoe.catalog.DeltaCatalog.failTimeTravel(DeltaCatalog.scala:273)
+	at com.databricks.sql.transaction.tahoe.catalog.DeltaCatalog.loadTable(DeltaCatalog.scala:263)
+	at org.apache.spark.sql.connector.catalog.CatalogV2Util$.$anonfun$loadTable$1(CatalogV2Util.scala:291)
+	at com.databricks.spark.util.FrameProfiler$.record(FrameProfiler.scala:80)
+	at org.apache.spark.sql.connector.catalog.CatalogV2Util$.loadTable(CatalogV2Util.scala:288)
+	at org.apache.spark.sql.catalyst.analysis.Analyzer$ResolveRelations$.$anonfun$lookupRelation$3(Analyzer.scala:1616)
+	at scala.Option.orElse(Option.scala:447)
+	at org.apache.spark.sql.catalyst.analysis.Analyzer$ResolveRelations$.$anonfun$lookupRelation$1(Analyzer.scala:1613)
+	at scala.Option.orElse(Option.scala:447)
+	at org.apache.spark.sql.catalyst.analysis.Analyzer$ResolveRelations$.org$apache$spark$sql$catalyst$analysis$Analyzer$ResolveRelations$$lookupRelation(Analyzer.scala:1597)
+	at org.apache.spark.sql.catalyst.analysis.Analyzer$ResolveRelations$$anonfun$apply0$1.applyOrElse(Analyzer.scala:1417)
+	at org.apache.spark.sql.catalyst.analysis.Analyzer$ResolveRelations$$anonfun$apply0$1.applyOrElse(Analyzer.scala:1366)
+	at org.apache.spark.sql.catalyst.plans.logical.AnalysisHelper.$anonfun$resolveOperatorsUpWithPruning$3(AnalysisHelper.scala:138)
+	at org.apache.spark.sql.catalyst.trees.CurrentOrigin$.withOrigin(TreeNode.scala:87)
+	at org.apache.spark.sql.catalyst.plans.logical.AnalysisHelper.$anonfun$resolveOperatorsUpWithPruning$1(AnalysisHelper.scala:138)
+	at org.apache.spark.sql.catalyst.plans.logical.AnalysisHelper$.allowInvokingTransformsInAnalyzer(AnalysisHelper.scala:324)
+	at org.apache.spark.sql.catalyst.plans.logical.AnalysisHelper.resolveOperatorsUpWithPruning(AnalysisHelper.scala:134)
+	at org.apache.spark.sql.catalyst.plans.logical.AnalysisHelper.resolveOperatorsUpWithPruning$(AnalysisHelper.scala:130)

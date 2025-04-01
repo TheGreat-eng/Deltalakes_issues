@@ -1,0 +1,7 @@
+I have around more than 50TB of delta table which has partitioned based on `year | month| day` . when I executed merge statement on 20-node cluster , It is taking too much time . What could be the best strategy .? 
+
+Earlier when I ran for single day It took only 15 mins to complete on same cluster. So I thought ,Is it possible to execute merge statement partition-wise .? 
+
+Please let me know the possible solution.
+
+Thanks.

@@ -1,0 +1,17 @@
+## Feature request
+
+### Overview
+
+Add a tag to the delta table delta.vacuumDisabled = 1
+
+### Motivation
+
+I see that many companies started maintenance scripts that periodically vacuum tables. Additionally, the table can be vacuumed incidentally by someone. The best option would be to have availability to turn off altogether the possibility of vacuuming some tables.
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [ ] Yes. I can contribute this feature independently.
+- [ X] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.

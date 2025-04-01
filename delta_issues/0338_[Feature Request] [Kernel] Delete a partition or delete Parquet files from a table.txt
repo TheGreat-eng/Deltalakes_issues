@@ -1,0 +1,42 @@
+## Feature request
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the issue title
+For example: [Feature Request][Spark] Title of my issue
+-->
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [x] Kernel
+- [ ] Other (fill in here)
+
+### Overview
+
+Our pipeline generates Parquet files outside of a Delta or Spark context so we use Delta Standalone to add the Parquet files to a Delta table for a partition. If the pipeline regenerates the Parquet files for a partition, we need the ability to be able to remove the old Parquet files for that partition and add the new Parquet files to the same partition. 
+
+### Motivation
+
+This feature will add more bulk-level updates versus row-level updates currently supported by Delta Kernel
+
+### Further details
+
+Delta Standalone support AddFile and Remove file operations on the Delta log via code such as the following:
+```
+        OptimisticTransaction txn = deltaLog.startTransaction();
+        txn.commit(newFiles, new Operation(Operation.Name.UPDATE), engineInfo);
+```
+
+The Delta Kernel equivalent for AddFile ss creating `DataFileStatus` objects and then using `Transaction.generateAppendActions`. There doesn't seem to be an equivalent in the code for a `RemoveFile` operation. 
+
+In lieu of a `RemoveFile` operation, we could work around that by having the ability to delete a partition. We can then recreate the partition via `DataFileStatus`/`Transaction.generateAppendActions` calls. 
+
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [ ] Yes. I can contribute this feature independently.
+- [x] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.

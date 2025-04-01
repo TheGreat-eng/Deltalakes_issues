@@ -1,0 +1,68 @@
+libs
+```
+spark 3.3.2
+scala 2.12.14
+hadoop 3.3.2
+delta 2.2.0
+```
+
+delta table config
+```
+deltaTable logRetentionDuration 4 hours
+deltaTable deleteFileRetentionDuration 4 hours
+```
+
+environment
+```
+environment: kubernetes
+1 driver 46G, 14cores + 16 executors 46G, 14cores
+cloud: aws s3
+no databricks used
+```
+
+spark config
+```
+"spark.sql.shuffle.partitions": "2000"
+"spark.default.parallelism": "2000"
+"spark.sql.extensions": "io.delta.sql.DeltaSparkSessionExtension"
+"spark.sql.catalog.spark_catalog": "org.apache.spark.sql.delta.catalog.DeltaCatalog"
+"spark.databricks.delta.vacuum.parallelDelete.enabled": "true"
+"spark.databricks.delta.retentionDurationCheck.enabled": "false"
+"spark.sql.sources.parallelPartitionDiscovery.parallelism": "250000"
+"spark.sql.adaptive.enabled": "true"
+"spark.sql.adaptive.optimizeSkewedJoin.enabled": "true"
+```
+
+code
+
+```
+import io.delta.tables.DeltaTable
+val deltaTable = DeltaTable.forPath(spark, "s3://BUCKET/TABLE_PATH)
+deltaTable.delete("date < '2023-02-24'")
+deltaTable.optimize()
+deltaTable.vacuum(retentionHours = 0)
+```
+
+Question1:
+I see only three executors doing DeltaFileOperations: Listing
+INFO DeltaFileOperations: Listing s3a://BUCKET/TABLE/date=...
+
+Why only 3 executors are involved in listing and it is not parallelized more?
+
+Question2:
+I do not see partitioned files being deleted when I run it in aws s3
+
+Question3: 
+All works well when I run it in Azure: partitions are deleted.
+
+Question4:
+When I run it in azure then I see also:
+```
+23/02/24 07:58:55 WARN AzureFileSystemThreadPoolExecutor: Disabling threads for Delete operation as thread count 0 is <= 1
+23/02/24 07:58:55 INFO AzureFileSystemThreadPoolExecutor: Time taken for Delete operation is: 0 ms with threads: 0
+23/02/24 07:58:55 WARN AzureFileSystemThreadPoolExecutor: Disabling threads for Delete operation as thread count 0 is <= 1
+23/02/24 07:58:55 INFO AzureFileSystemThreadPoolExecutor: Time taken for Delete operation is: 0 ms with threads: 0
+23/02/24 07:58:55 WARN AzureFileSystemThreadPoolExecutor: Disabling threads for Delete operation as thread count 0 is <= 1
+23/02/24 07:58:55 INFO AzureFileSystemThreadPoolExecutor: Time taken for Delete operation is: 0 ms with threads: 0
+
+```

@@ -1,0 +1,25 @@
+## Description
+
+Makes changes to support Spark 3.4. These include compile necessary changes, and test _and_ code changes due to changes in Spark behavior.
+
+Some of the bigger changes include
+- A lot of changes regarding error classes. These include...
+  - Spark 3.4 changed `class ErrorInfo` to private. This means the current approach in `DeltaThrowableHelper` can no longer work. We now use `ErrorClassJsonReader` (these are the changes to `DeltaThrowableHelper` and `DeltaThrowableSuite`
+  - Many error functions switched the first argument from `message: String` to `errorClass: String` which **does not** cause a compile error, but instead causes a "SparkException-error not found" when called. Some things affected include `ParseException(...)`, `a.failAnalysis(..)`.
+  - Supports error subclasses
+- Spark 3.4 supports insert-into-by-name and no longer reorders such queries to be insert-into-by-ordinal. See https://github.com/apache/spark/pull/39334. In `DeltaAnalysis.scala` we need to perform schema validation checks and schema evolution for such queries; right now we only match when `!isByName`
+- SPARK-27561 added support for lateral column alias. This broke our generation expression validation checks for generated columns. We now separately check for generated columns that reference other generated columns in `GeneratedColumn.scala`
+- `DelegatingCatalogExtension` deprecates `createTable(..., schema: StructType, ...)` in favor of `createTable(..., columns: Array[Column], ...)`
+- `_metadata.file_path` is not always encoded. We update `DeleteWithDeletionVectorsHelper.scala` to accomodate for this.
+- Support for SQL `REPLACE WHERE`. [TESTS IN FOLLOW-UP PR]
+-  Misc test changes due to minor changes in Spark behavior or error messages
+
+Resolves #1696
+
+## How was this patch tested?
+
+Existing tests should suffice since there are no major Delta behavior changes _besides_ support for `REPLACE WHERE` for which we have added tests.
+
+## Does this PR introduce _any_ user-facing changes?
+
+Yes. Spark 3.4 will be supported. `REPLACE WHERE` is supported in SQL.

@@ -1,0 +1,11 @@
+Cherry-pick the following:
+
+05c39329d902e0f4a49f9edb7312c18a2b20cb29 Enable batch CDF queries on column mapping enabled tables with fewer limitations
+4ff810943d2f00143fba5a3795b753d0a76a90b5 Block interval types in Delta
+f7cc05f50f3bc8feb262340f096410500077d82f  Change DeltaTable.details() to DeltaTable.detail() to be consistent with SQL
+3ff10fa9bcf8f54a6cb2448fabc92a70d0e98972  Trigger available now
+3ce34c9371fa5c75107c83043b3b20a16f8963b5  Fix merge command `numTargetFilesAdded` metric
+8df1844d4cdd89ab9567b2f70aa0453bc004ff37 Make update command return the number of updated rows.
+0058673322aea1f375f297405872be1176888041 Make MERGE operation return useful metrics
+
+**Do not merge this PR, this is just for the purpose of review.**

@@ -1,0 +1,40 @@
+## Description
+Resolves #1027 .
+### Syntax
+```
+SHOW COLUMNS (FROM | IN) table_identifier [(FROM | IN) database];
+```
+Compared with [Spark SQL syntax](https://spark.apache.org/docs/3.0.0/sql-ref-syntax-aux-show-columns.html), this command added the support of representing the table by file path. The Delta command `Describe Detail` adds the similar support path based table extension to Apache Spark.
+
+### Usage
+```
+SHOW COLUMNS (FROM | IN) ${schema_name}.${table_name}
+SHOW COLUMNS (FROM | IN) ${table_name} (FROM | IN) ${schema_name}
+```
+
+## How was this patch tested?
+This feature was tested with 8 cases. Including:
+- Delta table and non-Delta table.
+- Tables with wrong table identity.
+- Tables represented by separated schema name.
+
+And some other edge cases. See [ShowTableColumnsSuite.scala](https://github.com/6a0juu/delta/blob/1f77fae9dce98441dee43eade932d985272b41be/core/src/test/scala/org/apache/spark/sql/delta/ShowTableColumnsSuite.scala) for details.
+
+## Does this PR introduce _any_ user-facing changes?
+Yes. Before this PR, when making `SHOW COLUMNS` query, like:
+```
+spark.sql(s"SHOW COLUMNS IN delta.`test_table`").show()
+```
+It returns:
+```
+org.apache.spark.sql.AnalysisException: SHOW COLUMNS is not supported for v2 tables.
+```
+But with this PR, the output would be like:
+```
++----------+
+|  col_name|
++----------+
+|   column1|
+|   column2|
++----------+
+```

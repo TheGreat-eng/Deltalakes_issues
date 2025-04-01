@@ -1,0 +1,25 @@
+#### Which Delta project/connector is this regarding?
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+This PR fixes the master build for Delta Spark.
+
+The fixes were needed for a number of unrelated changes in Apache Spark:
+
+- Unified Scala SQL Interface
+- Aggregate adds a hint parameter in master.
+- TableSpec adds a collation parameter in master.
+- Condition and errorClass are swapped in the SparkThrowable framework.
+- ...
+
+I opted to do this in one PR because this is the only way I am sure tests pass.
+
+## How was this patch tested?
+Existing tests.
+
+## Does this PR introduce _any_ user-facing changes?
+No.

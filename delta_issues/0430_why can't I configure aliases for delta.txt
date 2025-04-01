@@ -1,0 +1,8 @@
+## Bug
+
+
+# Configure Delta Catalog
+spark.sql.catalog.delta_catalog=org.apache.spark.sql.delta.catalog.DeltaCatalog
+spark.sql.catalog.delta_catalog.warehouse=/path/to/delta/warehouse
+Can't we alias the catalog in the spark conf configuration file
+If I configure iceberg, hudi, and delta to exist simultaneously in a single spark, why can't I configure aliases for delta

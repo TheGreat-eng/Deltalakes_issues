@@ -1,0 +1,21 @@
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [X] Kernel
+- [ ] Other (fill in here)
+
+## Description
+Resolves #3455. 
+Added editable property to TableConfig. Changed TableConfig#validateProperties to check if property is editable.
+
+## How was this patch tested?
+Test added to `TableConfigSuite.scala`.
+
+## Does this PR introduce _any_ user-facing changes?
+No.

@@ -1,0 +1,3 @@
+- Added examples for each method
+- Added param and return docs for more complicated methods
+- Added version information for all classes and methods

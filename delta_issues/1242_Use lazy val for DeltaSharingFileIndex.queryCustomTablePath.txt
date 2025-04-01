@@ -1,0 +1,15 @@
+#### Which Delta project/connector is this regarding?
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [X] Other (Delta Sharing)
+
+## Description
+Fix on an edge case: Use lazy val for DeltaSharingFileIndex.queryCustomTablePath, to allow the table path to be resolved at execution time, to match the table path used in CachedTableManager.INSTANCE.register(: https://github.com/delta-io/delta-sharing/blob/main/client/src/main/scala/org/apache/spark/delta/sharing/PreSignedUrlCache.scala#L181, and allow the query to find the pre-signed urls for the delta sharing table. 
+
+## How was this patch tested?
+Unit Tests
+
+## Does this PR introduce _any_ user-facing changes?
+No

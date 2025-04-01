@@ -1,0 +1,3 @@
+Updating LogStore to have new overload taking in the log Path, and checking its URI to determine the LogStore implementation (only used if existing config property is not set)
+
+Adding test to LogStoreSuiteBase for the FS based selection

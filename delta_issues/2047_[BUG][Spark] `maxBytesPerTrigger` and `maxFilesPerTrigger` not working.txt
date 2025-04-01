@@ -1,0 +1,64 @@
+## Bug
+
+#### Which Delta project/connector is this regarding?
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+
+### Describe the problem
+Adding the option maxFilesPerTrigger or maxBytesPerTrigger doesn't seem to do anything.
+
+I have a streaming reading from and writing to delta. At the beginning, when `numBytesOutstanding` is very low, the performance is really good. The batch duration and processing rate/second are what I expect. Once the `numBytesOutstanding` increased (Due to upscaling upstream stream), the performance drops a lot (batch_duration and proc rate). I assume this is because I was not limiting the batch size enough. However, when I do this with `maxBytesPerTrigger` and `maxFilesPerTrigger`, I don't see a difference.
+
+I used extreme values with the following:
+```
+df = (
+    spark.readStream
+    .option("maxFilesPerTrigger", 4)
+    .option("maxBytesPerTrigger", "1m")
+    .format("delta")
+    .load(input_folder)
+)
+```
+I expected this would result in a much lower batch_duration, yet, it still stays stuck. While it is still working on the first batch, in the SQL/DataFrame tab of the Spark UI, I find the following metrics of the Scan parquet step
+![image](https://github.com/delta-io/delta/assets/34094863/c91e1c41-eea4-4495-89a7-79e1c9930e94)
+The `number of files read` is exactly 1000 (The default value of `maxFilesPerTrigger`), which makes me assume it doesn't do anything.
+
+In the stage of a batch, the Input Size is also very large (A lot larger than the 1MB I would expect)
+<img width="146" alt="image" src="https://github.com/delta-io/delta/assets/34094863/5b722884-8624-4775-a62f-3f4c38686a75">
+This screenshot is with metrics when only finished 32/155 stages.
+
+My transformations are quite complex (Mainly a pandas UDF doing API requests), but I wouldn't expect to impact this.
+<img width="102" alt="image" src="https://github.com/delta-io/delta/assets/34094863/f9405952-b60a-4e14-98c8-bcb9b69e90b7">
+
+
+#### Steps to reproduce
+See above
+
+#### Observed results
+See above
+
+#### Expected results
+Smaller size/less files processed per batch
+
+#### Further details
+Running this on Databricks DBR 14.1
+5x workers of 32GB memory, 4 cores. Driver 26GB, 4 cores. No Photon
+
+### Environment information
+
+* Delta Lake version: 3.0.0
+* Spark version: 3.5.0
+* Scala version: 2.12.15
+* [Databricks Runtime System Config](https://docs.databricks.com/en/release-notes/runtime/14.1.html#system-environment)
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [x] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [x] No. I cannot contribute a bug fix at this time.
+
+Willing to contribute, but not sure if enough knowledge.

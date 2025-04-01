@@ -1,0 +1,6 @@
+## Description
+Adds support for column mapping id mode. The Parquet handler API contract is updated to look for the field id in `StructField`s of given read schema. When field IDs are present attempt is made to look up the column in the Parquet file by ID. If not found, an attempt is made to find the column in the Parquet file by column name.
+
+## How was this patch tested?
+Added integration tests and granular unittests (converting missing field ids etc.) for the Delta schema to Parquet schema conversion utilities.
+

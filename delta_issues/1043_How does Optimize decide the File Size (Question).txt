@@ -1,0 +1,14 @@
+Hi,
+I used to use my own auto compaction method on a legacy system.
+How it basically works is that it calculates the sum of file size for every hive partition, and consolidate the files in every partition.
+
+Example:
+for a partition, there are 1000 thousand files which are around 1 MB. 
+Sum is 1 GB and the method divides the sum to 128 MB and ceil it , which is 8 in our case. it makes repartition it to 8.
+
+after compaction, new total size is much less than 1 GB, it might be 700 MB.
+So ı needed to recursively run the function, till it reach the proper size. (generally two or three times.)
+
+My question is that, How delta optimize deals with this issue ?
+
+Thank you.

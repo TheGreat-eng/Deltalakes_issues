@@ -1,0 +1,7 @@
+Hi, we are using delta and PySpark to manage our schemas on AWS. 
+
+We faced a situation where the file has been persisted on the S3 bucket, but the updating process did not record in the delta log. As a consequence, when we want to load the data, it will returns an empty data frame. It seems that the load process will first checking the delta log, if there is no matching record, it will skip the load process even the file is actually existing. 
+
+So, I guess there might be some inconsistent between the file writing process and the delta log refreshing process. 
+
+Please help me to find out the reason behind this.

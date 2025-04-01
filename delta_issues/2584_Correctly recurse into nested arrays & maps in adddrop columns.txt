@@ -1,0 +1,24 @@
+## Description
+
+It is not possible today in Delta tables to add or drop nested fields under two or more levels of directly nested arrays or maps.
+The following is a valid use case but fails today:
+```
+CREATE TABLE test (data array<array<struct<a: int>>>)
+ALTER TABLE test ADD COLUMNS (data.element.element.b string)
+```
+
+This change updates helper methods `findColumnPosition`, `addColumn` and `dropColumn` in `SchemaUtils` to correctly recurse into directly nested maps and arrays.
+
+Note that changes in Spark are also required for `ALTER TABLE ADD/CHANGE/DROP COLUMN`  to work: https://github.com/apache/spark/pull/40879. The fix is merged in Spark but will only be available in Delta in the next Spark release.
+
+In addition, `findColumnPosition` which currently both returns the position of nested field and the size of its parent, making it overly complex, is split into two distinct and generic methods: `findColumnPosition` and `getNestedTypeFromPosition`.
+
+## How was this patch tested?
+- Tests for `findColumnPosition`, `addColumn` and `dropColumn` with two levels of nested maps and arrays are added to `SchemaUtilsSuite`. Other cases for these methods are already covered by existing tests.
+- Tested locally that  ALTER TABLE ADD/CHANGE/DROP COLUMN(S) works correctly with Spark fix https://github.com/apache/spark/pull/40879
+- Added missing tests coverage for ALTER TABLE ADD/CHANGE/DROP COLUMN(S) with a single map or array.
+
+
+## Does this PR introduce _any_ user-facing changes?
+This change only fixes half of the issue with adding and dropping fields inside nested maps/arrays. This other part is already fixed in Spark (https://github.com/apache/spark/pull/40879) and will be picked in the next Spark release.
+When the Spark fix is available in Delta, users will be able to correctly add, change and drop nested fields inside nested maps and arrays.

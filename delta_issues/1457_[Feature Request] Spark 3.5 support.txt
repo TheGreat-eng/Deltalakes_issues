@@ -1,0 +1,19 @@
+Spark Version :3.5.0
+Delta version: 3.0.0
+
+
+Exception in thread "main" java.lang.NoSuchMethodError: org.apache.spark.sql.catalyst.parser.ParserUtils$.withOrigin(Lorg/antlr/v4/runtime/ParserRuleContext;Lscala/Function0;)Ljava/lang/Object;
+	at io.delta.sql.parser.DeltaSqlAstBuilder.visitSingleStatement(DeltaSqlParser.scala:244)
+	at io.delta.sql.parser.DeltaSqlAstBuilder.visitSingleStatement(DeltaSqlParser.scala:146)
+	at io.delta.sql.parser.DeltaSqlBaseParser$SingleStatementContext.accept(DeltaSqlBaseParser.java:165)
+	at org.antlr.v4.runtime.tree.AbstractParseTreeVisitor.visit(AbstractParseTreeVisitor.java:18)
+	at io.delta.sql.parser.DeltaSqlParser.$anonfun$parsePlan$1(DeltaSqlParser.scala:74)
+	at io.delta.sql.parser.DeltaSqlParser.parse(DeltaSqlParser.scala:103)
+	at io.delta.sql.parser.DeltaSqlParser.parsePlan(DeltaSqlParser.scala:73)
+	at org.apache.spark.sql.SparkSession.$anonfun$sql$5(SparkSession.scala:684)
+	at org.apache.spark.sql.catalyst.QueryPlanningTracker.measurePhase(QueryPlanningTracker.scala:138)
+	at org.apache.spark.sql.SparkSession.$anonfun$sql$4(SparkSession.scala:683)
+	at org.apache.spark.sql.SparkSession.withActive(SparkSession.scala:900)
+	at org.apache.spark.sql.SparkSession.sql(SparkSession.scala:682)
+	at org.apache.spark.sql.SparkSession.sql(SparkSession.scala:713)
+

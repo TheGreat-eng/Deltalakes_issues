@@ -1,0 +1,38 @@
+<!--
+Thanks for sending a pull request!  Here are some tips for you:
+  1. If this is your first time, please read our contributor guidelines: https://github.com/delta-io/delta/blob/master/CONTRIBUTING.md
+  2. If the PR is unfinished, add '[WIP]' in your PR title, e.g., '[WIP] Your PR title ...'.
+  3. Be sure to keep the PR description updated to reflect all changes.
+  4. Please write your PR title to summarize what this PR proposes.
+  5. If possible, provide a concise example to reproduce the issue for a faster review.
+  6. If applicable, include the corresponding issue number in the PR title and link it in the body.
+-->
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+The `DeltaCatalog::alterTable` accepts a list of table changes. However, we are currently committing the column changes in separate transactions. This PR does the following refactoring:
+
++ introduces `DeltaChangeColumnSpec` as arguments to `AlterTableChangeColumnDeltaCommand` so that we can pass multiple changes and commit them in one transaction.
++ updates `DeltaCatalog::alterTable` to collect the column changes into `DeltaChangeColumnSpec`
++ for SYNC IDENITY, `DeltaCatalog::alterTable` previously has a single syncIdentity variable for all table changes to denote whether to run sync identity or not. This PR fixes that and record the sync identity parameter separately for each column.
+
+
+## How was this patch tested?
+
+Existing unit tests
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

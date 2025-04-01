@@ -1,0 +1,7 @@
+## Description
+This PR is part of the feature: Support reading Delta tables with deletion vectors (more details at delta-io/delta#1485)
+
+It adds new class called `DeletionVectorDescriptor` which is used to represent the deletion vector for a given file (`AddFile`) in `DeltaLog`. The format of the metadata is described in the [protocol](https://github.com/delta-io/delta/blob/master/PROTOCOL.md#deletion-vector-descriptor-schema).
+
+## How was this patch tested?
+New test suite is added

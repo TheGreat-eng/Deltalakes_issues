@@ -1,0 +1,19 @@
+This PR prevents insert-only transactions (such as merge operations
+with only WHEN NOT MATCHED clauses) from failing due to concurrent data preserving transactions
+(i.e. transactions with dataChange=false, such as compaction), as discussed in https://github.com/delta-io/delta/issues/326.  
+This ability is controlled by the configuration `concurrentCompactionConflictDetection.enabled`, which is enabled by default.
+
+This change was tested on master with existing and added unit tests in `OptimisticTransactionSuite` and `MergeIntoScalaSuite`. Additionally we have been using a matching implementation of this PR on Delta 0.6.1 in our production process (we're still working with Spark 2.4) for several weeks without any known issues.
+
+In this commit:
+* DeltaSQLConf.scala
+  * Added configuration `concurrentCompactionConflictDetection.enabled` to control this feature
+* OptimisticTransaction.scala
+  * Avoid `ConcurrentAppendException` when all new files have been added with `dataChange=false`
+  * Avoid `ConcurrentDeleteReadException` when all deleted files have set `dataChange=false`
+* OptimisticTransactionSuite.scala
+  * Added test cases for transactions with concurrent data rearrangement operation (toggle on/off)
+* MergeIntoScalaSuite.scala
+  * Added test cases for merge operations with concurrent compaction operation (toggle on/off)
+
+Signed-off-by: Zohar Meir <zohar.meir@gmail.com>

@@ -1,0 +1,20 @@
+#### Which Delta project/connector is this regarding?
+- [X] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+Disable test `DeltaSourceSuite :: startingVersion: user defined start works with mergeSchema` in `delta-spark` when running against Spark Master. i.e. it only runs against Spark 3.5. This is because it recently broke due to changes in Spark Master.
+
+Further investigation is required.
+
+## How was this patch tested?
+
+Local tests and CI tests.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

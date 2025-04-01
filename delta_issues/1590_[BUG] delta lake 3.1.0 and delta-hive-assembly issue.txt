@@ -1,0 +1,193 @@
+## Bug
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the issue title
+For example: [BUG][Spark] Title of my issue
+-->
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [x] Hive
+
+### Describe the problem
+
+#### Steps to reproduce
+
+Please include copy-pastable code snippets if possible.
+1. Setup hive and delta hive connector last version according to this manual https://github.com/delta-io/delta/tree/master/connectors/hive
+2. Create hive external table with property STORED BY 'io.delta.hive.DeltaStorageHandler'
+3. Get an error from terminal
+```
+com.google.common.util.concurrent.ExecutionError: java.lang.NoSuchMethodError: scala.Some.value()Ljava/lang/Object;
+	at com.google.common.cache.LocalCache$Segment.get(LocalCache.java:2048) ~[guava-27.0-jre.jar:?]
+	at com.google.common.cache.LocalCache.get(LocalCache.java:3952) ~[guava-27.0-jre.jar:?]
+	at com.google.common.cache.LocalCache$LocalManualCache.get(LocalCache.java:4871) ~[guava-27.0-jre.jar:?]
+	at io.delta.hive.DeltaHelper$.loadDeltaLatestSnapshot(DeltaHelper.scala:119) ~[delta-hive_2.12-3.1.0.jar:3.1.0]
+	at io.delta.hive.DeltaStorageHandler.preCreateTable(DeltaStorageHandler.scala:215) ~[delta-hive_2.12-3.1.0.jar:3.1.0]
+	at org.apache.hadoop.hive.metastore.HiveMetaStoreClient.createTable(HiveMetaStoreClient.java:845) ~[hive-exec-3.1.3.jar:3.1.3]
+	at org.apache.hadoop.hive.metastore.HiveMetaStoreClient.createTable(HiveMetaStoreClient.java:835) ~[hive-exec-3.1.3.jar:3.1.3]
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method) ~[?:1.8.0_402]
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62) ~[?:1.8.0_402]
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43) ~[?:1.8.0_402]
+	at java.lang.reflect.Method.invoke(Method.java:498) ~[?:1.8.0_402]
+	at org.apache.hadoop.hive.metastore.RetryingMetaStoreClient.invoke(RetryingMetaStoreClient.java:212) ~[hive-exec-3.1.3.jar:3.1.3]
+	at com.sun.proxy.$Proxy37.createTable(Unknown Source) ~[?:?]
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method) ~[?:1.8.0_402]
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62) ~[?:1.8.0_402]
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43) ~[?:1.8.0_402]
+	at java.lang.reflect.Method.invoke(Method.java:498) ~[?:1.8.0_402]
+	at org.apache.hadoop.hive.metastore.HiveMetaStoreClient$SynchronizedHandler.invoke(HiveMetaStoreClient.java:2786) ~[hive-exec-3.1.3.jar:3.1.3]
+	at com.sun.proxy.$Proxy37.createTable(Unknown Source) ~[?:?]
+	at org.apache.hadoop.hive.ql.metadata.Hive.createTable(Hive.java:971) ~[hive-exec-3.1.3.jar:3.1.3]
+	at org.apache.hadoop.hive.ql.metadata.Hive.createTable(Hive.java:987) ~[hive-exec-3.1.3.jar:3.1.3]
+	at org.apache.hadoop.hive.ql.exec.DDLTask.createTable(DDLTask.java:4957) ~[hive-exec-3.1.3.jar:3.1.3]
+	at org.apache.hadoop.hive.ql.exec.DDLTask.execute(DDLTask.java:428) ~[hive-exec-3.1.3.jar:3.1.3]
+	at org.apache.hadoop.hive.ql.exec.Task.executeTask(Task.java:207) ~[hive-exec-3.1.3.jar:3.1.3]
+	at org.apache.hadoop.hive.ql.exec.TaskRunner.runSequential(TaskRunner.java:97) ~[hive-exec-3.1.3.jar:3.1.3]
+	at org.apache.hadoop.hive.ql.Driver.launchTask(Driver.java:2664) ~[hive-exec-3.1.3.jar:3.1.3]
+	at org.apache.hadoop.hive.ql.Driver.execute(Driver.java:2335) ~[hive-exec-3.1.3.jar:3.1.3]
+	at org.apache.hadoop.hive.ql.Driver.runInternal(Driver.java:2011) ~[hive-exec-3.1.3.jar:3.1.3]
+	at org.apache.hadoop.hive.ql.Driver.run(Driver.java:1709) ~[hive-exec-3.1.3.jar:3.1.3]
+	at org.apache.hadoop.hive.ql.Driver.run(Driver.java:1703) ~[hive-exec-3.1.3.jar:3.1.3]
+	at org.apache.hadoop.hive.ql.reexec.ReExecDriver.run(ReExecDriver.java:157) ~[hive-exec-3.1.3.jar:3.1.3]
+	at org.apache.hive.service.cli.operation.SQLOperation.runQuery(SQLOperation.java:225) ~[hive-service-3.1.3.jar:3.1.3]
+	at org.apache.hive.service.cli.operation.SQLOperation.access$700(SQLOperation.java:88) ~[hive-service-3.1.3.jar:3.1.3]
+	at org.apache.hive.service.cli.operation.SQLOperation$BackgroundWork$1.run(SQLOperation.java:323) ~[hive-service-3.1.3.jar:3.1.3]
+	at java.security.AccessController.doPrivileged(Native Method) ~[?:1.8.0_402]
+	at javax.security.auth.Subject.doAs(Subject.java:422) ~[?:1.8.0_402]
+	at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1762) ~[hadoop-common-3.2.4.jar:?]
+	at org.apache.hive.service.cli.operation.SQLOperation$BackgroundWork.run(SQLOperation.java:341) ~[hive-service-3.1.3.jar:3.1.3]
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511) ~[?:1.8.0_402]
+	at java.util.concurrent.FutureTask.run(FutureTask.java:266) ~[?:1.8.0_402]
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149) ~[?:1.8.0_402]
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624) ~[?:1.8.0_402]
+	at java.lang.Thread.run(Thread.java:750) [?:1.8.0_402]
+Caused by: java.lang.NoSuchMethodError: scala.Some.value()Ljava/lang/Object;
+	at io.delta.standalone.internal.storage.DelegatingLogStore.schemeBasedLogStore(DelegatingLogStore.scala:52) ~[delta-hive-assembly_2.12-3.1.0.jar:2.3.4]
+	at io.delta.standalone.internal.storage.DelegatingLogStore.getDelegate(DelegatingLogStore.scala:76) ~[delta-hive-assembly_2.12-3.1.0.jar:2.3.4]
+	at io.delta.standalone.internal.storage.DelegatingLogStore.read(DelegatingLogStore.scala:83) ~[delta-hive-assembly_2.12-3.1.0.jar:2.3.4]
+	at io.delta.standalone.internal.Checkpoints.loadMetadataFromFile(Checkpoints.scala:141) ~[delta-hive-assembly_2.12-3.1.0.jar:2.3.4]
+	at io.delta.standalone.internal.Checkpoints.lastCheckpoint(Checkpoints.scala:111) ~[delta-hive-assembly_2.12-3.1.0.jar:2.3.4]
+	at io.delta.standalone.internal.Checkpoints.lastCheckpoint$(Checkpoints.scala:110) ~[delta-hive-assembly_2.12-3.1.0.jar:2.3.4]
+	at io.delta.standalone.internal.DeltaLogImpl.lastCheckpoint(DeltaLogImpl.scala:42) ~[delta-hive-assembly_2.12-3.1.0.jar:2.3.4]
+	at io.delta.standalone.internal.SnapshotManagement.getSnapshotAtInit(SnapshotManagement.scala:223) ~[delta-hive-assembly_2.12-3.1.0.jar:2.3.4]
+	at io.delta.standalone.internal.SnapshotManagement.getSnapshotAtInit$(SnapshotManagement.scala:221) ~[delta-hive-assembly_2.12-3.1.0.jar:2.3.4]
+	at io.delta.standalone.internal.DeltaLogImpl.getSnapshotAtInit(DeltaLogImpl.scala:42) ~[delta-hive-assembly_2.12-3.1.0.jar:2.3.4]
+	at io.delta.standalone.internal.SnapshotManagement.$init$(SnapshotManagement.scala:37) ~[delta-hive-assembly_2.12-3.1.0.jar:2.3.4]
+	at io.delta.standalone.internal.DeltaLogImpl.<init>(DeltaLogImpl.scala:47) ~[delta-hive-assembly_2.12-3.1.0.jar:2.3.4]
+	at io.delta.standalone.internal.DeltaLogImpl$.apply(DeltaLogImpl.scala:263) ~[delta-hive-assembly_2.12-3.1.0.jar:2.3.4]
+	at io.delta.standalone.internal.DeltaLogImpl$.forTable(DeltaLogImpl.scala:245) ~[delta-hive-assembly_2.12-3.1.0.jar:2.3.4]
+	at io.delta.standalone.internal.DeltaLogImpl.forTable(DeltaLogImpl.scala) ~[delta-hive-assembly_2.12-3.1.0.jar:2.3.4]
+	at io.delta.standalone.DeltaLog.forTable(DeltaLog.java:176) ~[delta-hive-assembly_2.12-3.1.0.jar:2.3.4]
+	at io.delta.hive.DeltaHelper$$anon$1.call(DeltaHelper.scala:124) ~[delta-hive_2.12-3.1.0.jar:3.1.0]
+	at io.delta.hive.DeltaHelper$$anon$1.call(DeltaHelper.scala:119) ~[delta-hive_2.12-3.1.0.jar:3.1.0]
+	at com.google.common.cache.LocalCache$LocalManualCache$1.load(LocalCache.java:4876) ~[guava-27.0-jre.jar:?]
+	at com.google.common.cache.LocalCache$LoadingValueReference.loadFuture(LocalCache.java:3528) ~[guava-27.0-jre.jar:?]
+	at com.google.common.cache.LocalCache$Segment.loadSync(LocalCache.java:2277) ~[guava-27.0-jre.jar:?]
+	at com.google.common.cache.LocalCache$Segment.lockedGetOrLoad(LocalCache.java:2154) ~[guava-27.0-jre.jar:?]
+	at com.google.common.cache.LocalCache$Segment.get(LocalCache.java:2044) ~[guava-27.0-jre.jar:?]
+	... 42 more
+```
+
+#### Observed results
+
+We have used hadoop/hdfs 3.1.2, spark 3.3.1, hive 3.1.3, delta lake 2.2.0, scala 2.12 and delta hive connector 0.5.0 previously and got no errors.
+
+#### Expected results
+
+External table shoud be created without any exception.
+
+#### Further details
+
+<!--
+Include any additional details that may be useful for diagnosing the problem here. If including tracebacks, please include the full traceback. Large logs and files should be attached.
+-->
+
+We've changed few rows in built.sbt delta file https://github.com/delta-io/delta/blob/master/build.sbt to fit with our hadoop and hive versions
+
+```
+// Versions for Hive 3
+val hadoopVersionForHive3 = "3.2.4"
+val hiveVersion = "3.1.3"
+```
+
+Unfortunatelly there is still error related to the unreleased method when I run hive3 test with command `build/sbt hiveMR/test hiveTez/test`
+
+```
+[info] io.delta.hive.HiveMRSuite *** ABORTED ***
+[info]   java.lang.NoSuchMethodError: com.google.common.base.Preconditions.checkArgument(ZLjava/lang/String;Ljava/lang/Object;)V
+[info]   at org.apache.hadoop.conf.Configuration.set(Configuration.java:1357)
+[info]   at org.apache.hadoop.conf.Configuration.set(Configuration.java:1338)
+[info]   at org.apache.hadoop.mapred.JobConf.setJar(JobConf.java:536)
+[info]   at org.apache.hadoop.mapred.JobConf.setJarByClass(JobConf.java:554)
+[info]   at org.apache.hadoop.mapred.JobConf.<init>(JobConf.java:448)
+[info]   at org.apache.hadoop.hive.conf.HiveConf.initialize(HiveConf.java:5144)
+[info]   at org.apache.hadoop.hive.conf.HiveConf.<init>(HiveConf.java:5102)
+[info]   at io.delta.hive.test.HiveTest.beforeAll(HiveTest.scala:52)
+[info]   at io.delta.hive.test.HiveTest.beforeAll$(HiveTest.scala:47)
+[info]   at io.delta.hive.HiveConnectorTest.beforeAll(HiveConnectorTest.scala:29)
+[info]   at org.scalatest.BeforeAndAfterAll.liftedTree1$1(BeforeAndAfterAll.scala:212)
+[info]   at org.scalatest.BeforeAndAfterAll.run(BeforeAndAfterAll.scala:210)
+[info]   at org.scalatest.BeforeAndAfterAll.run$(BeforeAndAfterAll.scala:208)
+[info]   at io.delta.hive.HiveConnectorTest.run(HiveConnectorTest.scala:29)
+[info]   at org.scalatest.tools.Framework.org$scalatest$tools$Framework$$runSuite(Framework.scala:317)
+[info]   at org.scalatest.tools.Framework$ScalaTestTask.execute(Framework.scala:510)
+[info]   at sbt.ForkMain$Run.lambda$runTest$1(ForkMain.java:413)
+[info]   at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+[info]   at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
+[info]   at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+[info]   at java.lang.Thread.run(Thread.java:750)
+[error] Uncaught exception when running io.delta.hive.HiveMRSuite: java.lang.NoSuchMethodError: com.google.common.base.Preconditions.checkArgument(ZLjava/lang/String;Ljava/lang/Object;)V
+[error] sbt.ForkMain$ForkError: java.lang.NoSuchMethodError: com.google.common.base.Preconditions.checkArgument(ZLjava/lang/String;Ljava/lang/Object;)V
+[error]         at org.apache.hadoop.conf.Configuration.set(Configuration.java:1357)
+[error]         at org.apache.hadoop.conf.Configuration.set(Configuration.java:1338)
+[error]         at org.apache.hadoop.mapred.JobConf.setJar(JobConf.java:536)
+[error]         at org.apache.hadoop.mapred.JobConf.setJarByClass(JobConf.java:554)
+[error]         at org.apache.hadoop.mapred.JobConf.<init>(JobConf.java:448)
+[error]         at org.apache.hadoop.hive.conf.HiveConf.initialize(HiveConf.java:5144)
+[error]         at org.apache.hadoop.hive.conf.HiveConf.<init>(HiveConf.java:5102)
+[error]         at io.delta.hive.test.HiveTest.beforeAll(HiveTest.scala:52)
+[error]         at io.delta.hive.test.HiveTest.beforeAll$(HiveTest.scala:47)
+[error]         at io.delta.hive.HiveConnectorTest.beforeAll(HiveConnectorTest.scala:29)
+[error]         at org.scalatest.BeforeAndAfterAll.liftedTree1$1(BeforeAndAfterAll.scala:212)
+[error]         at org.scalatest.BeforeAndAfterAll.run(BeforeAndAfterAll.scala:210)
+[error]         at org.scalatest.BeforeAndAfterAll.run$(BeforeAndAfterAll.scala:208)
+[error]         at io.delta.hive.HiveConnectorTest.run(HiveConnectorTest.scala:29)
+[error]         at org.scalatest.tools.Framework.org$scalatest$tools$Framework$$runSuite(Framework.scala:317)
+[error]         at org.scalatest.tools.Framework$ScalaTestTask.execute(Framework.scala:510)
+[error]         at sbt.ForkMain$Run.lambda$runTest$1(ForkMain.java:413)
+[error]         at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+[error]         at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
+[error]         at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+[error]         at java.lang.Thread.run(Thread.java:750)
+[info] Run completed in 2 seconds, 456 milliseconds.
+[info] Total number of tests run: 0
+[info] Suites: completed 0, aborted 1
+[info] Tests: succeeded 0, failed 0, canceled 0, ignored 0, pending 0
+[info] *** 1 SUITE ABORTED ***
+[error] Error during tests:
+[error]         io.delta.hive.HiveMRSuite
+[error] (hiveMR / Test / test) sbt.TestsFailedException: Tests unsuccessful
+[error] Total time: 36 s, completed Mar 14, 2024 9:21:37 PM
+```
+
+BTW what is for delta-hive.jar https://github.com/delta-io/delta/tree/master/connectors#hive-connector? I saw notes about it in root delta repo but it can't find it anymore. Links here https://github.com/delta-io/delta/tree/master/connectors#hive-connector are throwing 404 error - is it okay?
+
+### Environment information
+
+* Delta Lake version: 3.1.0
+* Spark version: 3.5.1
+* Scala version: 2.12
+* Hadoop/HDFS version 3.2.4
+* Hive version 3.1.3
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [x] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute a bug fix at this time.

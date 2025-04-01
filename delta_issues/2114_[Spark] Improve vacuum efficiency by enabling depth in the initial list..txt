@@ -1,0 +1,48 @@
+## Feature request
+
+#### Which Delta project/connector is this regarding?
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+### Overview
+
+When executing the VACUUM command in Delta Lake, there are two primary steps involved:
+
+1. Retrieving all valid files.
+2. Listing all files in the Delta table.
+
+From my investigation into the codebase, the first step is efficient because can recover the files from the latest snapshot. 
+
+However, the second step poses a challenge. The file listing initiates from the table's root directory. This is problematic because if the initial partition(s) of the table are not optimally distributed, the file listing process becomes exceedingly slow. The existing code snippet showcasing this behavior is:
+
+```scala
+val allFilesAndDirs = DeltaFileOperations.recursiveListDirs(
+      spark,
+      Seq(basePath),
+      hadoopConf,
+      hiddenDirNameFilter = DeltaTableUtils.isHiddenDirectory(partitionColumns, _),
+      hiddenFileNameFilter = DeltaTableUtils.isHiddenDirectory(partitionColumns, _),
+      fileListingParallelism = Option(parallelism)
+    )
+```
+
+In the recursiveListDirs method, the starting path is effectively the root directory of the table. This becomes a bottleneck when the first partition is not well distributed, making the vacuum operation incredibly time-consuming, or in some scenarios, nearly impossible to execute within a reasonable timeframe.
+
+**Proposed Solution:**
+To address this inefficiency, we propose the introduction of a new parameter, tentatively named initialListingDepth. This parameter would allow users to specify the depth of the initial directory listing before branching out and parallelizing the listing operation across multiple executors. By controlling the initial depth, users can bypass potentially large and poorly distributed partitions, making the VACUUM operation more efficient and manageable.
+
+### Motivation
+
+In large-scale data environments, efficiency and performance are not just desirable but crucial. Delta Lake tables often accumulate vast numbers of files over time, especially in scenarios with frequent data updates or small batch writes. While the design of Delta Lake provides mechanisms like partitioning to accelerate operations, the VACUUM command's current behavior reveals a performance bottleneck. For organizations with significant data, an inefficient vacuuming process can lead to increased operation times, higher resource consumption, and potentially inflated costs. Furthermore, delays in vacuuming can exacerbate storage management challenges and hinder timely data maintenance tasks. Addressing this inefficiency is not just about optimizing one operation but ensuring the scalability and responsiveness of Delta Lake for diverse and growing datasets. The motivation to resolve this issue stems from a commitment to data agility, cost-effectiveness, and the continuous enhancement of core data operations in Delta Lake.
+
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [ ] Yes. I can contribute this feature independently.
+- [X] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.

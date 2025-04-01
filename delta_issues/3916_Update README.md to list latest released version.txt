@@ -1,0 +1,1 @@
+6.0 was released, but README wasn't updated to reflect this fact.

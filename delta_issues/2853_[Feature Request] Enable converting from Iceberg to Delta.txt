@@ -1,0 +1,13 @@
+## Feature request
+
+### Overview
+
+Enable converting parquet-backed Iceberg tables to Delta tables without rewriting parquet files. This new Delta Table will need to be at least protocol version { reader=2, writer=5 } as Column Mapping will be needed during the conversion.
+
+### Motivation
+
+We want to make it easier for users to convert their existing Iceberg tables to Delta tables and start experiencing all the wonderful benefits of Delta! Having a native Iceberg converter that doesn't rewrite parquet files should help smoothen this transition.
+
+### Further details
+
+We will have to think about what this API / module / JAR / artifact, etc. will look like. Would love to hear feedback and thoughts from the community!

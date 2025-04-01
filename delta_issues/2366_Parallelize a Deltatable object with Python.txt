@@ -1,0 +1,9 @@
+Hey all, I was curious is there is a way to parallelize the Deltatable object. 
+
+I tried the Parallel(n_jobs=-1)(function () for i in list_) but came across : Type error: cannot unpack non-iterable DeltaTable object. 
+
+I want to perform this on Databricks, where I want to basically optimize on my table like 
+`deltaTable = DeltaTable.forName(spark, table_name)
+deltaTable.optimize().executeCompaction()
+`
+Since this would be performed on a huge number of table, looking for ways how I could parallelize it on databricks..Any suggestions would be helpful. :)

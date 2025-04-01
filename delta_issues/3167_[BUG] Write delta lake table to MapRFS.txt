@@ -1,0 +1,29 @@
+## Bug
+
+### Describe the problem
+When I write a delta lake table into maprfs from pyspark, I get the error message below, but the table gets written correctly.
+
+```
+from delta import *
+from pyspark.sql import SparkSession
+
+builder = SparkSession.builder.appName("MyApp") \
+    .config("spark.sql.extensions", "io.delta.sql.DeltaSparkSessionExtension") \
+    .config("spark.sql.catalog.spark_catalog", "org.apache.spark.sql.delta.catalog.DeltaCatalog") \
+    .enableHiveSupport()
+
+spark = configure_spark_with_delta_pip(builder).getOrCreate()
+
+data = spark.range(0, 5)
+data.write.format("delta").save("maprfs:/delta/dtable")
+```
+
+#### Observed results
+The table gets written but I get the following error message 
+![image](https://user-images.githubusercontent.com/13351942/169518022-ee6e19e1-1fee-4272-9611-a31f43f64311.png)
+
+### Environment information
+
+* Delta Lake version: 1.0.1
+* Spark version: 3.1.2
+* Python version: 3.8

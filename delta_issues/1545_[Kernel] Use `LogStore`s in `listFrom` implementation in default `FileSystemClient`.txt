@@ -1,0 +1,10 @@
+## Description
+`LogStore`s in `storage` module have file system operations (needed for reading/writing DeltaLogs) implemented for each storage (e.g. s3, GCS etc.) to take into account of the behavior of storage and also efficiently implement certain operations depending upon the storage system support (e.g. fast listing in S3).
+
+This PR creates `LogStoreProvider` to get the specific implementation of the `LogStore` for given `scheme`. Also updates the `DefaultFileSystemClient.listFrom` to use the `LogStore.listFrom`.
+
+The majority of the code here is copied from the `delta-spark` and `standalone` projects. 
+
+## How was this patch tested?
+Unittests for `LogStoreProvider` and existing integration tests for `DefaultFileSystemClient.listFrom` changes.
+

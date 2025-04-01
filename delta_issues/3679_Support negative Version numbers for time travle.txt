@@ -1,0 +1,5 @@
+I often find myself in situation where I want to compare the current state of a delta table with the previous state (e.g. before a MERGE/UPDATE)
+right now this is always a bit cumbersome as I need to get the version/timestamp of the previous transaction using `DESCRIBE HISTORY` before I can use `[VERSION / TIMESTAMP] AS OF xxx`
+
+It would be great to have the ability to define negative version numbers like `VERSION AS OF -1` to get the previous version, `VERSION AS OF -2` to get the version two commits ago etc.
+basically similar to what you can do in Python with arrays to select the trailing elements

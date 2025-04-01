@@ -1,0 +1,10 @@
+## Feature request
+
+### Overview
+
+Add support for removing writer features from a delta table. Delta needs to provide a way of removing particular Table Features from a table. 
+
+This can be achieved as follows:
+- Introduce a new alter table command for removing features, `AlterTableDropFeatureDeltaCommand`.
+- Introduce a new trait, `RemovableFeature`, that all removable features must implement.
+- Each removable feature may implement a `PreDowngradeTableFeatureCommand` that is responsible of removing any traces of the features in the table.

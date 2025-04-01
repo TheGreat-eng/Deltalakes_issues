@@ -1,0 +1,24 @@
+#### Which Delta project/connector is this regarding?
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+Previously, certain code paths assumed the existence of delta files for a specific version at a predictable path `_delta_log/$version.json`. This assumption is no longer valid with managed-commits, where delta files may alternatively be located at `_delta_log/_commits/$version.$uuid.json`. We explicitly rename the old method to `unsafeDeltaFile` to warn future users about it being incorrect for tables with Managed Commits.
+
+To not break dependent systems, plan:
+1. Update all delta-spark usages to use the unsafe method. (current PR)
+2. Deprecate the deltaFile method. (current PR)
+3. Remove the deprecated method once it's proven to be safe. (future PR)
+
+## How was this patch tested?
+
+UTs
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

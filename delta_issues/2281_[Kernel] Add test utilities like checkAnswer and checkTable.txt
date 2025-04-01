@@ -1,0 +1,21 @@
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [x] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+Improves the testing infrastructure for Scala tests in Delta Kernel.
+
+For now adds it to `kernel-defaults` but if we have tests with `ColumnarBatch`s in `kernel-api` we can move it there.
+
+## How was this patch tested?
+
+Refactors existing tests to use the new infra.

@@ -1,0 +1,55 @@
+**Description**
+When writing a delta table using pyspark, the table schema is not written into the hive metastore. When querying the table using spark thrift server via jdbc , I can't see the columns. 
+
+![image](https://user-images.githubusercontent.com/19415300/121687749-fd798d80-cac2-11eb-9b67-18c6af401947.png)
+
+
+
+**Steps**
+The table is created using
+`df.write.format("delta").saveAsTable("mytable")`.
+
+**Results**
+The information in the hive metastore is as followed:
+
+`SELECT * FROM TABLE_PARAMS`
+
+TBL_ID|PARAM_KEY|PARAM_VALUE
+--|--|--
+5|spark.sql.create.version|3.1.2
+5|numFiles|6
+5|spark.sql.sources.provider|delta
+5|transient_lastDdlTime|1623398918
+5|totalSize|2688705839
+5|spark.sql.partitionProvider|catalog
+5|spark.sql.sources.schema.numParts|1
+5|spark.sql.sources.schema.part.0|"{""type"":""struct"",""fields"":[]}"
+
+with the following warning in the spark session:
+
+`21/06/11 07:08:37 WARN HiveExternalCatalog: Couldn't find corresponding Hive SerDe for data source provider delta. Persisting data source table `default`.`myname` into Hive metastore in Spark SQL specific format, which is NOT compatible with Hive.`
+
+**Environments**
+Tested configurations
+
+`Pyspark: 3.1.2 
+Hadoop: 3.2.0
+Delta: 1.0.0
+HiveMetastore: 3.0.0
+
+Pyspark: 3.1.2
+Hadoop: 3.2.0
+Delta: 1.0.0
+HiveMetastore: 2.7.3
+
+Pyspark: 3.1.1
+Hadoop: 3.2.0
+Delta: 1.0.0
+HiveMetastore: 2.7.3)`
+
+**Settings**
+`conf.set("spark.hadoop.hive.metastore.client.connect.retry.delay", "5")
+conf.set("spark.hadoop.hive.metastore.client.socket.timeout", "1800")
+conf.set("spark.hadoop.hive.metastore.uris", "thrift://metastore.hive-metastore.svc.cluster.local:9083")
+conf.set("spark.hadoop.hive.input.format", "io.delta.hive.HiveInputFormat")
+conf.set("spark.hadoop.hive.tez.input.format", "io.delta.hive.HiveInputFormat")`

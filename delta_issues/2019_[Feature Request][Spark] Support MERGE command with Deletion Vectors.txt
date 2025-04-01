@@ -1,0 +1,33 @@
+## Feature request
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the issue title
+For example: [Feature Request][Spark] Title of my issue
+-->
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+### Overview
+This FR is about providing deletion vector support in Merge. It is part of a wider effort to speed up DML operations with Deletion Vectors (DVs). It builds on top of previous work: https://github.com/delta-io/delta/issues/1591 and https://github.com/delta-io/delta/issues/1923.
+
+### Motivation
+The current implementation of merge is based on the Copy-on-Write (CoW) approach where touched files are rewritten entirely. This includes both the modified rows as well as the unmodified rows. On the other hand, deletion vectors allow a Merge-on-Read (MoR) approach where we "soft" delete the affected rows in the touched files and only rewrite the modified rows. The "soft" deleted rows are then filtered out on read. This can result into significant performance gains during writes by trading off a small overhead on read. This is because on the most common case merge operations only touch a small portion of data.
+
+### Further details
+The current implementation implementation of merge consists of 2 jobs:
+
+Job 1: Finds touched files by joining the source and target tables.
+Job 2: Rewrites touched files.
+
+The new implementation splits job 2 into two parts: one for writing the modified rows and one for writing the deletion vectors. Overall, merge with DVs consists of the following jobs:
+
+Job 1: Finds touched files by joining the source and target tables.
+Job 2.a: Writes modified and new rows.
+Job 2.b: writes deletions vectors for the modified rows.
+
+From a performance point of view, the extra job adds some overhead but only operates on the touched files produced by job 1 and only shuffles the columns required by the predicates. Furthermore, jobs 2.a and 2.b perform stricter joins.

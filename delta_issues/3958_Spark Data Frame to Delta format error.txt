@@ -1,0 +1,99 @@
+I am running on spark 3 preview 2  and trying to write to delta format from spark dataframe in pyspark is throwing an error.
+
+--------------------------------------------------------------------------
+Py4JJavaError                             Traceback (most recent call last)
+<ipython-input-33-515458886dbb> in <module>
+----> 1 jdbconsvehDF.write.format("delta").mode("overwrite").save("file:///home/datascientist/deltafiles")
+
+/opt/oss/spark/python/pyspark/sql/readwriter.py in save(self, path, format, mode, partitionBy, **options)
+    767             self._jwrite.save()
+    768         else:
+--> 769             self._jwrite.save(path)
+    770 
+    771     @since(1.4)
+
+/opt/oss/spark/python/lib/py4j-0.10.8.1-src.zip/py4j/java_gateway.py in __call__(self, *args)
+   1284         answer = self.gateway_client.send_command(command)
+   1285         return_value = get_return_value(
+-> 1286             answer, self.gateway_client, self.target_id, self.name)
+   1287 
+   1288         for temp_arg in temp_args:
+
+/opt/oss/spark/python/pyspark/sql/utils.py in deco(*a, **kw)
+     96     def deco(*a, **kw):
+     97         try:
+---> 98             return f(*a, **kw)
+     99         except py4j.protocol.Py4JJavaError as e:
+    100             converted = convert_exception(e.java_exception)
+
+/opt/oss/spark/python/lib/py4j-0.10.8.1-src.zip/py4j/protocol.py in get_return_value(answer, gateway_client, target_id, name)
+    326                 raise Py4JJavaError(
+    327                     "An error occurred while calling {0}{1}{2}.\n".
+--> 328                     format(target_id, ".", name), value)
+    329             else:
+    330                 raise Py4JError(
+
+Py4JJavaError: An error occurred while calling o572.save.
+: com.google.common.util.concurrent.ExecutionError: java.lang.NoSuchMethodError: 'java.lang.Class org.apache.spark.util.Utils$.classForName(java.lang.String)'
+	at com.google.common.cache.LocalCache$Segment.get(LocalCache.java:2232)
+	at com.google.common.cache.LocalCache.get(LocalCache.java:3965)
+	at com.google.common.cache.LocalCache$LocalManualCache.get(LocalCache.java:4764)
+	at org.apache.spark.sql.delta.DeltaLog$.apply(DeltaLog.scala:740)
+	at org.apache.spark.sql.delta.DeltaLog$.forTable(DeltaLog.scala:702)
+	at org.apache.spark.sql.delta.sources.DeltaDataSource.createRelation(DeltaDataSource.scala:126)
+	at org.apache.spark.sql.execution.datasources.SaveIntoDataSourceCommand.run(SaveIntoDataSourceCommand.scala:46)
+	at org.apache.spark.sql.execution.command.ExecutedCommandExec.sideEffectResult$lzycompute(commands.scala:70)
+	at org.apache.spark.sql.execution.command.ExecutedCommandExec.sideEffectResult(commands.scala:68)
+	at org.apache.spark.sql.execution.command.ExecutedCommandExec.doExecute(commands.scala:86)
+	at org.apache.spark.sql.execution.SparkPlan.$anonfun$execute$1(SparkPlan.scala:173)
+	at org.apache.spark.sql.execution.SparkPlan.$anonfun$executeQuery$1(SparkPlan.scala:211)
+	at org.apache.spark.rdd.RDDOperationScope$.withScope(RDDOperationScope.scala:151)
+	at org.apache.spark.sql.execution.SparkPlan.executeQuery(SparkPlan.scala:208)
+	at org.apache.spark.sql.execution.SparkPlan.execute(SparkPlan.scala:169)
+	at org.apache.spark.sql.execution.QueryExecution.toRdd$lzycompute(QueryExecution.scala:110)
+	at org.apache.spark.sql.execution.QueryExecution.toRdd(QueryExecution.scala:109)
+	at org.apache.spark.sql.DataFrameWriter.$anonfun$runCommand$1(DataFrameWriter.scala:828)
+	at org.apache.spark.sql.execution.SQLExecution$.$anonfun$withNewExecutionId$4(SQLExecution.scala:100)
+	at org.apache.spark.sql.execution.SQLExecution$.withSQLConfPropagated(SQLExecution.scala:160)
+	at org.apache.spark.sql.execution.SQLExecution$.withNewExecutionId(SQLExecution.scala:87)
+	at org.apache.spark.sql.DataFrameWriter.runCommand(DataFrameWriter.scala:828)
+	at org.apache.spark.sql.DataFrameWriter.saveToV1Source(DataFrameWriter.scala:309)
+	at org.apache.spark.sql.DataFrameWriter.save(DataFrameWriter.scala:293)
+	at org.apache.spark.sql.DataFrameWriter.save(DataFrameWriter.scala:236)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:566)
+	at py4j.reflection.MethodInvoker.invoke(MethodInvoker.java:244)
+	at py4j.reflection.ReflectionEngine.invoke(ReflectionEngine.java:357)
+	at py4j.Gateway.invoke(Gateway.java:282)
+	at py4j.commands.AbstractCommand.invokeMethod(AbstractCommand.java:132)
+	at py4j.commands.CallCommand.execute(CallCommand.java:79)
+	at py4j.GatewayConnection.run(GatewayConnection.java:238)
+	at java.base/java.lang.Thread.run(Thread.java:834)
+Caused by: java.lang.NoSuchMethodError: 'java.lang.Class org.apache.spark.util.Utils$.classForName(java.lang.String)'
+	at org.apache.spark.sql.delta.storage.LogStoreProvider.createLogStore(LogStore.scala:122)
+	at org.apache.spark.sql.delta.storage.LogStoreProvider.createLogStore$(LogStore.scala:120)
+	at org.apache.spark.sql.delta.DeltaLog.createLogStore(DeltaLog.scala:58)
+	at org.apache.spark.sql.delta.storage.LogStoreProvider.createLogStore(LogStore.scala:117)
+	at org.apache.spark.sql.delta.storage.LogStoreProvider.createLogStore$(LogStore.scala:115)
+	at org.apache.spark.sql.delta.DeltaLog.createLogStore(DeltaLog.scala:58)
+	at org.apache.spark.sql.delta.DeltaLog.<init>(DeltaLog.scala:79)
+	at org.apache.spark.sql.delta.DeltaLog$$anon$3.$anonfun$call$2(DeltaLog.scala:744)
+	at org.apache.spark.sql.catalyst.plans.logical.AnalysisHelper$.allowInvokingTransformsInAnalyzer(AnalysisHelper.scala:194)
+	at org.apache.spark.sql.delta.DeltaLog$$anon$3.$anonfun$call$1(DeltaLog.scala:744)
+	at com.databricks.spark.util.DatabricksLogging.recordOperation(DatabricksLogging.scala:77)
+	at com.databricks.spark.util.DatabricksLogging.recordOperation$(DatabricksLogging.scala:67)
+	at org.apache.spark.sql.delta.DeltaLog$.recordOperation(DeltaLog.scala:671)
+	at org.apache.spark.sql.delta.metering.DeltaLogging.recordDeltaOperation(DeltaLogging.scala:103)
+	at org.apache.spark.sql.delta.metering.DeltaLogging.recordDeltaOperation$(DeltaLogging.scala:89)
+	at org.apache.spark.sql.delta.DeltaLog$.recordDeltaOperation(DeltaLog.scala:671)
+	at org.apache.spark.sql.delta.DeltaLog$$anon$3.call(DeltaLog.scala:743)
+	at org.apache.spark.sql.delta.DeltaLog$$anon$3.call(DeltaLog.scala:740)
+	at com.google.common.cache.LocalCache$LocalManualCache$1.load(LocalCache.java:4767)
+	at com.google.common.cache.LocalCache$LoadingValueReference.loadFuture(LocalCache.java:3568)
+	at com.google.common.cache.LocalCache$Segment.loadSync(LocalCache.java:2350)
+	at com.google.common.cache.LocalCache$Segment.lockedGetOrLoad(LocalCache.java:2313)
+	at com.google.common.cache.LocalCache$Segment.get(LocalCache.java:2228)
+	... 35 more
+​

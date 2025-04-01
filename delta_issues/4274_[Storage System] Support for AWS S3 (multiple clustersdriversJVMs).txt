@@ -1,0 +1,19 @@
+This is the official for discussing support for Delta Lake on S3 while writing from multiple clusters. The challenges of S3 support have been explained in #39 . While #39 tracks the work for a simpler solution that works only with all write operations going through the same cluster/driver/JVM, this issues tracks the larger problem of making it work with multiple clusters. 
+
+Please use this thread to discuss and vote on ideas.
+
+**Update 2022-01-13**
+We have begun working with an open-source contributor on the design + implementation of this feature using DynamoDB to provide the mutual-exclusion that S3 is lacking.
+
+Here's the public design [doc](https://docs.google.com/document/d/1Gs4ZsTH19lMxth4BSdwlWjUNR-XhKHicDvBjd2RqNd8/edit?usp=sharing).
+
+The current status is:
+- [x] PR feedback document + not-yet-public (still WIP) design doc
+- [x] implement PR feedback
+- [ ] refactor base PR to use new `storage-dynamodb` SBT project
+- [ ] refactor base PR's python integration tests cc @allisonport-db 
+- [ ] refactor to Java
+- [x] refactor-out project to separate module (to isolate AWS dependencies)
+- [ ] ease-of-use improvements (e.g. default tables, capacity modes, etc.)
+- [ ] potential performance improvements
+- [ ] 0th commit DynamoDB-empty-table check

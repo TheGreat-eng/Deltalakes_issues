@@ -1,0 +1,60 @@
+**Problem**
+When trying to run MERGE INTO command in spark sql with clause:
+WHEN NOT MATCHED THEN INSERT *  getting error:
+**org.apache.spark.sql.AnalysisException: Unable to find the column 'col2' of the target table from the INSERT columns: id. INSERT clause must specify value for all the columns of the target table.**
+This only happens for insert part and only when this is executed via spark sql (as per below steps to reproduce)
+
+**Steps to reproduce**
+Version: Spark 3.0.0 with delta-core 0.7.0
+
+```scala
+
+    val conf = new SparkConf()
+    .set("spark.master", "local")
+      .set("spark.sql.extensions", "io.delta.sql.DeltaSparkSessionExtension")
+      .set("spark.sql.catalog.spark_catalog", "org.apache.spark.sql.delta.catalog.DeltaCatalog")
+      .set("spark.databricks.delta.schema.autoMerge.enabled", "true")
+
+    var spark = SparkSession
+      .builder()
+      .appName("delta lake test")
+      .config(conf)
+      .getOrCreate()
+
+    val data = spark.range(0)
+    print(data.columns.mkString(","))
+    data.write.format("delta").mode("Overwrite").save("local_path")
+
+    var data2 = spark.range(2,20).toDF
+    data2 = data2.withColumn("col2", lit("1").cast("String"))
+    print(data2.show(100, false))
+    data2.createOrReplaceTempView("table2")
+  
+    val dt2 = spark.read.format("delta").load("local_path")
+    dt2.createOrReplaceTempView("test2")
+
+   // ERROR HAPPENING ON THIS STATEMENT
+    spark.sql("merge into test2 as t using table2 as s on t.id = s.id WHEN MATCHED THEN UPDATE SET * WHEN NOT MATCHED THEN INSERT *  ")
+```
+
+removing WHEN NOT MATCHED INSERT * clause makes the statement work (i get new schema with col2 added)
+```scala 
+spark.sql("merge into test2 as t using table2 as s on t.id = s.id WHEN MATCHED THEN UPDATE SET *")
+```
+
+running update/insert via Scala API also works
+```scala
+    val kk = DeltaTable.forPath("local_path")
+    kk.alias("t").merge(
+        data2.alias("s"),
+        "t.id = s.id")
+      .whenMatched().updateAll()
+      .whenNotMatched().insertAll()
+      .execute()
+```
+
+**Expected Result**
+Both Spark SQL and API merge work in the same way and allow for schema evolution with option "spark.databricks.delta.schema.autoMerge.enabled" set to "true"
+
+in this case, as per https://docs.delta.io/latest/delta-update.html#merge-examples&language-scala
+i would expect new column to be added, which works for api version.

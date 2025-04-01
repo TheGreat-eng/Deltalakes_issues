@@ -1,0 +1,9 @@
+Hi,  
+
+I'm testing delta with hadoop-aliyun to create Delta table on Aliyun OSS:
+
+https://hadoop.apache.org/docs/stable/hadoop-aliyun/tools/hadoop-aliyun/index.html
+
+This document mentions some warnings, eg. delete() and rename() are not atomic.  I checked git repositories of Hudi and Iceberg, they have explicit support for Aliyun OSS, but Delta code is purely neutral to cloud service providers, so I want to confirm, is it safe to use Delta with hadoop-aliyun and Aliyun OSS object storage?
+
+Thanks!

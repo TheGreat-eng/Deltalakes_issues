@@ -1,0 +1,147 @@
+## Bug
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the issue title
+For example: [BUG][Spark] Title of my issue
+-->
+
+- [X] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+### Describe the problem
+When `option("mergeSchema", True)` is used the metadata is not merged into the schema 
+
+#### Steps to reproduce
+
+Build a delta table and write a new df with new schema
+
+pyspark
+```python
+import pyspark.sql.types as T
+
+from delta.tables import DeltaTable
+
+DeltaTable.create(spark).tableName("example_table").addColumns(
+    T.StructType(
+        [
+            T.StructField(
+                "ColA",
+                T.StringType(),
+                True,
+            )
+        ]
+    )
+).execute()
+
+new_schema_json = {
+    "type": "struct",
+    "fields": [
+        {
+            "name": "ColA",
+            "type": "string",
+            # changed True -> False
+            "nullable": False,
+            # changed {} -> {"key": "value"}
+            "metadata": {"key": "value"},
+        },
+        # new column
+        {
+            "name": "ColB",
+            "type": "string",
+            "nullable": False,
+            "metadata": {"key": "value"},
+        },
+    ],
+}
+
+new_schema = T.StructType.fromJson(new_schema_json)
+
+(
+    spark.createDataFrame([], new_schema)
+    # also tried with "append" (same results)
+    .write.mode("overwrite")
+    .format("delta")
+    .option("mergeSchema", True)
+    .saveAsTable("example_table")
+)
+
+table = DeltaTable.forName(
+    spark,
+    "example_table",
+)
+
+assert table.toDF().schema.jsonValue() == new_schema_json
+```
+
+The output is:
+```
+E         Full diff:
+E           {
+E               'fields': [
+E                   {
+E         -             'metadata': {
+E         +             'metadata': {},
+E         ?                          ++
+E         -                 'key': 'value',
+E         -             },
+E                       'name': 'ColA',
+E         -             'nullable': False,
+E         ?                         ^^^^
+E         +             'nullable': True,
+E         ?                         ^^^
+E                       'type': 'string',
+E                   },
+E                   {
+E                       'metadata': {
+E                           'key': 'value',
+E                       },
+E                       'name': 'ColB',
+E         -             'nullable': False,
+E         ?                         ^^^^
+E         +             'nullable': True,
+E         ?                         ^^^
+E                       'type': 'string',
+E                   },
+E               ],
+E               'type': 'struct',
+E           }
+```
+
+
+#### Observed results
+
+schema was merged, but:
+- ColA nullable was not updated
+- ColA metadata was not updated
+- ColB was added with right metadata, but nullable is True (but False was required)
+
+#### Expected results
+
+new_schema was merged including metadata for ColA and ColB
+
+
+#### Further details
+
+<!--
+Include any additional details that may be useful for diagnosing the problem here. If including tracebacks, please include the full traceback. Large logs and files should be attached.
+-->
+
+### Environment information
+
+* Delta Lake version: io.delta#delta-core_2.12;2.4.0 
+* Spark version: 3.4.1
+* Scala version: na
+
+### Willingness to contribute
+
+Sure, but in python:)
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [ ] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute a bug fix at this time.

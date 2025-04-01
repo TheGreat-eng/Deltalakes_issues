@@ -1,0 +1,5 @@
+## Description
+Changed string comparing from UTF16 to UTF8. This fixes comparison issues around the characters with surrogate pairs.
+
+## How was this patch tested?
+Tests added to `DefaultExpressionEvaluatorSuite.scala`

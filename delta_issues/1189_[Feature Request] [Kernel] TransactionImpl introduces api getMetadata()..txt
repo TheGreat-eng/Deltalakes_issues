@@ -1,0 +1,2 @@
+In some cases, if the user may want to update the delta table configuration, we need to get the txn metadata first, then override the metadata#configuration K,V to update the table configuration.
+

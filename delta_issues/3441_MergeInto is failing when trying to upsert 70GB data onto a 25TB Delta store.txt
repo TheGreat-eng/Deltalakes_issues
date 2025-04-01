@@ -1,0 +1,25 @@
+MergeInto is failing when trying to upsert 70GB data (size on S3) onto a 25TB Delta store (size on S3)
+
+The failure is happening in the `findTouchedFiles()` spark stage and we see that our Driver is running out of memory before this stage can finish. We tried with a `r5.24xlarge` node (768GB RAM) for our driver (spark deploy mode = client). I think the reason is that the current Delta store has 25TB spread across 43,500 files and this Upsert is probably touching most of the files. So in this Spark stage containing 50k tasks, each of the tasks return about 7MB of data for the `touchedFilesAccum` and the driver is unable to hold this much data and is running OOM. On doing a Heap dump analysis of Driver, I see the following for class histogram:
+
+![image](https://user-images.githubusercontent.com/88312580/146773375-172333f7-15e2-4879-b4cc-7c9980390569.png)
+
+We are using the following setup for our data pipeline:
+
+EMR 5.33.0
+Spark 2.4.7
+Delta core 0.6.1
+We have 8 r5.24xlarge machines as core nodes and 1 r5.24xlarge machine for the master node
+
+Current Delta store size: 25 TB (after bootstrapping with initial data via a single commit)
+Upsert data size: 70 GB
+No partition used since our data has no logical partitioning and is a simple 5 column table with billions of rows
+
+I even tried to do the same Upsert above with the following setup, but notice the same behavior:
+
+EMR 6.4.0
+Spark 3.1.2
+Delta core 1.0.0
+We have 8 r5.24xlarge machines as core nodes and 1 r5.24xlarge machine for the master node
+
+Please suggest how we can proceed. One thing I am trying is to reduce the number of partitions (`spark.sql.shuffle.partitions`) so that the overall data returned to the Driver will be smaller, I haven't gotten this to succeed yet and I think this is not a scalable solution since reducing partitions means I need to use bigger executors. Please let me know if any further info is required.

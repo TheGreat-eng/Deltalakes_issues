@@ -1,0 +1,34 @@
+## Bug
+
+#### Which Delta project/connector is this regarding?
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [x] Kernel
+- [ ] Other (fill in here)
+
+### Describe the problem
+LIKE expression implementation can take advantage of a performance optimization to perform java regex conversion only once when the pattern input is a a literal. In the current implementation java regex conversion happens for every row in the input.
+
+#### Steps to reproduce
+for e.g. for the expression `col("c1") LIKE 'a%'` will invoke `LikeExpressionEvaluator.escapeLikeRegex(...)` for every single row in the column vector for `c1`.
+
+#### Observed results
+`LikeExpressionEvaluator.escapeLikeRegex(...)` for every single row in the column vector expression is evaluated against even when pattern is static.
+
+#### Expected results
+`LikeExpressionEvaluator.escapeLikeRegex(...)` is invoked only once for the entire column vector when pattern is static.
+
+### Environment information
+
+* Delta Lake version: 3.3.0
+* Spark version: N/A
+* Scala version: 2.12.x & 2.13.x
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [x] Yes. I can contribute a fix for this bug independently.
+- [ ] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute a bug fix at this time.

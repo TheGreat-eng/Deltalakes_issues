@@ -1,0 +1,1 @@
+The merge is generating too many parquet files in the output directory.  is there any way to control? 

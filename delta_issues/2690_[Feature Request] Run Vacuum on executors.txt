@@ -1,0 +1,23 @@
+## Feature request
+
+### Overview
+
+I suggest that we alter the current approach of performing the `vacuum` command on the drivers and consider running it on the executors instead.
+
+### Motivation
+
+Currently, the vacuum command is executed on the driver, which can create performance issues and limit our ability to process large volumes of data. By running the vacuum command on the executors instead, we can distribute the processing load and better utilize available resources. This change will also help to mitigate potential bottlenecks and improve the overall efficiency .
+
+### Further details
+
+The proposed modification would require changes to the underlying code that executes the `vacuum` command. Specifically, we would need to modify the code to ensure that the `vacuum` command is executed on the executors instead of the driver.
+
+I believe that this change will be relatively straightforward to implement and will yield significant benefits in terms of performance and scalability. I am eager to hear feedback on this proposal and am committed to working collaboratively with the development team to implement this change in an efficient and effective manner.
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [ ] Yes. I can contribute this feature independently.
+- [X] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.

@@ -1,0 +1,27 @@
+I just tried configuring a unittest with both kafka and delta lake settings and notices that my manually specified 
+
+` .config('spark.jars.packages', 'org.apache.spark:spark-sql-kafka-0-10_2.12:3.2.0')` gets overwritten by `configure_spark_with_delta_pip`. I think a more reasonable action would be to append to the list instead of replacing.
+
+alternatively, one could just provide a helper:
+
+
+```python
+def delta_jars()->List[str]:
+    """
+    return the list of jars that need to be added to the spark session to use delta lake.
+   Add these jars to your pyspark session setup. E.g.
+    builder.config("spark.jars.packages",",".join(delta_jars() + ["my-jars"] ))
+    """
+    import importlib_metadata  # load this library only when this function is called
+    try:
+        delta_version = importlib_metadata.version("delta_spark")
+    except Exception as e:
+        msg = '''
+This function can be used only when Delta Lake has been locally installed with pip.
+See the online documentation for the correct usage of this function.
+        '''
+        raise Exception(msg) from e
+
+    scala_version = "2.12"
+    return [ f"io.delta:delta-core_{scala_version}:{delta_version}"]
+```

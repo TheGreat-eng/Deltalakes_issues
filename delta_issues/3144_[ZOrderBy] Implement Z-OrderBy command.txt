@@ -1,0 +1,16 @@
+## Description
+
+This PR is part of https://github.com/delta-io/delta/issues/1134. This is the final PR that integrates end-to-end from OPTIMIZE SQL to Z-Order clustering execution.
+
+It adds the parser definition to accept OPTIMIZE ZORDER BY SQL. Modifies the existing `OptimizeTableCommand` to handle the Z-Order by making the following changes. 
+
+- `OptimizeTableCommand` now has two modes `MultiDimClustering` and `Compaction`
+- When selecting the files for OPTIMIZE jobs: In `MultiDimClustering` mode select all files in the selected partition. In `Compaction` mode select only the files that have size less than the `minFileSize` in the selected partitions
+- When constructing bins for Optimize jobs: In `MultiDimClustering` mode, select all files in a partition as one bin. In `Compaction` mode, divide the files in partition into bins where the total size of the files in the bin is at most the `maxFileSize`
+- When constructing the Optimize jobs to run: In `MultiDimClustering` mode, convert the DataFrame containing input files into a clustering DataFrame using `MultiDimClustering`. In `Compaction` mode, we just coalesce all input files into one partition.
+
+Detailed design is [here](https://docs.google.com/document/d/1TYFxAUvhtYqQ6IHAZXjliVuitA5D1u793PMnzsH_3vs/edit?usp=sharing)
+
+## How was this patch tested?
+Unit tests are added
+

@@ -1,0 +1,2 @@
+## Description
+Add missing `package-info` for `io.delta.kernel.defaults.client` package.

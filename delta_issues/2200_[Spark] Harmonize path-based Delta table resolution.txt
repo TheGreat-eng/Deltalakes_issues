@@ -1,0 +1,19 @@
+#### Which Delta project/connector is this regarding?
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+Historically, path-based table resolution logic has been scattered all over Delta's code base. We can build on recent code improvements to start harmonizing and centralizing that logic in `DeltaTableV2`, which already plays a central role in all table resolution. Future changes can continue building on this base.
+
+## How was this patch tested?
+
+Existing unit tests.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No.

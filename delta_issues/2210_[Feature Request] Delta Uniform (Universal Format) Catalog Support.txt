@@ -1,0 +1,35 @@
+## Feature request
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the issue title
+For example: [Feature Request][Spark] Title of my issue
+-->
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+### Overview
+
+Support HMS-based iceberg in Delta Uniform
+
+### Motivation
+
+Delta Uniform in preview release uses file-system based iceberg, which is not the mainstream Iceberg use case and constraints adoption. As most Iceberg customers have catalog and use catalog to manage the Iceberg table commits, it is a generally critical ask to have Delta Uniform (Universal Format) to support Iceberg catalog. The customer would like to read Delta Uniform table as Iceberg from an Iceberg catalog, eg, HMS. 
+
+
+### Further details
+This requires Uniform to commit all required iceberg metadata (table type, metadata location) to HMS as table properties.
+
+This require catalog support to be first-class citizen of Delta, so Delta can pass catalog table identifier all the way from Spark/Delta commands to Delta transaction to iceberg conversion transaction to underlying iceberg library, which can then use the table identifier to commit to HMS. 
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [ ] Yes. I can contribute this feature independently.
+- [x] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.

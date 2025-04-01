@@ -1,0 +1,7 @@
+## Description
+
+This PR adds an integration test to test the fix in #1078. It also checks that we are throwing `pyspark.sql.utils.AnalysisException`
+
+## How was this patch tested?
+
+Run with  `python3 run-integration-tests.py --python-only --test table_exists --use-local` to test local code and `python3 run-integration-tests.py --version 1.1.0 --python-only --test table_exists`.

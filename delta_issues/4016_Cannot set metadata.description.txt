@@ -1,0 +1,3 @@
+Hi, I'm trying to figure out how to set the description of a delta table. Table.comment is used for non-delta tables (https://github.com/delta-io/delta/blob/master/src/main/scala/org/apache/spark/sql/delta/commands/DescribeDeltaDetailsCommandBase.scala#L126), but for delta tables it uses metadata.description (https://github.com/delta-io/delta/blob/master/src/main/scala/org/apache/spark/sql/delta/commands/DescribeDeltaDetailsCommandBase.scala#L170).
+
+However, it seems impossible to set metadata.description. Or am I missing something?

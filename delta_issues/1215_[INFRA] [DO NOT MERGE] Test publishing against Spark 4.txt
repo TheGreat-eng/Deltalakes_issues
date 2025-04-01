@@ -1,0 +1,22 @@
+## Publishing ✅ 
+- set JAVA_HOME to JDK 17
+- `build/sbt publishM2` only runs for, and does succeeds for, Scala 2.13
+
+## Delta Spark ✅ 
+
+```
+# First, publish using JDK 17 and instructions above
+
+pip install https://dist.apache.org/repos/dist/dev/spark/v4.0.0-preview1-rc1-bin/pyspark-4.0.0.dev1.tar.gz
+
+pyspark --jars /Users/scott.sandre/.m2/repository/io/delta/delta-spark_2.13/3.2.1-SNAPSHOT/delta-spark_2.13-3.2.1-SNAPSHOT.jar,/Users/scott.sandre/.m2/repository/io/delta/delta-storage/3.2.1-SNAPSHOT/delta-storage-3.2.1-SNAPSHOT.jar --conf "spark.sql.extensions=io.delta.sql.DeltaSparkSessionExtension" --conf "spark.sql.catalog.spark_catalog=org.apache.spark.sql.delta.catalog.DeltaCatalog"
+```
+
+## Delta Kernel ✅ 
+
+```
+# First, publish using JDK 17 and instructions above
+# Then, comment out `clear_artifact_cache` in `run-kernel-examples.py`
+# Then, Set JAVA_HOME to JDK 8
+./kernel/examples/run-kernel-examples.py --version 3.2.1-SNAPSHOT
+```

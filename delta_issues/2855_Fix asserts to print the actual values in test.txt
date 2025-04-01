@@ -1,0 +1,1 @@
+The [branch 2.1](https://github.com/delta-io/delta/commits/branch-2.1) has a test failure, just after updating the version to `2.1.1`.  Just before the version update, the tests passed. The invalid assert in the test failure is not printing the actual value. Change the assert to `assertEqual` and run the tests to repro.

@@ -1,0 +1,1 @@
+I have some frequently updated delta tables and found that there are too many deltaLog files. I know the logRetentionDuration configuration is helpful, but it doesn't work on historical data. Is there a way to get the configuration to work on historical data?

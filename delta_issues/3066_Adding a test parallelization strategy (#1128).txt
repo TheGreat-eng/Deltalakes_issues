@@ -1,0 +1,38 @@
+## Description
+
+Adds a test parallelization option to run Delta tests on different JVM addressing #1128:
+- Implements a generic abstraction called `GroupingStrategy` and a default implementation `SimpleHashStrategy` that uses a fixed number of `Test.Groups` each forked in its own JVM.
+- Provides two collection of settings, one that can be added to enable test parallelization, one to use the default strategy which will use 4 JVM unless separately specified by an environment variable called `DELTA_TEST_JVM_COUNT`
+- Adds those two settings to the core package 
+
+Resolves #1128 on local developer machine, but not on the CI Pipeline. 
+
+## How was this patch tested?
+
+Logging has been introduced using SBT logger so to get some statistics around the distribution of tests
+```
+sbt:delta-core> Test/testGrouping
+[info] scalastyle using config /Users/edmondoporcu/Development/personal/delta/scalastyle-config.xml
+[info] scalastyle Processed 151 file(s)
+[info] scalastyle Found 0 errors
+[info] scalastyle Found 0 warnings
+[info] scalastyle Found 0 infos
+[info] scalastyle Finished in 25 ms
+[success] created output: /Users/edmondoporcu/Development/personal/delta/core/target
+[info] Tests will be grouped in 4 groups
+[info] Test group 0 contains 34 tests
+[info] Test group 1 contains 31 tests
+[info] Test group 2 contains 34 tests
+[info] Test group 3 contains 30 tests
+[success] Total time: 6 s, completed Jul 3, 2022 3:39:29 PM
+```
+
+Additionally running tops on my Macbook shows 4 JVM running as expected, all with the same Parent PID
+<img width="1212" alt="Screen Shot 2022-07-03 at 3 40 53 PM" src="https://user-images.githubusercontent.com/812841/177059600-3aebbb39-0620-41e8-90f7-4ec023c3ffd4.png">
+
+
+Still need to be tested, needs to trigger build on CI/CD
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

@@ -1,0 +1,11 @@
+## Description
+
+This PR changes the protocol version of Table Features to (3, 7) because all features are now adapted (see https://github.com/delta-io/delta/pull/1530).
+
+## How was this patch tested?
+
+Existing tests.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No.

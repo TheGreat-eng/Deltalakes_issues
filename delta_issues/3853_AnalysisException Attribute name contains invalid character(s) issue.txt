@@ -1,0 +1,1 @@
+Exception in thread "main" org.apache.spark.sql.AnalysisException: Attribute name "Code région" contains invalid character(s) among " ,;{}()\n\t=". Please use alias to rename it.;

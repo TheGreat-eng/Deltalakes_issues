@@ -1,0 +1,12 @@
+Dear Team,
+
+Few delta tables were created last year (23-Nov-2020) and records were getting merged on a daily basis. When the table was queried, we see that half of the partitions are missed to read by delta driver. We can see the partitioned folder, but these folders are not read by delta driver.
+
+What could be the root cause? Highly appreciate your help.
+
+Cluster used to run merge query: 7.3 LTS (includes Apache Spark 3.0.1, Scala 2.12)
+
+When queried over partial version history, see no delete operation. Also the Merge operationMetrics do not have any deleted rows.
+
+Thanks and Regards,
+Vijay

@@ -1,0 +1,4 @@
+This PR cleans up an unused variable in the IBMCOSLogStore.
+The variable (`writeSize`) was a leftover from an older version of the LogStore implementation.
+No logic changes are introduced.
+

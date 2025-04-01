@@ -1,0 +1,41 @@
+## Feature request
+
+#### Which Delta project/connector is this regarding?
+- [X] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+### Overview
+
+Identity Column (writer version 6) as defined by https://github.com/delta-io/delta/blob/master/PROTOCOL.md#identity-columns. 
+
+Design doc:  https://docs.google.com/document/d/1G8Vj6wOxswMx1JklllLoSn-obEpJ-iE_Lhpbd-RfIr4/edit?usp=sharing
+
+PR:
+- #2857 
+- #2859 
+- #2915 
+- #2916 
+- #3005
+- #3023 
+- #3404
+- #3457
+- #3459
+- #3525
+- #3526
+- #3558
+- #3568
+- #3566
+- #3594
+- #3598
+
+### Motivation
+
+This is probably the biggest missing part in Open Source Spark Delta.
+
+### Further details
+
+### Willingness to contribute
+@c27kwan volunteered to work on this feature and posted a design doc [here]( https://docs.google.com/document/d/1G8Vj6wOxswMx1JklllLoSn-obEpJ-iE_Lhpbd-RfIr4/edit?usp=sharing).

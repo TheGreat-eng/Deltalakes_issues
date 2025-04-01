@@ -1,0 +1,52 @@
+## Bug
+
+### Describe the problem
+
+I was setting up the project following the docs and found out that the test `delete and re-add the same file in different transactions` is failing.
+
+#### Steps to reproduce
+
+Run `DeltaLogSuite`.
+
+<!--
+Please include copy-pastable code snippets if possible.
+1. _____
+2. _____
+3. _____
+-->
+
+#### Observed results
+
+<!-- What happened?  This could be a description, log output, etc. -->
+
+Failing test.
+
+#### Expected results
+
+<!-- What did you expect to happen? -->
+
+All tests passing.
+
+#### Further details
+
+<!--
+Include any additional details that may be useful for diagnosing the problem here. If including tracebacks, please include the full traceback. Large logs and files should be attached.
+-->
+
+![image](https://github.com/delta-io/delta/assets/6467558/ca281cdb-49c1-4a52-b8e6-1c869cd89503)
+
+Thought I did something wrong, so I tested it on Ubuntu (Virtual Box - Dark theme) and WSL (Light theme).
+
+### Environment information
+
+* Delta Lake version: 2.4.0
+* Spark version: 3.4.0
+* Scala version: 2.12.15
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [X] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute a bug fix at this time.

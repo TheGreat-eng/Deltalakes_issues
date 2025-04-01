@@ -1,0 +1,27 @@
+## Feature request
+Support for Spark DataframeV2 [spark]
+
+#### Which Delta project/connector is this regarding?
+
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+### Overview
+
+As i checked delta document for latets version(2.4) all examples are using Dataframe api. but spark is moving to dataframeV2 api
+### Motivation
+
+as spark dataframe V2 is newer and has richer api, i think delta must move toward it.
+
+
+
+### Willingness to contribute
+
+
+- [ ] Yes. I can contribute this feature independently.
+- [ ] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [x] No. I cannot contribute this feature at this time.

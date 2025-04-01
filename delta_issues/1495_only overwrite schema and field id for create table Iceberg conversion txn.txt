@@ -1,0 +1,35 @@
+<!--
+Thanks for sending a pull request!  Here are some tips for you:
+  1. If this is your first time, please read our contributor guidelines: https://github.com/delta-io/delta/blob/master/CONTRIBUTING.md
+  2. If the PR is unfinished, add '[WIP]' in your PR title, e.g., '[WIP] Your PR title ...'.
+  3. Be sure to keep the PR description updated to reflect all changes.
+  4. Please write your PR title to summarize what this PR proposes.
+  5. If possible, provide a concise example to reproduce the issue for a faster review.
+  6. If applicable, include the corresponding issue number in the PR title and link it in the body.
+-->
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+The existing Uniform convertion txn has a logic to launch a second txn to set schema, after the first CREATE TABLE or REPLACE TABLE txn, to set the correct field ids because Iceberg may reassign those. This behavior has following flaws:
+
+Firstly iceberg core does NOT reassign field id for REPLACE txn if the table already exists (in Uniform case it always does). So set schema for REPLACE TABLE is not necessary.
+
+Secondly, Uniform uses the replace transaction when number of snapshots to convert exceeds threshold. The replace txn will set last Delta converted version as -1, which can be confusing or erroneous.
+
+This PR fixes above flaws by NOT set schema for REPLACE txn.
+
+## How was this patch tested?
+
+Manually tested. Unit test will come in separate PR.

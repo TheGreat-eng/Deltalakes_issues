@@ -1,0 +1,88 @@
+## Bug
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the issue title
+For example: [BUG][Spark] Title of my issue
+-->
+
+- [X] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+### Describe the problem
+Fail when tryin to run Z-Order optimization on delta table in kotlin application, while in python it works from the command line!
+
+#### Steps to reproduce
+<!--
+Please include copy-pastable code snippets if possible.
+1. _____
+2. _____
+3. _____
+-->
+
+Kotlin:
+```
+val sparkSession = SparkSession
+            .builder()
+            .sparkContext(sparkContext)
+            .config("fs.s3a.aws.credentials.provider", "com.amazonaws.auth.DefaultAWSCredentialsProviderChain")
+            .config("spark.databricks.delta.replaceWhere.constraintCheck.enabled", false)
+            .config("spark.sql.extensions", "io.delta.sql.DeltaSparkSessionExtension")
+            .config("spark.sql.catalog.spark_catalog", "org.apache.spark.sql.delta.catalog.DeltaCatalog")
+            .config("spark.databricks.delta.retentionDurationCheck.enabled", false)
+            .config(customConfigs)
+            .appName("appName")
+            .orCreate
+
+val deltaTable = DeltaTable.forPath(
+        sparkSession,
+        "s3a://my-bucket/myFolder"
+    )
+
+deltaTable.optimize().executeZOrderBy("id")
+```
+Python:
+```
+pyspark --packages io.delta:delta-spark_2.12:3.0.0,com.amazonaws:aws-java-sdk:1.11.950,org.apache.hadoop:hadoop-aws:3.3.4 \
+  --conf "spark.sql.extensions=io.delta.sql.DeltaSparkSessionExtension" \
+  --conf "spark.sql.catalog.spark_catalog=org.apache.spark.sql.delta.catalog.DeltaCatalog" \
+  --conf "fs.s3a.aws.credentials.provider=com.amazonaws.auth.DefaultAWSCredentialsProviderChain" \
+--conf "spark.executor.extraJavaOptions=-Dcom.amazonaws.services.s3.enableV4=true"
+
+>>> deltaTable = DeltaTable.forPath(spark, "s3a://my-bucket/myFolder")
+>>> deltaTable.optimize().executeZOrderBy("entity_id")
+```
+#### Observed results
+
+<!-- What happened?  This could be a description, log output, etc. -->
+"[INTERNAL_ERROR] Cannot evaluate expression: rangepartitionid(input[0, string, true], 1000)."
+
+#### Expected results
+
+<!-- What did you expect to happen? -->
+Optimize the table without failing.
+
+#### Further details
+
+<!--
+Include any additional details that may be useful for diagnosing the problem here. If including tracebacks, please include the full traceback. Large logs and files should be attached.
+-->
+
+### Environment information
+
+* Delta Lake version:
+* Spark version: 3.5.0
+* Scala version: 2.12
+* deltaVersion = 3.0.0
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [ ] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute a bug fix at this time.
+- [X] Haven't decided yet

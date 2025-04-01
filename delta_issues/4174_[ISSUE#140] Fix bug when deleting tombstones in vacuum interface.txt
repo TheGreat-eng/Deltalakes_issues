@@ -1,0 +1,3 @@
+Fix the bug when deleting tombstones in vacuum interface.
+When constructing the current snapshot for vacuum need to use retention period pass by vacuum interface instead of TOMBSTONE_RETENTION.
+Add a test to illustrate this scene and test if meets expectation.

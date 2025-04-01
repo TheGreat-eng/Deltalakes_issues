@@ -1,0 +1,7 @@
+Hi, how are you?
+
+A great feature that Hudi has and I would like to suggest to Delta, is automatic synchronize new partitions with glue hive catalog, if possible Delta could automatic create the hive catalog table too and update new columns.
+
+It will be very helpful!
+
+Thank you.

@@ -1,0 +1,21 @@
+When using the new `DeltaTableBuilder`, I noticed that when I specify a partitioning column with `partitionBy`, the underlying table isn't actually partitioned:
+```python
+from pyspark.sql.function import col
+(DeltaTable.createOrReplace(spark)
+  .location("/tmp/test_partitioning_new_api")
+  .addColumn("id", "long")
+  .addColumn("par", "long")
+  .partitionedBy("par")
+  .execute())
+spark.range(10).withColumn("par", col("id") % 2).write.format("delta").mode("append").save("/tmp/test_partitioning_new_api")
+```
+<img width="1423" alt="image" src="https://user-images.githubusercontent.com/33152084/119449494-65964880-bd3b-11eb-90f6-5edcd98f7ffe.png">
+
+For comparison, this is how it looked with the DataFrameWriter API:
+```python
+from pyspark.sql.function import col
+spark.range(10).withColumn("par", col("id") % 2).write.format("delta").partitionBy("par").save("/tmp/test_partitioning_write_api")
+```
+<img width="599" alt="image" src="https://user-images.githubusercontent.com/33152084/119449843-ccb3fd00-bd3b-11eb-8e2b-b51409f7d3b3.png">
+
+Tested on Databricks Runtime 8.3 Beta

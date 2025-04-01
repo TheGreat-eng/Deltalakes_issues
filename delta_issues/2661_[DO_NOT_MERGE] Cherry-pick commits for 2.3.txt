@@ -1,0 +1,9 @@
+310e4f0c34aa7108351e73b8692663290197f137 Assert DV does not exist during CLONE and table prop overrides
+cf6ee829062f4d7ad354993cb3cbbbeedd72ded7 Assert DV does not exist during CLONE and table prop overrides (continued)
+3218980d8e122cca5e8e7bad30d6f3bf1fb72e04 Disable reading CDC from DV-supported Delta tables
+8b73864e383e61d1204548d3e62e9d8cba77cda8 Fix bugs around blocking write operations on DV enabled tables
+fc5f61878280089bffeaabf527d8a1d8399d7f32 Allow supporting table features via DeltaTable user-facing API
+fa0e165ff96ab93797b4b1c4bebfe6c9fd1656a4 Add support for .show() in COUNT(*) queries
+1b37c05a58be487218e68e7a39be43a9e5574956 Allow ignoring protocol-related configs in Spark session defaults when creating a table
+5d635d20c4be10cc1083a80233ce2043a248e1f4 Patch error classes (any with subClass) for 2.3 on Spark 3.3.0 (#1633)
+b16b1bc0231c182eea3441fda012c584bc1ec995 Upgrade to Spark 3.3.2

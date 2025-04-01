@@ -1,0 +1,14 @@
+## Context
+This PR is part of delta-io/delta#1783. 
+
+## Description 
+Following client implementations for the default module are added:
+
+     * `JsonHandler`
+     * `ExpressionHandler`
+     * `FileSystemClient`
+
+    and the supporting classes.
+
+## How was this patch tested?
+UTs

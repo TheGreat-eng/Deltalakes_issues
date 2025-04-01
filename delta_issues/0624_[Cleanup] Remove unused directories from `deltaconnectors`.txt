@@ -1,0 +1,18 @@
+#### Which Delta project/connector is this regarding?
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [X] Other (Cleanup)
+
+## Description
+
+Remove unused and no-longer-applicable directories from `<delta>/connectors`
+
+## How was this patch tested?
+
+N/A.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No.

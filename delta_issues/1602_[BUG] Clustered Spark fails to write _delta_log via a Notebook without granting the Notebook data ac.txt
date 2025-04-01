@@ -1,0 +1,71 @@
+## Bug
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the issue title
+For example: [BUG][Spark] Title of my issue
+-->
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+### Describe the problem
+
+**TLDR**: PySpark applications look like they are creating the log path for delta tables when they shouldn't even have access.
+
+I have set up a Jupyter Notebook w/ PySpark connected to a Spark cluster, where the Spark instance is intended to perform writes to a Delta table.I'm observing that the Spark instance fails to complete the writes if the Jupyter Notebook doesn't have access to the data location.
+
+This behavior seems counterintuitive to me as I expect the Spark instance to handle data writes independently of the Jupyter Notebook's access to the data. [I've put up a repository with the issue for clarity](https://github.com/caldempsey/docker-notebook-spark-s3).
+
+#### Steps to reproduce
+
+Yourself:
+
+1. Create a Spark Cluster (locally) and connect a Jupyter Notebook to the Cluster.
+2. Write a Delta Table to the Spark filesystem (lets say `/out`)
+3. Spark will write the Parquet files to `/out` but error unless the notebook is given access to `/out` despite being registered as an application and not a worker. 
+
+Via the repo provided:
+1. Clone the repo
+2. Remove [infra-delta-lake/localhost/docker-compose.yml:63](https://github.com/caldempsey/docker-notebook-spark-s3/blob/d17f7963437215346a04450544b85770e3c5ed8f/infra-data-lake/localhost/docker-compose.yml#L62C1-L62C46) `./../../notebook-data-lake/data:/data`, which prevents the notebook from accessing the `/data` target shared with the Spark Master and Workers on their local filesystem. 
+
+#### Observed results
+
+When the notebook has access to `/data` (but is a connected application not a member of the cluster), Delta Tables write successfully with `_delta_log`.
+
+When the notebook does not have access to `/data` it complains that it can't write `_delta_log`, **but** parquet files still get written! 
+
+```
+Py4JJavaError: An error occurred while calling o56.save.
+: org.apache.spark.sql.delta.DeltaIOException: [DELTA_CANNOT_CREATE_LOG_PATH] Cannot create file:/data/delta_table_of_dog_owners/_delta_log
+    at org.apache.spark.sql.delta.DeltaErrorsBase.cannotCreateLogPathException(DeltaErrors.scala:1534)
+    at org.apache.spark.sql.delta.DeltaErrorsBase.cannotCreateLogPathException$(DeltaErrors.scala:1533)
+    at org.apache.spark.sql.delta.DeltaErrors$.cannotCreateLogPathException(DeltaErrors.scala:3203)
+    at org.apache.spark.sql.delta.DeltaLog.createDirIfNotExists$1(DeltaLog.scala:443)```
+``` 
+
+#### Expected results
+
+Expect the `_delta_log` to be written regardless of whether the Notebook has access to the target filesystem.
+ 
+#### Further details
+
+Since this error is surfacing from PySpark I'm wondering if either the Notebook instance is somehow electing itself master via PySpark or if there's a bug in delta lake where you can’t write delta tables without the application call-site having access to the location. Neither of these sound right but I can't think of a third way. [There's a whole repository of the setup here](https://github.com/caldempsey/docker-notebook-spark-s3). Feel free to have a gander or submit a PR 🙏 ! 
+
+### Environment information
+
+* Delta Lake version: 3.1.0
+* Spark version: 3.5.1
+* Scala version: 2.12
+* PySpark version: 3.5.1
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [x] Yes. I can contribute a fix for this bug independently.
+- [x] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute a bug fix at this time.

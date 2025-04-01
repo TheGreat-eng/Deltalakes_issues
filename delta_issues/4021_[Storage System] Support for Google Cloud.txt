@@ -1,0 +1,11 @@
+This is the official issue for tracking the work for supporting Delta Lake over Google Cloud Storage.
+
+Here are the requirements for the underlying storage system in order to maintain ACID guarantees:
+https://github.com/delta-io/delta#requirements-for-underlying-storage-systems
+
+HDFS over Google Cloud will work out of the box. We haven't yet investigated whether Google Cloud Storage satisfies these guarantees. If they don't, we will need a custom LogStore implementation similar to what we did for AWS and Azure (see below). 
+
+Related issues:
+https://github.com/delta-io/delta/issues/39
+https://github.com/delta-io/delta/issues/40
+https://github.com/delta-io/delta/issues/134

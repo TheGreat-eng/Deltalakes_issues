@@ -1,0 +1,78 @@
+## Bug
+
+### Describe the problem
+Inserting data into an existing table behaves differently when using SQL vs python/scala and when using `saveAsTable` vs. `insertInto`.
+
+If the ingested data uses a type that is different from the type of the column in the table, inserting using`saveAsTable` in python/scala fails where alternative ways to insert the data succeed:
+- SQL INSERT by position: succeeds
+- SQL INSERT by name: succeeds
+- Python/scala insert by position (insertInto): succeeds
+- Python/scala insert by name (saveAsTable): fails.
+
+#### Steps to reproduce
+
+Using python:
+
+Create table with type `int`
+```
+(
+  spark.createDataFrame([[1]], "value: int")
+    .write
+    .mode("append")
+    .format("delta")
+    .saveAsTable("append_by_name_cast")
+)
+```
+
+Append data as `long` using `saveAsTable` - fails:
+```
+(
+  spark.createDataFrame([[2]], "value: long")
+    .write
+    .mode("append")
+    .format("delta")
+    .saveAsTable("johan_lasperas.playground.append_by_name_cast")
+)
+AnalysisException: Failed to merge fields 'value' and 'value'
+```
+
+Append data as `long` using `insertInto` - succeeds:
+```
+(
+  spark.createDataFrame([[2]], "value: long")
+    .write
+    .mode("append")
+    .format("delta")
+    .insertInto("johan_lasperas.playground.append_by_name_cast")
+)
+```
+Append data as `long` using SQL INSERT by position - succeeds:
+```
+INSERT INTO johan_lasperas.playground.append_by_name_cast VALUES (CAST(3 AS LONG))
+```
+
+Append data as `long` using SQL INSERT by name - succeeds:
+
+```
+INSERT INTO johan_lasperas.playground.append_by_name_cast (value) VALUES (CAST(4 AS LONG))
+```
+#### Observed results
+
+Appending data with saveAsTable using a different type than the type of the column in a table fails. It should succeed
+
+#### Further details
+
+
+### Environment information
+
+* Delta Lake version: 3.1
+* Spark version: 3.4
+* Scala version: 2.13
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [x] Yes. I can contribute a fix for this bug independently.
+- [ ] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute a bug fix at this time.

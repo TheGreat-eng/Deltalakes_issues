@@ -1,0 +1,2 @@
+## Description
+Update the version in integration test suite to upcoming release 1.2.1

@@ -1,0 +1,6 @@
+The [delta-spark](https://pypi.org/project/delta-spark/) PyPI package has not been updated with the latest release [v1.0.1](https://github.com/delta-io/delta/releases/tag/v1.0.1).
+
+I have noticed about it when using the [`configure_spark_with_delta_pip`](https://github.com/delta-io/delta/blob/5e2493804725832ec626823fdc7156cd7458b717/python/delta/pip_utils.py#L21) function since the `extra_packages` parameter was added in the v1.0.1 version.
+
+I believe [automating PyPI releases](https://www.caktusgroup.com/blog/2021/02/11/automating-pypi-releases/) can be easily achievable with Github Actions although I haven't tried it myself.
+

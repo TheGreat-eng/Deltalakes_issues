@@ -1,0 +1,28 @@
+## Feature request
+
+### Overview
+
+The aim of this feature is to allow truncating a table programmatically in Scala.
+
+### Motivation
+
+Today, the only way to truncate a Delta table is by executing a SQL statement, like `spark.sql("TRUNCATE TABLE foo")`. A workaround is to call `delete()` without any condition. However, I believe a truncate is more efficient.
+
+### Further details
+
+The proposal is to add a `truncate()` function to `DeltaTable` to programmatically truncate a Delta table. For example:
+```scala
+val spark: SparkSession = ...
+val dt = DeltaTable.forPath(spark, "/path/to/delta/table")
+dt.truncate()
+```
+
+There is then the question of cascading the truncate operation or not and whether a truncate is to be considered as a massive delete or something else.
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [ ] Yes. I can contribute this feature independently.
+- [X] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.

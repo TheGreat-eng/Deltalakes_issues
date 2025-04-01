@@ -1,0 +1,10 @@
+Using Databricks runtime 8.2, with the scala or SQL APIs, I can set userMetdata with a commit. However, with python, the userMetadata option is silently ignored and the value is written as null.
+
+```
+df.write.format("delta") \
+  .mode("overwrite") \
+  .option("userMetadata", "overwritten-for-fixing-incorrect-data") \
+  .save("/mnt/delta/events")
+```
+
+When I look at the table history after this command, the userMetadata column is still null for the commit.

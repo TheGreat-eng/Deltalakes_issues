@@ -1,0 +1,9 @@
+## Description
+When Delta stats is disabled the merge command removes all delta files and don't add any, resulting in an empty table.
+
+## How was this patch tested?
+
+Add a new test to run without statistics.
+
+## Does this PR introduce _any_ user-facing changes?
+No

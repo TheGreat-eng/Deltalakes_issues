@@ -1,0 +1,53 @@
+## Bug
+
+#### Which Delta project/connector is this regarding?
+- [X] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+### Describe the problem
+The error message is misleading: [DELTA_DUPLICATE_COLUMNS_FOUND] Found duplicate column(s) in the data to save: name
+
+#### Steps to reproduce
+```
+DROP TABLE IF EXISTS MySourceTable;
+DROP TABLE IF EXISTS MyTargetTable;
+CREATE TABLE MySourceTable USING DELTA AS SELECT 1 as Id, 30 as Age, 'John' as Name;
+CREATE TABLE MyTargetTable (Id INT, Name STRING) USING DELTA;
+INSERT INTO MyTargetTable SELECT * FROM MySourceTable;
+```
+
+#### Observed results
+[DELTA_DUPLICATE_COLUMNS_FOUND] Found duplicate column(s) in the data to save: name
+org.apache.spark.sql.delta.schema.SchemaMergingUtils$.checkColumnNameDuplication(SchemaMergingUtils.scala:123)
+org.apache.spark.sql.delta.schema.SchemaMergingUtils$.mergeSchemas(SchemaMergingUtils.scala:168)
+org.apache.spark.sql.delta.schema.ImplicitMetadataOperation$.mergeSchema(ImplicitMetadataOperation.scala:219)
+org.apache.spark.sql.delta.schema.ImplicitMetadataOperation.updateMetadata(ImplicitMetadataOperation.scala:84)
+org.apache.spark.sql.delta.schema.ImplicitMetadataOperation.updateMetadata$(ImplicitMetadataOperation.scala:66)
+org.apache.spark.sql.delta.commands.WriteIntoDelta.updateMetadata(WriteIntoDelta.scala:77)
+org.apache.spark.sql.delta.commands.WriteIntoDelta.writeAndReturnCommitData(WriteIntoDelta.scala:162)
+org.apache.spark.sql.delta.commands.WriteIntoDelta.$anonfun$run$1(WriteIntoDelta.scala:106)
+org.apache.spark.sql.delta.commands.WriteIntoDelta.$anonfun$run$1$adapted(WriteIntoDelta.scala:101)
+org.apache.spark.sql.delta.DeltaLog.withNewTransaction(DeltaLog.scala:227)
+org.apache.spark.sql.delta.commands.WriteIntoDelta.run(WriteIntoDelta.scala:101)
+org.apache.spark.sql.delta.catalog.WriteIntoDeltaBuilder$$anon$1$$anon$2.insert(DeltaTableV2.scala:432)
+org.apache.spark.sql.execution.datasources.v2.SupportsV1Write.writeWithV1(V1FallbackWriters.scala:79)
+
+#### Expected results
+A message saying the data source schema doesn't match the columns of columns
+
+### Environment information
+
+* Delta Lake version: 3.2
+* Spark version: 3.5
+* Scala version: 2.12
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [ ] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [X] No. I cannot contribute a bug fix at this time.

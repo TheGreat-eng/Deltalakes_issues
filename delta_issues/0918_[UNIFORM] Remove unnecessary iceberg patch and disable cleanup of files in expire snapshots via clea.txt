@@ -1,0 +1,21 @@
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ X] Other Uniform
+## Description
+We don't need a custom patch to disable cleaning up data files for Iceberg's expire snapshots API. icebergShaded/iceberg_src_patches/0002-iceberg-core-must-not-delete-any-delta-data-files.patch
+
+An option to disable file cleanup already exists through the `cleanExpiredFiles` API.
+
+## How was this patch tested?
+Iceberg's cleanFiles option is already tested by Iceberg. I can add separate tests here to make sure that the custom transaction logic for Uniform uses that option.
+
+## Does this PR introduce _any_ user-facing changes?
+No, it preserves the existing behavior. Snapshots can be removed, but files will never be deleted.

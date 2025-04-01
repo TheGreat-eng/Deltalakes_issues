@@ -1,0 +1,7 @@
+This PR is part of the feature: Support reading Delta tables with deletion vectors (more details at https://github.com/delta-io/delta/issues/1485)
+
+It adds a `DeletionVectorStore` which contains APIs to load DVs from and write DVs to Hadoop FS compliant file system.  The format of the DV file is described in the protocol [here](https://github.com/delta-io/delta/blob/master/PROTOCOL.md#deletion-vector-file-storage-format).
+
+Added a test suite.
+
+GitOrigin-RevId: 72340c9854f7d0376ea2aeec0c4bbba08ce78259

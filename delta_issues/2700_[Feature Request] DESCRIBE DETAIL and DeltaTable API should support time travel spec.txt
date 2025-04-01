@@ -1,0 +1,49 @@
+## Feature request
+
+The following does not seem to work as time-travel-aware paths or table names are not supported.
+
+```
+scala> DeltaTable.forName("timetravel").detail.select("location").show(false)
++-----------------------------------------------------------------------------+
+|location                                                                     |
++-----------------------------------------------------------------------------+
+|file:/Users/jacek/dev/apps/spark-3.3.2-bin-hadoop3/spark-warehouse/timetravel|
++-----------------------------------------------------------------------------+
+
+scala> DeltaTable.forPath("/Users/jacek/dev/apps/spark-3.3.2-bin-hadoop3/spark-warehouse/timetravel@v0").detail.show
+org.apache.spark.sql.delta.DeltaAnalysisException: `/Users/jacek/dev/apps/spark-3.3.2-bin-hadoop3/spark-warehouse/timetravel@v0` is not a Delta table.
+  at org.apache.spark.sql.delta.DeltaErrorsBase.notADeltaTableException(DeltaErrors.scala:499)
+  at org.apache.spark.sql.delta.DeltaErrorsBase.notADeltaTableException$(DeltaErrors.scala:498)
+  at org.apache.spark.sql.delta.DeltaErrors$.notADeltaTableException(DeltaErrors.scala:2489)
+  at io.delta.tables.DeltaTable$.forPath(DeltaTable.scala:702)
+  at io.delta.tables.DeltaTable$.forPath(DeltaTable.scala:661)
+  at io.delta.tables.DeltaTable$.forPath(DeltaTable.scala:650)
+  ... 47 elided
+
+scala> DeltaTable.forName("timetravel@v0").detail.show
+org.apache.spark.sql.catalyst.parser.ParseException:
+Syntax error at or near '@'(line 1, pos 10)
+
+== SQL ==
+timetravel@v0
+----------^^^
+
+  at org.apache.spark.sql.catalyst.parser.ParseException.withCommand(ParseDriver.scala:306)
+  at org.apache.spark.sql.catalyst.parser.AbstractSqlParser.parse(ParseDriver.scala:143)
+  at org.apache.spark.sql.execution.SparkSqlParser.parse(SparkSqlParser.scala:52)
+  at org.apache.spark.sql.catalyst.parser.AbstractSqlParser.parseTableIdentifier(ParseDriver.scala:54)
+  at io.delta.sql.parser.DeltaSqlParser.parseTableIdentifier(DeltaSqlParser.scala:136)
+  at io.delta.tables.DeltaTable$.forName(DeltaTable.scala:762)
+  at io.delta.tables.DeltaTable$.forName(DeltaTable.scala:749)
+  ... 47 elided
+```
+
+### Motivation
+
+There was a discussion on LinkedIn about [mack](https://github.com/MrPowers/mack) that does this for the latest version as there's no easy way to access metadata about the other versions of a delta table.
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [X] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.

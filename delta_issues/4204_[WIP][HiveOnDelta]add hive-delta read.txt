@@ -1,0 +1,23 @@
+Implement HiveOnDelta Reader.
+1. the HiveOnDelta subproject is put in external/hive-delta, other plugin(presto) can be put in external directory
+2. Currently HiveOnDelta subproject is a independent  mvn project , maybe we should use sbt to manage it(I tried to use sbt subproject, but have not finished).
+3. DeltaInputFormat is Implement , and there are some functions added in delta-core
+4. DeltaInputFormat can support partition table /non-partition table , and the timetravel.
+5. TestCase is not included in this WIP.
+6. the schema in delta'metadata may be changed, so we should provide a tool to auto-create new external table with new schema 
+
+```
+create external table deltatblpar(region string,cnt string)
+partitioned by(datee string)
+row format serde 'org.apache.hadoop.hive.ql.io.parquet.serde.ParquetHiveSerDe'
+stored as inputformat 'io.delta.hive.DeltaInputFormat'
+outputformat 'org.apache.hadoop.hive.ql.io.parquet.MapredParquetOutputFormat'
+location 'hdfs://emr-header-1:9000/delta/events';
+
+// add partitions
+msck repair table deltatblpar;
+```
+<img width="594" alt="屏幕快照 2019-09-05 上午11 19 27" src="https://user-images.githubusercontent.com/12979185/64309462-1d674d80-cfcf-11e9-9bf1-9f75961b442b.png">
+
+<img width="631" alt="屏幕快照 2019-09-05 上午11 12 46" src="https://user-images.githubusercontent.com/12979185/64309164-43402280-cfce-11e9-8132-3121c32224ea.png">
+

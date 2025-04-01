@@ -1,0 +1,4 @@
+This is for https://github.com/delta-io/delta/issues/313,
+I believe you are doing some bigger refactor, just post this pr to indicate some changes I made, hope it can help in your current work.
+
+@tdas @rahulsmahadev 

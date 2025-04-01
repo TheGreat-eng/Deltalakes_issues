@@ -1,0 +1,19 @@
+## Description
+
+Spark's `ScalaReflection` is a performance killer when the concurrency is high. This PR makes the following changes to eliminate unnecessary ScalaReflection calls from Delta after warming up:
+
+- `typedlit` calls [Liternal.create](https://github.com/apache/spark/blob/144d4c546f7023b20e07619134feca1a46017a5f/sql/catalyst/src/main/scala/org/apache/spark/sql/catalyst/expressions/literals.scala#L167) which will touch `ScalaReflection`. This PR replaces `typedlit` with `lit` or `new Column(Liternal.apply(v, <data type>))`. Most of changes in this PR are caused by changing `val CDC_TYPE_NOT_CDC: String = null` to `val CDC_TYPE_NOT_CDC: Literal = Literal(null, StringType)`.
+  - A new style check is added to block `typedlit`.
+- Add more templates to `DeltaUDF` and use these templates to create `udf`s in Delta to avoid touching `ScalaReflection`.
+- `count(*)` will touch `as(ExpressionEncoder[Long]())` in order to return a `TypedColumn`. Replace it with `count(new Column("*"))` in Delta so that we can avoid touching Scala reflection code.
+  - A new style check is added to block `count(string)`.
+- Add a new `DeltaEncoder` class to simplify the code pattern that uses `ExpressionEncoder`. We introduce `DeltaEncoders` to cache all reusable `Encoder`s and mix it into `com.databricks.sql.transaction.tahoe.implicits._`. With this change, we can replace `import spark.implicits._` (always create new `Encoder`s) with `com.databricks.sql.transaction.tahoe.implicits._` (reuse the shared `Encoder`s) to minimize the code touching `ScalaReflection` after warming up.
+  - A scala style check is added to block `spark.implicits._`.
+
+## How was this patch tested?
+
+New tests + existing tests.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No.

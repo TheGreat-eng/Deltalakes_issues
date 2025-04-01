@@ -1,0 +1,25 @@
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [x] Other: Protocol
+
+## Description
+
+This PR makes PROTOCOL changes for log compactions.
+Design: https://github.com/delta-io/delta/issues/2072
+
+## How was this patch tested?
+
+NA
+
+## Does this PR introduce _any_ user-facing changes?
+
+NA

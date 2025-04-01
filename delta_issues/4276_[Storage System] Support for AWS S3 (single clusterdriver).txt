@@ -1,0 +1,8 @@
+This is the official issue for tracking support for AWS S3. Specifically, we want to enable Delta Lake to operate on AWS S3 with transactional guarantees when all writes go through a single Spark driver (that is, it must be a single SparkContext in a single Spark driver JVM process). 
+
+The major challenges for operating on S3 with transactional guarantees are as follows: 
+1. Lack of atomic "put if not present" - Delta Lake's atomic visibility of transactional changes depends on committing to the transaction log atomically by creating a version file X only if it is not present. S3 file system does not provide a way to perform "put if absent", hence multiple concurrent writers can easily commit the same version file multiple times, thus overwriting another set of changes.
+
+2. Lack of consistent directory listing - Delta Lake relies on file directory listing to find the latest version file in the transactional log. S3 object listing does not provide the guarantee that listing attempts will return all the files written out in a directory. This, coupled with 1. can further lead to overwriting of the same version. 
+
+In this issue, we are going to solve the above problems for a single Spark cluster - if all the concurrent writes to a table go through a single cluster, then we can do the necessary locking and tracking latest version needed to avoid the above issues.

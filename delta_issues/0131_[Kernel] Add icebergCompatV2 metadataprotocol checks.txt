@@ -1,0 +1,5 @@
+## Description
+Support for validating icebergCompatV2 rmetadata requirements are satisfied and update metadata as required.
+
+## How was this patch tested?
+Unittests added. Integration tests for `create` or `update` table with `icebergCompatV2`.

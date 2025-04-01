@@ -1,0 +1,71 @@
+## Bug
+
+#### Which Delta project/connector is this regarding?
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+### Describe the problem
+
+I have stored data (which includes a column containing structs and contains **null** values) and I want to update this data using the delta merge operation. The new data contains several new columns (not present in the stored data), so I have set `spark.conf.set("spark.databricks.delta.schema.autoMerge.enabled", True)`. The new data also contains a column containing structs, and again the value is sometimes **null**. After inspecting the results I noticed that the **null** values in the new struct column have been changed to a struct with every field set to **null**. Additionally, the struct column already present in the stored data has been converted as well.
+
+#### Steps to reproduce
+
+```import pyspark.sql.functions as F
+from pyspark.sql.types import StructField, StructType, IntegerType
+from delta import DeltaTable
+
+path_to_delta_file = "/path/to/delta/file"
+
+schema = StructType([StructField("id", IntegerType(), True), 
+                     StructField("struct_col", StructType([StructField("a", IntegerType(), True), StructField("b", IntegerType(), True)]))])
+
+df = spark.createDataFrame([(1, {"a": 1, "b": 2}), (2, None)], schema=schema)
+df.write.save(path_to_delta_file)
+
+updates_df = df.withColumn("extra_struct", F.col("struct_col"))
+
+spark.conf.set("spark.databricks.delta.schema.autoMerge.enabled", True)
+
+delta_table = DeltaTable.forPath(spark, path_to_delta_file)
+
+delta_table.alias("stored_data").merge(
+    updates_df.alias("updates"),
+    "stored_data.id <=> updates.id").whenMatchedUpdateAll().execute()
+```
+
+
+#### Observed results
+
+The results after the merge operation look like this:
+
+![image](https://github.com/delta-io/delta/assets/18210129/2ac88dc7-4d68-4a33-bb2d-d668bf3b751a)
+
+
+
+#### Expected results
+
+I would expect the results to look like this (which is also what they look like when I display the dataframe before the merge operation):
+
+![image](https://github.com/delta-io/delta/assets/18210129/b08c304d-0e78-41a7-95e3-b0c9f305380a)
+
+#### Further details
+
+I am running this code on Azure Databricks (runtime version 13,3).
+
+### Environment information
+
+* Delta Lake version: 2.4.0
+* Spark version: 3.4.1
+* Scala version: 2.12
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [ ] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [x] No. I cannot contribute a bug fix at this time.

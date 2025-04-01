@@ -1,0 +1,5 @@
+fixes #485 
+
+Make `DeltaTable` Serializable so that it can be sent to executors without throwing `NotSerializableException`. However, methods of `DeltaTable` should not be allowed to run on the executors so should throw a clear exception explaining this.
+
+credit-where-credit-is-due: @zsxwing 

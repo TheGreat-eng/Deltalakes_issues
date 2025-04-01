@@ -1,0 +1,3 @@
+Is there an easy way to utility to check if Delta code written on Databricks is Delta Open source compatible.
+This can be useful in environments which dev/test in cloud but production needs to be on-premise.
+Curious to hear thoughts on this.

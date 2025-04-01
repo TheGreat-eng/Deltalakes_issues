@@ -1,0 +1,12 @@
+## Description
+Added the default value (50) for the `spark.databricks.delta.autoCompact.minNumFiles` configuration parameter in the auto compaction documentation. This helps users better understand the default behavior without having to check the source code or experiment.
+
+## Changes
+* Added default value in parentheses to the `minNumFiles` configuration description
+
+## Testing
+* Verified the accuracy of the default value in the codebase
+* Reviewed documentation formatting
+
+## Additional Notes
+This is a documentation-only change that improves clarity for users configuring auto compaction settings.

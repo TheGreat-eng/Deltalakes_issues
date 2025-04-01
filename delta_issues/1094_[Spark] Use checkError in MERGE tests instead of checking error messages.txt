@@ -1,0 +1,5 @@
+## Description
+Migrate merge tests that rely on checking error strings directly to using the preferred way of checking error classes + parameters using `checkError`.
+
+## How was this patch tested?
+N/A, refactoring tests.

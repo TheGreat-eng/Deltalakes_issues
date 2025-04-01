@@ -1,0 +1,13 @@
+## Description
+As we want to sum `Iterable[(Int,Long)]` into `(sum of the first element of
+tuple, sum of the second element of tuple)` at `ZOrderFileStats.apply(arg: Iterable[(Int,Long)])`, we do not need to wrap them in `ZOrderFileStats`s while processing.
+
+
+
+
+## How was this patch tested?
+Existing tests.
+
+## Does this PR introduce _any_ user-facing changes?
+No
+

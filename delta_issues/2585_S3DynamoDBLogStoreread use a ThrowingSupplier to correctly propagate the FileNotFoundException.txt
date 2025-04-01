@@ -1,0 +1,37 @@
+## Description
+
+Previously, we were wrapping `super.read` calls in the Supplier to RetryableCloseableIterator with a try-catch statement, and re-threw IOExceptions as UncheckedIOExceptions.
+
+This could cause downstream readers who are catching `FileNotFoundException` to fail, as instead of a `FileNotFoundException` we were throwing an `UncheckedIOException`.
+
+Instead, this PR creates a `ThrowingSupplier` class so that `super.read` calls don't need to be caught and re-thrown.
+
+## How was this patch tested?
+
+New UTs and tested with a real S3 bucket and DDB table:
+
+```
+spark-shell --packages io.delta:delta-core_2.12:2.3.0,org.apache.hadoop:hadoop-aws:3.3.1 \
+--jars /Users/scott.sandre/.m2/repository/io/delta/delta-storage-s3-dynamodb/2.4.0-SNAPSHOT/delta-storage-s3-dynamodb-2.4.0-SNAPSHOT.jar,/Users/scott.sandre/.m2/repository/io/delta/delta-storage/2.4.0-SNAPSHOT/delta-storage-2.4.0-SNAPSHOT.jar \
+--conf spark.sql.extensions=io.delta.sql.DeltaSparkSessionExtension \
+--conf spark.sql.catalog.spark_catalog=org.apache.spark.sql.delta.catalog.DeltaCatalog \
+--conf spark.delta.logStore.s3a.impl=io.delta.storage.S3DynamoDBLogStore \
+--conf spark.io.delta.storage.S3DynamoDBLogStore.ddb.region=XXXX \
+--conf spark.io.delta.storage.S3DynamoDBLogStore.ddb.tableName=YYYY \
+--conf spark.io.delta.storage.S3DynamoDBLogStore.credentials.provider=com.amazonaws.auth.profile.ProfileCredentialsProvider \
+--conf spark.hadoop.fs.s3a.aws.credentials.provider=com.amazonaws.auth.profile.ProfileCredentialsProvider
+
+> spark.range(100).write.format("delta").save(tablePath)
+23/05/01 15:54:52 INFO S3DynamoDBLogStore: using tableName YYYY
+23/05/01 15:54:52 INFO S3DynamoDBLogStore: using credentialsProviderName com.amazonaws.auth.profile.ProfileCredentialsProvider
+23/05/01 15:54:52 INFO S3DynamoDBLogStore: using regionName XXXX
+23/05/01 15:54:52 INFO S3DynamoDBLogStore: using ttl (seconds) 86400
+23/05/01 15:54:52 INFO S3DynamoDBLogStore: Table `YYYY` already exists
+23/05/01 15:54:52 INFO DelegatingLogStore: LogStore `LogStoreAdapter(io.delta.storage.S3DynamoDBLogStore)` is used for scheme `s3a`
+
+> spark.read.format("delta").load(tablePath).show()
+// shows valid output
+```
+## Does this PR introduce _any_ user-facing changes?
+
+No

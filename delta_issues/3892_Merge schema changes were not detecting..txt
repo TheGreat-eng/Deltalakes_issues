@@ -1,0 +1,105 @@
+Hi Team,
+
+I opened two scala terminal's and followed the below scenarios
+
+**From Terminal 1:**
+scala> val data = spark.range(1,10)
+data: org.apache.spark.sql.Dataset[Long] = [id: bigint]
+
+scala> data.write.format("delta").save("/tmp/test")
+scala> df.count()
+res4: Long = 9
+
+scala> df.show()
++---+
+| id|
++---+
+|  7|
+|  8|
+|  9|
+|  1|
+|  2|
+|  3|
+|  4|
+|  5|
+|  6|
++---+
+
+**From Terminal 2**
+scala> val df = spark.read.format("delta").load("/tmp/test")
+df: org.apache.spark.sql.DataFrame = [id: bigint]                               
+
+scala> df.show()
++---+                                                                           
+| id|
++---+
+|  7|
+|  8|
+|  9|
+|  1|
+|  2|
+|  3|
+|  4|
+|  5|
+|  6|
++---+
+from terminal two I overwritten the data into the same path
+
+df.where("id<5").write.mode("overwrite").format("delta").save("/tmp/test")
+
+**Again Frome Terminal 1**
+scala> df.count()
+res8: Long = 4                                                                  
+
+scala> df.show()
++---+
+| id|
++---+
+|  3|
+|  4|
+|  1|
+|  2|
++---+
+So here I automatically identified the changes and spark loaded the latest data in Terminal 1.
+
+**Again From Terminal 2**
+Here I added a new column with merge schema option
+
+df.withColumn("double", col("id") + col("id")).write.mode("overwrite").option("mergeschema", true).format("delta").save("/tmp/test")
+ 
+**Again from Terminal 1**
+
+scala> df.count()
+res8: Long = 4                                                                  
+
+scala> df.show()
++---+
+| id|
++---+
+|  3|
+|  4|
+|  1|
+|  2|
++---+
+Here I am not getting the new changes i.e with the new column but If I reloaded the data then I am getting the latest data.
+
+scala> val df1 = spark.read.format("delta").load("/tmp/test")
+df1: org.apache.spark.sql.DataFrame = [id: bigint, double: bigint]
+
+scala> df1.show()
++---+------+
+| id|double|
++---+------+
+|  3|     6|
+|  4|     8|
+|  1|     2|
+|  2|     4|
++---+------+
+
+Please let me know is it expected behavior or limitation? 
+Here I am using Spark 2.4.4 with delta 0.6.0 versions.
+
+ 
+
+
+

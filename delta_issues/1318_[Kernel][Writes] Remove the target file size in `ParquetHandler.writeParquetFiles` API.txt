@@ -1,0 +1,3 @@
+Currently Delta protocol doesn't enforce any particular target file size for writes. Remove the `maxFileSize` argument from the `ParquetHandler.writeParquetFiles` API. In future if this is really needed, we can add it back.
+
+In order for the existing tests to pass, the `DefaultParquetHandler` takes the target file size as config in the Hadoop configuration.

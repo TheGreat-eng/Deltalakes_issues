@@ -1,0 +1,15 @@
+This PR adds a new flag --scala-version to `run-integration-tests.py`.
+
+You can run the following commands:
+
+```
+$ python run-integration-tests.py --version 1.1.0 --scala-version 2.13 --scala-only
+$ python run-integration-tests.py --version 1.1.0 --scala-version 2.12 --scala-only
+$ python run-integration-tests.py --version 1.1.0 --scala-only
+```
+
+It defaults to 2.12 when a version is not provided and fails if any version other than 2.12 and 2.13 are provided.
+
+The build.sbt is also updated in the build.sbt in examples/scala/build.sbt to fetch scala version from ENV var `SCALA_VERSION`. 
+
+This is meant to resolve issue #846.

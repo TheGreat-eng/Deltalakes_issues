@@ -1,0 +1,4 @@
+Create Python API for delta restore command (similar to restoreToVersion and restoreToTimestamp in Scala)
+
+
+Will be unblocked after merging https://github.com/delta-io/delta/pull/863

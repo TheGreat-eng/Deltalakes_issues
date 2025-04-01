@@ -1,0 +1,4 @@
+- Variable **spark** is assigned twice in the example code for python.
+- Documentation url: https://docs.delta.io/latest/quick-start.html
+
+<kbd>![image](https://user-images.githubusercontent.com/10025368/132687217-d576f90b-078b-4343-85de-ab05f3d655d3.png)<kbd>

@@ -1,0 +1,30 @@
+## Feature request
+
+### Overview
+
+Delta Lake API should support table property read and write.
+
+### Motivation
+As for 1.2.1, all Delta Lake APIs are about the data but not a single one about table properties/metatable.
+
+Imagine that you would like to change log retention period if it's too long. You have to start up a spark-shell and run `ALTER TABLE delta.`hdfs:///mypath` SET TBLPROPERTIES('delta.logRetentionDuration' = '7 days')` and it is not clearly documented in https://docs.delta.io/latest/delta-batch.html#table-properties. 
+
+What about an API like `DeltaTable.getProperty("delta.logRetentionDuration")` and  `DeltaTable.setProperty("delta.logRetentionDuration", "7 days")`?
+
+### Further details
+
+<!--
+Use this section to include any additional information about the feature. If you have a proposal for how to implement this feature, please include it here. For implementation guidelines, please read our contributor guidelines: https://github.com/delta-io/delta/blob/master/CONTRIBUTING.md
+If there are any specific requirements for this feature that are not immediately obvious please outline them here.
+-->
+It will also be handy to support:
+`DeltaTable.getProperties()` to get all delta related properties.
+`DeltaTable.setProperties(<map of properties>)` to set multiple properties at once.
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [ ] Yes. I can contribute this feature independently.
+- [x] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.

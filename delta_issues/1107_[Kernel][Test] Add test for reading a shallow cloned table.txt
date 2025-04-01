@@ -1,0 +1,1 @@
+Shallow cloned tests have `AddFile`s with an absolute path to the source table location. Normally the path is relative to the table root. Add a test to verify that reading works in Kernel.

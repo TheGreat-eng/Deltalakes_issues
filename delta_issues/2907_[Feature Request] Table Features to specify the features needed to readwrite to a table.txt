@@ -1,0 +1,11 @@
+### Motivation
+
+Delta table specifies two integers, called “protocol versions”, indicating the minimum required reader and writer version. The higher the number is, the more features are required to read or write the table correctly. However, one increment of the protocol version bundles multiple features, and therefore a reader/writer has to implement support for all bundled features to jump from one version to the next one – which causes significant work to Delta developers and thus gets pushback. Furthermore, the protocol versions are linear, so an upgrade to protocol version N+2 also requires implementing all features from version N+1, even if those features are not important and not commonly used.
+
+### Overview
+
+This proposal is about replacing Delta reader/writer versions (though we still use it to indicate the existence of this new approach) in favor of Table Features, which is a list of features that must be supported to read/write a table properly. As a result, connectors can selectively implement certain features of their interest, instead of having to work on all of them.
+
+### Further details
+
+See the design doc here for more details https://docs.google.com/document/d/1UZ4W4nnKH4x9t3hy0eh68P0RFRAchoHihdXftdnycDQ/edit?usp=sharing

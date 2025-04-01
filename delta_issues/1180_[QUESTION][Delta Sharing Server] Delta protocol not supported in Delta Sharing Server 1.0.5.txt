@@ -1,0 +1,49 @@
+## Bug
+
+#### Which Delta project/connector is this regarding?
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [X] Other (Delta Sharing Server v1.0.5)
+
+### Describe the problem
+I have setup a delta sharing server of version 1.0.5 and I want to read delta tables with protocol version 3,7
+
+#### Steps to reproduce
+
+```sql
+CREATE TABLE IF NOT EXISTS testme (
+id INT,
+firstName STRING,
+age INT
+)
+USING delta
+LOCATION 'XXXX'
+TBLPROPERTIES (delta.enableChangeDataFeed = true, delta.enableDeletionVectors = true)
+```
+
+And then 
+
+`df = spark.read.format("deltaSharing").load(aimilios_test)`
+
+#### Observed results
+
+This gives an error:
+
+> Py4JJavaError: An error occurred while calling o437.load.
+> : io.delta.sharing.client.util.UnexpectedHttpStatus: HTTP request failed with status: HTTP/1.1 400 Bad Request {"errorCode":"UNSUPPORTED_OPERATION","message":"\nDelta protocol version (3,7) is too new for this version of Delta\nStandalone Reader/Writer (1,2). Please upgrade to a newer release.\n"}. 
+
+#### Expected results
+
+To be able to read the tables with protocol version (3,7). The open dataset tables can be read and the same happens with tables that have lower version of the protocol.
+
+#### Further details
+
+Delta-sharing-server 1.0.5 seems to carry and to use:
+
+- delta-storage-2.0.0
+- delta-standalone 0.5.0
+
+Both of which are pretty outdated. Is there any plan to upgrade the libraries(both have version 3.2.0) or integrate the kernel so we can read these kind of delta tables?

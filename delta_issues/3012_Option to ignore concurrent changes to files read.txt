@@ -1,0 +1,11 @@
+## Description
+
+Resolves https://github.com/delta-io/delta/issues/1304
+
+## How was this patch tested?
+
+Added tests to DeltaSinkSuite, DeltaSuite and OptimisticTransactionSuite
+
+## Does this PR introduce _any_ user-facing changes?
+
+Yes, user can now set `.option("ignoreReadChanges", "true")` on writes

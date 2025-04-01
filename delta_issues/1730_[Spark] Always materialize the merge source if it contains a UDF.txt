@@ -1,0 +1,19 @@
+#### Which Delta project/connector is this regarding?
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+This PR fixes a correctness issue in merge due the source query returning different results in job 1 and job 2. This issue is present when the source contains a non-deterministic UDF that has been marked as deterministic. UDFs are often incorrectly marked as deterministic, and therefore we should not trust this information and instead always materialize the source if it contains a UDF
+
+## How was this patch tested?
+
+Added a test to `MergeIntoMaterializeSourceSuite`.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

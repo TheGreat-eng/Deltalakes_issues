@@ -1,0 +1,3 @@
+Update the protocol spec to specify that data files written by Delta to a directory beginning with `_` are not hidden.
+
+Out of https://github.com/delta-io/delta/issues/256, @nfx pointed out an inconsistency in the protocol spec where a table partitioned on a column beginning with `_` will save data in a folder beginning with `_`, which according to the current version of the spec would make it a hidden folder.

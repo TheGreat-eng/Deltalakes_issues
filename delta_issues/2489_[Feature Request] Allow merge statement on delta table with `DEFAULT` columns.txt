@@ -1,0 +1,101 @@
+## Feature request
+
+### Overview
+
+When writing to a delta table that has columns with the `DEFAULT` constraint, the delta `MERGE` operation fails to populate any unspecified target columns with their default values.
+
+It would be nice if the merge operation "filled in" the missing columns with default values and succeeded rather than failing.
+
+### Motivation
+
+This feature can be useful because we can avoid having to specify default columns in a merge statement.
+
+### Further details
+
+<!--
+Use this section to include any additional information about the feature. If you have a proposal for how to implement this feature, please include it here. For implementation guidelines, please read our contributor guidelines: https://github.com/delta-io/delta/blob/master/CONTRIBUTING.md
+If there are any specific requirements for this feature that are not immediately obvious please outline them here.
+-->
+In a Databricks notebook, we can create a delta table with columns tagged as DEFAULT
+```
+%sql
+
+CREATE SCHEMA IF NOT EXISTS example_schema LOCATION '/mnt/dc-bucket/delta/example_schema';
+
+CREATE TABLE IF NOT EXISTS example_schema.my_data(
+  id STRING NOT NULL,
+  num INT NOT NULL DEFAULT 1
+) USING DELTA
+TBLPROPERTIES ('delta.feature.allowColumnDefaults' = 'supported')
+LOCATION '/mnt/dc-bucket/delta/example_schema/my_data'
+```
+
+And it will insert the default value if not specified
+```
+%sql
+
+INSERT INTO example_schema.my_data(id)
+VALUES
+    ("a");
+
+INSERT INTO example_schema.my_data(id, num)
+VALUES
+    ("b", 2);
+```
+
+But if we execute a merge without specifying the default column, we get an error
+```
+%scala
+
+import io.delta.tables.DeltaTable
+import org.apache.spark.sql.{DataFrame, Row}
+import org.apache.spark.sql.types.{StructType, StructField, StringType}
+import spark.implicits._
+
+val schema: StructType = StructType(List(
+  StructField("id", StringType, nullable = false)
+))
+
+val data: List[Row] = List(Row("c"), Row("d"), Row("e"))
+
+val df: DataFrame = spark.createDataFrame(spark.sparkContext.parallelize(data), schema)
+
+df.printSchema()
+
+// DataFrame schema:
+//
+// root
+// |-- id: string (nullable = false)
+
+df.show()
+
+// DataFrame contents:
+//
+// +---+
+// | id|
+// +---+
+// |  c|
+// |  d|
+// |  e|
+// +---+
+
+
+// MERGE statement fails with error:
+// 
+// InvariantViolationException: NOT NULL constraint violated for column: num.
+
+DeltaTable.forName(spark, "example_schema.my_data")
+  .as("target")
+  .merge(df.as("stage"), "target.id = stage.id")
+  .whenMatched().updateExpr(Map("target.id" -> "stage.id"))
+  .whenNotMatched().insertExpr(Map("target.id" -> "stage.id"))
+  .execute()
+```
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [ ] Yes. I can contribute this feature independently.
+- [ ] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [x] No. I cannot contribute this feature at this time.

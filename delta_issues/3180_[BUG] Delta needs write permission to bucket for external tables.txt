@@ -1,0 +1,37 @@
+## 
+We are trying to register an external delta table in our hive metastore. We use this metastore to provide our users a single interface to access data stored in different cloud environments. 
+For spark created tables(STORED AS parquet), it registers the table successfully with `LOCATION` parameter specified.
+Ex: 
+`Create table test USING parquet LOCATION 'gs://<bucket>/test/'`
+
+But for delta created tables, it gives an error saying it doesn't have write permissions to the bucket.
+Ex: 
+`Create table test USING delta LOCATION 'gs://<bucket>/test/'`
+
+This seems to be a bug for external tables as the table is managed by some other process and table registration in hive metastore should not ask for write permissions.
+
+#### Steps to reproduce
+Register an external delta table in hive metastore and don't give write access to the bucket where the table data is stored.
+
+#### Observed results
+
+Failed as it doesn't have write permissions to the bucket.
+#### Expected results
+
+<!-- What did you expect to happen? -->
+
+Table registered successfully.
+
+### Environment information
+
+* Delta Lake version: 1.2
+* Spark version: 3.2.1
+* Scala version: 2.12
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [x] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute a bug fix at this time.

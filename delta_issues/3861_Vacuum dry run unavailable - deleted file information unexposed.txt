@@ -1,0 +1,19 @@
+The SQL api for Vacuum supports DRY RUN semantics, where one can view the files that will be changed/deleted before the job is run. This is not the case for the deltaTable API. Dry run should be accessible programmatically as well as its associated output (files to be changed/deleted). This can be useful for audit purposes and logging.
+
+Associated files, in nested order:
+
+1. src/main/scala/io/delta/tables/DeltaTable.scala
+1. src/main/scala/io/delta/tables/execution/DeltaTableOperations.scala 
+1. src/main/scala/org/apache/spark/sql/delta/commands/VacuumCommand.scala
+
+Respective methods:
+1. https://github.com/delta-io/delta/blob/a50321c82dc1c19fac6c0e05212038238f11d10e/src/main/scala/io/delta/tables/DeltaTable.scala#L90
+1. https://github.com/delta-io/delta/blob/e365c2d3db3bf5bd9c70888fd704f43c98393837/src/main/scala/io/delta/tables/execution/DeltaTableOperations.scala#L67
+1. https://github.com/delta-io/delta/blob/87fecf37b68d44cf99a18cafc16a7092bb2a723a/src/main/scala/org/apache/spark/sql/delta/commands/VacuumCommand.scala#L92
+
+Expectation for return format for vacuum method could be left to the discretion of the implementer. Currently an empty dataframe is produced. Ideally a collection or a dataframe with all deleted files in a single column would be suggested.
+
+For clarity, the asks are to:
+
+1. Enable parameter at abstracted API level for dryRun
+1. Instead of returning an empty dataframe, return some type that details files either to be deleted (case dryRun = true), or the files that were deleted (case dryRun = false)

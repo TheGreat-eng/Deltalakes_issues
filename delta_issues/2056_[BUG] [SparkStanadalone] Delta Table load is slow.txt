@@ -1,0 +1,73 @@
+## Bug
+
+We have a Delta table which has ~59 Delta commits, with latest version being 58, and last checkpoint created at 50. The table contains roughly 34K parquet files
+initial loading of the table is more than 10 sec, both when using delta-standalone, and delta-core. 
+Is this expected? Is there way to optimise initial load time?
+
+#### Which Delta project/connector is this regarding?
+
+- [x] Spark
+- [x] Standalone
+
+### Describe the problem
+
+#### Steps to reproduce
+
+Total rows : 672600
+
+snippet to measure the time
+```scala
+def time[A](f: => A) = {
+        val s = System.nanoTime
+       val ret = f
+        println("time: "+(System.nanoTime-s)/1e6+"ms")
+        ret
+}
+```
+
+Spark Query
+```scala
+time {
+       var df = spark.sql("select count(*) from delta.`s3://delta-lake/delta-table3`")
+       df.show
+}
+```
+time: 52866.640429ms
+
+
+Normal load
+```scala
+import org.apache.spark.sql.delta.DeltaLog
+time {
+     var deltaLog = DeltaLog.forTable(spark, deltaLocation)
+}
+```
+time: 13177.175263ms
+
+
+#### Observed results
+
+* Delta lake table initial load time is > 10 sec
+
+#### Expected results
+
+* Initial load time to be quicker < 1sec
+
+#### Further details
+
+* Accessing Delta lake from AWS EMR stored in AWS S3 which is created using the path
+* No changes in metadata, ie, schema, partition after creating the Delta table
+
+### Environment information
+
+* Delta Lake version: 2.3.0 (standalone 3.0.0)
+* Spark version: 3.3.1
+* Scala version: 2.12
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [ ] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute a bug fix at this time.

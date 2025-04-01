@@ -1,0 +1,33 @@
+# Intro
+This PR introduces a new optional configuration `spark.databricks.delta.telemetry.logger` that specifies the class name of a custom logger implementation.  This logger implementation must extend `com.databricks.spark.util.DatabricksLogging`.  This feature allows users to inject their own logging class without having to ship a modified version of the Delta Lake core JAR.
+
+# Implementation
+Loggers are constructed on-demand and cached in `org.apache.spark.sql.delta.metering.LoggerImplementation`. `DeltaLogging` accesses the current logger by calling `LoggerImplementation.activeLogger` which returns the appropriate logger for the current session.
+
+# Usage
+The user creates their custom logger by extending `DatabricksLogging`:
+
+```
+package com.my.app
+
+import com.databricks.spark.util.DatabricksLogging
+
+class AndrewLogger extends DatabricksLogging {
+  override def recordEvent(
+      metric: MetricDefinition,
+      additionalTags: Map[TagDefinition, String],
+      blob: String,
+      trimBlob: Boolean): Unit = { ... }
+  ...
+}
+```
+
+They can then use their logger in their application by setting the config:
+
+```
+spark.conf.set("spark.databricks.delta.telemetry.logger", "com.my.app.AndrewLogger")
+```
+
+
+# Testing
+This PR includes a unit test that instantiates a custom logger then validates that the logger is invoked when writing a Delta Lake table.

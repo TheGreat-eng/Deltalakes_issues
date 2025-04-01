@@ -1,0 +1,305 @@
+## Bug
+
+### Describe the problem
+
+Restore delta table by spark sql reported 'java.io.NotSerializableException: org.apache.hadoop.fs.Path'
+
+#### Steps to reproduce
+
+1. create delta table by spark sql
+2. insert/updat/delete some records
+3. execute restore command
+
+#### Observed results
+
+```
+spark-sql (default)> restore table default.people10m TO VERSION AS OF 4;
+org.apache.spark.SparkException: Job aborted due to stage failure: Task not serializable: java.io.NotSerializableException: org.apache.hadoop.fs.Path
+Serialization stack:
+	- object not serializable (class: org.apache.hadoop.fs.Path, value: hdfs://node1:8020/usr/hive/warehouse/people10m)
+	- element of array (index: 0)
+	- array (class [Ljava.lang.Object;, size 2)
+	- field (class: java.lang.invoke.SerializedLambda, name: capturedArgs, type: class [Ljava.lang.Object;)
+	- object (class java.lang.invoke.SerializedLambda, SerializedLambda[capturingClass=class org.apache.spark.sql.delta.commands.RestoreTableCommand, functionalInterfaceMethod=scala/Function1.apply:(Ljava/lang/Object;)Ljava/lang/Object;, implementation=invokeStatic org/apache/spark/sql/delta/commands/RestoreTableCommand.$anonfun$checkSnapshotFilesAvailability$2:(Lorg/apache/hadoop/fs/Path;Lorg/apache/spark/broadcast/Broadcast;Lscala/collection/Iterator;)Lscala/collection/Iterator;, instantiatedMethodType=(Lscala/collection/Iterator;)Lscala/collection/Iterator;, numCaptured=2])
+	- writeReplace data (class: java.lang.invoke.SerializedLambda)
+	- object (class org.apache.spark.sql.delta.commands.RestoreTableCommand$$Lambda$5335/1755303177, org.apache.spark.sql.delta.commands.RestoreTableCommand$$Lambda$5335/1755303177@17a02e93)
+	- field (class: org.apache.spark.sql.execution.MapPartitionsExec, name: func, type: interface scala.Function1)
+	- object (class org.apache.spark.sql.execution.MapPartitionsExec, MapPartitions org.apache.spark.sql.delta.commands.RestoreTableCommand$$Lambda$5335/1755303177@17a02e93, obj#7013: org.apache.spark.sql.delta.actions.AddFile
++- MapElements org.apache.spark.sql.delta.commands.RestoreTableCommand$$Lambda$5332/391891725@2e8a0c90, obj#6936: org.apache.spark.sql.delta.actions.AddFile
+   +- DeserializeToObject newInstance(class org.apache.spark.sql.delta.actions.AddFile), obj#6935: org.apache.spark.sql.delta.actions.AddFile
+      +- *(3) BroadcastHashJoin [path#6884], [path#6842], LeftAnti, BuildRight, false
+         :- AQEShuffleRead local
+         :  +- ShuffleQueryStage 0
+         :     +- Exchange hashpartitioning(path#6884, 200), ENSURE_REQUIREMENTS, [id=#1930]
+         :        +- *(1) SerializeFromObject [staticinvoke(class org.apache.spark.unsafe.types.UTF8String, StringType, fromString, knownnotnull(assertnotnull(input[0, org.apache.spark.sql.delta.actions.AddFile, true])).path, true, false, true) AS path#6884, externalmaptocatalyst(lambdavariable(ExternalMapToCatalyst_key, ObjectType(class java.lang.String), true, -5), staticinvoke(class org.apache.spark.unsafe.types.UTF8String, StringType, fromString, lambdavariable(ExternalMapToCatalyst_key, ObjectType(class java.lang.String), true, -5), true, false, true), lambdavariable(ExternalMapToCatalyst_value, ObjectType(class java.lang.String), true, -6), staticinvoke(class org.apache.spark.unsafe.types.UTF8String, StringType, fromString, lambdavariable(ExternalMapToCatalyst_value, ObjectType(class java.lang.String), true, -6), true, false, true), knownnotnull(assertnotnull(input[0, org.apache.spark.sql.delta.actions.AddFile, true])).partitionValues) AS partitionValues#6885, knownnotnull(assertnotnull(input[0, org.apache.spark.sql.delta.actions.AddFile, true])).size AS size#6886L, knownnotnull(assertnotnull(input[0, org.apache.spark.sql.delta.actions.AddFile, true])).modificationTime AS modificationTime#6887L, knownnotnull(assertnotnull(input[0, org.apache.spark.sql.delta.actions.AddFile, true])).dataChange AS dataChange#6888, staticinvoke(class org.apache.spark.unsafe.types.UTF8String, StringType, fromString, knownnotnull(assertnotnull(input[0, org.apache.spark.sql.delta.actions.AddFile, true])).stats, true, false, true) AS stats#6889, externalmaptocatalyst(lambdavariable(ExternalMapToCatalyst_key, ObjectType(class java.lang.String), true, -7), staticinvoke(class org.apache.spark.unsafe.types.UTF8String, StringType, fromString, lambdavariable(ExternalMapToCatalyst_key, ObjectType(class java.lang.String), true, -7), true, false, true), lambdavariable(ExternalMapToCatalyst_value, ObjectType(class java.lang.String), true, -8), staticinvoke(class org.apache.spark.unsafe.types.UTF8String, StringType, fromString, lambdavariable(ExternalMapToCatalyst_value, ObjectType(class java.lang.String), true, -8), true, false, true), knownnotnull(assertnotnull(input[0, org.apache.spark.sql.delta.actions.AddFile, true])).tags) AS tags#6890]
+         :           +- *(1) MapElements org.apache.spark.sql.Dataset$$Lambda$4940/506375028@78a724c3, obj#6883: org.apache.spark.sql.delta.actions.AddFile
+         :              +- *(1) DeserializeToObject newInstance(class scala.Tuple1), obj#6882: scala.Tuple1
+         :                 +- *(1) Project [add#6492]
+         :                    +- *(1) Filter isnotnull(add#6492)
+         :                       +- *(1) Scan ExistingRDD Delta Table State #4 - hdfs://node1:8020/usr/hive/warehouse/people10m/_delta_log[txn#6491,add#6492,remove#6493,metaData#6494,protocol#6495,cdc#6496,commitInfo#6497]
+         +- BroadcastQueryStage 2
+            +- BroadcastExchange HashedRelationBroadcastMode(List(input[0, string, true]),false), [id=#2034]
+               +- AQEShuffleRead local
+                  +- ShuffleQueryStage 1
+                     +- Exchange hashpartitioning(path#6842, 200), ENSURE_REQUIREMENTS, [id=#1954]
+                        +- *(2) Project [path#6842]
+                           +- *(2) Filter isnotnull(path#6842)
+                              +- *(2) SerializeFromObject [staticinvoke(class org.apache.spark.unsafe.types.UTF8String, StringType, fromString, knownnotnull(assertnotnull(input[0, org.apache.spark.sql.delta.actions.AddFile, true])).path, true, false, true) AS path#6842, externalmaptocatalyst(lambdavariable(ExternalMapToCatalyst_key, ObjectType(class java.lang.String), true, -5), staticinvoke(class org.apache.spark.unsafe.types.UTF8String, StringType, fromString, lambdavariable(ExternalMapToCatalyst_key, ObjectType(class java.lang.String), true, -5), true, false, true), lambdavariable(ExternalMapToCatalyst_value, ObjectType(class java.lang.String), true, -6), staticinvoke(class org.apache.spark.unsafe.types.UTF8String, StringType, fromString, lambdavariable(ExternalMapToCatalyst_value, ObjectType(class java.lang.String), true, -6), true, false, true), knownnotnull(assertnotnull(input[0, org.apache.spark.sql.delta.actions.AddFile, true])).partitionValues) AS partitionValues#6843, knownnotnull(assertnotnull(input[0, org.apache.spark.sql.delta.actions.AddFile, true])).size AS size#6844L, knownnotnull(assertnotnull(input[0, org.apache.spark.sql.delta.actions.AddFile, true])).modificationTime AS modificationTime#6845L, knownnotnull(assertnotnull(input[0, org.apache.spark.sql.delta.actions.AddFile, true])).dataChange AS dataChange#6846, staticinvoke(class org.apache.spark.unsafe.types.UTF8String, StringType, fromString, knownnotnull(assertnotnull(input[0, org.apache.spark.sql.delta.actions.AddFile, true])).stats, true, false, true) AS stats#6847, externalmaptocatalyst(lambdavariable(ExternalMapToCatalyst_key, ObjectType(class java.lang.String), true, -7), staticinvoke(class org.apache.spark.unsafe.types.UTF8String, StringType, fromString, lambdavariable(ExternalMapToCatalyst_key, ObjectType(class java.lang.String), true, -7), true, false, true), lambdavariable(ExternalMapToCatalyst_value, ObjectType(class java.lang.String), true, -8), staticinvoke(class org.apache.spark.unsafe.types.UTF8String, StringType, fromString, lambdavariable(ExternalMapToCatalyst_value, ObjectType(class java.lang.String), true, -8), true, false, true), knownnotnull(assertnotnull(input[0, org.apache.spark.sql.delta.actions.AddFile, true])).tags) AS tags#6848]
+                                 +- *(2) MapElements org.apache.spark.sql.Dataset$$Lambda$4940/506375028@78a724c3, obj#6841: org.apache.spark.sql.delta.actions.AddFile
+                                    +- *(2) DeserializeToObject newInstance(class scala.Tuple1), obj#6840: scala.Tuple1
+                                       +- *(2) Project [add#3366]
+                                          +- *(2) Filter isnotnull(add#3366)
+                                             +- *(2) Scan ExistingRDD Delta Table State #6 - hdfs://node1:8020/usr/hive/warehouse/people10m/_delta_log[txn#3365,add#3366,remove#3367,metaData#3368,protocol#3369,cdc#3370,commitInfo#3371]
+)
+	- element of array (index: 0)
+	- array (class [Ljava.lang.Object;, size 1)
+	- field (class: java.lang.invoke.SerializedLambda, name: capturedArgs, type: class [Ljava.lang.Object;)
+	- object (class java.lang.invoke.SerializedLambda, SerializedLambda[capturingClass=class org.apache.spark.sql.execution.MapPartitionsExec, functionalInterfaceMethod=scala/Function1.apply:(Ljava/lang/Object;)Ljava/lang/Object;, implementation=invokeStatic org/apache/spark/sql/execution/MapPartitionsExec.$anonfun$doExecute$3:(Lorg/apache/spark/sql/execution/MapPartitionsExec;Lscala/collection/Iterator;)Lscala/collection/Iterator;, instantiatedMethodType=(Lscala/collection/Iterator;)Lscala/collection/Iterator;, numCaptured=1])
+	- writeReplace data (class: java.lang.invoke.SerializedLambda)
+	- object (class org.apache.spark.sql.execution.MapPartitionsExec$$Lambda$3498/406477119, org.apache.spark.sql.execution.MapPartitionsExec$$Lambda$3498/406477119@4b54470)
+	- element of array (index: 0)
+	- array (class [Ljava.lang.Object;, size 1)
+	- field (class: java.lang.invoke.SerializedLambda, name: capturedArgs, type: class [Ljava.lang.Object;)
+	- object (class java.lang.invoke.SerializedLambda, SerializedLambda[capturingClass=class org.apache.spark.rdd.RDD, functionalInterfaceMethod=scala/Function3.apply:(Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;, implementation=invokeStatic org/apache/spark/rdd/RDD.$anonfun$mapPartitionsInternal$2$adapted:(Lscala/Function1;Lorg/apache/spark/TaskContext;Ljava/lang/Object;Lscala/collection/Iterator;)Lscala/collection/Iterator;, instantiatedMethodType=(Lorg/apache/spark/TaskContext;Ljava/lang/Object;Lscala/collection/Iterator;)Lscala/collection/Iterator;, numCaptured=1])
+	- writeReplace data (class: java.lang.invoke.SerializedLambda)
+	- object (class org.apache.spark.rdd.RDD$$Lambda$2899/1457580371, org.apache.spark.rdd.RDD$$Lambda$2899/1457580371@73dd8471)
+	- field (class: org.apache.spark.rdd.MapPartitionsRDD, name: f, type: interface scala.Function3)
+	- object (class org.apache.spark.rdd.MapPartitionsRDD, MapPartitionsRDD[276] at $anonfun$recordDeltaOperationInternal$1 at DatabricksLogging.scala:77)
+	- field (class: org.apache.spark.NarrowDependency, name: _rdd, type: class org.apache.spark.rdd.RDD)
+	- object (class org.apache.spark.OneToOneDependency, org.apache.spark.OneToOneDependency@4dd76183)
+	- writeObject data (class: scala.collection.immutable.List$SerializationProxy)
+	- object (class scala.collection.immutable.List$SerializationProxy, scala.collection.immutable.List$SerializationProxy@c05d5ed)
+	- writeReplace data (class: scala.collection.immutable.List$SerializationProxy)
+	- object (class scala.collection.immutable.$colon$colon, List(org.apache.spark.OneToOneDependency@4dd76183))
+	- field (class: org.apache.spark.rdd.RDD, name: dependencies_, type: interface scala.collection.Seq)
+	- object (class org.apache.spark.rdd.MapPartitionsRDD, MapPartitionsRDD[277] at $anonfun$recordDeltaOperationInternal$1 at DatabricksLogging.scala:77)
+	- field (class: org.apache.spark.NarrowDependency, name: _rdd, type: class org.apache.spark.rdd.RDD)
+	- object (class org.apache.spark.OneToOneDependency, org.apache.spark.OneToOneDependency@368c0c90)
+	- writeObject data (class: scala.collection.immutable.List$SerializationProxy)
+	- object (class scala.collection.immutable.List$SerializationProxy, scala.collection.immutable.List$SerializationProxy@26a4cf66)
+	- writeReplace data (class: scala.collection.immutable.List$SerializationProxy)
+	- object (class scala.collection.immutable.$colon$colon, List(org.apache.spark.OneToOneDependency@368c0c90))
+	- field (class: org.apache.spark.rdd.RDD, name: dependencies_, type: interface scala.collection.Seq)
+	- object (class org.apache.spark.rdd.MapPartitionsRDD, MapPartitionsRDD[278] at $anonfun$recordDeltaOperationInternal$1 at DatabricksLogging.scala:77)
+	- field (class: scala.Tuple2, name: _1, type: class java.lang.Object)
+	- object (class scala.Tuple2, (MapPartitionsRDD[278] at $anonfun$recordDeltaOperationInternal$1 at DatabricksLogging.scala:77,org.apache.spark.SparkContext$$Lambda$4316/1456023121@58fe8571))
+	at org.apache.spark.scheduler.DAGScheduler.failJobAndIndependentStages(DAGScheduler.scala:2672)
+	at org.apache.spark.scheduler.DAGScheduler.$anonfun$abortStage$2(DAGScheduler.scala:2608)
+	at org.apache.spark.scheduler.DAGScheduler.$anonfun$abortStage$2$adapted(DAGScheduler.scala:2607)
+	at scala.collection.mutable.ResizableArray.foreach(ResizableArray.scala:62)
+	at scala.collection.mutable.ResizableArray.foreach$(ResizableArray.scala:55)
+	at scala.collection.mutable.ArrayBuffer.foreach(ArrayBuffer.scala:49)
+	at org.apache.spark.scheduler.DAGScheduler.abortStage(DAGScheduler.scala:2607)
+	at org.apache.spark.scheduler.DAGScheduler.submitMissingTasks(DAGScheduler.scala:1517)
+	at org.apache.spark.scheduler.DAGScheduler.submitStage(DAGScheduler.scala:1329)
+	at org.apache.spark.scheduler.DAGScheduler.handleJobSubmitted(DAGScheduler.scala:1271)
+	at org.apache.spark.scheduler.DAGSchedulerEventProcessLoop.doOnReceive(DAGScheduler.scala:2810)
+	at org.apache.spark.scheduler.DAGSchedulerEventProcessLoop.onReceive(DAGScheduler.scala:2802)
+	at org.apache.spark.scheduler.DAGSchedulerEventProcessLoop.onReceive(DAGScheduler.scala:2791)
+	at org.apache.spark.util.EventLoop$$anon$1.run(EventLoop.scala:49)
+	at org.apache.spark.scheduler.DAGScheduler.runJob(DAGScheduler.scala:952)
+	at org.apache.spark.SparkContext.runJob(SparkContext.scala:2228)
+	at org.apache.spark.SparkContext.runJob(SparkContext.scala:2249)
+	at org.apache.spark.SparkContext.runJob(SparkContext.scala:2268)
+	at org.apache.spark.sql.execution.SparkPlan.executeTake(SparkPlan.scala:506)
+	at org.apache.spark.sql.execution.SparkPlan.executeTake(SparkPlan.scala:459)
+	at org.apache.spark.sql.execution.CollectLimitExec.executeCollect(limit.scala:48)
+	at org.apache.spark.sql.execution.adaptive.AdaptiveSparkPlanExec.$anonfun$executeCollect$1(AdaptiveSparkPlanExec.scala:340)
+	at org.apache.spark.sql.execution.adaptive.AdaptiveSparkPlanExec.withFinalPlanUpdate(AdaptiveSparkPlanExec.scala:368)
+	at org.apache.spark.sql.execution.adaptive.AdaptiveSparkPlanExec.executeCollect(AdaptiveSparkPlanExec.scala:340)
+	at org.apache.spark.sql.Dataset.collectFromPlan(Dataset.scala:3868)
+	at org.apache.spark.sql.Dataset.$anonfun$head$1(Dataset.scala:2863)
+	at org.apache.spark.sql.Dataset.$anonfun$withAction$2(Dataset.scala:3858)
+	at org.apache.spark.sql.execution.QueryExecution$.withInternalError(QueryExecution.scala:510)
+	at org.apache.spark.sql.Dataset.$anonfun$withAction$1(Dataset.scala:3856)
+	at org.apache.spark.sql.execution.SQLExecution$.$anonfun$withNewExecutionId$6(SQLExecution.scala:109)
+	at org.apache.spark.sql.execution.SQLExecution$.withSQLConfPropagated(SQLExecution.scala:169)
+	at org.apache.spark.sql.execution.SQLExecution$.$anonfun$withNewExecutionId$1(SQLExecution.scala:95)
+	at org.apache.spark.sql.SparkSession.withActive(SparkSession.scala:779)
+	at org.apache.spark.sql.execution.SQLExecution$.withNewExecutionId(SQLExecution.scala:64)
+	at org.apache.spark.sql.Dataset.withAction(Dataset.scala:3856)
+	at org.apache.spark.sql.Dataset.head(Dataset.scala:2863)
+	at org.apache.spark.sql.delta.commands.RestoreTableCommand.$anonfun$checkSnapshotFilesAvailability$1(RestoreTableCommand.scala:243)
+	at scala.runtime.java8.JFunction0$mcV$sp.apply(JFunction0$mcV$sp.java:23)
+	at org.apache.spark.sql.delta.util.DeltaProgressReporter.withJobDescription(DeltaProgressReporter.scala:53)
+	at org.apache.spark.sql.delta.util.DeltaProgressReporter.withStatusCode(DeltaProgressReporter.scala:32)
+	at org.apache.spark.sql.delta.util.DeltaProgressReporter.withStatusCode$(DeltaProgressReporter.scala:27)
+	at org.apache.spark.sql.delta.commands.RestoreTableCommand.withStatusCode(RestoreTableCommand.scala:86)
+	at org.apache.spark.sql.delta.commands.RestoreTableCommand.withDescription(RestoreTableCommand.scala:180)
+	at org.apache.spark.sql.delta.commands.RestoreTableCommand.checkSnapshotFilesAvailability(RestoreTableCommand.scala:226)
+	at org.apache.spark.sql.delta.commands.RestoreTableCommand.$anonfun$run$5(RestoreTableCommand.scala:143)
+	at org.apache.spark.sql.delta.DeltaLog.withNewTransaction(DeltaLog.scala:221)
+	at org.apache.spark.sql.delta.commands.RestoreTableCommand.$anonfun$run$1(RestoreTableCommand.scala:113)
+	at org.apache.spark.sql.delta.metering.DeltaLogging.recordFrameProfile(DeltaLogging.scala:139)
+	at org.apache.spark.sql.delta.metering.DeltaLogging.recordFrameProfile$(DeltaLogging.scala:137)
+	at org.apache.spark.sql.delta.commands.RestoreTableCommand.recordFrameProfile(RestoreTableCommand.scala:86)
+	at org.apache.spark.sql.delta.metering.DeltaLogging.$anonfun$recordDeltaOperationInternal$1(DeltaLogging.scala:132)
+	at com.databricks.spark.util.DatabricksLogging.recordOperation(DatabricksLogging.scala:77)
+	at com.databricks.spark.util.DatabricksLogging.recordOperation$(DatabricksLogging.scala:67)
+	at org.apache.spark.sql.delta.commands.RestoreTableCommand.recordOperation(RestoreTableCommand.scala:86)
+	at org.apache.spark.sql.delta.metering.DeltaLogging.recordDeltaOperationInternal(DeltaLogging.scala:131)
+	at org.apache.spark.sql.delta.metering.DeltaLogging.recordDeltaOperation(DeltaLogging.scala:121)
+	at org.apache.spark.sql.delta.metering.DeltaLogging.recordDeltaOperation$(DeltaLogging.scala:109)
+	at org.apache.spark.sql.delta.commands.RestoreTableCommand.recordDeltaOperation(RestoreTableCommand.scala:86)
+	at org.apache.spark.sql.delta.commands.RestoreTableCommand.run(RestoreTableCommand.scala:97)
+	at org.apache.spark.sql.execution.command.ExecutedCommandExec.sideEffectResult$lzycompute(commands.scala:75)
+	at org.apache.spark.sql.execution.command.ExecutedCommandExec.sideEffectResult(commands.scala:73)
+	at org.apache.spark.sql.execution.command.ExecutedCommandExec.executeCollect(commands.scala:84)
+	at org.apache.spark.sql.execution.QueryExecution$$anonfun$eagerlyExecuteCommands$1.$anonfun$applyOrElse$1(QueryExecution.scala:98)
+	at org.apache.spark.sql.execution.SQLExecution$.$anonfun$withNewExecutionId$6(SQLExecution.scala:109)
+	at org.apache.spark.sql.execution.SQLExecution$.withSQLConfPropagated(SQLExecution.scala:169)
+	at org.apache.spark.sql.execution.SQLExecution$.$anonfun$withNewExecutionId$1(SQLExecution.scala:95)
+	at org.apache.spark.sql.SparkSession.withActive(SparkSession.scala:779)
+	at org.apache.spark.sql.execution.SQLExecution$.withNewExecutionId(SQLExecution.scala:64)
+	at org.apache.spark.sql.execution.QueryExecution$$anonfun$eagerlyExecuteCommands$1.applyOrElse(QueryExecution.scala:98)
+	at org.apache.spark.sql.execution.QueryExecution$$anonfun$eagerlyExecuteCommands$1.applyOrElse(QueryExecution.scala:94)
+	at org.apache.spark.sql.catalyst.trees.TreeNode.$anonfun$transformDownWithPruning$1(TreeNode.scala:584)
+	at org.apache.spark.sql.catalyst.trees.CurrentOrigin$.withOrigin(TreeNode.scala:176)
+	at org.apache.spark.sql.catalyst.trees.TreeNode.transformDownWithPruning(TreeNode.scala:584)
+	at org.apache.spark.sql.catalyst.plans.logical.LogicalPlan.org$apache$spark$sql$catalyst$plans$logical$AnalysisHelper$$super$transformDownWithPruning(LogicalPlan.scala:30)
+	at org.apache.spark.sql.catalyst.plans.logical.AnalysisHelper.transformDownWithPruning(AnalysisHelper.scala:267)
+	at org.apache.spark.sql.catalyst.plans.logical.AnalysisHelper.transformDownWithPruning$(AnalysisHelper.scala:263)
+	at org.apache.spark.sql.catalyst.plans.logical.LogicalPlan.transformDownWithPruning(LogicalPlan.scala:30)
+	at org.apache.spark.sql.catalyst.plans.logical.LogicalPlan.transformDownWithPruning(LogicalPlan.scala:30)
+	at org.apache.spark.sql.catalyst.trees.TreeNode.transformDown(TreeNode.scala:560)
+	at org.apache.spark.sql.execution.QueryExecution.eagerlyExecuteCommands(QueryExecution.scala:94)
+	at org.apache.spark.sql.execution.QueryExecution.commandExecuted$lzycompute(QueryExecution.scala:81)
+	at org.apache.spark.sql.execution.QueryExecution.commandExecuted(QueryExecution.scala:79)
+	at org.apache.spark.sql.Dataset.<init>(Dataset.scala:220)
+	at org.apache.spark.sql.Dataset$.$anonfun$ofRows$2(Dataset.scala:100)
+	at org.apache.spark.sql.SparkSession.withActive(SparkSession.scala:779)
+	at org.apache.spark.sql.Dataset$.ofRows(Dataset.scala:97)
+	at org.apache.spark.sql.SparkSession.$anonfun$sql$1(SparkSession.scala:622)
+	at org.apache.spark.sql.SparkSession.withActive(SparkSession.scala:779)
+	at org.apache.spark.sql.SparkSession.sql(SparkSession.scala:617)
+	at org.apache.spark.sql.SQLContext.sql(SQLContext.scala:651)
+	at org.apache.spark.sql.hive.thriftserver.SparkSQLDriver.run(SparkSQLDriver.scala:67)
+	at org.apache.spark.sql.hive.thriftserver.SparkSQLCLIDriver.processCmd(SparkSQLCLIDriver.scala:384)
+	at org.apache.spark.sql.hive.thriftserver.SparkSQLCLIDriver.$anonfun$processLine$1(SparkSQLCLIDriver.scala:504)
+	at org.apache.spark.sql.hive.thriftserver.SparkSQLCLIDriver.$anonfun$processLine$1$adapted(SparkSQLCLIDriver.scala:498)
+	at scala.collection.Iterator.foreach(Iterator.scala:943)
+	at scala.collection.Iterator.foreach$(Iterator.scala:943)
+	at scala.collection.AbstractIterator.foreach(Iterator.scala:1431)
+	at scala.collection.IterableLike.foreach(IterableLike.scala:74)
+	at scala.collection.IterableLike.foreach$(IterableLike.scala:73)
+	at scala.collection.AbstractIterable.foreach(Iterable.scala:56)
+	at org.apache.spark.sql.hive.thriftserver.SparkSQLCLIDriver.processLine(SparkSQLCLIDriver.scala:498)
+	at org.apache.spark.sql.hive.thriftserver.SparkSQLCLIDriver$.main(SparkSQLCLIDriver.scala:286)
+	at org.apache.spark.sql.hive.thriftserver.SparkSQLCLIDriver.main(SparkSQLCLIDriver.scala)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at org.apache.spark.deploy.JavaMainApplication.start(SparkApplication.scala:52)
+	at org.apache.spark.deploy.SparkSubmit.org$apache$spark$deploy$SparkSubmit$$runMain(SparkSubmit.scala:958)
+	at org.apache.spark.deploy.SparkSubmit.doRunMain$1(SparkSubmit.scala:180)
+	at org.apache.spark.deploy.SparkSubmit.submit(SparkSubmit.scala:203)
+	at org.apache.spark.deploy.SparkSubmit.doSubmit(SparkSubmit.scala:90)
+	at org.apache.spark.deploy.SparkSubmit$$anon$2.doSubmit(SparkSubmit.scala:1046)
+	at org.apache.spark.deploy.SparkSubmit$.main(SparkSubmit.scala:1055)
+	at org.apache.spark.deploy.SparkSubmit.main(SparkSubmit.scala)
+Caused by: java.io.NotSerializableException: org.apache.hadoop.fs.Path
+Serialization stack:
+	- object not serializable (class: org.apache.hadoop.fs.Path, value: hdfs://node1:8020/usr/hive/warehouse/people10m)
+	- element of array (index: 0)
+	- array (class [Ljava.lang.Object;, size 2)
+	- field (class: java.lang.invoke.SerializedLambda, name: capturedArgs, type: class [Ljava.lang.Object;)
+	- object (class java.lang.invoke.SerializedLambda, SerializedLambda[capturingClass=class org.apache.spark.sql.delta.commands.RestoreTableCommand, functionalInterfaceMethod=scala/Function1.apply:(Ljava/lang/Object;)Ljava/lang/Object;, implementation=invokeStatic org/apache/spark/sql/delta/commands/RestoreTableCommand.$anonfun$checkSnapshotFilesAvailability$2:(Lorg/apache/hadoop/fs/Path;Lorg/apache/spark/broadcast/Broadcast;Lscala/collection/Iterator;)Lscala/collection/Iterator;, instantiatedMethodType=(Lscala/collection/Iterator;)Lscala/collection/Iterator;, numCaptured=2])
+	- writeReplace data (class: java.lang.invoke.SerializedLambda)
+	- object (class org.apache.spark.sql.delta.commands.RestoreTableCommand$$Lambda$5335/1755303177, org.apache.spark.sql.delta.commands.RestoreTableCommand$$Lambda$5335/1755303177@17a02e93)
+	- field (class: org.apache.spark.sql.execution.MapPartitionsExec, name: func, type: interface scala.Function1)
+	- object (class org.apache.spark.sql.execution.MapPartitionsExec, MapPartitions org.apache.spark.sql.delta.commands.RestoreTableCommand$$Lambda$5335/1755303177@17a02e93, obj#7013: org.apache.spark.sql.delta.actions.AddFile
++- MapElements org.apache.spark.sql.delta.commands.RestoreTableCommand$$Lambda$5332/391891725@2e8a0c90, obj#6936: org.apache.spark.sql.delta.actions.AddFile
+   +- DeserializeToObject newInstance(class org.apache.spark.sql.delta.actions.AddFile), obj#6935: org.apache.spark.sql.delta.actions.AddFile
+      +- *(3) BroadcastHashJoin [path#6884], [path#6842], LeftAnti, BuildRight, false
+         :- AQEShuffleRead local
+         :  +- ShuffleQueryStage 0
+         :     +- Exchange hashpartitioning(path#6884, 200), ENSURE_REQUIREMENTS, [id=#1930]
+         :        +- *(1) SerializeFromObject [staticinvoke(class org.apache.spark.unsafe.types.UTF8String, StringType, fromString, knownnotnull(assertnotnull(input[0, org.apache.spark.sql.delta.actions.AddFile, true])).path, true, false, true) AS path#6884, externalmaptocatalyst(lambdavariable(ExternalMapToCatalyst_key, ObjectType(class java.lang.String), true, -5), staticinvoke(class org.apache.spark.unsafe.types.UTF8String, StringType, fromString, lambdavariable(ExternalMapToCatalyst_key, ObjectType(class java.lang.String), true, -5), true, false, true), lambdavariable(ExternalMapToCatalyst_value, ObjectType(class java.lang.String), true, -6), staticinvoke(class org.apache.spark.unsafe.types.UTF8String, StringType, fromString, lambdavariable(ExternalMapToCatalyst_value, ObjectType(class java.lang.String), true, -6), true, false, true), knownnotnull(assertnotnull(input[0, org.apache.spark.sql.delta.actions.AddFile, true])).partitionValues) AS partitionValues#6885, knownnotnull(assertnotnull(input[0, org.apache.spark.sql.delta.actions.AddFile, true])).size AS size#6886L, knownnotnull(assertnotnull(input[0, org.apache.spark.sql.delta.actions.AddFile, true])).modificationTime AS modificationTime#6887L, knownnotnull(assertnotnull(input[0, org.apache.spark.sql.delta.actions.AddFile, true])).dataChange AS dataChange#6888, staticinvoke(class org.apache.spark.unsafe.types.UTF8String, StringType, fromString, knownnotnull(assertnotnull(input[0, org.apache.spark.sql.delta.actions.AddFile, true])).stats, true, false, true) AS stats#6889, externalmaptocatalyst(lambdavariable(ExternalMapToCatalyst_key, ObjectType(class java.lang.String), true, -7), staticinvoke(class org.apache.spark.unsafe.types.UTF8String, StringType, fromString, lambdavariable(ExternalMapToCatalyst_key, ObjectType(class java.lang.String), true, -7), true, false, true), lambdavariable(ExternalMapToCatalyst_value, ObjectType(class java.lang.String), true, -8), staticinvoke(class org.apache.spark.unsafe.types.UTF8String, StringType, fromString, lambdavariable(ExternalMapToCatalyst_value, ObjectType(class java.lang.String), true, -8), true, false, true), knownnotnull(assertnotnull(input[0, org.apache.spark.sql.delta.actions.AddFile, true])).tags) AS tags#6890]
+         :           +- *(1) MapElements org.apache.spark.sql.Dataset$$Lambda$4940/506375028@78a724c3, obj#6883: org.apache.spark.sql.delta.actions.AddFile
+         :              +- *(1) DeserializeToObject newInstance(class scala.Tuple1), obj#6882: scala.Tuple1
+         :                 +- *(1) Project [add#6492]
+         :                    +- *(1) Filter isnotnull(add#6492)
+         :                       +- *(1) Scan ExistingRDD Delta Table State #4 - hdfs://node1:8020/usr/hive/warehouse/people10m/_delta_log[txn#6491,add#6492,remove#6493,metaData#6494,protocol#6495,cdc#6496,commitInfo#6497]
+         +- BroadcastQueryStage 2
+            +- BroadcastExchange HashedRelationBroadcastMode(List(input[0, string, true]),false), [id=#2034]
+               +- AQEShuffleRead local
+                  +- ShuffleQueryStage 1
+                     +- Exchange hashpartitioning(path#6842, 200), ENSURE_REQUIREMENTS, [id=#1954]
+                        +- *(2) Project [path#6842]
+                           +- *(2) Filter isnotnull(path#6842)
+                              +- *(2) SerializeFromObject [staticinvoke(class org.apache.spark.unsafe.types.UTF8String, StringType, fromString, knownnotnull(assertnotnull(input[0, org.apache.spark.sql.delta.actions.AddFile, true])).path, true, false, true) AS path#6842, externalmaptocatalyst(lambdavariable(ExternalMapToCatalyst_key, ObjectType(class java.lang.String), true, -5), staticinvoke(class org.apache.spark.unsafe.types.UTF8String, StringType, fromString, lambdavariable(ExternalMapToCatalyst_key, ObjectType(class java.lang.String), true, -5), true, false, true), lambdavariable(ExternalMapToCatalyst_value, ObjectType(class java.lang.String), true, -6), staticinvoke(class org.apache.spark.unsafe.types.UTF8String, StringType, fromString, lambdavariable(ExternalMapToCatalyst_value, ObjectType(class java.lang.String), true, -6), true, false, true), knownnotnull(assertnotnull(input[0, org.apache.spark.sql.delta.actions.AddFile, true])).partitionValues) AS partitionValues#6843, knownnotnull(assertnotnull(input[0, org.apache.spark.sql.delta.actions.AddFile, true])).size AS size#6844L, knownnotnull(assertnotnull(input[0, org.apache.spark.sql.delta.actions.AddFile, true])).modificationTime AS modificationTime#6845L, knownnotnull(assertnotnull(input[0, org.apache.spark.sql.delta.actions.AddFile, true])).dataChange AS dataChange#6846, staticinvoke(class org.apache.spark.unsafe.types.UTF8String, StringType, fromString, knownnotnull(assertnotnull(input[0, org.apache.spark.sql.delta.actions.AddFile, true])).stats, true, false, true) AS stats#6847, externalmaptocatalyst(lambdavariable(ExternalMapToCatalyst_key, ObjectType(class java.lang.String), true, -7), staticinvoke(class org.apache.spark.unsafe.types.UTF8String, StringType, fromString, lambdavariable(ExternalMapToCatalyst_key, ObjectType(class java.lang.String), true, -7), true, false, true), lambdavariable(ExternalMapToCatalyst_value, ObjectType(class java.lang.String), true, -8), staticinvoke(class org.apache.spark.unsafe.types.UTF8String, StringType, fromString, lambdavariable(ExternalMapToCatalyst_value, ObjectType(class java.lang.String), true, -8), true, false, true), knownnotnull(assertnotnull(input[0, org.apache.spark.sql.delta.actions.AddFile, true])).tags) AS tags#6848]
+                                 +- *(2) MapElements org.apache.spark.sql.Dataset$$Lambda$4940/506375028@78a724c3, obj#6841: org.apache.spark.sql.delta.actions.AddFile
+                                    +- *(2) DeserializeToObject newInstance(class scala.Tuple1), obj#6840: scala.Tuple1
+                                       +- *(2) Project [add#3366]
+                                          +- *(2) Filter isnotnull(add#3366)
+                                             +- *(2) Scan ExistingRDD Delta Table State #6 - hdfs://node1:8020/usr/hive/warehouse/people10m/_delta_log[txn#3365,add#3366,remove#3367,metaData#3368,protocol#3369,cdc#3370,commitInfo#3371]
+)
+	- element of array (index: 0)
+	- array (class [Ljava.lang.Object;, size 1)
+	- field (class: java.lang.invoke.SerializedLambda, name: capturedArgs, type: class [Ljava.lang.Object;)
+	- object (class java.lang.invoke.SerializedLambda, SerializedLambda[capturingClass=class org.apache.spark.sql.execution.MapPartitionsExec, functionalInterfaceMethod=scala/Function1.apply:(Ljava/lang/Object;)Ljava/lang/Object;, implementation=invokeStatic org/apache/spark/sql/execution/MapPartitionsExec.$anonfun$doExecute$3:(Lorg/apache/spark/sql/execution/MapPartitionsExec;Lscala/collection/Iterator;)Lscala/collection/Iterator;, instantiatedMethodType=(Lscala/collection/Iterator;)Lscala/collection/Iterator;, numCaptured=1])
+	- writeReplace data (class: java.lang.invoke.SerializedLambda)
+	- object (class org.apache.spark.sql.execution.MapPartitionsExec$$Lambda$3498/406477119, org.apache.spark.sql.execution.MapPartitionsExec$$Lambda$3498/406477119@4b54470)
+	- element of array (index: 0)
+	- array (class [Ljava.lang.Object;, size 1)
+	- field (class: java.lang.invoke.SerializedLambda, name: capturedArgs, type: class [Ljava.lang.Object;)
+	- object (class java.lang.invoke.SerializedLambda, SerializedLambda[capturingClass=class org.apache.spark.rdd.RDD, functionalInterfaceMethod=scala/Function3.apply:(Ljava/lang/Object;Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;, implementation=invokeStatic org/apache/spark/rdd/RDD.$anonfun$mapPartitionsInternal$2$adapted:(Lscala/Function1;Lorg/apache/spark/TaskContext;Ljava/lang/Object;Lscala/collection/Iterator;)Lscala/collection/Iterator;, instantiatedMethodType=(Lorg/apache/spark/TaskContext;Ljava/lang/Object;Lscala/collection/Iterator;)Lscala/collection/Iterator;, numCaptured=1])
+	- writeReplace data (class: java.lang.invoke.SerializedLambda)
+	- object (class org.apache.spark.rdd.RDD$$Lambda$2899/1457580371, org.apache.spark.rdd.RDD$$Lambda$2899/1457580371@73dd8471)
+	- field (class: org.apache.spark.rdd.MapPartitionsRDD, name: f, type: interface scala.Function3)
+	- object (class org.apache.spark.rdd.MapPartitionsRDD, MapPartitionsRDD[276] at $anonfun$recordDeltaOperationInternal$1 at DatabricksLogging.scala:77)
+	- field (class: org.apache.spark.NarrowDependency, name: _rdd, type: class org.apache.spark.rdd.RDD)
+	- object (class org.apache.spark.OneToOneDependency, org.apache.spark.OneToOneDependency@4dd76183)
+	- writeObject data (class: scala.collection.immutable.List$SerializationProxy)
+	- object (class scala.collection.immutable.List$SerializationProxy, scala.collection.immutable.List$SerializationProxy@c05d5ed)
+	- writeReplace data (class: scala.collection.immutable.List$SerializationProxy)
+	- object (class scala.collection.immutable.$colon$colon, List(org.apache.spark.OneToOneDependency@4dd76183))
+	- field (class: org.apache.spark.rdd.RDD, name: dependencies_, type: interface scala.collection.Seq)
+	- object (class org.apache.spark.rdd.MapPartitionsRDD, MapPartitionsRDD[277] at $anonfun$recordDeltaOperationInternal$1 at DatabricksLogging.scala:77)
+	- field (class: org.apache.spark.NarrowDependency, name: _rdd, type: class org.apache.spark.rdd.RDD)
+	- object (class org.apache.spark.OneToOneDependency, org.apache.spark.OneToOneDependency@368c0c90)
+	- writeObject data (class: scala.collection.immutable.List$SerializationProxy)
+	- object (class scala.collection.immutable.List$SerializationProxy, scala.collection.immutable.List$SerializationProxy@26a4cf66)
+	- writeReplace data (class: scala.collection.immutable.List$SerializationProxy)
+	- object (class scala.collection.immutable.$colon$colon, List(org.apache.spark.OneToOneDependency@368c0c90))
+	- field (class: org.apache.spark.rdd.RDD, name: dependencies_, type: interface scala.collection.Seq)
+	- object (class org.apache.spark.rdd.MapPartitionsRDD, MapPartitionsRDD[278] at $anonfun$recordDeltaOperationInternal$1 at DatabricksLogging.scala:77)
+	- field (class: scala.Tuple2, name: _1, type: class java.lang.Object)
+	- object (class scala.Tuple2, (MapPartitionsRDD[278] at $anonfun$recordDeltaOperationInternal$1 at DatabricksLogging.scala:77,org.apache.spark.SparkContext$$Lambda$4316/1456023121@58fe8571))
+	at org.apache.spark.serializer.SerializationDebugger$.improveException(SerializationDebugger.scala:41)
+	at org.apache.spark.serializer.JavaSerializationStream.writeObject(JavaSerializer.scala:49)
+	at org.apache.spark.serializer.JavaSerializerInstance.serialize(JavaSerializer.scala:115)
+	at org.apache.spark.scheduler.DAGScheduler.submitMissingTasks(DAGScheduler.scala:1503)
+	at org.apache.spark.scheduler.DAGScheduler.submitStage(DAGScheduler.scala:1329)
+	at org.apache.spark.scheduler.DAGScheduler.handleJobSubmitted(DAGScheduler.scala:1271)
+	at org.apache.spark.scheduler.DAGSchedulerEventProcessLoop.doOnReceive(DAGScheduler.scala:2810)
+	at org.apache.spark.scheduler.DAGSchedulerEventProcessLoop.onReceive(DAGScheduler.scala:2802)
+	at org.apache.spark.scheduler.DAGSchedulerEventProcessLoop.onReceive(DAGScheduler.scala:2791)
+	at org.apache.spark.util.EventLoop$$anon$1.run(EventLoop.scala:49)
+```
+
+
+#### Expected results
+
+Delta table should be restored successfully
+
+#### Further details
+
+<!--
+Include any additional details that may be useful for diagnosing the problem here. If including tracebacks, please include the full traceback. Large logs and files should be attached.
+-->
+
+### Environment information
+
+* Delta Lake version: 2.1.0
+* Spark version: 3.3.0
+* Scala version: 2.12.12
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [ ] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute a bug fix at this time.

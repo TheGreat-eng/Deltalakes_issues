@@ -1,0 +1,21 @@
+## Description
+Currently, the `kernel-api` reads one file (either checkpoint or commit file) at a time. Once the file is fully read, then the next file is read request is issued. This makes reading large checkpoints split over multiple files slower. Instead `kernel-api` could issue read requests for all checkpoint files at once (in case of multi-part checkpoints) using the `ParquetHandler.readParquetFiles` and let the implementations of the `ParquetHandler` prefetch or using multiple threads to read the checkpoint parts concurrently.
+
+This PR makes the change to `kernel-api` to issue one read request for all checkpoint files that need to be read for state reconstructions.
+
+Resolves #2668
+Resolves #1965
+
+## How was this patch tested?
+Existing tests and a benchmark with a test only parallel parquet reader. Here are the sample benchmark results with the test only parallel Parquet reader. `Score` tells the average time to construct the Delta table state. `parallelReaderCount` indicates the number of parallel Parquet reading threads used.
+
+```
+Benchmark                                     (parallelReaderCount)  Mode  Cnt     Score     Error  Units
+BenchmarkParallelCheckpointReading.benchmark                      0  avgt    5  1565.520 ±  20.551  ms/op
+BenchmarkParallelCheckpointReading.benchmark                      1  avgt    5  1064.850 ±  19.699  ms/op
+BenchmarkParallelCheckpointReading.benchmark                      2  avgt    5   785.918 ± 176.285  ms/op
+BenchmarkParallelCheckpointReading.benchmark                      4  avgt    5   729.487 ±  51.470  ms/op
+BenchmarkParallelCheckpointReading.benchmark                     10  avgt    5   693.757 ±  41.252  ms/op
+BenchmarkParallelCheckpointReading.benchmark                     20  avgt    5   702.656 ±  19.145  ms/op
+```
+

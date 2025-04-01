@@ -1,0 +1,12 @@
+Is there any limit on the number of columns for merge update operation on the delta table? or any recommended number of columns?
+
+I have a streaming job that gets 1k columns & 10 records for every batch, with that I'm trying to update the delta table already having `k columns & 100 records.
+Currently, it's not even trying to execute the delta merge upsert line in my code. After the execute statement on merge update, It got to hang for more 5hr's even I have provided 64gb ram (not completed)
+Below is the code sample:
+```
+val streamingBatchDF = spark.read.format("delta").load("file:///home/srds/delta_sink/testm_90").limit(1).toDF
+val storedDeltaTablePath = "file:///home/srds/delta_sink/test_m12"
+DeltaTable.forPath(spark,storedDeltaTablePath).as("sampletable").merge(streamingBatchDF.as("second_data"),"sampletable.dd = second_data.dd and sampletable.timestamp = second_data.timestamp").whenMatched().updateAll().whenNotMatched().insertAll().execute()
+```
+Here I'm trying merge update an only single record. Still, it's hanging. No jobs are getting generated in spark UI.
+Not able to see the execution plan or what happening behind this. If the merge update with more columns is not supported on the delta table, please let us know the recommended size.

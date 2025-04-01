@@ -1,0 +1,21 @@
+#### Which Delta project/connector is this regarding?
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+Check `DeletionVectorFilesHaveWideBoundsCheck` has been disabled for COMPUTE STATS because it reintroduces stats with tight bound to files with Deletion Vectors. However, there are other operations that can then copy over these AddFile actions with DVs and tight stats. These operations resulted in DELTA_ADDING_DELETION_VECTORS_WITH_TIGHT_BOUNDS_DISALLOWED error, which was a false positive.
+
+In this PR we also attempt to introduce and discuss a "framework" for checks like that as a property of DeltaOperations, with DeltaOperations declaring as a member method whether a certain property and check should be performed. This is opposed to current practice, where many places in the code feature special cases like matching against a certain DeltaOperation and doing something special; this kind of code is very decentralized, and it's easy to miss if any new place or new operation needs such central handling. If this was centralized in DeltaOperations, this could lead to better discoverability of special cases and edge cases when implementing new operations.
+
+## How was this patch tested?
+
+Tests added.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No.

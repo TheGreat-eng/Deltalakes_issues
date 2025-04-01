@@ -1,0 +1,200 @@
+
+Using `spark-shell` from precompiled OSS Apache `Spark 3.0.2` without Hadoop + `io.delta:delta-core_2.12:0.8.0`.  
+
+High level summary of my complete test program to describe the issue and the debugging information:  
+1. I have created (unmanaged) fully qualified Delta Table using full path using sample data.  
+2. Separately, I have created a separate Spark dataframe reading directly using just the full path to simulate a reader program.
+3. I have created (managed) table reference to the above Delta Table.  
+    a. This is done explicitly using the logic outlined [here](https://docs.delta.io/latest/delta-batch.html#control-data-location) 
+4. I have successfully created an EXTERNAL table reference as a managed table
+5. I execute Spark SQL: `SHOW PARTITIONS` and it failed saying the `table is not partitioned`
+6. I have provided extra debugging information via Spark SQL: `DESCRIBE TABLE EXTENDED` and `SHOW CREATE TABLE`
+    a. The `SHOW CREATE TABLE` content did not match the original DDL statements I provided and it is causing the `SHOW PARTITIONS` to fail.  
+
+My objective is to `SHOW PARTITIONS` of my `EXTERNAL` managed Delta table created by another program that is not managed to begin with.   Is there a more direct approach or am I running into a bug here?
+
+
+```
+spark-shell --master yarn --deploy-mode client --conf spark.sql.extensions=io.delta.sql.DeltaSparkSessionExtension --conf spark.sql.catalog.spark_catalog=org.apache.spark.sql.delta.catalog.DeltaCatalog --conf spark.sql.warehouse.dir=/user/myuserid/warehouse --packages io.delta:delta-core_2.12:0.8.0 --driver-memory 1G --executor-memory 1G --executor-cores 1 --num-executors 3
+```
+
+```
+Spark context Web UI available at http://FQDN:port
+Spark context available as 'sc' (master = yarn, app id = application_1234567890123_111111).
+Spark session available as 'spark'.
+Welcome to
+      ____              __
+     / __/__  ___ _____/ /__
+    _\ \/ _ \/ _ `/ __/  '_/
+   /___/ .__/\_,_/_/ /_/\_\   version 3.0.2
+      /_/
+
+Using Scala version 2.12.10 (Java HotSpot(TM) 64-Bit Server VM, Java 1.8.0_2xx
+Type in expressions to have them evaluated.
+Type :help for more information.
+
+scala> import org.apache.spark.sql.SparkSession
+import org.apache.spark.sql.SparkSession
+
+scala> import org.apache.spark.sql.types.DateType
+import org.apache.spark.sql.types.DateType
+
+scala> import io.delta.tables._
+import io.delta.tables._
+
+scala> import spark.implicits._
+import spark.implicits._
+
+scala> val columns=Array("col1", "eventdate")
+columns: Array[String] = Array(col1, eventdate)
+
+scala> val sample_df = sc.parallelize(Seq(
+     |                       ("rec1_data", "2021-05-23"),
+     |                       ("rec2_data", "2021-05-22"),
+     |                       ("rec3_data", "2021-05-21")
+     |                     )).toDF(columns: _*)
+21/05/23 22:20:39 WARN SharedState: Not allowing to set spark.sql.warehouse.dir or hive.metastore.warehouse.dir in SparkSession's options, it should be set statically for cross-session usages
+sample_df: org.apache.spark.sql.DataFrame = [col1: string, eventdate: string]
+
+scala> val event_df = sample_df.withColumn("eventdate", to_date(col("eventdate"), "yyyy-MM-dd"))
+event_df: org.apache.spark.sql.DataFrame = [col1: string, eventdate: date]
+
+scala> event_df.printSchema
+root
+ |-- col1: string (nullable = true)
+ |-- eventdate: date (nullable = true)
+
+
+scala> event_df.show(false)
++---------+----------+
+|col1     |eventdate |
++---------+----------+
+|rec1_data|2021-05-23|
+|rec2_data|2021-05-22|
+|rec3_data|2021-05-21|
++---------+----------+
+
+
+scala> spark.catalog.listDatabases().show(false)
++-------+----------------+------------------------+
+|name   |description     |locationUri             |
++-------+----------------+------------------------+
+|default|default database|/user/myuserid/warehouse|
++-------+----------------+------------------------+
+
+
+scala> spark.catalog.listTables().show(false)
++----+--------+-----------+---------+-----------+
+|name|database|description|tableType|isTemporary|
++----+--------+-----------+---------+-----------+
++----+--------+-----------+---------+-----------+
+
+scala> val hdfsDeltaPathPrefix = "/user/myuserid/delta"
+hdfsDeltaPathPrefix: String = /user/myuserid/delta
+
+scala> val qualifiedDeltaHdfsPath = hdfsDeltaPathPrefix + "/events"
+qualifiedDeltaHdfsPath: String = /user/myuserid/delta/events
+
+scala> event_df.write.format("delta").partitionBy("eventdate").save(qualifiedDeltaHdfsPath)
+
+scala>
+
+scala> val readDeltaEvents_df = spark.read.format("delta").load(qualifiedDeltaHdfsPath)
+readDeltaEvents_df: org.apache.spark.sql.DataFrame = [col1: string, eventdate: date]
+
+scala> readDeltaEvents_df.printSchema
+root
+ |-- col1: string (nullable = true)
+ |-- eventdate: date (nullable = true)
+
+
+scala> readDeltaEvents_df.show(false)
++---------+----------+
+|col1     |eventdate |
++---------+----------+
+|rec1_data|2021-05-23|
+|rec2_data|2021-05-22|
+|rec3_data|2021-05-21|
++---------+----------+
+
+scala> val create_tbl_def_event_full_schema = spark.sql(s"""CREATE TABLE events (col1 STRING, eventdate DATE) USING DELTA PARTITIONED BY (eventdate) LOCATION '${qualifiedDeltaHdfsPath}'""")
+create_tbl_def_event_full_schema: org.apache.spark.sql.DataFrame = []
+
+scala> spark.catalog.listTables().show(false)
++------+--------+-----------+---------+-----------+
+|name  |database|description|tableType|isTemporary|
++------+--------+-----------+---------+-----------+
+|events|default |null       |EXTERNAL |false      |
++------+--------+-----------+---------+-----------+
+
+
+scala> spark.sql("SHOW PARTITIONS default.events")
+org.apache.spark.sql.AnalysisException: SHOW PARTITIONS is not allowed on a table that is not partitioned: `default`.`events`;
+  at org.apache.spark.sql.execution.command.ShowPartitionsCommand.run(tables.scala:1011)
+  at org.apache.spark.sql.execution.command.ExecutedCommandExec.sideEffectResult$lzycompute(commands.scala:70)
+  at org.apache.spark.sql.execution.command.ExecutedCommandExec.sideEffectResult(commands.scala:68)
+  at org.apache.spark.sql.execution.command.ExecutedCommandExec.executeCollect(commands.scala:79)
+  at org.apache.spark.sql.Dataset.$anonfun$logicalPlan$1(Dataset.scala:229)
+  at org.apache.spark.sql.Dataset.$anonfun$withAction$1(Dataset.scala:3618)
+  at org.apache.spark.sql.execution.SQLExecution$.$anonfun$withNewExecutionId$5(SQLExecution.scala:100)
+  at org.apache.spark.sql.execution.SQLExecution$.withSQLConfPropagated(SQLExecution.scala:160)
+  at org.apache.spark.sql.execution.SQLExecution$.$anonfun$withNewExecutionId$1(SQLExecution.scala:87)
+  at org.apache.spark.sql.SparkSession.withActive(SparkSession.scala:764)
+  at org.apache.spark.sql.execution.SQLExecution$.withNewExecutionId(SQLExecution.scala:64)
+  at org.apache.spark.sql.Dataset.withAction(Dataset.scala:3616)
+  at org.apache.spark.sql.Dataset.<init>(Dataset.scala:229)
+  at org.apache.spark.sql.Dataset$.$anonfun$ofRows$2(Dataset.scala:100)
+  at org.apache.spark.sql.SparkSession.withActive(SparkSession.scala:764)
+  at org.apache.spark.sql.Dataset$.ofRows(Dataset.scala:97)
+  at org.apache.spark.sql.SparkSession.$anonfun$sql$1(SparkSession.scala:607)
+  at org.apache.spark.sql.SparkSession.withActive(SparkSession.scala:764)
+  at org.apache.spark.sql.SparkSession.sql(SparkSession.scala:602)
+  ... 51 elided
+
+scala>
+
+scala> val describe_tbl_ext_events = spark.sql("DESCRIBE TABLE EXTENDED default.events")
+describe_tbl_ext_events: org.apache.spark.sql.DataFrame = [col_name: string, data_type: string ... 1 more field]
+
+scala> describe_tbl_ext_events.show(100, false)
++----------------------------+-----------------------------------------------------------------+-------+
+|col_name                    |data_type                                                        |comment|
++----------------------------+-----------------------------------------------------------------+-------+
+|col1                        |string                                                           |       |
+|eventdate                   |date                                                             |       |
+|                            |                                                                 |       |
+|# Partitioning              |                                                                 |       |
+|Part 0                      |eventdate                                                        |       |
+|                            |                                                                 |       |
+|# Detailed Table Information|                                                                 |       |
+|Name                        |default.events                                                   |       |
+|Location                    |hdfs://HDFSNN/user/myuserid/delta/events                         |       |
+|Provider                    |delta                                                            |       |
+|Table Properties            |[Type=EXTERNAL,delta.minReaderVersion=1,delta.minWriterVersion=2]|       |
++----------------------------+-----------------------------------------------------------------+-------+
+
+
+scala> val show_create_tbl_events = spark.sql("SHOW CREATE TABLE default.events")
+show_create_tbl_events: org.apache.spark.sql.DataFrame = [createtab_stmt: string]
+
+scala> show_create_tbl_events.show(100, false)
++------------------------------------------------------------------------------------------------------------------+
+|createtab_stmt                                                                                                    |
++------------------------------------------------------------------------------------------------------------------+
+|CREATE TABLE `default`.`events` (
+  )
+USING delta
+LOCATION 'hdfs://HDFSNN/user/myuserid/delta/events'
+|
++------------------------------------------------------------------------------------------------------------------+
+
+```
+
+
+
+
+
+
+
+
+

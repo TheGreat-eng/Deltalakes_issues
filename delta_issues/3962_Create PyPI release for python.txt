@@ -1,0 +1,12 @@
+Hello,
+
+This is related to issue #282.
+
+With this PR:
+- A setup.py file is added. 
+- Circleci workflow is updated to release the package on PyPI when a tag starting with `v` is created.
+
+Need to address the following:
+- Get a username and password for PyPI. The username will be added in config.yml (`<username>`), whereas the password will be stored in `$PYPI_PASSWORD` env variable in circleci. 
+- Review the metadata in setup.py and decide what the `author` and `author_email` values should be. I also used `delta.io` as the package name since `delta` was used already. 
+- Added `pyspark` as an install dependency (i.e. will get installed when you do `pip install delta.io`) but whether it needs to stay there is open for discussion.

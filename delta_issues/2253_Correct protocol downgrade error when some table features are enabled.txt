@@ -1,0 +1,52 @@
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+This PR improves the logic of deciding protocol versions in ALTER TABLE commands. Specifically, when a query specifies a lower protocol version along with a table prop that enables a table feature, we will try to "correct" the lower protocol version to a higher one that supports the said table feature. Some examples:
+```sql
+-- table has Protocol(2, 2)
+ALTER TABLE table SET TBLPROPERTIES (
+	delta.minWriterVersion = '1',
+	delta.enableChangeDataFeed = 'true'
+)
+-- before: cannot downgrade from Protocol(2, 2) to Protocol(2, 1)
+-- after: table now have Protocol(2, 4)
+```
+```sql
+-- table has Protocol(2, 2)
+ALTER TABLE table SET TBLPROPERTIES (
+	delta.minReaderVersion = '1',
+	delta.minWriterVersion = '1',
+	delta.enableChangeDataFeed = 'true'
+)
+-- before: cannot downgrade from Protocol(2, 2) to Protocol(1, 1)
+-- after: cannot downgrade from Protocol(2, 2) to Protocol(1, 4)
+```
+```sql
+-- table has Protocol(2, 2)
+ALTER TABLE table SET TBLPROPERTIES (
+	delta.minReaderVersion = '1',
+	delta.minWriterVersion = '1',
+	delta.enableDeletionVectors = 'true'
+)
+-- before: cannot downgrade from Protocol(2, 2) to Protocol(1, 1)
+-- after: table now have Protocol(3, 7)
+```
+
+## How was this patch tested?
+
+New tests.
+
+## Does this PR introduce _any_ user-facing changes?
+
+Yes. See the first section.

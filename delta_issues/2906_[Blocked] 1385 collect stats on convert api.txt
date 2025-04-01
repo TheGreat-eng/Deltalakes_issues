@@ -1,0 +1,17 @@
+
+## Description
+
+Resolves https://github.com/delta-io/delta/issues/1385
+
+Created for a second PR as a request https://github.com/delta-io/delta/pull/1401#pullrequestreview-1129045397
+
+First PR sets the collectStatistics on convert to true by default with additional changes to the SQL statement.
+This PR completes the DeltaTable API changes to disable collectStats by request.
+
+## How was this patch tested?
+
+Unit tests. Added a few tests on this and on the first PR to covert this.
+
+## Does this PR introduce _any_ user-facing changes?
+
+Additional API to DeltaTable to disable collectStats.

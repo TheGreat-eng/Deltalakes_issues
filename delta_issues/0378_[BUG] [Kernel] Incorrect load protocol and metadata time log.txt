@@ -1,0 +1,5 @@
+[Here](https://github.com/delta-io/delta/blob/b39d5b328ffa8e1071fc6aab78cfb345c8f2d8f7/kernel/kernel-api/src/main/java/io/delta/kernel/internal/snapshot/SnapshotManager.java#L546) we intend to log the duration of how long it took LogReplay to load the protocol and metadata.
+
+However, the `startTimeMillis` is declared _after_ the LogReplay object has been created, and the P & M are loading in the constructor of LogReplay. Thus, we are not correctly measuring the time it took to load the P & M.
+
+The ask: please fix this so that we correctly log the actual logReplay time.

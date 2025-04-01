@@ -1,0 +1,5 @@
+Why `DeltaTableV2` not support `SupportsRead`?
+`DeltaTableV2` has supported `SupportsWrite`, but didn't support `SupportsRead`.
+I see `BATCH_READ` has been in the `capabilities()` of `DeltaTableV2`.
+
+If `DeltaTableV2` supports `SupportsRead`, when read a delta table, we can get a `DataSourceV2Relation` instead of `loadV1Source`

@@ -1,0 +1,50 @@
+## Bug
+
+### Describe the problem
+
+Would like to query delta tables using Snowflake by creating external tables like mentioned [here](https://docs.snowflake.com/en/sql-reference/sql/create-external-table). Following the documentation described [here](https://docs.delta.io/latest/snowflake-integration.html) i.e. using manifest files.
+
+#### Steps to reproduce
+
+1. Create a Delta table with continuous updates.
+2. Create Snowflake Delta External table and here is a sample SQL reference 
+
+`
+create or replace stage some_stage url='s3://my-bucket/path-to-delta-lake-root' STORAGE_INTEGRATION = snowflake_access_integration;
+CREATE OR REPLACE EXTERNAL TABLE delta_manifest_table(
+    filename VARCHAR AS split_part(VALUE:c1, '/', -1)
+)
+LOCATION = @some_stage/_symlink_format_manifest/
+FILE_FORMAT = (TYPE = CSV)
+PATTERN = '.*[/]manifest'
+AUTO_REFRESH = true;
+
+select * from delta_manifest_table
+
+CREATE OR REPLACE EXTERNAL TABLE some_test_table(
+    id INT AS (VALUE:id::INT),
+    parquet_filename VARCHAR AS split_part(metadata$filename, '/', -1)
+  )
+  WITH LOCATION = @some_stage/
+  FILE_FORMAT = (TYPE = PARQUET)
+  PATTERN = '.*[/]part-[^/]*[.]parquet'
+  AUTO_REFRESH = true;
+
+select * from some_test_table
+
+CREATE OR REPLACE VIEW my_delta_table AS
+    SELECT id
+    FROM some_test_table
+    WHERE parquet_filename IN (SELECT filename FROM delta_manifest_table);
+
+  SELECT COUNT(*) FROM my_delta_table
+`
+
+#### Observed results
+
+Delta table updates aren't refreshed hence not queryable via Snowflake
+
+#### Expected results
+
+Delta table updates should be reflected when queried via snowflake.
+

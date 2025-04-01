@@ -1,0 +1,16 @@
+## Feature request
+
+### Overview
+
+We noticed that `spark.databricks.delta.merge.repartitionBeforeWrite.enabled=true`  will repartition to 1 by default and this can't be configured. It may cause OOM issue if we have a big partition. We want to control the number repartitions (number of files generated) per partition for our table. Or even better, have a configure at file size. 
+
+### Motivation
+This will let user control the number of partitions in case of large single file cause OOM error.
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [ ] Yes. I can contribute this feature independently.
+- [x] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.

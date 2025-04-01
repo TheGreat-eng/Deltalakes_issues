@@ -1,0 +1,33 @@
+<!--
+Thanks for sending a pull request!  Here are some tips for you:
+  1. If this is your first time, please read our contributor guidelines: https://github.com/delta-io/delta/blob/master/CONTRIBUTING.md
+  2. If the PR is unfinished, add '[WIP]' in your PR title, e.g., '[WIP] Your PR title ...'.
+  3. Be sure to keep the PR description updated to reflect all changes.
+  4. Please write your PR title to summarize what this PR proposes.
+  5. If possible, provide a concise example to reproduce the issue for a faster review.
+  6. If applicable, include the corresponding issue number in the PR title and link it in the body.
+-->
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+Right now, we are only logging for delta.deletionVector.write.offsetMismatch. In this PR, we trigger an exception at the time of writing the DV, so before we make a commit to the table. It'll fail the specific query, but won't put the table in a broken and unreadable state. We also change the log from delta.deletionVector.write.offsetMismatch into a delta assertion. 
+
+## How was this patch tested?
+
+Existing tests pass.
+
+## Does this PR introduce _any_ user-facing changes?
+
+Yes. If we detect an issue related to the file size while writing Deletion Vector files, we will now throw an exception at the time of writing the DV, before we make a commit to the table. This will fail the specific query, but will prevent the table from being in an unreadable state.

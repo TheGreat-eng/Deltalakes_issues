@@ -1,0 +1,10 @@
+In current update behavior, delta should: read affected files -> update -> write updated files -> delete old ones.
+Here is some other ideas for this update command:
+1. create a new action: UpdateFile with the update exprs
+2. when update coming, first use predicate and statistics to estimate affected rows
+3.1. if affected rows are relatively small, just add a UpdateFile action to DeltaLog
+3.2. if affected rows are large, do the real update
+4. when read coming, read the files apply UpdateFile actions in DeltaLog
+5. provide a command or checkpoint mechanism to materialize the update actions
+
+Can someone check if this idea is worth doing?

@@ -1,0 +1,7 @@
+## Description
+We have been changing the Kernel APIs which may cause the examples to fail. Currently, examples/integration can only be run manually. This PR runs the integration as part of the PR CI job so that we can cause any failure during the PR time.
+
+Also fixes an issue with the integration test run script when using the local version of Kernel code.
+
+## How was this patch tested?
+CI job

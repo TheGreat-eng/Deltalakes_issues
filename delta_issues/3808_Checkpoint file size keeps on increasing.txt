@@ -1,0 +1,9 @@
+Dear community
+We have spark structured streaming ingestion pipeline which writes data to 10k(cardinality)/day partitions. As time passes by size of checkpoint file increases and so the time for job which read/writes checkpoint file increases. 
+
+I understand, once we do compaction no of files will get reduced but as time pass by this file size will grow (as i understand). 
+
+Is my understanding correct. If yes, is there any future plan to control this.
+
+I see this configuration in delta.io but didn't find its being used anywhere.
+https://github.com/delta-io/delta/blob/3ed57d0668b09d48172b0eb7221f647811657972/src/main/scala/org/apache/spark/sql/delta/sources/DeltaSQLConf.scala#L225

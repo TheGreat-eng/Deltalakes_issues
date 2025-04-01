@@ -1,0 +1,5 @@
+With Apache Spark you can create a hive table and map it to a delta lake table. You can read (SELECT) and write (INSERT) to the table. Executing a DESCRIBE TABLE table_identifier statement returns metadata information, but if you query a statement like SHOW COLUMNS table_identifier it shows no columns.
+
+BI tools connect with the STS (Spark Thrift Server) which uses hive tables and not showing columns has problems with not loading tables because of error messages like: "table has no visible columns and cannot be queried".
+
+This has been tested with Spark 3.0.1 and the Delta Lake package "delta-core_2.12-0.8.0".

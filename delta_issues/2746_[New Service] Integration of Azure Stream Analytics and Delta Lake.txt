@@ -1,0 +1,10 @@
+Hi @dennyglee,
+
+Azure Stream Analytics now provides native support of Delta Lake. We would like to have ASA added to the service list on page https://delta.io/integrations/. 
+
+Here is an example of ASA product page: https://learn.microsoft.com/en-us/azure/stream-analytics/write-to-delta-lake.
+
+Thank you. Please let me know if you need more information.
+
+Best,
+Emma

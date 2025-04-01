@@ -1,0 +1,19 @@
+#### Which Delta project/connector is this regarding?
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+- Remove `createLogDirectory` and replace all usages with `ensureLogDirectoryExists` since the latter is optimized for creation rather than existence check now. Rename it `createLogDirectoriesIfNotExists`
+- Ensure commit directory is created on existing tables from older releases when manged-commits is enabled.
+
+## How was this patch tested?
+
+UTs
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

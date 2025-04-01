@@ -1,0 +1,11 @@
+This PR is part of https://github.com/delta-io/delta/pull/1591. A detailed overview of changes is described at https://github.com/delta-io/delta/pull/1591.
+
+## Description
+
+This PR gives the ability for DELETE with DVs to produce correct stats for `AddFile`s, which was a TODO item before.
+
+Rather than from costly recomputation, the stats is obtained by copying, for each AddFile with DV, previous stats from the last commited version and change `tightBounds` to `false`. The stats is guranteed correct before the physical parquet file didn't change when doing soft deletes.
+
+## How was this patch tested?
+
+Modified existing tests to look at stats.

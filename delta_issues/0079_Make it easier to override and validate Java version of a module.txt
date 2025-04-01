@@ -1,0 +1,18 @@
+
+#### Which Delta project/connector is this regarding?
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [x] Other - SBT Build
+
+## Description
+- Added a check to validate the build JVM's java version  >= target Java version of a module
+- Introduced VersionUtils and refactored some code to remove some Java and also Spark version related stuff from the main build.
+
+## How was this patch tested?
+existing tests
+
+## Does this PR introduce _any_ user-facing changes?
+No

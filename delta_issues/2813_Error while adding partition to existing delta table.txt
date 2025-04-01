@@ -1,0 +1,28 @@
+I have one delta table created as
+
+CREATE TABLE IF NOT EXISTS global.T_RUN_DATA
+(
+	ID INT NOT NULL,
+	RUN_TIME STRING NOT NULL,
+	NAME STRING NOT NULL,
+	CREATE_DATE TIMESTAMP NOT NULL,
+	CREATE_BY STRING NOT NULL,
+	UPDATE_DATE TIMESTAMP,
+	UPDATE_BY STRING
+)
+USING delta
+location 's3://dummy_bucket/global/run_data';
+
+Two rows inserted.
+
+INSERT INTO  global.T_CREDIT_MODEL_RUN_DATA (ID , RUN_TIME, NAME ,CREATE_DATE ,CREATE_BY ,UPDATE_DATE, UPDATE_BY) values (1, '11282022034900', 'Name1', now(), 'user1', null, null)
+
+INSERT INTO  global.T_CREDIT_MODEL_RUN_DATA (ID , RUN_TIME, NAME ,CREATE_DATE ,CREATE_BY ,UPDATE_DATE, UPDATE_BY) values (2, '11282022034901', 'Name2', now(), 'user1', null, null)
+
+Now, if I try to add partition on this table with
+ALTER TABLE global.T_RUN_DATA ADD PARTITION (ID= 1);
+
+I am getting below error.
+
+Error in SQL statement: AnalysisException: Operation not allowed: `ALTER TABLE ADD PARTITION` is not supported for Delta tables: `global`.`t_run_data`;
+AlterTableAddPartitionCommand `global`.`t_run_data`, [(Map(ID -> 1),None)], false

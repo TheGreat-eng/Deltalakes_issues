@@ -1,0 +1,34 @@
+## Bug
+
+### Describe the problem
+
+Currently, when `DeltaTableBuilder` is given a property that does not start with a `delta.` prefix, then that property is written to the table metadata in all lowercase.
+
+#### Steps to reproduce
+
+```scala
+io.delta.tables.DeltaTable.create()
+  .addColumn("bar", StringType)
+  .property("dataSkippingNumIndexedCols", "33")
+  .tableName("my_table")
+  .execute()
+```
+
+#### Observed results
+
+This will incorrectly write `dataskippingnumindexedcols` to the delta log metadata.
+
+#### Expected results
+
+We want to preserve the case of table properties. `dataSkippingNumIndexedCols` should be written to the metadata.
+
+### Implementation Requirement
+
+In addition to fixing the above issue, we also need to be backwards compatible and be able to read older tables with these invalid properties.
+
+As well, you need to include a **flag** that can be enabled to roll back to this previous behaviour.
+
+After you fix this issue, please update the test and test output table here: https://github.com/delta-io/delta/blob/master/core/src/test/scala/org/apache/spark/sql/delta/DeltaWriteConfigsSuite.scala#L316
+
+Also, please add tests with the feature flag enabled/disabled, as well as by reading an "older" table with these invalid delta properties (this should go into [EvolvabilitySuite](https://github.com/delta-io/delta/blob/master/core/src/test/scala/org/apache/spark/sql/delta/EvolvabilitySuite.scala)).
+

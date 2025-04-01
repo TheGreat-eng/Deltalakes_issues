@@ -1,0 +1,28 @@
+An existing test actually tests for what I think is incorrect behavior: https://github.com/delta-io/delta/blob/master/core/src/test/scala/org/apache/spark/sql/delta/schema/InvariantEnforcementSuite.scala#L186
+
+```
+ testQuietly("reject non-nullable nested column") {
+    val schema = new StructType()
+      .add("top", new StructType()
+        .add("key", StringType, nullable = false)
+        .add("value", IntegerType))
+    testBatchWriteRejection(
+      NotNull(Seq("key")),
+      schema,
+      spark.createDataFrame(Seq(Row(Row("a", 1)), Row(Row(null, 2))).asJava, schema.asNullable),
+      "top.key"
+    )
+    testBatchWriteRejection(
+      NotNull(Seq("key")),
+      schema,
+      spark.createDataFrame(Seq(Row(Row("a", 1)), Row(null)).asJava, schema.asNullable),
+      "top.key"
+    )
+  }
+```
+
+Here the `top` struct is nullable but the `key` field is not, and the current invariant checks only care about the fact that `key` is non-nullable therefore selecting that value (through a series of `GetStructField`'s), will always not be null. However, it is valid for `top` to be null, and it's more accurate to say that `key` is never null when `top` is not null I think.
+
+So in this test case, the first one is a valid test case. `top` is not null but `key` is. However, in the second test case, `top` is null, which should be valid behavior and not throw an exception I believe.
+
+After looking through the code I can see a few ways to make it basically skip checking `key` in this case, but it might be more ideal but more complicated to have it check `top` first, and only if that's not null, then check `key` and fail only in that case.

@@ -1,0 +1,20 @@
+#### Which Delta project/connector is this regarding?
+
+- [X] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+This PR implements parser related changes for Lite Vacuum. As part of this, Vacuum overall syntax has been changed to accept vacuum parameters in any order unlike a fixed order before. This was one of the recommendations from the SQL committee.
+Additionally, PR contains some test related changes.
+
+## How was this patch tested?
+
+Added new tests
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

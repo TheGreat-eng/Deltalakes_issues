@@ -1,0 +1,20 @@
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [x] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+Provides implementations for `getChild` for column vectors that are missing them.
+
+## How was this patch tested?
+
+Adds simple tests for `DefaultViewVector` and `DefaultGenericVector` (used by complex types in the JSON handler).
+https://github.com/delta-io/delta/pull/2131 also is based off these changes and uses `getChild` instead of `getStruct` everywhere in the code.

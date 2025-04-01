@@ -1,0 +1,3 @@
+Add `-P:genjavadoc:strictVisibility=true` to scalac options in order to hide package private types and methods in javadoc.
+
+Manually ran `build/sbt clean unidoc` and verified the generated javadoc doesn't show package private methods of `DeltaTable`.

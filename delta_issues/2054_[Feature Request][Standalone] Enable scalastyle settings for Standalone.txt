@@ -1,0 +1,19 @@
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the issue title
+For example: [Feature Request][Spark] Title of my issue
+-->
+
+- [ ] Spark
+- [X] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+### Overview
+
+When migrating the connectors to the root `build.sbt` we removed the scalastyle settings. Renable them for the Delta Standalone.
+
+### Further details
+
+We should be able to use the same scalastyleSettings used for the other sbt projects.

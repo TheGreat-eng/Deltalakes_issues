@@ -1,0 +1,3 @@
+The community has often requested for programmatic access to the metrics of various operations (e.g., # number of rows updete/deleted/inserted in Merge) after they have completed. These metrics are visible in the SQL tab of the Spark UI, but there is no easy way to programmatically access to those values. 
+
+A simple idea is to record the operation metrics in history. We already record operation parameters in the history (e.g., delete query condition) in json format, so it is easy to extend it to store the operation metrics as well (in json).

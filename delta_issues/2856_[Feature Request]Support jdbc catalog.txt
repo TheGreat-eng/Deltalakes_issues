@@ -1,0 +1,4 @@
+Reference  iceberg jdbc catalog：https://iceberg.apache.org/docs/latest/jdbc/
+
+Store metadata directly into a relational database, independent of hms. It can also be customized based on the jdbc catalog
+@zsxwing 

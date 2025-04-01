@@ -1,0 +1,20 @@
+
+#### Which Delta project/connector is this regarding?
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+Path-based table resolution in spark often relies on options passed by the user. The recently-added `UnresolvedPathBased[Delta]Table` node types do not currently support options, which prevents the user from passing them reliably. Fortunately the code is dead so far, but future changes will rely on this capability. Thus, we fix the shortcoming now so those future changes can rely on it.
+
+## How was this patch tested?
+
+Refactor only so far, unit tests verify that there are no unexpected behavior changes.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

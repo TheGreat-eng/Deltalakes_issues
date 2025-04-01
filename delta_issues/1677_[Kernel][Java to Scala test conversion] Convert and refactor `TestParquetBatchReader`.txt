@@ -1,0 +1,7 @@
+Convert the tests written in Java to Scala. Scala suites have better test framework and takes few lines to write a test compared to Java.
+
+Java suite: [TestParquetBatchReader](https://github.com/delta-io/delta/blob/master/kernel/kernel-defaults/src/test/java/io/delta/kernel/defaults/internal/parquet/TestParquetBatchReader.java)
+
+Target Scala suite [ParquetFileReaderSuite](https://github.com/delta-io/delta/tree/master/kernel/kernel-defaults/src/test/scala/io/delta/kernel/defaults/internal/parquet) (create new file).
+
+As part of the conversion, make use of the spark based reader to verify the returned results. The example code is [here](https://github.com/delta-io/delta/blob/master/kernel/kernel-defaults/src/test/scala/io/delta/kernel/defaults/internal/parquet/ParquetFileWriterSuite.scala#L247).

@@ -1,0 +1,25 @@
+to make Spark UI easier to follow
+Delta operation generates multiple queries to manage the transaction log.
+For example
+```
+val data = spark.range(0, 15)
+data.write.format("delta").save("/tmp/delta-table")
+val df = spark.read.format("delta").load("/tmp/delta-table")
+
+import io.delta.tables._
+import org.apache.spark.sql.functions._
+val deltaTable = DeltaTable.forPath("/tmp/delta-table")
+deltaTable.delete(condition = expr("id == 0"))
+```
+
+executes several "housekeeping" queries.  This enhancement makes it easier to figure out which is which.
+
+"Default Names" and "Enhanced Names" screen shots show the before and after UI.  (Stack traces shown in the UI are not useful here)
+
+"Default Names"
+<img width="1525" alt="DefaultNames" src="https://user-images.githubusercontent.com/4297661/94197951-5ccb3b00-fe6b-11ea-9a8f-30fe1c2ee115.png">
+
+"Enhanced Names"
+<img width="1520" alt="Enhanced Names" src="https://user-images.githubusercontent.com/4297661/94197964-605ec200-fe6b-11ea-9855-0bcc49da6c6e.png">
+
+Closes https://github.com/delta-io/delta/issues/528

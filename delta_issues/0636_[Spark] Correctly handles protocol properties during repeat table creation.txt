@@ -1,0 +1,19 @@
+#### Which Delta project/connector is this regarding?
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+This PR fixes a bug that could occur, if a table is created at the same location but under a different name and had delta.minReader/WriterVersion set explicitly as part of the table creation. Because these properties are removed from the table metadata, they will not appear as part of the table property comparison during the second table creation. As it is required for the properties to match, the second creation will fail, even though the specified properties are identical to the first one. This PR removes these two special properties from the comparison to allow table creation to succeed.
+
+## How was this patch tested?
+
+Added a unit test to assert that repeat table creation succeeds, even if minReader/WriterVersion is specified.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

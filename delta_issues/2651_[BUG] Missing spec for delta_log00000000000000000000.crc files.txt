@@ -1,0 +1,17 @@
+## Bug
+
+### Describe the problem
+
+The [PROTOCOL](https://github.com/delta-io/delta/blob/master/PROTOCOL.md) doesn't describe the CRC files in delta_log, is it intentional? 
+
+Example: 00000000000000000000.crc
+
+{"tableSizeBytes":1234567,"numFiles":123,"numMetadata":1,"numProtocol":1,"protocol":{"minReaderVersion":1,"minWriterVersion":2},"metadata....
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [ ] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [X] No. I cannot contribute a bug fix at this time.

@@ -1,0 +1,10 @@
+Note: This PR is based on https://github.com/delta-io/delta/pull/1851 and includes its changes in the first commit. Actual change can be seen [starting from commit Improve Merge Insert-only](https://github.com/delta-io/delta/pull/1852/files/411eed08a55a6a9a98d33fde85137ea3306e6bfc..95542aa2b5d46da4a51043942dacc645f4435c99)
+
+## Description
+
+This change improves the insert-only code path in merge to be able to support more than one `NOT MATCHED clause`. It also leverages the insert-only path for merges that have arbitrary clauses but effectively only have rows inserted after the `findTouchedFiles` step.
+
+## How was this patch tested?
+- Added test cases specifically covering merge with multiple `NOT MATCHED` clauses and merge with `MATCHED`/`NOT MATCHED` where only the `NOT MATCHED` clause is satisfied.
+- Added a test to check that the insert-only code path is used when there are only inserted rows after `findTouchedFiles` by looking at the recorded operations.
+- Insert-only merge are otherwise already covered by a number of different existing tests.

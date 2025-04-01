@@ -1,0 +1,5 @@
+I tried to run the delta table merge command, but I found if the table column name contains ".(dot)" for example "people.name", it will throw: "org.apache.spark.sql.AnalysisException: cannot resolve `people.name` in UPDATE clause". 
+The merge command doesn't support table which has a ".(dot)" in column name or it is a bug?
+The command I run just like this: 
+deltaTable.as("oldData").merge(newData, "oldData.key = newData.key").whenMatched.updateAll().whenNotMatched.insertAll.execute()
+While I have a column "people.name" in both "oldData" and "newData"

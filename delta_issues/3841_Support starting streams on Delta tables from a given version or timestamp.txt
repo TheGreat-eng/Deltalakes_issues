@@ -1,0 +1,1 @@
+Support streaming source options `startingVersion` or `startingTimestamp` to start processing a stream (in its first micro-batch) from a given version onwards. In this mode, we should not create a Snapshot at that version, but start tailing the transaction log at that version onwards. If a checkpoint is available, we should continue from the state that is in the checkpoint.

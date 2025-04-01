@@ -1,0 +1,172 @@
+As in title, on Delta Lake `0.4.0` and Spark `2.4.4`:
+
+```
+import io.delta.tables.DeltaTable
+import org.apache.hadoop.fs.{FileSystem, Path}
+import org.apache.spark.sql.delta.DeltaLog
+
+val hdfs = FileSystem.get(spark.sparkContext.hadoopConfiguration)
+val dfpath = "/testpart"
+
+def printPath(header: String, path: String): Unit = {
+  println(header)
+  pp(new Path(path), 3)
+  println()
+  def pp(path: Path, indent: Int = 0): Unit =
+    hdfs
+      .listStatus(path)
+      .foreach { f =>
+        println(" " * indent + f.getPath)
+        if (f.isDirectory) pp(f.getPath, indent + 3)
+      }
+}
+
+def testRepartition(group: String, gender: String): Unit = {
+  val df = Seq(
+    ("John", 1, "male"),
+    ("Maria", 1, "female"),
+    ("Jose", 2, "male"),
+    ("Amber", 2, "female")
+  ).toDF("name", group, gender)
+
+  df.show
+
+  df
+    .write
+    .format("delta")
+    .partitionBy(group)
+    .save(dfpath)
+
+  printPath("partitioned by '_group':", dfpath)
+
+  DeltaTable.forPath(dfpath).toDF
+    .write
+    .format("delta")
+    .partitionBy(gender)
+    .mode("overwrite")
+    .option("overwriteSchema", "true")
+    .save(dfpath)
+
+  DeltaTable.forPath(dfpath).vacuum(0)
+
+  DeltaLog.forTable(spark, dfpath).snapshot.allFiles.show(20, 200)
+
+  DeltaTable.forPath(dfpath).history().show(20, 200)
+
+  printPath("partitioned by 'gender':", dfpath)
+}
+
+hdfs.delete(new Path(dfpath), true)
+testRepartition("group", "gender")
+hdfs.delete(new Path(dfpath), true)
+testRepartition("_group", "_gender")
+```
+
+Test results:
+```
++-----+-----+------+
+| name|group|gender|
++-----+-----+------+
+| John|    1|  male|
+|Maria|    1|female|
+| Jose|    2|  male|
+|Amber|    2|female|
++-----+-----+------+
+
+partitioned by '_group':
+   hdfs://hdfs-k8s/testpart/_delta_log
+      hdfs://hdfs-k8s/testpart/_delta_log/00000000000000000000.json
+   hdfs://hdfs-k8s/testpart/group=1
+      hdfs://hdfs-k8s/testpart/group=1/part-00000-b1105cbb-e121-4d87-81e0-38b0656072eb.c000.snappy.parquet
+      hdfs://hdfs-k8s/testpart/group=1/part-00001-7c345eb5-c7ba-4423-b58e-6c58566d0737.c000.snappy.parquet
+   hdfs://hdfs-k8s/testpart/group=2
+      hdfs://hdfs-k8s/testpart/group=2/part-00002-086a42ae-ef2a-4762-a396-f376026e9be2.c000.snappy.parquet
+      hdfs://hdfs-k8s/testpart/group=2/part-00003-04c37784-28e6-42e5-83bf-dd61a1ba9fed.c000.snappy.parquet
+
+Deleted 4 files and directories in a total of 5 directories.
++---------------------------------------------------------------------------------+------------------+----+----------------+----------+-----+----+
+|                                                                             path|   partitionValues|size|modificationTime|dataChange|stats|tags|
++---------------------------------------------------------------------------------+------------------+----+----------------+----------+-----+----+
+|gender=female/part-00000-15ff383e-f48f-452e-a9a9-1744ed659f72.c000.snappy.parquet|[gender -> female]| 622|   1574275287912|     false| null|null|
+|  gender=male/part-00002-bac96b69-b463-4601-a387-96e048d04bae.c000.snappy.parquet|  [gender -> male]| 611|   1574275287923|     false| null|null|
+|  gender=male/part-00003-43c8f03e-bcbb-47dc-8870-6a50ee773126.c000.snappy.parquet|  [gender -> male]| 611|   1574275287939|     false| null|null|
+|gender=female/part-00001-ef87d495-8b21-4bbd-a5db-add8962bfa7a.c000.snappy.parquet|[gender -> female]| 622|   1574275287949|     false| null|null|
++---------------------------------------------------------------------------------+------------------+----+----------------+----------+-----+----+
+
++-------+-----------------------+------+--------+---------+-------------------------------------------------+----+--------+---------+-----------+--------------+-------------+
+|version|              timestamp|userId|userName|operation|                              operationParameters| job|notebook|clusterId|readVersion|isolationLevel|isBlindAppend|
++-------+-----------------------+------+--------+---------+-------------------------------------------------+----+--------+---------+-----------+--------------+-------------+
+|      1|2019-11-20 18:41:28.271|  null|    null|    WRITE|   [mode -> Overwrite, partitionBy -> ["gender"]]|null|    null|     null|          0|          null|        false|
+|      0|2019-11-20 18:41:22.456|  null|    null|    WRITE|[mode -> ErrorIfExists, partitionBy -> ["group"]]|null|    null|     null|       null|          null|         true|
++-------+-----------------------+------+--------+---------+-------------------------------------------------+----+--------+---------+-----------+--------------+-------------+
+
+partitioned by 'gender':
+   hdfs://hdfs-k8s/testpart/_delta_log
+      hdfs://hdfs-k8s/testpart/_delta_log/00000000000000000000.json
+      hdfs://hdfs-k8s/testpart/_delta_log/00000000000000000001.json
+   hdfs://hdfs-k8s/testpart/gender=female
+      hdfs://hdfs-k8s/testpart/gender=female/part-00000-15ff383e-f48f-452e-a9a9-1744ed659f72.c000.snappy.parquet
+      hdfs://hdfs-k8s/testpart/gender=female/part-00001-ef87d495-8b21-4bbd-a5db-add8962bfa7a.c000.snappy.parquet
+   hdfs://hdfs-k8s/testpart/gender=male
+      hdfs://hdfs-k8s/testpart/gender=male/part-00002-bac96b69-b463-4601-a387-96e048d04bae.c000.snappy.parquet
+      hdfs://hdfs-k8s/testpart/gender=male/part-00003-43c8f03e-bcbb-47dc-8870-6a50ee773126.c000.snappy.parquet
+   hdfs://hdfs-k8s/testpart/group=1
+   hdfs://hdfs-k8s/testpart/group=2
+
++-----+------+-------+
+| name|_group|_gender|
++-----+------+-------+
+| John|     1|   male|
+|Maria|     1| female|
+| Jose|     2|   male|
+|Amber|     2| female|
++-----+------+-------+
+
+partitioned by '_group':
+   hdfs://hdfs-k8s/testpart/_delta_log
+      hdfs://hdfs-k8s/testpart/_delta_log/00000000000000000000.json
+   hdfs://hdfs-k8s/testpart/_group=1
+      hdfs://hdfs-k8s/testpart/_group=1/part-00000-56dbc2f6-452c-47e8-9d32-aaabfc2f7cf5.c000.snappy.parquet
+      hdfs://hdfs-k8s/testpart/_group=1/part-00001-e86f4dc8-92cb-4929-ad6e-c68592d87282.c000.snappy.parquet
+   hdfs://hdfs-k8s/testpart/_group=2
+      hdfs://hdfs-k8s/testpart/_group=2/part-00002-8f8e980a-9fc7-4d12-adb4-a4c5865590e1.c000.snappy.parquet
+      hdfs://hdfs-k8s/testpart/_group=2/part-00003-c3a310ce-449c-468c-b2e3-2f248a4bd167.c000.snappy.parquet
+
+Deleted 0 files and directories in a total of 3 directories.
++----------------------------------------------------------------------------------+-------------------+----+----------------+----------+-----+----+
+|                                                                              path|    partitionValues|size|modificationTime|dataChange|stats|tags|
++----------------------------------------------------------------------------------+-------------------+----+----------------+----------+-----+----+
+|  _gender=male/part-00003-36b4925e-cc72-4b44-9078-cf11618b0184.c000.snappy.parquet|  [_gender -> male]| 614|   1574275333929|     false| null|null|
+|  _gender=male/part-00002-0610e15a-ace4-479b-bfd0-08f4fa624872.c000.snappy.parquet|  [_gender -> male]| 614|   1574275333917|     false| null|null|
+|_gender=female/part-00000-a7bd3bfd-e8b3-4bf3-b693-19634a10b28e.c000.snappy.parquet|[_gender -> female]| 625|   1574275333915|     false| null|null|
+|_gender=female/part-00001-17b4d155-734f-4177-abad-7f9b3513a968.c000.snappy.parquet|[_gender -> female]| 625|   1574275333928|     false| null|null|
++----------------------------------------------------------------------------------+-------------------+----+----------------+----------+-----+----+
+
++-------+-----------------------+------+--------+---------+--------------------------------------------------+----+--------+---------+-----------+--------------+-------------+
+|version|              timestamp|userId|userName|operation|                               operationParameters| job|notebook|clusterId|readVersion|isolationLevel|isBlindAppend|
++-------+-----------------------+------+--------+---------+--------------------------------------------------+----+--------+---------+-----------+--------------+-------------+
+|      1|2019-11-20 18:42:14.259|  null|    null|    WRITE|   [mode -> Overwrite, partitionBy -> ["_gender"]]|null|    null|     null|          0|          null|        false|
+|      0|2019-11-20 18:42:08.489|  null|    null|    WRITE|[mode -> ErrorIfExists, partitionBy -> ["_group"]]|null|    null|     null|       null|          null|         true|
++-------+-----------------------+------+--------+---------+--------------------------------------------------+----+--------+---------+-----------+--------------+-------------+
+
+partitioned by 'gender':
+   hdfs://hdfs-k8s/testpart/_delta_log
+      hdfs://hdfs-k8s/testpart/_delta_log/00000000000000000000.json
+      hdfs://hdfs-k8s/testpart/_delta_log/00000000000000000001.json
+   hdfs://hdfs-k8s/testpart/_gender=female
+      hdfs://hdfs-k8s/testpart/_gender=female/part-00000-a7bd3bfd-e8b3-4bf3-b693-19634a10b28e.c000.snappy.parquet
+      hdfs://hdfs-k8s/testpart/_gender=female/part-00001-17b4d155-734f-4177-abad-7f9b3513a968.c000.snappy.parquet
+   hdfs://hdfs-k8s/testpart/_gender=male
+      hdfs://hdfs-k8s/testpart/_gender=male/part-00002-0610e15a-ace4-479b-bfd0-08f4fa624872.c000.snappy.parquet
+      hdfs://hdfs-k8s/testpart/_gender=male/part-00003-36b4925e-cc72-4b44-9078-cf11618b0184.c000.snappy.parquet
+   hdfs://hdfs-k8s/testpart/_group=1
+      hdfs://hdfs-k8s/testpart/_group=1/part-00000-56dbc2f6-452c-47e8-9d32-aaabfc2f7cf5.c000.snappy.parquet
+      hdfs://hdfs-k8s/testpart/_group=1/part-00001-e86f4dc8-92cb-4929-ad6e-c68592d87282.c000.snappy.parquet
+   hdfs://hdfs-k8s/testpart/_group=2
+      hdfs://hdfs-k8s/testpart/_group=2/part-00002-8f8e980a-9fc7-4d12-adb4-a4c5865590e1.c000.snappy.parquet
+      hdfs://hdfs-k8s/testpart/_group=2/part-00003-c3a310ce-449c-468c-b2e3-2f248a4bd167.c000.snappy.parquet
+```
+
+As shown above, files under `_group` are not deleted. 
+
+In addition, even when partitions do not start with underscore, partition directories are not deleted. I'm not sure about this latter one, but it does not look like a desired behaviour. 

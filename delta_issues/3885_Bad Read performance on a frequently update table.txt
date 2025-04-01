@@ -1,0 +1,7 @@
+I've a frequently updated partition table, partitioned by date.
+
+Data volume under each partition is not so large, less than 100MB each date. But log files under _delta_log folder is very large, i see more than 4000 files, sum to 46GB log files. The table is frequently updated.
+
+We have a parquet mirror table of this delta lake table, which includes the latest version. Read performance on same piece of data on parquet data is much faster than delta lake table.
+
+I'm not sure whether it os because of the very large _delta_log. Is there any way to optimize it?

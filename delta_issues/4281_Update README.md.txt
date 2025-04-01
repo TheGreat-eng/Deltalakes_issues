@@ -1,0 +1,1 @@
+This sentence is inaccurate.  Delta Lake provides guarantees on other storage systems such as Azure Blob Storage and likely others.

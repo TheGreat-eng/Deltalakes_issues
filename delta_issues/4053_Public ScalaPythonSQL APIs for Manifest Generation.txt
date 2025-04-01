@@ -1,0 +1,18 @@
+Added `DeltaTable` API `generate` which can be used to generate manifest files e.g SymlinkTextInputFormat manifest.
+
+Added
+- Scala APIs and tests
+- Python APIs and tests
+- SQL Support and tests.
+
+example usage
+Scala:  `deltaTable.generate("symlink_format_manifest")`
+Python: `deltaTable.generate("symlink_format_manifest")`
+SQL: `GENERATE symlink_format_manifest FOR TABLE delta.\path`
+
+
+
+This closes #76 
+
+
+GitOrigin-RevId: a1b0285debf1becbfad4ee5491c2acbd524945b4

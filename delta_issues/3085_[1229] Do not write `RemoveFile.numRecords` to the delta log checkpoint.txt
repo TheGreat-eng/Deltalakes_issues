@@ -1,0 +1,12 @@
+## Description
+
+Resolves delta-io/delta#1229.
+
+This PR ensures that `RemoveFile.numRecords` field is not written out to the delta checkpoint. We do this by removing `numRecords` from the `RemoveFile` constructor.
+
+## How was this patch tested?
+We write out a checkpoint, and read it back as parquet, and ensure that its schema does not contain `numRecords`.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No.

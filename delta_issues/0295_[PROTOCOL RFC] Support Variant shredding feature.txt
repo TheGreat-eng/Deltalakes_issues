@@ -1,0 +1,18 @@
+## Protocol Change Request
+
+### Description of the protocol change
+
+This protocol change adds support for Variant shredding for the Variant data type.
+Shredding allows Variant data to be be more efficiently stored and queried.
+
+The [Parquet Variant Shredding specification](https://github.com/apache/parquet-format/blob/master/VariantShredding.md) describes the details of how Variant values are shredded in Parquet.
+
+### Willingness to contribute
+
+The Delta Lake Community encourages protocol innovations. Would you or another member of your organization be willing to contribute this feature to the Delta Lake code base?
+
+- [x] Yes. I can contribute.
+- [ ] Yes. I would be willing to contribute with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute at this time.
+
+

@@ -1,0 +1,14 @@
+Note: This PR is based on https://github.com/delta-io/delta/pull/1851 and https://github.com/delta-io/delta/pull/1852 and includes the corresponding changes in the first two commits. Actual change can be seen starting from commit [Improve writing changes out in Merge](https://github.com/delta-io/delta/commit/b1ef97991a6e00241f4ae803a3cab6ae000bea13)
+
+
+This changes is part of a larger effort to improve merge performance, see https://github.com/delta-io/delta/issues/1827
+
+## Description
+This change rewrites the way modified data is written out in merge to improve performance. `writeAllChanges` now generates a dataframe containing all the updated and copied rows to write out by building a large expression that selectively applies the right merge action to each row. This replaces the previous method that relied on applying a function to individual rows.
+
+Changes:
+- Move `findTouchedFiles` and `writeAllchanges` to a dedicated new trait `ClassicMergeExecutor` implementing the regular merge path when `InsertOnlyMergeExecutor` is not used.
+- Introduce methods in `MergeOutputGeneration` to transform the merge clauses into expressions that can be applied to generate the output of the merge operation (both main data and CDC data).
+
+## How was this patch tested?
+This change fully preserve the behavior of merge which is extensively tested in `MergeIntoSuiteBase`, `MergeIntoSQLSuite`, `MergeIntoScalaSuite`, `MergeCDCSuite`, `MergeIntoMetricsBase`, `MergeIntoNotMatchedBySourceSuite`.

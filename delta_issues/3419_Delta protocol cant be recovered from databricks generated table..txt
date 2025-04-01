@@ -1,0 +1,45 @@
+I'm trying to remove a couple partitions from a delta table in Databricks and then write to it from EMR, but when I do I get the following error:
+
+```
+User class threw exception: java.lang.IllegalStateException: 
+The protocol of your Delta table couldn't be recovered while Reconstructing version: 1. Did you manually delete files in the _delta_log directory? Set spark.databricks.delta.stateReconstructionValidation.enabled to "false" to skip validation.
+```
+When I know that no such deletion has occurred. 
+
+Steps:
+
+1. start with a working delta table that I insert data into every day and deep copy it:
+```
+val oldtable = DeltaTable.forPath("s3://oldbucket/oldpath/")
+oldtable.clone("s3://newtable/newpath/", false, true)
+```
+2. Repartition the data. I have verified that this works - I checked manually and I can read/compute stats on this table.
+```
+val newtable = DeltaTable.forPath("s3://newtable/newpath/")
+newtable
+  .toDF
+  .drop("bad_partition")
+  .repartition($"date")
+  .write.format("delta")
+  .mode("overwrite")
+  .option("overwriteSchema", "true")
+  .partitionBy("date") 
+  .save("s3://newtable/newpath/")
+newtable.vacuum()
+```
+All these commands happen within databricks.
+
+But then I try to write to the same table from EMR:
+```
+val dTable = DeltaTable.forPath(writePath)
+dTable.as("previous")
+  .merge(df.repartition(partitionColNames.map(n => col(n)) : _*).as("new"), mergeCondition)
+  .whenNotMatched()
+  .insertAll()
+  .whenMatched()
+  .updateAll()
+  .execute()
+```
+I get the previous exception. My EMR cluster is single master, and there are no other jobs writing to the table at the same time - the copy and the write happen sequentially. The read/write versions of the new table and the old table are the same.
+
+I've tried repairing the table with FSCK REPAIR TABLE  and all sorts of permutations on copying/repartitioning but the error persists. Searched all over but haven't seen this issue anywhere else. Raised the issue internally with Databricks and they said I should come here. 

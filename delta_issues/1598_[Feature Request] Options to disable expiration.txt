@@ -1,0 +1,34 @@
+## Feature request
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the issue title
+For example: [Feature Request][Spark] Title of my issue
+-->
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+### Overview
+
+<!-- Provide a high-level description of the feature request. -->
+
+As a customer I want the ability to configure Delta so it never deletes any information and I have complete control over my data. I don't want the _delta_log to be cleaned up without my explicit instruction. I'm particularly concerned about a Spark instance with a bad timeserver reading the data at any point should we migrate away from Databricks services.
+
+### Motivation
+
+We want to retain the entire version history or compact it only when we begin to run into issues. We want control over our data. The engine seems to require implicit maintenance where previous versions of Delta tables are deleted. Iceberg is the competition and from what I gather Iceberg is superior in this regard.
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organisation be willing to contribute an implementation of this feature?
+
+- [ ] Yes. I can contribute this feature independently.
+- [x] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.
+
+
+This seems like a pretty easy thing to implement at first pass, but that the expiration check even runs at all creates an implicit risk to businesses if there were a bug. I think it would be better to minimise the risk of that critical path.

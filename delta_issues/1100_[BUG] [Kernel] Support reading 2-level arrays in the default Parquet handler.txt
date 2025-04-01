@@ -1,0 +1,7 @@
+I found there is a parquet schema issue for my project. It looks like the ArrayColumnReader has a compatible issue with list type. 
+
+
+There is my table(test_v1), use the SingleThreadedTableReader to read the data, it will throw an exception.
+
+
+[test_v1.zip](https://github.com/user-attachments/files/15567062/test_v1.zip)

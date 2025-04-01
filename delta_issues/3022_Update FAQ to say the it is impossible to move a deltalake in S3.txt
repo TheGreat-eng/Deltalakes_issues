@@ -1,0 +1,16 @@
+The FAQ has been updated with: Remember to copy files without changing the timestamps to ensure that the time travel with timestamps will be consistent.
+
+This needs to include a warning that when the underlying storage is S3 it is impossible to move/create an object with the original/custom timestamp.
+
+Or am I missing something? We are looking to move lots of data from HDFS to S3 but there is no way to preserve timestamps in this process so we cannot move out HDFS deltalakes to S3. What is more important to the business users of the data, a slight performance hit or a complete loss of timetravel? 
+
+**Original post:**
+> The JSON file contains a timestamp of the commit: {"commitInfo":{"timestamp":1579786725976,
+> 
+> Why not use this rather than the modified time of the file?
+
+`timestamp` in the `commitInfo` is created before we create the json file. Using `commitInfo.timestamp` will make `timestamp`s not in the same order as `version`s easily. In addition, it's the timestamp in the client side and which clock skew/incorrect clock time is easier to happen. Moreover, if we need to read the content of json files when trying to look for which version by the timestamp, we would need to open tons of json files. Currently, we just need to use the file listing result which is much faster.
+
+Since we have updated the doc for this issue: https://docs.delta.io/latest/delta-faq.html#can-i-copy-my-delta-lake-table-to-another-location , I'm going to close this.
+
+_Originally posted by @zsxwing in https://github.com/delta-io/delta/issues/192#issuecomment-1021584972_

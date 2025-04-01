@@ -1,0 +1,4 @@
+## Bug
+
+### Describe the problem
+Is this intended? Converting UTF16 files to UTF8 to do a diff would be a little cumbersome...

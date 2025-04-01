@@ -1,0 +1,33 @@
+<!--
+Thanks for sending a pull request!  Here are some tips for you:
+  1. If this is your first time, please read our contributor guidelines: https://github.com/delta-io/delta/blob/master/CONTRIBUTING.md
+  2. If the PR is unfinished, add '[WIP]' in your PR title, e.g., '[WIP] Your PR title ...'.
+  3. Be sure to keep the PR description updated to reflect all changes.
+  4. Please write your PR title to summarize what this PR proposes.
+  5. If possible, provide a concise example to reproduce the issue for a faster review.
+  6. If applicable, include the corresponding issue number in the PR title and link it in the body.
+-->
+
+## Description
+
+This PR introduces support for **SHALLOW CLONE** for both Delta **and Parquet table** on Delta Lake, specifically the following command:
+`CREATE [OR REPLACE] TABLE [IF NOT EXISTS] target SHALLOW CLONE source [VERSION AS OF version | TIMESTAMP AS OF timestamp] [TBLPROPERTIES clause] [LOCATION path]`
+
+This enables the following use cases:
+1. Create a `target` table with Delta log pointing to the files from the `source` table. The source table can be either a Delta table or a Parquet table.
+
+You may also specify a custom `path` to create as an external table in a path, a `clause` for additional table properties to append to, or a `version` to create the target table as a time-travelled version of the source table (if is Delta).
+
+E.g. `CREATE TABLE target SHALLOW CLONE source`
+
+2. Replace/restore a table by shallow-cloning itself. This requires the table to be **empty** by the time of cloning to avoid data duplication.
+
+E.g. `REPLACE TABLE source SHALLOW CLONE source VERSION AS OF 1`
+
+## How was this patch tested?
+
+Unit tests.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No.

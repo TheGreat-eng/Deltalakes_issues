@@ -1,0 +1,7 @@
+## Description
+Fix flaky test that very rarely fail with actual result being off by one day compared to the expected result.
+
+Turns out it calls `current_date()` separately to compute the input data and the expected result.
+ 
+## How was this patch tested?
+~Run the test around midnight~  (as a thought experiment)

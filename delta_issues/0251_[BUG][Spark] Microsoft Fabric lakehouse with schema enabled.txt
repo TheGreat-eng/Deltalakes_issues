@@ -1,0 +1,88 @@
+## Bug
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the issue title
+For example: [BUG][Spark] Title of my issue
+-->
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+### Describe the problem
+
+I have a Microsoft Fabric lakehouse with schema enabled and I am trying to create an empty delta table using the function createIfNotExists, however, I am facing an issue. Even with the raised error, the table still being created under the schema.
+
+#### Steps to reproduce
+
+1. Create a Microsoft Fabric lakehouse with schema enabled.
+2. Create a Notebook and attach the lakehouse as default lakehouse to the notebook.
+3. Load some data into the spark dataframe and execute `DeltaTable.createIfNotExists(spark).tableName("silver.orderss3").execute()`
+4. It will raise the code as below
+
+#### Observed results
+
+``` python
+IllegalArgumentException                  Traceback (most recent call last)
+Cell In[119], line 17
+     15 data_ingestion = Ingestion(test2)
+     16 DeltaTable.isDeltaTable(spark,"/lakehouse/default/Tables/dbo/contoso_sales")
+---> 17 DeltaTable.createIfNotExists(spark).tableName("silver.orderss3").execute()
+
+File /usr/hdp/current/spark3-client/jars/delta-spark_2.12-3.2.0.5.jar/delta/tables.py:1381, in DeltaTableBuilder.execute(self)
+   1372 @since(1.0)  # type: ignore[arg-type]
+   1373 def execute(self) -> DeltaTable:
+   1374     """
+   1375     Execute Table Creation.
+   1376 
+   (...)
+   1379     .. note:: Evolving
+   1380     """
+-> 1381     jdt = self._jbuilder.execute()
+   1382     return DeltaTable(self._spark, jdt)
+
+File ~/cluster-env/trident_env/lib/python3.11/site-packages/py4j/java_gateway.py:1322, in JavaMember.__call__(self, *args)
+   1316 command = proto.CALL_COMMAND_NAME +\
+   1317     self.command_header +\
+   1318     args_command +\
+   1319     proto.END_COMMAND_PART
+   1321 answer = self.gateway_client.send_command(command)
+-> 1322 return_value = get_return_value(
+   1323     answer, self.gateway_client, self.target_id, self.name)
+   1325 for temp_arg in temp_args:
+   1326     if hasattr(temp_arg, "_detach"):
+
+File /opt/spark/python/lib/pyspark.zip/pyspark/errors/exceptions/captured.py:185, in capture_sql_exception.<locals>.deco(*a, **kw)
+    181 converted = convert_exception(e.java_exception)
+    182 if not isinstance(converted, UnknownException):
+    183     # Hide where the exception came from that shows a non-Pythonic
+    184     # JVM exception message.
+--> 185     raise converted from None
+    186 else:
+    187     raise
+
+IllegalArgumentException: java.io.IOException: Invalid input length 6
+```
+
+#### Further details
+
+<!--
+Include any additional details that may be useful for diagnosing the problem here. If including tracebacks, please include the full traceback. Large logs and files should be attached.
+-->
+
+### Environment information
+
+* Delta Lake version: 3.2
+* Spark version: 3.5
+* Scala version: 2.12 (I guess)
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [ ] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [x] No. I cannot contribute a bug fix at this time.

@@ -1,0 +1,8 @@
+It was reported on [slack](https://delta-users.slack.com/archives/CJ70UCSHM/p1659592875176129?thread_ts=1659438345.392989&cid=CJ70UCSHM):
+
+> upon checking the table history I saw no changes have come in effect, there was no entry in the table history of enabling the CDF.
+
+>     ALTER TABLE merge_demo
+>     SET TBLPROPERTIES (delta.enableChangeDataFeed = true);
+
+The idea behind this issue is to fix it in the code (and perhaps create a new version) or in the docs (explaining the proper behaviour).

@@ -1,0 +1,1 @@
+We have already added manifests formatted according to the `SymlinkTextInputFormat` for Presto/Athena support (#250). Redshift Spectrum also recognizes manifest files but using a different format. This issue is to track the work to add support for Redshift Spectrum formatted manifest.

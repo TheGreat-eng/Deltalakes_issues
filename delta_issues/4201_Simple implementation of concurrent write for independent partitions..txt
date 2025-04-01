@@ -1,0 +1,37 @@
+This is a simple extension of [Support concurrent writes](https://github.com/delta-io/delta/issues/72), which allows concurrent updates to independent partitions.
+
+By default this feature is disabled, to enable set `enableConcurrentPartitionsWrite=true` at table level configuration (table metadata).
+
+Typical use case for this feature is concurrent streaming with merge and compaction (repartition many small files to small amount of big files). Without this extension, one of the participants would constantly fail on `ConcurrentModificationException`.
+
+**Algorithm principle:**
+
+```
+---- TX1: reads partition P1
+
+- TX2: commits write on partition P2
+- TX3: commits write on partition P3
+
+---- TX1: tries to commit write on P1
+```
+
+In the current implementation P1 commit would fail with `ConcurrentWriteException` because TX1 have read data that could have been modified by TX2 and TX3 (no matter which partitions they modified).
+The new implementation evaluates which partitions was modified by TX2 and TX3 and if there is no conflict (intersection) **with what TX1 was reading or is writing**, it lets the commit to happen.
+
+This doesn't lower transaction isolation anyhow, so following 2 scenarios will fail.
+Since TX1 have read P1 which was already modified by TX2, the TX1 will fail:
+```
+---- TX1: reads partition P1
+
+- TX2: appends or updates or deletes anything in P1
+
+---- TX1: tries to commit write on P2
+```
+Both transactions are modifying same partition, TX1 will fail:
+```
+---- TX1: reads partition P1
+
+- TX2: appends or updates or deletes anything in P2
+
+---- TX1: tries to commit write on P2
+```

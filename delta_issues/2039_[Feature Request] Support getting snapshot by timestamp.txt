@@ -1,0 +1,41 @@
+## Feature request
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the issue title
+For example: [Feature Request][Spark] Title of my issue
+-->
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [x] Kernel
+- [ ] Other (fill in here)
+
+### Overview
+Currently, Kernel only supports reading the latest snapshot in a table (API [here](https://docs.delta.io/latest/api/java/kernel/io/delta/kernel/Table.html)) This task is to add support for fetching a snapshot by timestamp. 
+
+```
+interface Table
+{
+  /**
+   * Get the latest snapshot that is create at given time or the first snapshot
+   * committed after the given timestamp. Given timestamp in in seconds sinc
+   * epoch in UTC timezone.
+   */
+  Snapshot getSnapshotAtOrAfterTimestamp(long secondsSinceEpochUTC)
+}
+```
+
+#### Design Questions
+- Should we even support the getSnapshotAtOrAfterTimestamp?
+   - If yes, what should be the input timestamp? Timezone? seconds , micorseconds, milliseconds?
+- How should the FileStatus returned by FileSystemClient.listFrom contain the modification time? Which timezone? Does the filesystem expose the mod time in UTC?
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [ ] Yes. I can contribute this feature independently.
+- [ ] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [x] No. I cannot contribute this feature at this time.

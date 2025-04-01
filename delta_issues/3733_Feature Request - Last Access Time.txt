@@ -1,0 +1,3 @@
+Is it possible to add a last access time property to identify the last time a table was accessed?
+
+The advantage here is to identify and move a table for cold storage or to delete unused tables

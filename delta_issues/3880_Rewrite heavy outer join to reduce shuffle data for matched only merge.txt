@@ -1,0 +1,13 @@
+In matched only merge, current implementation is using a right outer join instead of full outer join. We can further rewrite the right out join to minimize the data in shuffle:
+In right outer join, even there are some predicates in right side, it still needs all rows in`filesToRewrite` to preform join. We move right side only predicates from join conditions to its filters, then union the join and the right side which applied anti-predicates filters.
+
+By our testing and practice, after applying this patch, the SMJ could be 5~10 times faster, which depends on how much data is skipping from shuffle.
+
+Before:
+<img width="593" alt="Screen Shot 2020-05-25 at 10 06 03 AM" src="https://user-images.githubusercontent.com/1853780/82771851-eba15a00-9e6f-11ea-825c-d2ecf2f3bfbe.png">
+79 billion rows have to participate in SMJ. 
+
+
+After:
+<img width="642" alt="Screen Shot 2020-05-25 at 10 06 52 AM" src="https://user-images.githubusercontent.com/1853780/82771872-f956df80-9e6f-11ea-8095-0534d6a92e36.png">
+Only 5 billion rows participate in SMJ

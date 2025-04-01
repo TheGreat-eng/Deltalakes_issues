@@ -1,0 +1,3 @@
+Reverts delta-io/delta#3580
+
+This PR looks like missing `DeltaMergeBuilder` which is causing build failures. See https://github.com/delta-io/delta/pull/3591

@@ -1,0 +1,20 @@
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [x] Kernel
+- [ ] Other (fill in here)
+
+## Description
+Fixed example for storing collation information in metadata in `collated-string-type.md`. JSON representation had incorrect column name and path to StringType.
+
+## How was this patch tested?
+
+
+## Does this PR introduce _any_ user-facing changes?
+No.

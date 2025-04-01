@@ -1,0 +1,9 @@
+## Description
+Currently, we pass optional `Metadata` to `validateReadSupportedTable`, which is just used for checking whether it has supported column mapping mode. We don't need to check that as if an unknown mode is passed, it will anyway fail later on. Also if a new mode is added, it will be part of a new table feature
+
+Also for `validateWriteSupportedTable`, we pass the `schema` and `metadata` separately. Instead just passing the `metadata` (which has the `schema`) should be sufficient.
+
+The implementation of these APIs going to change in the subsequent PRs.
+
+## How was this patch tested?
+Existing tests.

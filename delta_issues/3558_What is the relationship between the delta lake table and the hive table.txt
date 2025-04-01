@@ -1,0 +1,2 @@
+What is the relationship between the delta lake table and the hive table?
+Now that the data is in hive, if it exists on detlalake, how do you perform related queries with the previous data?

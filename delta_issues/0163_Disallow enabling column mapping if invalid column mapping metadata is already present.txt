@@ -1,0 +1,24 @@
+#### Which Delta project/connector is this regarding?
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+As effect of earlier bugs (e.g. fixed in https://github.com/delta-io/delta/pull/3487) there can exists tables where column mapping is disabled, but there is column mapping metadata on the table. Enabling column mapping metadata on such a table could lead to unexpected corruption. Simply stripping such metadata could also lead to curruptions, as the invalid metadata can be already used in other places (e.g. column statistics) via DeltaColumnMapping.getPhysicalName, which returns the name from the metadata even when column mapping is disabled.
+
+After https://github.com/delta-io/delta/pull/3688 it should no longer be possible to end up with tables having such invalid metadata, so the issue only concerns existing tables created before that fix.
+
+To avoid corruption, we want to disallow enabling column mapping on such tables.
+
+## How was this patch tested?
+
+Added tests to DeltaColumnMappingSuite.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No.
+We are disallowing an operation on tables that would lead to Delta table corruption on tables that are already in an invalid state entering which is fixed already, so it can only concern old tables in the wild.

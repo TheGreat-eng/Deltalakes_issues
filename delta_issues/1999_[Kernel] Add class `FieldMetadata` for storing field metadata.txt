@@ -1,0 +1,21 @@
+#### Which Delta project/connector is this regarding?
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [X] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+Resolves #2315
+
+Adds a class `FieldMetadata` for storing `StructField` metadata. Currently field metadata is stored as a `Map<String, String>`; this is not sufficient for column level metadata as values are stored in JSON as strings, numbers, lists, etc (for example column mapping id is stored as a long).
+
+The `FieldMetadata` class allows us to restrict the possible value types through its builder class. This will be important in the future when we support writes.
+
+Full `FieldMetadata` parsing support in the `DefaultJsonHandler` is also added in this PR.
+
+## How was this patch tested?
+
+Existing tests and adds tests for the JSON parsing.

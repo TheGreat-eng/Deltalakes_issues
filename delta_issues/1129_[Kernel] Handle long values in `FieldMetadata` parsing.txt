@@ -1,0 +1,5 @@
+## Description
+Currently when parsing the `FieldMetadata` in `StructField` (as part of the schema parsing), we always assume the integral values are of `int` type, but it could be of value `long`.
+
+## How was this patch tested?
+Add couple of cases to existing test

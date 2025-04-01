@@ -1,0 +1,21 @@
+#### Which Delta project/connector is this regarding?
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [X] Other (Storage)
+
+## Description
+
+S3 has been strongly consistent (for `GET`, `PUT`, `LIST`) for years ([announcement](https://aws.amazon.com/blogs/aws/amazon-s3-update-strong-read-after-write-consistency/)), yet the `S3SingleDriverLogStore` has had code that assumes S3 is read-after-write inconsistent.
+
+This PR removes such redundant code.
+
+## How was this patch tested?
+
+Existing unit tests.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No.

@@ -1,0 +1,57 @@
+Hello, similar to #702 , I think there might be an issue with `VERSION AS OF` and `TIMESTAMP AS OF` in SQL.
+
+The docs show examples of `VERSION AS OF` and `TIMESTAMP AS OF` here: https://docs.delta.io/1.0.0/delta-batch.html#syntax
+
+However, I'm getting SQL parsing errors when trying to run these examples:
+
+```sql
+scala> spark.sql("SELECT * FROM events TIMESTAMP AS OF '2018-10-18T22:15:12.013Z'").show
+
+org.apache.spark.sql.catalyst.parser.ParseException:
+mismatched input 'AS' expecting {<EOF>, ';'}(line 1, pos 31)
+
+== SQL ==
+SELECT * FROM events TIMESTAMP AS OF '2018-10-18T22:15:12.013Z'
+-------------------------------^^^
+
+  at org.apache.spark.sql.catalyst.parser.ParseException.withCommand(ParseDriver.scala:255)
+  at org.apache.spark.sql.catalyst.parser.AbstractSqlParser.parse(ParseDriver.scala:124)
+  at org.apache.spark.sql.execution.SparkSqlParser.parse(SparkSqlParser.scala:49)
+  at org.apache.spark.sql.catalyst.parser.AbstractSqlParser.parsePlan(ParseDriver.scala:75)
+  at io.delta.sql.parser.DeltaSqlParser.$anonfun$parsePlan$1(DeltaSqlParser.scala:73)
+  at io.delta.sql.parser.DeltaSqlParser.parse(DeltaSqlParser.scala:100)
+  at io.delta.sql.parser.DeltaSqlParser.parsePlan(DeltaSqlParser.scala:70)
+  at org.apache.spark.sql.SparkSession.$anonfun$sql$2(SparkSession.scala:616)
+  at org.apache.spark.sql.catalyst.QueryPlanningTracker.measurePhase(QueryPlanningTracker.scala:111)
+  at org.apache.spark.sql.SparkSession.$anonfun$sql$1(SparkSession.scala:616)
+  at org.apache.spark.sql.SparkSession.withActive(SparkSession.scala:775)
+  at org.apache.spark.sql.SparkSession.sql(SparkSession.scala:613)
+  ... 47 elided
+```
+
+```sql
+scala> spark.sql("SELECT * FROM events VERSION AS OF 123").show
+
+org.apache.spark.sql.catalyst.parser.ParseException:
+mismatched input 'AS' expecting {<EOF>, ';'}(line 1, pos 29)
+
+== SQL ==
+SELECT * FROM events VERSION AS OF 123
+-----------------------------^^^
+
+  at org.apache.spark.sql.catalyst.parser.ParseException.withCommand(ParseDriver.scala:255)
+  at org.apache.spark.sql.catalyst.parser.AbstractSqlParser.parse(ParseDriver.scala:124)
+  at org.apache.spark.sql.execution.SparkSqlParser.parse(SparkSqlParser.scala:49)
+  at org.apache.spark.sql.catalyst.parser.AbstractSqlParser.parsePlan(ParseDriver.scala:75)
+  at io.delta.sql.parser.DeltaSqlParser.$anonfun$parsePlan$1(DeltaSqlParser.scala:73)
+  at io.delta.sql.parser.DeltaSqlParser.parse(DeltaSqlParser.scala:100)
+  at io.delta.sql.parser.DeltaSqlParser.parsePlan(DeltaSqlParser.scala:70)
+  at org.apache.spark.sql.SparkSession.$anonfun$sql$2(SparkSession.scala:616)
+  at org.apache.spark.sql.catalyst.QueryPlanningTracker.measurePhase(QueryPlanningTracker.scala:111)
+  at org.apache.spark.sql.SparkSession.$anonfun$sql$1(SparkSession.scala:616)
+  at org.apache.spark.sql.SparkSession.withActive(SparkSession.scala:775)
+  at org.apache.spark.sql.SparkSession.sql(SparkSession.scala:613)
+  ... 47 elided
+```
+
+I searched through the unit tests and it seems that the tests don't cover the SQL scenario for these commands.

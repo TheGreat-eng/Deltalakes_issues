@@ -1,0 +1,21 @@
+#### Which Delta project/connector is this regarding?
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+This is the second PR in a series of PRs to move the current CommitOwner interface to its own module. PR1 is [here](https://github.com/delta-io/delta/pull/3002).
+
+This PR makes the fields of all CommitOwner-related classes private and forces callers to use getters to access the fields. This is needed in preparation for making the CommitOwner module a Java module (the same as the existing LogStore module) and to follow Java best practices to keep fields private and only allow access through getters.
+
+## How was this patch tested?
+
+Simple refactor so existing tests are sufficient.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

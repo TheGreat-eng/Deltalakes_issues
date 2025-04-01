@@ -1,0 +1,1 @@
+Upgrade the Spark dependency to 3.5.0

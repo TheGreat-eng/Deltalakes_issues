@@ -1,0 +1,49 @@
+Hi,
+
+Our setup consist of:
+
+Spark: 3.0.1
+Python: 3.7
+Delta: 0.8.0
+Output Location: AWS S3
+The above setup is running in 
+
+We are trying to understand the performance impact of 'OR' condition in a merge statement. The condition is based on partitions 'year' and 'month'. Sample data for the same maybe
+
+id | year | month
+--------------------
+'123' | 2020 | 1
+'456' | 2020 | 2
+'789' | 2021 | 3
+'100' | 2021 | 4
+
+The two queries which we used are below:
+
+Option 1:
+
+	DeltaTable
+	  .forPath(sc, delta_path)
+	  .alias("t")
+	  .merge(data.alias("s"), "t.year in  (2020, 2021) and  t.month in  (1, 2, 3, 4) and t.pkey_id=s.pkey_id")
+	  .whenMatchedUpdateAll()
+	  .whenNotMatchedInsertAll()
+	  .execute()
+
+Option 2:
+
+	DeltaTable
+	  .forPath(sc, delta_path)
+	  .alias("t")
+	  .merge(data.alias("s"), "((t.year = 2020 AND t.month = 1) OR (t.year = 2020 AND t.month = 2) OR (t.year = 2021 AND t.month = 3) OR (t.year = 2021 AND t.month = 4)) AND t.pkey_id=s.pkey_id")
+	  .whenMatchedUpdateAll()
+	  .whenNotMatchedInsertAll()
+	  .execute()
+
+
+We noticed that the query in Options 2 was taking longer time than Option: 1, but we worry that since we are using multiple partition's in option: 1 it might be creating too many small files on every merge even though when the data has not changed for the partition e.g. year = 2020, month = 3 in the above example.
+
+Can you let us know if there are alternate ways in which this can be done efficiently?
+
+Regards,
+Nimesh.
+

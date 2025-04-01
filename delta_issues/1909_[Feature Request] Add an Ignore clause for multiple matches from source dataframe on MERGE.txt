@@ -1,0 +1,24 @@
+## Feature request
+
+#### Which Delta project/connector is this regarding
+
+- [x] Spark
+
+### Overview
+
+Sometimes, when I have multiple Dataframe rows that are identical, I'd rather not deduplicate it (especially when it's large). Rather, I'd like to have the option to *ignore* the `throwErrorOnMultipleMatches` error, and just insert them as is. Since they're duplicates, it shouldn't affect the computation. An ignore clause for certain merge operations sounds like a reasonable addition.
+
+### Motivation
+
+This will greatly improve performance for large dataframes that need to be merged with duplicates, when there's no real concern for the computation order (e.g multiple duplicates of the same row - doesn't matter which one will get inserted)
+
+### Further details
+
+I think an ignoreConflicts property for the merge clause is sufficient, but I'm open to discussion and suggestions.
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [x] Yes. I can contribute this feature independently.
+- [x] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.

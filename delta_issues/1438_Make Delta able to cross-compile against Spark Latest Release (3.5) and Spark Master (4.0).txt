@@ -1,0 +1,31 @@
+#### Which Delta project/connector is this regarding?
+
+- [X] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+### What DOES this PR do?
+- changes Delta's `build.sbt` to compile `delta-spark` against spark master. compilation succeeds. tests pass against spark 3.5. tests run but fail against spark master
+  - e.g. `build/sbt -DsparkVersion=master spark/test`
+- the default spark version for Delta is still Spark 3.5
+- testing requires building unidoc for (unfortunately) ALL projects in build.sbt. that breaks since spark master uses JDK 17 but delta-iceberg uses JDK 8. thus, we disable unidoc for delta-spark compiling against spark-master for now.
+- Delta: creates `spark-3.5` and `spark-master` folders. Delta will be able to cross compile against both. These folders will contain `shims` (code that will be selectively pulled to compile against a single spark version) but also spark-version-only code
+
+### What does this PR NOT do?
+- this PR does not update any build infra (GitHub actions) to actually compile or test delta-spark against Spark Master. That will come later.
+
+## How was this patch tested?
+
+Existing tests.
+
+`build/sbt -DsparkVersion=3.5 spark/test` ✅ 
+`build/sbt -DsparkVersion=master spark/compile` ✅ 
+`build/sbt -DsparkVersion=master spark/test` ❌ (expected, these fixes will come later)
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

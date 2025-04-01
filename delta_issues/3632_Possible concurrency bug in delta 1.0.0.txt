@@ -1,0 +1,7 @@
+hi,
+we have an in-house test where we write concurrently to the same delta table but different partitions, from multiple threads. so concurrency within a single local spark session using local filesystem.
+this used to work fine with delta 0.8.0 but now with delta 1.0.0 the same test fails occasionally with some data loss.
+i am not sure if a test like this is even appropriate given local mode and local filesystem limitations, but i figured i let you know just in case.
+
+the test is here:
+https://github.com/tresata-opensource/delta/commit/9370b4614631ecfb07e5ed08fa5a3b80d9afe814

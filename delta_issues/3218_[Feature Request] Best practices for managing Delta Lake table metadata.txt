@@ -1,0 +1,7 @@
+## Feature request
+
+A configuration that automatically synchronizes metadata to an external metadata management tool, 
+such as Apache Atlas, DataHub, OpenMetadata, etc., when creating and updating delta Lake tables
+
+We use S3 to store data
+

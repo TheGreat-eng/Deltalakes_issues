@@ -1,0 +1,61 @@
+On my local server, I downloaded and built lhbench whose benchmark is the same as delta's, and I run the `run-benchmark.py'`script. The arguments are:
+```shell
+./run-benchmark.py \
+    --cluster-hostname dsl-SYS-7049GP-TRT \
+    -i /home/zengyangjie/pem/private_key.pem \
+    --ssh-user zengyangjie \
+    --benchmark-path /home/zengyangjie/test/ \
+    --cloud-provider hdfs \
+    --benchmark test
+```
+Argument `hdfs` is specialized in `run-benchmark.py`, which is:
+```python
+delta_log_store_classes = {
+    "aws": "spark.delta.logStore.class=org.apache.spark.sql.delta.storage.S3SingleDriverLogStore",
+    "gcp": "spark.delta.logStore.gs.impl=io.delta.storage.GCSLogStore",
+    "hdfs": "hdfs:spark.delta.logStore.class=org.apache.spark.sql.delta.storage.HDFSLogStore",
+}
+```
+Then a failure occured:
+```shell
+>>> Benchmark completed with failure
+
+zengyangjie@dsl-sys-7049gp-trt's password: 
+20231108-164924-test-out.txt                    100%   68   126.2KB/s   00:00    
+>>> Downloaded reports to local directory
+```
+The out file `20231108-164924-test-out.txt` shows that:
+```
+20231108-164924-test-cmd.sh: line 4: spark-shell: command not found
+```
+The bash file `20231108-164924-test-cmd.sh` shows that:
+```bash
+#!/bin/bash
+jps | grep "Spark" | cut -f 1 -d ' ' |  xargs kill -9 
+echo 'try { benchmark.TestBenchmark.main(Array[String]("--test-param", "value", "--benchmark-path", "/home/zengyangjie/test/")) } catch { case t: Throwable => t.printStackTrace(); println("=" * 80); t.printStackTrace(); println("FAILED"); System.exit(1) } ; System.exit(0)' > 20231108-164924-test_shell_init.scala 
+spark-shell --driver-memory 8G --packages io.delta:delta-core_2.12:2.2.0,io.delta:delta-contribs_2.12:2.2.0 --conf "spark.driver.maxResultSize=0" --conf "spark.sql.extensions=io.delta.sql.DeltaSparkSessionExtension" --conf "spark.sql.catalog.spark_catalog=org.apache.spark.sql.delta.catalog.DeltaCatalog" --conf "hdfs:spark.delta.logStore.class=org.apache.spark.sql.delta.storage.HDFSLogStore" --conf "spark.benchmarkId=20231108-164924-test"  --jars ~/20231108-164924-test-benchmarks.jar -I 20231108-164924-test_shell_init.scala 2>&1 | tee 20231108-164924-test-out.txt
+touch 20231108-164924-test-completed.txt
+```
+Other messages may help:
+```shell
+>>> Benchmark script generated and uploaded
+
+zengyangjie@dsl-sys-7049gp-trt's password: 
+ssh -i /home/zengyangjie/pem/private_key.pem zengyangjie@dsl-SYS-7049GP-TRT screen -d -m bash 20231108-164924-test-cmd.sh
+zengyangjie@dsl-sys-7049gp-trt's password: 
+zengyangjie@dsl-sys-7049gp-trt's password: 
+There is a screen on:
+        106583.lhbench  (2023年11月06日 14时24分59秒)   (Dead ???)
+Remove dead screens with 'screen -wipe'.
+1 Socket in /run/screen/S-zengyangjie.
+Files for this benchmark:
+20231108-164924-test-benchmarks.jar
+20231108-164924-test-cmd.sh
+20231108-164924-test-completed.txt
+20231108-164924-test-install-deps.sh
+20231108-164924-test-out.txt
+20231108-164924-test_shell_init.scala
+>>> Benchmark id 20231108-164924-test started in a screen. Stdout piped into 20231108-164924-test-out.txt. Final report will be generated on completion in 20231108-164924-test-report.json.
+```
+I would greatly appreciate it if it could be resolved!
+Thanks!

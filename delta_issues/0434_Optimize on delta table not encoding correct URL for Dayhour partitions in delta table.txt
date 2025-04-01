@@ -1,0 +1,97 @@
+## Bug
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the issue title
+For example: [BUG][Spark] Title of my issue
+-->
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+### Describe the problem
+We write data to delta table using delta-rs with PyArrow engine with DayHour as partition column.
+
+```
+  deltalake.write_deltalake(
+            table_or_uri=delta_table_path,
+            data=df,
+            partition_by=[dayhour_partition_column],
+            schema_mode='overwrite',
+            mode="append",
+            storage_options={"AWS_S3_ALLOW_UNSAFE_RENAME": "true"},
+        )
+```
+I ran the optimize command using the spark sql query below on the delta table
+
+```
+optimize_query = f"""
+OPTIMIZE delta.`s3_table_path`
+ZORDER BY (col1, col2)
+"""
+spark.sql(optimize_query)
+```
+
+After optimize, it creates partitions with spaces and does not properly encode the partition urls as shown in the below image i.e; it creates new partitions url with spaces (.zstd.parquet).
+
+![image](https://github.com/user-attachments/assets/2ad2943f-52a2-43db-99c7-69f9d7f02ebb)
+
+#### Steps to reproduce
+
+Sample code to reproduce
+```
+import deltalake
+
+# Dummy data
+initial_data = {
+    'dayhour': ['2024-10-09 19:00:00', '2024-10-10 20:00:00'],
+    'value1': [10, 20],
+    'value2': [1.5, 2.5]
+}
+initial_df = pd.DataFrame(initial_data)
+
+initial_df['dayhour'] = pd.to_datetime(initial_df['dayhour'])
+
+# Define the schema for the Delta Lake table
+schema = pa.schema([
+    pa.field('dayhour', pa.timestamp('us')),  
+    pa.field('value1', pa.int32()),          
+    pa.field('value2', pa.float32())         
+])
+
+# Initialize the Delta table with the schema
+deltalake.write_deltalake(
+    table_or_uri=delta_table_path,
+    data=initial_df,
+    schema=schema,
+    partition_by=['dayhour'],
+    schema_mode='overwrite',
+    mode="overwrite",
+    storage_options={"AWS_S3_ALLOW_UNSAFE_RENAME": "true"},
+)
+
+optimize_query = f"""
+OPTIMIZE delta_table_path
+"""
+spark.sql(optimize_query)
+
+vacuum_query = f"""
+VACUUM delta_table_path
+RETAIN 168 HOURS
+"""
+spark.sql(vacuum_query)
+```
+
+This resulted in spaces in the URL encoding after optimize as below:
+before optimize:
+![image](https://github.com/user-attachments/assets/b16f168b-eed6-4ac7-8c26-5c0a97d31cfc)
+
+after optimize:
+![image](https://github.com/user-attachments/assets/cd6f7e31-f9b6-40a4-b355-0b63cd6c1328)
+
+### Environment information
+
+Delta-rs version: 0.21.0

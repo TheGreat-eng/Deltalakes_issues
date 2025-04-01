@@ -1,0 +1,19 @@
+#### Which Delta project/connector is this regarding?
+
+- [X] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+The paths of partitioned tables contain the partition values in escaped form that follows the Hive-style partitioning. This PR introduces a basic test for DML operations on such tables.
+
+## How was this patch tested?
+
+Test-only PR.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

@@ -1,0 +1,35 @@
+The following crashes, probably due to lack of Windows path support. I running spark 3.0.1/hadoop3.2.0 & delta-core_2.12:0.7.0:
+
+```python
+spark.read.format('delta').load('C:/tmp/delta_streaming').show()
+spark.sql(f'SELECT max(version) FROM (DESCRIBE HISTORY delta.`C:/tmp/delta_streaming`)')
+```
+
+with 
+
+```text
+Traceback (most recent call last):
+  File "C:/dev/enlight/data-warehouse/etl/main.py", line 26, in <module>
+    compaction.run(spark)
+  File "C:\dev\enlight\data-warehouse\etl\compaction.py", line 105, in run
+    spark.sql(f'SELECT max(version) FROM (DESCRIBE HISTORY delta.`C:/tmp/delta_streaming`)')
+  File "C:\dev\spark-3.0.1-bin-hadoop3.2\python\pyspark\sql\session.py", line 649, in sql
+    return DataFrame(self._jsparkSession.sql(sqlQuery), self._wrapped)
+  File "C:\dev\spark-3.0.1-bin-hadoop3.2\python\lib\py4j-0.10.9-src.zip\py4j\java_gateway.py", line 1304, in __call__
+  File "C:\dev\spark-3.0.1-bin-hadoop3.2\python\pyspark\sql\utils.py", line 134, in deco
+    raise_from(converted)
+  File "<string>", line 3, in raise_from
+pyspark.sql.utils.ParseException: 
+missing ')' at 'delta'(line 1, pos 43)
+
+== SQL ==
+SELECT max(version) FROM (DESCRIBE HISTORY delta.`C:/tmp/delta_streaming`)
+-------------------------------------------^^^
+
+
+Process finished with exit code 1
+
+```
+
+Do you have any plans on supporting Windows paths?
+#94 

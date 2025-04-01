@@ -1,0 +1,6 @@
+The current requirements for `importlib_metadata` is too strict (`importlib_metadata>=3.10.0`) and has led to it conflicting with versions required by other python libraries such as `apache-airflow` (`importlib_metadata==1.7.0`). Given that the only feature used from `importlib_metadata` is the `version()` function, and the behaviour of this function has not changed from version `1.0.0`, it is safe to relax the version required to improve compatibility with other libraries.
+
+Thank you.
+
+Changes
+- Relax `importlib_metadata` version required from `>=3.10.0` to `>=1.0.0`

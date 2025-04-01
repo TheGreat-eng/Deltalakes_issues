@@ -1,0 +1,9 @@
+## Description
+
+- Uses SQL for time travel in QuickstartSQL example since support has been added for Delta 2.1
+- Updates table_exists.py integration test in response to 11fb2eadf3ead06fa1bcb049e7dcc925e21166e1. That change was included in 2.0 and failing for me with 2.0
+
+
+## How was this patch tested?
+
+n/a

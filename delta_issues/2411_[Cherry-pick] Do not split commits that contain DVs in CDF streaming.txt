@@ -1,0 +1,6 @@
+Cherry-pick of 9f70ee5a65f90970432c80ba96d718f56997442c for branch-2.4.
+
+- When the add and remove file entries for a commit that contains DVs gets split into different batches, we don't recognise that they belong together and we need to produce CDF by calculating the diff of the two DVS.
+- This PR prevents splitting of these commits, just like we do for AddCDCFile actions to prevent splitting the update_{pre/post}_image information.
+
+GitOrigin-RevId: 11438c01ecc69f7c55c3a8826fa540f6b984e4c4

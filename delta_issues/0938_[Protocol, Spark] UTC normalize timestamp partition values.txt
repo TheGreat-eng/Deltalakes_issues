@@ -1,0 +1,48 @@
+<!--
+Thanks for sending a pull request!  Here are some tips for you:
+  1. If this is your first time, please read our contributor guidelines: https://github.com/delta-io/delta/blob/master/CONTRIBUTING.md
+  2. If the PR is unfinished, add '[WIP]' in your PR title, e.g., '[WIP] Your PR title ...'.
+  3. Be sure to keep the PR description updated to reflect all changes.
+  4. Please write your PR title to summarize what this PR proposes.
+  5. If possible, provide a concise example to reproduce the issue for a faster review.
+  6. If applicable, include the corresponding issue number in the PR title and link it in the body.
+-->
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [ X] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+Currently, in the Delta Protocol, timestamps are not stored with their time zone. This leads to unexpected behavior when querying across systems with different timezones configured (e.g. different spark sessions for instance). For instance in Spark, the timestamp value will be adjusted to spark session time zone and written to the delta log partition values without TZ. If someone were to query the same "timestamp" from a different session timezone,  the same time zone value it can fail to surface results due to partition pruning.
+
+What this change proposes to the delta lake protocol is to allow timestamp partition values to be adjusted to UTC and explicitly stored in partition values with a UTC suffix. The original approach is still supported for compatibility but it is recommended for newer writers to write with UTC suffix.
+
+This is also important for Iceberg Uniform conversion because Iceberg timestamps must be UTC adjusted. Now we have a well defined format for UTC in delta, we can convert string partition values to Iceberg longs to make Uniform conversion succeed.
+
+This change updates the Spark-Delta integration to write out the UTC adjusted values for timestamp types.
+
+This also addresses an issue of microsecond partitions where previously microsecond partitioning (not recommended but technically allowed) would not work and be truncated to seconds.
+
+## How was this patch tested?
+
+Added unit tests for the following cases:
+
+1.) UTC timestamp partition values round trip across different session TZ
+2.) A delta log with a mix of Non-UTC and UTC partition values round trip across the same session TZ
+3.) Timestamp No Timezone round trips across timezones (kind of a tautology but important to make sure that the timestamp_ntz does not get written with UTC timestamp unintentionally)
+4.) Timestamp round trips across same session time zone: UTC normalized
+5.) Timestamp round trips across same session time zone: session time normalized (this case worked before this change, so it's important that it keeps working after this change)
+
+Mix of microsecond/second level precision and dates before epoch (to test if everything works with negative)
+
+## Does this PR introduce _any_ user-facing changes?
+Yes in the sense that new timestamp partition values will be the normalized UTC values.

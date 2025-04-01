@@ -1,0 +1,3 @@
+Although Spark 3.2 adds the support for SHOW CREATE TABLE for v2 tables, it doesn't work properly for Delta. For example, table properties, constraints and generated columns are not showed properly.
+
+This PR blocks SHOW CREATE TABLE for Delta to unblock 1.1.0 release. In the future, we should implement Delta's own ShowCreateTableCommand to show the Delta table definition correctly

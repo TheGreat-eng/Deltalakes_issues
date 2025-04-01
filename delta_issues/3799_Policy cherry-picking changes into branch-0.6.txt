@@ -1,0 +1,9 @@
+Hello,
+
+Does the Delta Lake team have a policy about whether you will accept PRs to cherry-pick changes from `master` into `branch-0.6`?  Can community members port bugfixes or features to enable them in Spark 2.4.x (regardless of whether there will be any official Delta 0.6.x releases in the future)?
+
+Thanks,
+
+Andrew
+
+cc: @imback82 @rapoth 

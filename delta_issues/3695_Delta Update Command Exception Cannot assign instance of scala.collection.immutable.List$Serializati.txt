@@ -1,0 +1,56 @@
+Hey Folks,
+
+We tried Delta lake 0.8 for table `write` and `update` with Spark 3.0.1 in K8s. `Write` works as expected but we can not update the Delta Table and having the following error. 
+```java.lang.ClassCastException: cannot assign instance of scala.collection.immutable.List$SerializationProxy 
+to field org.apache.spark.sql.catalyst.expressions.objects.NewInstance.arguments of type scala.collection.Seq 
+in instance of org.apache.spark.sql.catalyst.expressions.objects.NewInstance at java.io.ObjectStreamClass$FieldReflector.setObjFieldValues(ObjectStreamClass.java:2301)
+at java.io.ObjectStreamClass.setObjFieldValues(ObjectStreamClass.java:1431)
+at java.io.ObjectInputStream.defaultReadFields(ObjectInputStream.java:2372)
+at java.io.ObjectInputStream.readSerialData(ObjectInputStream.java:2290)
+at java.io.ObjectInputStream.readOrdinaryObject(ObjectInputStream.java:2148)
+at java.io.ObjectInputStream.readObject0(ObjectInputStream.java:1647)
+at java.io.ObjectInputStream.defaultReadFields(ObjectInputStream.java:2366)
+at java.io.ObjectInputStream.readSerialData(ObjectInputStream.java:2290)
+at java.io.ObjectInputStream.readOrdinaryObject(ObjectInputStream.java:2148)
+at java.io.ObjectInputStream.readObject0(ObjectInputStream.java:1647)
+at java.io.ObjectInputStream.skipCustomData(ObjectInputStream.java:2332)
+...
+
+```
+
+Here is the environment.
+`Spark 3.0.1 with Hadoop 3.2.0`
+`io.delta:delta-core_2.12:0.8.0`
+`org.apache.hadoop:hadoop-aws:3.2.0`
+`com.amazonaws:aws-java-sdk-bundle:1.11.974`
+
+```
+import time
+from pyspark.sql import SparkSession
+from pyspark.sql.functions import *
+
+spark = ( SparkSession.builder
+         .config("spark.hadoop.fs.s3a.access.key", "<redacted>")
+         .config("spark.hadoop.fs.s3a.secret.key", "<redacted>" )
+         .config("spark.hadoop.fs.s3a.impl", "org.apache.hadoop.fs.s3a.S3AFileSystem")
+         .config("spark.hadoop.fs.s3a.multiobjectdelete.enable", "false") 
+         .config('spark.jars.packages', 'com.amazonaws:aws-java-sdk-bundle:1.11.974')
+         .config('spark.jars.packages', 'org.apache.hadoop:hadoop-aws:3.2.0')
+         .config("spark.jars.packages", "io.delta:delta-core_2.12:0.8.0") 
+         .config("spark.sql.extensions", "io.delta.sql.DeltaSparkSessionExtension") 
+         .config("spark.sql.catalog.spark_catalog", "org.apache.spark.sql.delta.catalog.DeltaCatalog")
+         .config("spark.delta.logStore.class","org.apache.spark.sql.delta.storage.S3SingleDriverLogStore")
+         .getOrCreate()  
+        )
+
+from delta.tables import *
+
+fileStr =  '<path>'
+
+deltaTable = DeltaTable.forPath(spark, fileStr)
+deltaTable.update("country = 'abc'", { "country": "'abc-updated'" } )
+
+deltaTable.generate("symlink_format_manifest")
+```
+
+Could you please take a look at this? 

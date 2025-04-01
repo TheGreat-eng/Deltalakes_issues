@@ -1,0 +1,23 @@
+## Feature request
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the issue title
+For example: [Feature Request][Spark] Title of my issue
+-->
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [X] Kernel
+- [ ] Other (fill in here)
+
+### Overview
+
+In #2433 we block skipping using file statistics on timestamp columns. This is because timestamps are truncated to milliseconds when written to JSON statistics, and thus we cannot safely use the MAX statistics since we may see microsecond precisions.
+
+To use the timestamp MAX statistic we need to add a millisecond to it as we do in [DataSkippingReader](https://github.com/delta-io/delta/blob/master/spark/src/main/scala/org/apache/spark/sql/delta/stats/DataSkippingReader.scala#L646).
+
+### Further details
+
+To do this we need to support time addition first.

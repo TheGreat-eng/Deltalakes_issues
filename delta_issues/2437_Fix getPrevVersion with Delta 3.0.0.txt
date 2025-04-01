@@ -1,0 +1,2 @@
+## Description
+https://github.com/delta-io/delta/commit/a2be73a9fa17dd56a5573565735af6d44d97f6cf bumped the current Delta version to 3.0.0 but the method used to get the previous version wasn't updated to support this new major version change which is causing CI to fail.

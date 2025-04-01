@@ -1,0 +1,19 @@
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+The script `generate_iceberg_jars.py` breaks the build if the delta source is cloned in a directory with the name `source` or `opensource`. Update the script to be specific about the files to exclude (it should be `sources.jar`).
+
+## How was this patch tested?
+Ran `build/sbt clean publishM2` successfully after deleting the `icebergShaded/libs` folder and was able to see the generated libs.
+
+

@@ -1,0 +1,35 @@
+#### Which Delta project/connector is this regarding?
+
+- [X] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+An opaque URI is an absolute URI whose scheme-specific part does not begin with a slash character ('/'), and are not further parsed by `java.net.URI` library (see https://docs.oracle.com/javase/7/docs/api/java/net/URI.html):
+```
+val uri = new URI("http:example.com")
+uri.isOpaque -> true
+uri.isAbsolute -> true
+uri.getPath -> null
+```
+
+This causes issues when we try to call path-related methods in the URIs, e.g.:
+```
+val filePath = new Path(uri)
+filePath.toString -> "http:"
+filePath.isAbsolute -> NullPointerException
+```
+
+This commit fixes this issue by detecting such URIs in Delta file actions and throwing a proper exception.
+
+
+## How was this patch tested?
+
+Add new UT.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

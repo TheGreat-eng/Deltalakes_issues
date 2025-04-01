@@ -1,0 +1,9 @@
+**Describe**
+As in the title, on Delta Lake 0.5.0 and Spark 2.4.4:
+
+1.  write data into delta table
+2. deltaTable.generate("symlink_format_manifest")
+3. execute deltaTable.delete()
+4. deltaTable.generate("symlink_format_manifest")
+
+manifest does not update in step4

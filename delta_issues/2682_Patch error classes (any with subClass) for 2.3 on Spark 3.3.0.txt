@@ -1,0 +1,23 @@
+### Problem
+Between 3.3.0 and 3.3.1 Spark adds the "subClass" field to `ErrorInfo`. Thus on Spark 3.3.0 we see malformed errors like this for every error 
+```
+com.fasterxml.jackson.databind.exc.UnrecognizedPropertyException: Unrecognized field "subClass" (class 
+org.apache.spark.ErrorInfo), not marked as ignorable (2 known properties: "sqlState", "message"])
+ at [Source: (URL); line: 2078, column: 4] (through reference chain: 
+com.fasterxml.jackson.module.scala.deser.GenericMapFactoryDeserializerResolver$BuilderWrapper[
+"DELTA_VIOLATE_TABLE_PROPERTY_VALIDATION_FAILED"]->org.apache.spark.ErrorInfo["subClass"])
+```
+This will be resolved once upgrading to Spark 3.4
+
+### Changes
+
+This PR replaces the error classes with subclasses with their own individual error classes.
+
+### Testing
+[322df2c](https://github.com/delta-io/delta/pull/1633/commits/322df2c04584b9ce32c32d33a031eee4a7795c84) sets the spark version to 3.3.0
+[9b239b9](https://github.com/delta-io/delta/pull/1633/commits/9b239b9f3caa728ebbc6909eebb6e1684e5510e7) reverts fixes included in 3.3.1 (basically reverts https://github.com/delta-io/delta/commit/529313d61a0d998b66b6fa0cad7d35e971edfb94) so some unrelated tests will pass
+
+We see all tests pass in github actions [here](https://github.com/delta-io/delta/actions/runs/4372438845/jobs/7649363274) for commit 9b239b9 which includes the changes in this PR + the two aforementioned commits.
+
+
+

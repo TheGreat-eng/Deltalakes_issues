@@ -1,0 +1,67 @@
+<!--
+Thanks for sending a pull request!  Here are some tips for you:
+  1. If this is your first time, please read our contributor guidelines: https://github.com/delta-io/delta/blob/master/CONTRIBUTING.md
+  2. If the PR is unfinished, add '[WIP]' in your PR title, e.g., '[WIP] Your PR title ...'.
+  3. Be sure to keep the PR description updated to reflect all changes.
+  4. Please write your PR title to summarize what this PR proposes.
+  5. If possible, provide a concise example to reproduce the issue for a faster review.
+  6. If applicable, include the corresponding issue number in the PR title and link it in the body.
+-->
+
+## Description
+
+<!--
+- Describe what this PR changes.
+- Describe why we need the change.
+ 
+If this PR resolves an issue be sure to include "Resolves #XXX" to correctly link and close the issue upon merge.
+-->
+
+Support Auto Compaction described in:
+https://docs.databricks.com/delta/optimizations/auto-optimize.html#how-auto-compaction-works
+
+We can support Auto compaction via a new post commit hook and OptimizeCommand with less size threshold.
+
+`spark.databricks.delta.autoCompact.enabled` (default: false)
+`spark.databricks.delta.autoCompact.maxFileSize` (default: 128MB)
+`spark.databricks.delta.autoCompact.minNumFiles` (default: 50)
+
+The configs above are same as Databricks Auto compaction.
+
+#### New config1 - autoCompact.maxCompactBytes
+As it will be triggered after every table update, I introduced another config to control the total amount of data to be optimized for an auto compaction operation:
+`spark.databricks.delta.autoCompact.maxCompactBytes` (default: 20GB)
+
+In Databricks, it's adjusted based on available cluster resources. The config is a quick and easy workaround for it.
+
+#### New config2 - autoCompact.target
+The PR adds another new config - `autoCompact.target` to change target files for auto compaction.
+`spark.databricks.delta.autoCompact.target` (default: "partition")
+- `table`: target all files in the table
+- `commit`: target only added/updated files of the commit which is triggering auto compaction.
+- `partition`: target only the partitions containing any of added/updated files of the commit which is triggering auto compaction.
+
+Users are usually writing/updating data only for few partitions, and don't expect changes in other partitions.
+In case the table is not optimized, the default behavior `table` might cause some conflicts between other partitions unexpectedly and added/updated files in the triggering commit might not be optimized if there are many small files in other partitions.
+
+Fixes #815
+
+## How was this patch tested?
+
+<!--
+If tests were added, say they were added here. Please make sure to test the changes thoroughly including negative and positive cases if possible.
+If the changes were tested in any way other than unit tests, please clarify how you tested step by step (ideally copy and paste-able, so that other reviewers can test and check, and descendants can verify in the future).
+If the changes were not tested, please explain why.
+-->
+Unit tests
+
+## Does this PR introduce _any_ user-facing changes?
+
+<!--
+If yes, please clarify the previous behavior and the change this PR proposes - provide the console output, description and/or an example to show the behavior difference if possible.
+If possible, please also clarify if this is a user-facing change compared to the released Delta Lake versions or within the unreleased branches such as master.
+If no, write 'No'.
+-->
+
+Support Auto compaction feature
+

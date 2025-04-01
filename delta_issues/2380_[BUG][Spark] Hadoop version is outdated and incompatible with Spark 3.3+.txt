@@ -1,0 +1,28 @@
+## Bug
+
+#### Which Delta project/connector is this regarding?
+- [X] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+### Describe the problem
+Spark Delta references Hadoop version 3.3.1, this version is used by Spark 3.2.
+The biggest problem is Hadoop 3.3.2 has a breaking change that affect us, we are compiling against a version, and at runtime it will fail.
+
+I believe this PR (https://github.com/delta-io/delta/pull/1688) fix it, but I'm opening the issue to further discussion.
+
+### Environment information
+
+* Delta Lake version: 2.4.0
+* Spark version: 3.4.1
+* Scala version: 2.12
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [ ] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [X] No. I cannot contribute a bug fix at this time.

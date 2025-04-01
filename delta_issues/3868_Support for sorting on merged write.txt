@@ -1,0 +1,26 @@
+Is there a possibility to indicate to Delta how to sort the events before writing, after the merge?
+
+I have searched but cannot find an answer on the public docs and don't know if possible. In pure Spark code, when we write-out the data we partition by year/month/day/hour and then sortWithinPartitions by a "tenant" column. This helps with compression and querying (as Parquet readers can take advantage of the in-partition-sort).
+
+However, when we ingest a new hour of data, some events may be from the "previous hour" partitioning. Thus, merging will happen. When the merging happens we loose the control of specifying how should data be sorted on write. Is there any way to do this in Delta or are there any plans to support it?
+
+```        
+// Merge
+        deltaTable.as ("events")
+            .merge (updatedEventsSet.as ("updates"),
+                String.format ("events.year IN (%s) " +
+                        "AND events.month IN (%s) " +
+                        "AND events.day IN (%s)" +
+                        "AND events.hour IN (%s)" +
+                        "AND events.%s = updates.%s",
+                    distinctYearsList,
+                    distinctMonthsList,
+                    distinctDaysList,
+                    distinctHoursList,
+                    uuidColumn,
+                    uuidColumn))
+            .whenNotMatched ()
+                .insertAll ()
+// <-- HERE to have possibility to specify "sort" or other writing options
+            .execute ();
+```

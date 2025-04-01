@@ -1,0 +1,12 @@
+#### Which Delta project/connector is this regarding?
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [x] Kernel
+- [ ] Other (fill in here)
+
+## Description
+Currently, we expect the path given to `Table.forPath()` to be fully qualified. This enforces an unnecessary burden on the connector to add the necessary schema or authority etc. Instead, add a `FileSystemClient.resolvePath` API and use it to resolve the path to a fully qualified path from `Table.forPath()`.
+
+## How was this patch tested?
+Existing tests (deleted the `file:` prefix added to tests tables in the path) and a couple of new tests around missing table paths.

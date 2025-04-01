@@ -1,0 +1,7 @@
+## Description
+(Cherry-pick of ed9ff6e1 for 2.0.1 release)
+
+Add missing call to `initializeStats` inside of `DataSkippingStatsTracker`.
+
+## How was this patch tested?
+Existing UTs.

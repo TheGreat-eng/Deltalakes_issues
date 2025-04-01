@@ -1,0 +1,26 @@
+Adding support for Google Cloud Storage(GCS) as Delta Storage by introducing GcsLogStore.
+
+This PR addresses [issue #294][1]. File creation is an all-or-nothing approach to achieve atomicity and uses Gcs [preconditions][2] to avoid race conditions among multiple writers/drivers. This implementation relies on gcs-connector to provide necessary `FileSystem` implementations. This has been tested on a Google Dataproc cluster. 
+
+#### GcsLogStore requirements
+
+1. spark.delta.logStore.class=org.apache.spark.sql.delta.storage.GcsLogStore 
+2. Include gcs-connector in classpath. The Cloud Storage connector is automatically installed on Dataproc clusters.
+
+#### Usage
+
+```
+TABLE_LOCATION = 'gs://ranuvikram-test/test/delta-table'
+
+# Write data to table.
+data = spark.range(5, 10)
+data.write.format("delta").mode("append").save(TABLE_LOCATION)
+
+# Read data from table.
+df = spark.read.format("delta").load(TABLE_LOCATION)
+df.show()
+```
+
+
+[1]: https://github.com/delta-io/delta/issues/294
+[2]: https://cloud.google.com/storage/docs/generations-preconditions#_Preconditions

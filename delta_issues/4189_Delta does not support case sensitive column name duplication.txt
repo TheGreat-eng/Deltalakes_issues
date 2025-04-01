@@ -1,0 +1,3 @@
+In catalyst's [SchemaUtils](https://github.com/apache/spark/blob/c80430f5c9189b37ac1209db0453dbd9bb5c767e/sql/catalyst/src/main/scala/org/apache/spark/sql/util/SchemaUtils.scala#L35-L46) the case sensitive flag (spark.sql.caseSensitive) is supported. However, that support is not carried over through Delta's implementation of it https://github.com/delta-io/delta/blob/master/src/main/scala/org/apache/spark/sql/delta/schema/SchemaUtils.scala#L150-L169
+
+This ought to be added due to a loss of functionality as compared to the default implementation.

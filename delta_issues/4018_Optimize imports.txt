@@ -1,0 +1,5 @@
+I noticed that the Scala imports seem to be inconsistently formatted across files.
+
+For this PR, I ran IntelliJ's "Optimize Imports" command which has cleaned up the imports and made the formatting consistent.
+
+cc: @suhsteve @imback82 @rapoth

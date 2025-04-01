@@ -1,0 +1,19 @@
+#### Which Delta project/connector is this regarding?
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [X] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+Refactor the log file listing logic out of `SnapshotManager` and into a new file `LogFileLister`.
+
+## How was this patch tested?
+
+Just a refactor. Existing UTs.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No.

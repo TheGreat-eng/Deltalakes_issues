@@ -1,0 +1,7 @@
+I have a merge statement 
+
+target_dt.alias("target").merge(source = source_deduped_df.alias("source"), condition = match_condition).whenMatchedUpdate(set = update_columns).whenNotMatchedInsert(values = insert_columns).execute()
+    target_dt.vacuum()
+    target_df = target_dt.toDF()
+
+when this runs and if there are values with null in the matching column, it creates a new row and does not merge on null value, any suggestions on how to resolve? I cannot eliminate nulls from source :(

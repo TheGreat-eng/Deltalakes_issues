@@ -1,0 +1,1 @@
+I find we can look at the history of table changes using the DESCRIBE HISTORY command, but this command doesn't work in the open community version

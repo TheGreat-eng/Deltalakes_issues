@@ -1,0 +1,12 @@
+Complete the below TODO.
+
+```java
+/**
+ * Verifies that a set of delta or checkpoint files to be read actually belongs to this table.
+ */
+private void assertLogFilesBelongToTable(Path logPath, Stream<FileStatus> allFiles) {
+    // TODO:
+}
+```
+
+https://github.com/delta-io/delta/blob/efa566fc24af0b2c65b08c2a7ad81e9c865e0e83/kernel/kernel-api/src/main/java/io/delta/kernel/internal/replay/LogReplay.java#L158

@@ -1,0 +1,29 @@
+## Feature Request - Suggestion - Performance Fix
+
+#### Which Delta project/connector is this regarding?
+this applies to projects using HadoopFileSystemLogStore
+
+- [ ] Spark
+- [ ] Standalone
+
+I have already tested my proposal on the autonomous Delta project.
+And for me, these improvements reduce the transaction time from about 50-60 seconds to 10-18 (at the start) seconds. Too much time is wasted on calls to FileSystem.listStatus.
+
+### Overview
+
+Suggest! explicitly use the s3 api for listFrom targets - there are excellent s3api listObjectsV2 and ListObjectsV2Request.withPrefix
+and thanks to the ordered structure of the log table, this can be implemented as efficiently as possible!
+
+We can quickly request only the necessary information from the table!
+
+Now FileSystem.listStatus is used for this, i.e. we get the full list of files from the delta log on each listFrom call  - and this takes a lot of time, even if the log is small!
+
+### Motivation
+
+It should be cool improvements 
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [ ] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.

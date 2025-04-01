@@ -1,0 +1,43 @@
+
+## What changes were proposed in this pull request?
+
+Add a basic framework for writing benchmarks on Spark running in a EMR cluster. Here is how to use it. 
+- Start your own EMR cluster, and get the hostname and the pem file to ssh into it.
+- The file `delta/benchmarks/run-benchmark.py` has a list of benchmarks as a map between benchmark name --> specification (explained further below).
+- In the directory `delta/benchmarks/`, run a selected benchmark as  `./run-benchmark.py --cluster-hostname <hostname> -i <pem file> --benchmark <benchmark-name> `. 
+- This will eventually produce an output like this. 
+```
+...
+There is a screen on:
+	18319..ip-172-31-54-89	(Detached)
+
+Files for this benchmark:
+20220107-131623-test-benchmarks.jar
+20220107-131623-test-cmd.sh
+20220107-131623-test-out.txt
+>>> Benchmark script started in a screen. Stdout piped into 20220107-131623-test-out.txt.Final report will be generated on completion in 20220107-131623-test-report.json.
+```
+- You can then ssh into the EMR cluster to monitor it.
+
+The actual spark code of a benchmark is defined in the scala files that are compiled into a jar using build.sbt. The benchmark specifications in `delta/benchmarks/run-benchmark.py` defines the following 
+- which main scala class to be started.
+- command line argument for the main function
+- additional maven artifact to load (example `io.delta:delta:1.0`)
+- spark confs
+
+The script `run-benchmark.py` does the following:
+- compile the scala code into a fat jar
+- upload it to the given hostname
+- using ssh to the hostname, it will launch a screen and start the main class with spark-shell/spark-submit
+- Monitor the output file with continuous logging and wait for the completion of the workload
+- Upload the generated benchmarks results as csv/json to the given 
+
+Structure of the code
+- `build.sbt`, `project/`, `src/` form the SBT project.
+- `Benchmark.scala` is the basic interface, and `TestBenchmark.scala` is a test implementation.
+- `scripts` has the core python scripts that are called by `run-benchmark.py`
+
+## How was this patch tested?
+Manual testing using the following command:
+
+`./run-benchmark.py --cluster-hostname <hostname<  -i <pem-file>  --benchmark-path <s3-path> --benchmark test`

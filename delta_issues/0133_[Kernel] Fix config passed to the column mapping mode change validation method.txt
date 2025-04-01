@@ -1,0 +1,4 @@
+## Description
+Currently, the `ColumnMapping.verifyColumnMappingChange` takes just the new properties as the argument for the new configuration. This is incorrect, as the method looks for the CM mode based on the new complete config.
+
+Also missing the test coverage for this. Add a new test.

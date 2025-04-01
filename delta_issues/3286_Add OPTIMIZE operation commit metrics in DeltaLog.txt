@@ -1,0 +1,15 @@
+Commit metrics in DeltaLog are helpful when looking at the history of the Delta Table. Following metrics are added:
+
+```
+    "numAddedFiles", // number of files added
+    "numRemovedFiles", // number of files removed
+    "numAddedBytes", // number of bytes added by optimize
+    "numRemovedBytes", // number of bytes removed by optimize
+    "minFileSize", // the size of the smallest file
+    "p25FileSize", // the size of the 25th percentile file
+    "p50FileSize", // the median file size
+    "p75FileSize", // the 75th percentile of the file sizes
+    "maxFileSize" // the size of the largest file
+```
+
+GitOrigin-RevId: fde186d11e38381b9ad469535d91aa31ccd6ff62

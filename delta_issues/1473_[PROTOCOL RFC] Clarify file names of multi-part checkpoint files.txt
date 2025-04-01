@@ -1,0 +1,21 @@
+## Protocol Change Request
+
+### Description of the protocol change
+
+The naming convention for multi-part checkpoint files is ambiguous:
+
+> A multi-part checkpoint for version n consists of p "part" files (p > 1), where part o of p is named n.checkpoint.o.p.parquet.
+
+It's not specified that `o` and `p` are zero padded numbers of length 10, although this assumption is part of the code https://github.com/delta-io/delta/blob/01c0ef91565d9a3e06fb9f62295f7c80fba09351/kernel/kernel-api/src/main/java/io/delta/kernel/internal/util/FileNames.java#L103. It would also be good to state explicitly that `n` is a zero padded number of length 20 for multi-part checkpoints and the other types of checkpoints. 
+
+We should clarify this in the protocol.
+
+### Willingness to contribute
+
+The Delta Lake Community encourages protocol innovations. Would you or another member of your organization be willing to contribute this feature to the Delta Lake code base?
+
+- [x] Yes. I can contribute.
+- [ ] Yes. I would be willing to contribute with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute at this time.
+
+

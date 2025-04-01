@@ -1,0 +1,93 @@
+## Bug 
+Dynamic Partition Insertion truncates delta table before write; bug exists on `databricks 10.4 LTS`
+
+
+### Describe the problem
+
+Contrary to documentation here: https://docs.databricks.com/spark/latest/spark-sql/language-manual/sql-ref-syntax-dml-insert-into.html
+
+> If you specify OVERWRITE the following applies:
+>   - Without a partition_spec the table is truncated before inserting the first row.
+>   - Otherwise all partitions matching the partition_spec are truncated before inserting the first row.
+
+
+
+essentially; the below dynamic partition spec truncates entire table first (which is not desired)
+
+```
+insert overwrite into $target_table
+partition (x, y, z)
+select 
+derp
+,x
+,y
+,z
+from $source_table
+```
+
+you have to
+
+```
+insert overwrite into $target_table
+partition (x = _x, y = _y, z = _z)
+select 
+derp
+from $source_table
+```
+
+#### Steps to reproduce
+
+see above
+
+#### Observed results
+
+see above
+
+#### Expected results
+
+```
+insert overwrite into $target_table
+partition (x, y, z)
+select 
+derp
+,x
+,y
+,z
+from $source_table
+```
+
+should truncate only matching partitions dynamically from the select
+
+#### Further details
+
+Looks related to:
+https://github.com/delta-io/delta/pull/371
+https://github.com/delta-io/delta/pull/1214
+
+But they were closed without merging?
+
+### Environment information
+
+Running on Databricks 10.4 LTS https://docs.databricks.com/release-notes/runtime/10.4.html
+
+* Delta Lake version: 1.1.0 (i had a read of the newer version release logs and  did not see any reference to `dynamic partitions`)
+* Spark version: 3.2.1
+
+spark_config
+```spark.databricks.repl.allowedLanguages python,sql
+spark.databricks.delta.merge.enableLowShuffle true
+spark.databricks.delta.properties.defaults.autoOptimize.optimizeWrite true
+spark.databricks.delta.properties.defaults.autoOptimize.autoCompact true
+spark.databricks.acl.dfAclsEnabled false
+spark.hadoop.fs.s3a.requester-pays.enabled true
+spark.sql.shuffle.partitions 128
+```
+* Scala version: 2.12
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [X] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute a bug fix at this time.

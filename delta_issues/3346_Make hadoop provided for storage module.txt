@@ -1,0 +1,3 @@
+Resolves #967 
+
+Make Hadoop dependency provided for storage module. Usages must provide their own Hadoop libraries and versions.

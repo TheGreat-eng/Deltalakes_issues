@@ -1,0 +1,10 @@
+We store a lot of time series data using delta format. They all have a timestamp column and are partitioned by `date(timestamp)`. 
+
+Two common mistakes I see are
+(1) forgetting to include a date filter in addition to timestamp filter
+(2) partitioning output by timestamp leading to millions of output folders
+
+The problem goes away if delta supports something like hidden partitioning in Iceberg, or specifying timestamp partition granularity (daily vs hourly) in BigQuery.
+
+https://iceberg.apache.org/partitioning/#icebergs-hidden-partitioning
+https://cloud.google.com/bigquery/docs/creating-column-partitions#daily_partitioning_vs_hourly_partitioning

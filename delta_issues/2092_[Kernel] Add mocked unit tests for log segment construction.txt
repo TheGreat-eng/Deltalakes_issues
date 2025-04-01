@@ -1,0 +1,25 @@
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [X] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+Adds mocked unit tests for the log segment construction code.
+
+Items to address
+1) [P0] For some of the _valid file listings_ the error messages are confusing / misleading. We should fix these.
+2) [P2] Behavior for _corrupt file listings_ is sporadic and inconsistent and error messages are confusing. We should consider fixing these at some point.
+3) [P2] The log segment building code is really confusing. I think completely re-doing this has been discussed (?) at some point but is low priority. I'm planning to revisit this PR and see what low-effort improvements I can make for readability (max 15-20 minutes.)
+
+
+## How was this patch tested?
+
+Test PR.

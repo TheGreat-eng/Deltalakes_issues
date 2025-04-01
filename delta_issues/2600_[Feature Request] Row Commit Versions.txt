@@ -1,0 +1,25 @@
+## Feature request
+
+### Overview
+
+The Delta specification was recently extended to include Row IDs, which can be used to uniquely identify a row across multiple versions of a table. We now propose this to extend this with a Row Commit Version, which can be used together with the Row ID to uniquely identify a version of a row, by storing the last commit version in which the row was either inserted or updated (but not copied to a different file).
+
+### Motivation
+
+Can be used together with Row IDs to maintain derived tables.
+
+### Further details
+
+<!--
+Use this section to include any additional information about the feature. If you have a proposal for how to implement this feature, please include it here. For implementation guidelines, please read our contributor guidelines: https://github.com/delta-io/delta/blob/master/CONTRIBUTING.md
+If there are any specific requirements for this feature that are not immediately obvious please outline them here.
+-->
+See the[ design doc](https://docs.google.com/document/d/1rODyxRE0BxDWGQHW8vyfV1PSGo7lE0D4ImNHJyygBbY/edit#) for further details.
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [x] Yes. I can contribute this feature independently.
+- [ ] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.

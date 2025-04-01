@@ -1,0 +1,15 @@
+#### Which Delta project/connector is this regarding?
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [X] Other (Delta-Iceberg)
+
+## Description
+Building UniForm depends on cloning and then building iceberg at a particular commit, in order to apply patch files. It starts this by cloning iceberg `master` branch. This has been renamed to `main`, and so we need to update our script to use `main` accordingly, else it fails to build and tests fail.
+
+## How was this patch tested?
+Local build.
+
+## Does this PR introduce _any_ user-facing changes?
+No

@@ -1,0 +1,19 @@
+#### Which Delta project/connector is this regarding?
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+Override the Jackson string length limit to allow reading and writing large json objects to and from the Delta Log.
+
+## How was this patch tested?
+
+Added a new test suite
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

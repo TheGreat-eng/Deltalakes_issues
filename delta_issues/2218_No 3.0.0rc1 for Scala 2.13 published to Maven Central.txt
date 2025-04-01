@@ -1,0 +1,1 @@
+There's no 3.0.0rc1 for 2.13 published to [Maven Central](https://repo1.maven.org/maven2/io/delta/delta-core_2.13/) which may be caused by an issue in the RC release process or done intentionally. Either way, we should publish cross-build versions since the build supports it.

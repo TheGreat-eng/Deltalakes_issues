@@ -1,0 +1,16 @@
+It seems currently there is no good way how to start streaming from table from particular batch or timestamp. It is possible to apply filtering after reading, like: 
+```
+spark.readStream
+      .format("delta")      
+      .load(tablePath)
+      .where(col("dateColumn") >= today)
+      .writeStream...
+```
+
+but it would really useful to be able to set starting batchId or timestamp streaming should be started from. Sort of:
+
+```
+spark.readStream
+      .format("delta")
+      .option("versionAsOf", "5")  
+``` 

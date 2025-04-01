@@ -1,0 +1,35 @@
+## Feature request
+
+### Overview
+
+The idea would be added functionality to the `DeltaTable.merge` capability allowing for a data flow of "when matched delete the rows then insert the new rows" or `whenMatchedDeleteThenInsert`. This is intentionally different than `whenMatchedUpdateAll()` which is covered in Motivation.
+
+### Motivation
+
+The specific use case where this is valuable to us is a one where we have a delta table with the "primary keys" conforming to `group_id` and `sub_group_id`.  We want to be able to replace entire `group_id`'s.
+
+Example:
+
+| group_id | sub_group_id |
+|:--------:|:------------:|
+|     0    |       1      |
+|     0    |       2      |
+|     0    |       3      |
+|     1    |       1      |
+|     1    |       2      |
+
+`whenMatchedUpdateAll` works fine if the number of `sub_group_id`'s are greater than what already exists in the table and we match on both columns however, when the incoming data has fewer we end up with stale data that doesn't get replaced. The `whenMatchedDeleteThenInsert` would allow us to match only on `group_id` and delete everything then insert the new records.
+
+### Further details
+
+I believe there is a SQL syntax capability according to Databricks docs where you can perform a `INSERT INTO my_table ... REPLACE WHERE source.group_id = my_table.group_id` so a `DeltaTable.replaceWhere(condition)` could satisfy this request as well.
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [ ] Yes. I can contribute this feature independently.
+- [ ] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [x] No. I cannot contribute this feature at this time.
+
+Unfortunately, I don't have Scala/Java experience...

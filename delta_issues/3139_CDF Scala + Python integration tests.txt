@@ -1,0 +1,10 @@
+This PR adds two integration tests / examples for CDF, one in python and one in scala. These integration tests run insert, update, delete, and merge commands on a table with CDF enabled, and then read those CDC changes. They perform both batch and streaming reads.
+
+You can run them using
+```
+python3 run-integration-tests.py --use-local --scala-only --test ChangeDataFeed
+```
+and
+```
+python3 run-integration-tests.py --use-local --python-only --test change_data_feed
+```

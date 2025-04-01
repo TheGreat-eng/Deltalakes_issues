@@ -1,0 +1,21 @@
+## Feature request
+
+### Overview
+
+Publish the Python `delta-spark` package to a public Conda channel so that users of Conda can use Delta Lake. As of now, the package is only available at Pypi.
+
+### Motivation
+
+Many users, particularly in data science, leverage Conda for package management.
+
+### Further details
+
+Some packages are already available on Conda Forge, including `delta-sharing`.
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [ ] Yes. I can contribute this feature independently.
+- [x] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.

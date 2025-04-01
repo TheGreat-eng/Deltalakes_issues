@@ -1,0 +1,5 @@
+In order to have our release process properly cross-publish our different Scala versions, we had to re-arrange some codes in `build.sbt`.
+
+I followed this tutorial [here](https://www.acervera.com/blog/2020/04/sbt-crossversion-release-bintray/#sbt-release-configuration) which basically just has us move the `releaseProcess` to the root project instead of in each sub-project. This step is also documented on the official sbt docs [here](https://www.scala-sbt.org/1.x/docs/Cross-Build.html#Note+about+sbt-release).
+
+I also noticed, when running our integration tests, that they were at first using the **old** JAR, and not the newly-staged JAR. Clearing the ivy2 local directory resolved this.

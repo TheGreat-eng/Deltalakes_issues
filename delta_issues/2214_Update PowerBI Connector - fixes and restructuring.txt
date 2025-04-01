@@ -1,0 +1,24 @@
+
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [x] Other (PowerBI)
+
+## Description
+This PR resolves [issue #1978](https://github.com/delta-io/delta/issues/1978).
+During the restructuring of the project, I also fixed some other minor bugs that no one found yet 
+if possible, changed my tests to use the Golden Tables instead of Delta Lake tables residing on my blob stores which partially required authentication
+
+## How was this patch tested?
+Tested with a set of Golden Tables from https://github.com/delta-io/delta/tree/master/connectors/golden-tables/src/main/resources/golden`
+
+## Does this PR introduce _any_ user-facing changes?
+No

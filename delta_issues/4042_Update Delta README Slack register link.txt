@@ -1,0 +1,1 @@
+The old invite link is no longer active. The new one was posted by @dennyglee via Delta Lake Users and Developers mailing list, here: https://groups.google.com/forum/#!topic/delta-users/tv_umPl2avs

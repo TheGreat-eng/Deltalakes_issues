@@ -1,0 +1,53 @@
+## Description
+
+This PR allows the table property `delta.feature.featureName = 'enabled'` to silently bump protocol version to support table features. Therefore, no manual version bump is required.
+
+Note that even if the feature being enabled is a legacy feature, the final table will still have `Protocol(3, 7)` becuase the `delta.feature.` prefix is exclusively used by table features, and once used, we assume that the user is explicitly asking to bump the table to support table features.
+
+
+Before:
+```sql
+-- assume tbl is on Protocol(1, 1)
+
+ALTER TABLE tbl SET TBLPROPERTIES (
+  delta.feature.columnMapping = 'enabled'
+)
+-- Exception: "table features are required but not supported"
+
+ALTER TABLE tbl SET TBLPROPERTIES (
+  delta.minReaderVersion = '3',
+  delta.minReaderVersion = '7',
+  delta.feature.columnMapping = 'enabled'
+)
+-- tbl will have Protocol(3, 7, [columnMapping], [columnMapping])
+```
+
+After:
+```sql
+-- assume tbl is on Protocol(1, 1)
+
+ALTER TABLE tbl SET TBLPROPERTIES (
+  delta.feature.columnMapping = 'enabled'
+)
+-- tbl will have Protocol(3, 7, [columnMapping], [columnMapping])
+
+ALTER TABLE tbl SET TBLPROPERTIES (
+  delta.feature.deletionVectors = 'enabled'
+)
+-- tbl will have Protocol(3, 7, [deletionVectors], [deletionVectors])
+
+ALTER TABLE tbl SET TBLPROPERTIES (
+  delta.minReaderVersion = '3',
+  delta.minReaderVersion = '7',
+  delta.feature.columnMapping = 'enabled'
+)
+-- tbl will have Protocol(3, 7, [columnMapping], [columnMapping])
+```
+
+## How was this patch tested?
+
+Modified existing tests.
+
+## Does this PR introduce _any_ user-facing changes?
+
+Yes. Before this change, `SET delta.feature.featureName = 'enabled'` will throw an error when being executed on a Delta table of a legacy protocol. After this change, no error will be thrown, and the table will be upgraded to support table features plus have `featureName` enabled in the protocol.

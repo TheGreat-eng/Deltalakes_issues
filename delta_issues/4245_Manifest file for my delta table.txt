@@ -1,0 +1,3 @@
+Hi, Is there a way that I could create a manifest file for my delta table, to use hive's `SymlinkTextInputFormat`. I want to query my delta table using presto.
+
+Thanks

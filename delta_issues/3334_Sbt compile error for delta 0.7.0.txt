@@ -1,0 +1,60 @@
+When I try to compile delta on Centos7 and Ubuntu16.04, error occurs.
+Like this:
+`
+coursier.ResolutionException: Encountered 1 error(s) in dependency resolution:
+    org.spark-packages:sbt-spark-package;sbtVersion=0.13;scalaVersion=2.10:0.2.6:
+        download error:
+            Caught java.io.IOException: Server returned HTTP response code: 502 for URL: https://dl.bintray.com/spark-packages/maven/org/spark-packages/sbt-spark-package_2.10_0.13/0.2.6/sbt-spark-package-0.2.6.pom (Server returned HTTP response code: 502 for URL: https://dl.bintray.com/spark-packages/maven/org/spark-packages/sbt-spark-package_2.10_0.13/0.2.6/sbt-spark-package-0.2.6.pom) while downloading https://dl.bintray.com/spark-packages/maven/org/spark-packages/sbt-spark-package_2.10_0.13/0.2.6/sbt-spark-package-0.2.6.pom
+            Caught java.io.IOException: Server returned HTTP response code: 502 for URL: https://dl.bintray.com/typesafe/sbt-plugins/org.spark-packages/sbt-spark-package/scala_2.10/sbt_0.13/0.2.6/ivys/ivy.xml (Server returned HTTP response code: 502 for URL: https://dl.bintray.com/typesafe/sbt-plugins/org.spark-packages/sbt-spark-package/scala_2.10/sbt_0.13/0.2.6/ivys/ivy.xml) while downloading https://dl.bintray.com/typesafe/sbt-plugins/org.spark-packages/sbt-spark-package/scala_2.10/sbt_0.13/0.2.6/ivys/ivy.xml
+            Caught java.net.ConnectException: 拒绝连接 (Connection refused) (拒绝连接 (Connection refused)) while downloading http://repo.typesafe.com/typesafe/releases/org/spark-packages/sbt-spark-package_2.10_0.13/0.2.6/sbt-spark-package-0.2.6.pom
+        not found:
+            /root/.ivy2/local/org.spark-packages/sbt-spark-package/scala_2.10/sbt_0.13/0.2.6/ivys/ivy.xml
+            https://repo1.maven.org/maven2/org/spark-packages/sbt-spark-package_2.10_0.13/0.2.6/sbt-spark-package-0.2.6.pom
+            http://scalasbt.artifactoryonline.com/scalasbt/sbt-plugin-releases/org.spark-packages/sbt-spark-package/scala_2.10/sbt_0.13/0.2.6/ivys/ivy.xml
+            https://repo.typesafe.com/typesafe/ivy-releases/org.spark-packages/sbt-spark-package/scala_2.10/sbt_0.13/0.2.6/ivys/ivy.xml
+            https://repo.scala-sbt.org/scalasbt/sbt-plugin-releases/org.spark-packages/sbt-spark-package/scala_2.10/sbt_0.13/0.2.6/ivys/ivy.xml
+[error] (*:coursierResolutions) coursier.ResolutionException: Encountered 1 error(s) in dependency resolution:
+[error]     org.spark-packages:sbt-spark-package;sbtVersion=0.13;scalaVersion=2.10:0.2.6:
+[error]         download error:
+[error]             Caught java.io.IOException: Server returned HTTP response code: 502 for URL: https://dl.bintray.com/spark-packages/maven/org/spark-packages/sbt-spark-package_2.10_0.13/0.2.6/sbt-spark-package-0.2.6.pom (Server returned HTTP response code: 502 for URL: https://dl.bintray.com/spark-packages/maven/org/spark-packages/sbt-spark-package_2.10_0.13/0.2.6/sbt-spark-package-0.2.6.pom) while downloading https://dl.bintray.com/spark-packages/maven/org/spark-packages/sbt-spark-package_2.10_0.13/0.2.6/sbt-spark-package-0.2.6.pom
+[error]             Caught java.io.IOException: Server returned HTTP response code: 502 for URL: https://dl.bintray.com/typesafe/sbt-plugins/org.spark-packages/sbt-spark-package/scala_2.10/sbt_0.13/0.2.6/ivys/ivy.xml (Server returned HTTP response code: 502 for URL: https://dl.bintray.com/typesafe/sbt-plugins/org.spark-packages/sbt-spark-package/scala_2.10/sbt_0.13/0.2.6/ivys/ivy.xml) while downloading https://dl.bintray.com/typesafe/sbt-plugins/org.spark-packages/sbt-spark-package/scala_2.10/sbt_0.13/0.2.6/ivys/ivy.xml
+[error]             Caught java.net.ConnectException: 拒绝连接 (Connection refused) (拒绝连接 (Connection refused)) while downloading http://repo.typesafe.com/typesafe/releases/org/spark-packages/sbt-spark-package_2.10_0.13/0.2.6/sbt-spark-package-0.2.6.pom
+[error]         not found:
+[error]             /root/.ivy2/local/org.spark-packages/sbt-spark-package/scala_2.10/sbt_0.13/0.2.6/ivys/ivy.xml
+[error]             https://repo1.maven.org/maven2/org/spark-packages/sbt-spark-package_2.10_0.13/0.2.6/sbt-spark-package-0.2.6.pom
+[error]             http://scalasbt.artifactoryonline.com/scalasbt/sbt-plugin-releases/org.spark-packages/sbt-spark-package/scala_2.10/sbt_0.13/0.2.6/ivys/ivy.xml
+[error]             https://repo.typesafe.com/typesafe/ivy-releases/org.spark-packages/sbt-spark-package/scala_2.10/sbt_0.13/0.2.6/ivys/ivy.xml
+[error]             https://repo.scala-sbt.org/scalasbt/sbt-plugin-releases/org.spark-packages/sbt-spark-package/scala_2.10/sbt_0.13/0.2.6/ivys/ivy.xml
+Project loading failed: (r)etry, (q)uit, (l)ast, or (i)gnore? r
+[info] Loading project definition from /root/virt-pkg/delta/project/project
+[info] Loading project definition from /root/virt-pkg/delta/project
+[info] Updating delta-build
+[info] Resolved delta-build dependencies
+coursier.ResolutionException: Encountered 1 error(s) in dependency resolution:
+    org.spark-packages:sbt-spark-package;sbtVersion=0.13;scalaVersion=2.10:0.2.6:
+        download error:
+            Caught java.io.IOException: Server returned HTTP response code: 502 for URL: https://dl.bintray.com/spark-packages/maven/org/spark-packages/sbt-spark-package_2.10_0.13/0.2.6/sbt-spark-package-0.2.6.pom (Server returned HTTP response code: 502 for URL: https://dl.bintray.com/spark-packages/maven/org/spark-packages/sbt-spark-package_2.10_0.13/0.2.6/sbt-spark-package-0.2.6.pom) while downloading https://dl.bintray.com/spark-packages/maven/org/spark-packages/sbt-spark-package_2.10_0.13/0.2.6/sbt-spark-package-0.2.6.pom
+            Caught java.io.IOException: Server returned HTTP response code: 502 for URL: https://dl.bintray.com/typesafe/sbt-plugins/org.spark-packages/sbt-spark-package/scala_2.10/sbt_0.13/0.2.6/ivys/ivy.xml (Server returned HTTP response code: 502 for URL: https://dl.bintray.com/typesafe/sbt-plugins/org.spark-packages/sbt-spark-package/scala_2.10/sbt_0.13/0.2.6/ivys/ivy.xml) while downloading https://dl.bintray.com/typesafe/sbt-plugins/org.spark-packages/sbt-spark-package/scala_2.10/sbt_0.13/0.2.6/ivys/ivy.xml
+            Caught java.net.ConnectException: 拒绝连接 (Connection refused) (拒绝连接 (Connection refused)) while downloading http://repo.typesafe.com/typesafe/releases/org/spark-packages/sbt-spark-package_2.10_0.13/0.2.6/sbt-spark-package-0.2.6.pom
+        not found:
+            /root/.ivy2/local/org.spark-packages/sbt-spark-package/scala_2.10/sbt_0.13/0.2.6/ivys/ivy.xml
+            https://repo1.maven.org/maven2/org/spark-packages/sbt-spark-package_2.10_0.13/0.2.6/sbt-spark-package-0.2.6.pom
+            http://scalasbt.artifactoryonline.com/scalasbt/sbt-plugin-releases/org.spark-packages/sbt-spark-package/scala_2.10/sbt_0.13/0.2.6/ivys/ivy.xml
+            https://repo.typesafe.com/typesafe/ivy-releases/org.spark-packages/sbt-spark-package/scala_2.10/sbt_0.13/0.2.6/ivys/ivy.xml
+            https://repo.scala-sbt.org/scalasbt/sbt-plugin-releases/org.spark-packages/sbt-spark-package/scala_2.10/sbt_0.13/0.2.6/ivys/ivy.xml
+[error] (*:coursierResolutions) coursier.ResolutionException: Encountered 1 error(s) in dependency resolution:
+[error]     org.spark-packages:sbt-spark-package;sbtVersion=0.13;scalaVersion=2.10:0.2.6:
+[error]         download error:
+[error]             Caught java.io.IOException: Server returned HTTP response code: 502 for URL: https://dl.bintray.com/spark-packages/maven/org/spark-packages/sbt-spark-package_2.10_0.13/0.2.6/sbt-spark-package-0.2.6.pom (Server returned HTTP response code: 502 for URL: https://dl.bintray.com/spark-packages/maven/org/spark-packages/sbt-spark-package_2.10_0.13/0.2.6/sbt-spark-package-0.2.6.pom) while downloading https://dl.bintray.com/spark-packages/maven/org/spark-packages/sbt-spark-package_2.10_0.13/0.2.6/sbt-spark-package-0.2.6.pom
+[error]             Caught java.io.IOException: Server returned HTTP response code: 502 for URL: https://dl.bintray.com/typesafe/sbt-plugins/org.spark-packages/sbt-spark-package/scala_2.10/sbt_0.13/0.2.6/ivys/ivy.xml (Server returned HTTP response code: 502 for URL: https://dl.bintray.com/typesafe/sbt-plugins/org.spark-packages/sbt-spark-package/scala_2.10/sbt_0.13/0.2.6/ivys/ivy.xml) while downloading https://dl.bintray.com/typesafe/sbt-plugins/org.spark-packages/sbt-spark-package/scala_2.10/sbt_0.13/0.2.6/ivys/ivy.xml
+[error]             Caught java.net.ConnectException: 拒绝连接 (Connection refused) (拒绝连接 (Connection refused)) while downloading http://repo.typesafe.com/typesafe/releases/org/spark-packages/sbt-spark-package_2.10_0.13/0.2.6/sbt-spark-package-0.2.6.pom
+[error]         not found:
+[error]             /root/.ivy2/local/org.spark-packages/sbt-spark-package/scala_2.10/sbt_0.13/0.2.6/ivys/ivy.xml
+[error]             https://repo1.maven.org/maven2/org/spark-packages/sbt-spark-package_2.10_0.13/0.2.6/sbt-spark-package-0.2.6.pom
+[error]             http://scalasbt.artifactoryonline.com/scalasbt/sbt-plugin-releases/org.spark-packages/sbt-spark-package/scala_2.10/sbt_0.13/0.2.6/ivys/ivy.xml
+[error]             https://repo.typesafe.com/typesafe/ivy-releases/org.spark-packages/sbt-spark-package/scala_2.10/sbt_0.13/0.2.6/ivys/ivy.xml
+[error]             https://repo.scala-sbt.org/scalasbt/sbt-plugin-releases/org.spark-packages/sbt-spark-package/scala_2.10/sbt_0.13/0.2.6/ivys/ivy.xml
+Project loading failed: (r)etry, (q)uit, (l)ast, or (i)gnore? 
+`
+
+Retry doesn't help. Do any one know why sbt report error?

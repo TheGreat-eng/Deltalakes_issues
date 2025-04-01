@@ -1,0 +1,8 @@
+This is PR 2 of 2 for Delta Lake OSS Data Skipping (aka file skipping with column stats) feature. See the issue #931.
+
+This PR builds on the work done by #966
+
+## What changes were proposed in this pull request?
+This PR really only does two things
+- finishes the implementation of DataSkippingReader
+- adds DataSkippingDeltaTests test suite

@@ -1,0 +1,2 @@
+## Description
+Add a scalastyle rule to check to catch wrong indentations. Example [issue](https://github.com/delta-io/delta/pull/1377/files#diff-544b6e5ad15527505cf58916a8e8620de66f3d9933d8ee0d2491310ed3953072R44).

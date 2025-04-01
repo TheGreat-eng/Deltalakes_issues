@@ -1,0 +1,12 @@
+Hi,
+
+I'm currently thinking about how to best distribute (replicate/partition and query) an Open Source temporal NoSQL storage system (https://sirix.io), which is able to both store XML and JSON in a similar binary encoding and which allows time travel queries through XQuery.
+
+I know Apache Ignite quiet a bit, at least worked with the data grid API. Maybe in the first step simply replicating the data through a single master, which may distribute writes both asynchronous and synchronous to its followers/slaves would be the way to go. I want to preserve ACID transactional semantics through some kind of consensus protocol and the single master. I don't think that a two phase protocol is the best, though (which Ignite seems to use).
+
+But I'm tempted to use Apache Ignite for distributing a transaction log from a single master, though I haven't used Apache Spark or your Delta Lake (which I probably could also use for distributing/executing the queries on each node!?).
+
+I'm currently not sure which system would fit best... Or simply for a start use Zookeeper!?
+
+Kind regards
+Johannes

@@ -1,0 +1,37 @@
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [x] Kernel
+- [ ] Other (fill in here)
+
+## Description
+* Refactor the Kernel expression interfaces. Currently, the `Expression` base interface contains a few unnecessary methods such as `dataType` and `eval`. Keep the `Expression` to a minimum, so that it is just used to represent a `SQL` string version of the expression in Kernel `Expression` classes.
+```
+interface Expression {
+  /**
+    * @return a {@link List} of the immediate children of this node
+    */
+  List<Expression> children();
+}
+```
+* Introduce a subtype of `Expression` called `ScalarExpression` which is a base class for all scalar expressions. 
+* Introduce a subtype of `ScalarExpression` called `Predicate` as the base expression class for scalar expression that evaluates to `boolean` type. The `Predicate` is defined such that it takes a generic expression name and any number of input expressions. It is up to the evaluator to make sure the given `Predicate` is evaluable. Currently `Predicate` only allows a subset of expressions (`=`, `<`, `<=`, `>`, `>=`, `AND`, `OR`, `ALWAYS_TRUE`, `ALWAYS_FALSE`) as of now. In the future, this can be extended to support more predicate expressions with minimal code changes.
+* Update scan-related APIs to `Predicate` instead of `Expression`.
+* Remove the use of `Literal.FALSE` and `Literal.TRUE` and instead use `AlwaysTrue.ALWAYS_TRUE` and `AlwaysFalse.ALWAYS_FALSE`. `Literal` is not a predicate.
+* Extract the expression evaluation from `kernel-api` into `kernel-defaults`. 
+   * `DefaultExpressionEvaluator` validates the expression and adds necessary implicit casts to allow evaluation.
+
+TODO (will be addressed after this PR is landed):
+* It is not clear now whether we need the `CAST` expression as a first class `Expression` in the `kernel-api` module. If needed in the future, we can add one (https://github.com/delta-io/delta/issues/2043).
+* Implicit cast in `kernel-default` may need to support more type conversions, especially around the Decimal type (https://github.com/delta-io/delta/issues/2044)
+* Add support for nested column reference in `Column` expression (https://github.com/delta-io/delta/issues/2040).
+* Implicit cast of `DefaultExpressionEvaluator` output type to expected type (https://github.com/delta-io/delta/issues/2047)
+
+## How was this patch tested?
+Moved the existing Java-based test to Scala and also added new tests (some of them are copied over from the standalone `ExpressionSuite` and updated).

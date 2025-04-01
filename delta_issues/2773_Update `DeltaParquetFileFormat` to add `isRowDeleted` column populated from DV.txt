@@ -1,0 +1,7 @@
+This PR is part of the feature: Support reading Delta tables with deletion vectors (more details at https://github.com/delta-io/delta/issues/1485)
+
+It modifies the `DeltaParquetFileFormat` to append an additional column called `__delta_internal_skip_row__`. This column is populated by reading the DV associated with the Parquet file. We assume the rows returned are in order given in the file. To ensure the order we disable file splitting and filter pushdown to Parquet reader. This has performance penalty for Delta tables with deletion vectors until we upgrade Delta to Spark version to 3.4 (which has Parquet reader that can generate row-indexes correctly with file splitting and filter pushdown).
+
+Currently added a single test. There will be e2e tests that cover the code better.
+
+GitOrigin-RevId: 2067958ffc770a89df15fd165c9999d49b2dd1c4

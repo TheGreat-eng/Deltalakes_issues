@@ -1,0 +1,30 @@
+## Feature request
+
+### Overview
+
+The unit tests are taking longer every new version. As a reference, the build in this PR, from a year ago took 61-77 minutes: https://github.com/delta-io/delta/pull/887
+
+<img width="694" alt="image" src="https://user-images.githubusercontent.com/1336227/233565002-ee64a475-b5ca-4c2c-aa90-3d407a86a1cf.png">
+
+### Motivation
+
+I think we need to improve it before it becomes out of control.
+
+### Further details
+
+Parallel tests are disabled:
+
+```
+    // Don't execute in parallel since we can't have multiple Sparks in the same JVM
+    Test / parallelExecution := false,
+```
+
+Do we have any alternatives?
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [ ] Yes. I can contribute this feature independently.
+- [ ] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [X] No. I cannot contribute this feature at this time.

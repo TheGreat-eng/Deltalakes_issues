@@ -1,0 +1,1 @@
+Remove extra snapshot null value check in DeltaLog. It seems the `snapshot` never be null. Let me know if I missed anything, thx.

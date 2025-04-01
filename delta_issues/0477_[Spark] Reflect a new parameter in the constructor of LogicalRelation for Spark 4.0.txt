@@ -1,0 +1,21 @@
+#### Which Delta project/connector is this regarding?
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+This PR proposes to reflect a new parameter in the constructor of LogicalRelation for Spark 4.0. This PR deals with it via creating a shim object like we have done with IncrementalExecution for parameters difference.
+
+There are overloaded methods to create a LogicalRelation instance and Spark community tried to provide the new method to avoid this change, but Spark couldn't just add a new overloaded method to workaround as it was ambiguous with existing method with default param.
+
+## How was this patch tested?
+
+Existing tests.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No.

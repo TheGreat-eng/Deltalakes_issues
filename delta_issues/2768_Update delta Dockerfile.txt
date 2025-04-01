@@ -1,0 +1,4 @@
+(Cherry-pick of c3020e1 to branch-2.1)
+
+This change is needed to fix the pyspark version to 3.3.0. Without this the test setup installs latest 3.3.x pyspark and there are [partitioning differences](https://issues.apache.org/jira/browse/SPARK-40407) between 3.3.0 and 3.3.1 which cause tests to return slightly different behavior in partitioning.
+

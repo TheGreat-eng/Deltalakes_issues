@@ -1,0 +1,21 @@
+## Feature request
+
+#### Which Delta project/connector is this regarding?
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [x] Kernel
+- [ ] Other (fill in here)
+
+### Overview
+Currently, we don't have the `Cast` as a first-class expression support in Kernel expressions (See https://github.com/delta-io/delta/pull/1997). The default expression handler can handle implicit cast where a type is being upcasted (eg. int to long).
+
+This task is to investigate whether we need to export the `Cast` within the Kernel expression, similar to Spark DSv2.
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [x] Yes. I can contribute this feature independently.
+- [ ] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.

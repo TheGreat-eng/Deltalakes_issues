@@ -1,0 +1,52 @@
+## Description
+Currently the `run-integration-tests.py` requires the PyPi artifact of delta-spark to be either on `test.pypi.org` or `pypi.org`. However, neither of these package repositories allows replacing an existing artifact with the same version due to obvious package maintenance rules. This is a problem when generating multiple release candidates during the pre-release testing. The fallback approach is to append the release version name with `rc1` (ex. 3.0.0rc1) which requires regenerating the artifacts again for the final release without the `rc1` tag in the verison. If we want to use the same artifact that passed the release candidate testing for final release, we need to avoid the integration run script depending only on test.pypi.org or pypi.org.
+
+This PR updates the script to install the pypi packages that are generated locally and used as release candidate pypi artifacts. 
+
+## How was this patch tested?
+### Generate the pypi artifacts
+```
+# check out a commit that changes version that is without SNAPSHOT suffix.
+pip3 install wheel twine setuptools --upgrade
+ (rm -r dist 2> /dev/null || true) && python3 setup.py bdist_wheel && python3 setup.py sdist
+```
+
+The above command should generate two artifacts under <delta>/dist folder
+```
+$ ls -l dist/
+total 48
+-rw-r--r-- 1 venkateshwar.korukanti ubuntu 21943 Jan 16 22:21 delta-spark-3.1.0.tar.gz
+-rw-r--r-- 1 venkateshwar.korukanti ubuntu 21003 Jan 16 22:21 delta_spark-3.1.0-py3-none-any.whl
+```
+
+### Verify there is no `delta-spark` in current environment
+```
+$ pip3 show delta-spark
+WARNING: Package(s) not found: delta-spark
+```
+
+### Run the integration test
+```
+$ python3 run-integration-tests.py --version 3.1.0 --maven-repo https://oss.sonatype.org/content/repositories/iodelta-1129 --use-localpypiartifact /home/venkateshwar.korukanti/delta/dist --pip-only
+
+```
+
+The script shows following output confirming the `delta-spark` installation from the given distribution directory
+```
+Found existing installation: pyspark 3.5.0
+Uninstalling pyspark-3.5.0:
+  Successfully uninstalled pyspark-3.5.0
+Processing ./dist/delta_spark-3.1.0-py3-none-any.whl
+Collecting pyspark<3.6.0,>=3.5.0 (from delta-spark==3.1.0)
+  Using cached pyspark-3.5.0-py2.py3-none-any.whl
+Requirement already satisfied: importlib-metadata>=1.0.0 in /home/venkateshwar.korukanti/.conda/envs/delta-release/lib/python3.8/site-packages (from delta-spark==3.1.0) (7.0.1)
+Requirement already satisfied: zipp>=0.5 in /home/venkateshwar.korukanti/.conda/envs/delta-release/lib/python3.8/site-packages (from importlib-metadata>=1.0.0->delta-spark==3.1.0) (3.17.0)
+Requirement already satisfied: py4j==0.10.9.7 in /home/venkateshwar.korukanti/.conda/envs/delta-release/lib/python3.8/site-packages (from pyspark<3.6.0,>=3.5.0->delta-spark==3.1.0) (0.10.9.7)
+Installing collected packages: pyspark, delta-spark
+Successfully installed delta-spark-3.1.0 pyspark-3.5.0
+https://oss.sonatype.org/content/repositories/iodelta-1129 added as a remote repository with the name: repo-1
+:: loading settings :: url = jar:file:/home/venkateshwar.korukanti/.conda/envs/delta-release/lib/python3.8/site-packages/pyspark/jars/ivy-2.5.1.jar!/org/apache/ivy/core/settings/ivysettings.xml
+Ivy Default Cache set to: /home/venkateshwar.korukanti/.ivy2/cache
+The jars for the packages stored in: /home/venkateshwar.korukanti/.ivy2/jars
+```
+

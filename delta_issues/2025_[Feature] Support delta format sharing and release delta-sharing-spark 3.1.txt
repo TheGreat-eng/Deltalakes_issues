@@ -1,0 +1,32 @@
+## Feature request
+Support "delta format sharing" and release delta-sharing-spark 3.1
+
+#### Which Delta project/connector is this regarding?
+delta-sharing-spark
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [x] Other (delta-sharing-spark)
+
+### Overview
+
+The goal is to support delta format sharing, in delta-io/delta oss repo, and release delta-sharing-spark 3.1. 
+
+
+### Motivation
+
+The benefit with delta format sharing is to support advanced delta features like DV/CM in delta sharing.
+
+### Further details
+
+Please refer https://github.com/delta-io/delta-sharing/issues/341 for more details.
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [ ] Yes. I can contribute this feature independently.
+- [ ] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.

@@ -1,0 +1,11 @@
+**Goal:** Add the ability to start structured streaming from a user provided version as outlined in #474 
+
+**Desc:** This change will introduce `startingVersion` and `startingTimestamp` to the Delta Stream Reader so that users can define a starting point of their stream source without processing the entire table.
+
+**What's the behavior if both startingVersion and startingTimestamp are set?** Both options cannot be provided together. An error will be thrown telling you to choose only one.
+
+**When a query restarts, how does the new options work?** If a query restarts and a checkpoint location is provided, the stream will start from the checkpoints offset as opposed to the provided option.
+
+**If the user uses an old Delta Lake version to read the checkpoint, what will happen?** If we use a newer version of Delta with this option, we will store an offset that looks like: Process up to this version and this index. If the stream fails and someone reverts to an older version of Delta, we would try to process ALL the data in the snapshot up to the end offset which we came up with.
+
+Credit to @brkyvz for a large percentage of the work.

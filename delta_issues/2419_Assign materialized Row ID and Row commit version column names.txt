@@ -1,0 +1,6 @@
+## Description
+This change is part of implementing row tracking as specified in https://github.com/delta-io/delta/pull/1610 and https://github.com/delta-io/delta/commit/7272b04db76507a98e07e96dc88e2c1a54283693.
+It covers assigning a column name for the materialized Row ID and Row commit version columns by setting them in the table metadata when creating or cloning a table.
+
+## How was this patch tested?
+- Add test suite `rowtracking.MaterializedColumnSuite` to cover assigning materialized column names in various table creation and clone scenarios.

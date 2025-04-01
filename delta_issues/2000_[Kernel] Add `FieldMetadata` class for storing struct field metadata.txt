@@ -1,0 +1,31 @@
+## Feature request
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the issue title
+For example: [Feature Request][Spark] Title of my issue
+-->
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [X] Kernel
+- [ ] Other (fill in here)
+
+### Overview
+
+Currently `StructField` metadata is stored as a `Map<String, String>`. This is not sufficient as column level metadata is not always stored in the JSON as a string, and may be a number, list, object, etc (for example column mapping id is stored as a long). 
+
+We should instead add a `FieldMetadata` class (like [FieldMetadata](https://github.com/delta-io/delta/blob/master/connectors/standalone/src/main/java/io/delta/standalone/types/FieldMetadata.java) in standalone and [Metadata](https://github.com/apache/spark/blob/master/sql/api/src/main/scala/org/apache/spark/sql/types/Metadata.scala) in spark) that restricts the possible value types to the supported types.
+
+### Motivation
+
+We need to support the different possible value types now and will need to be able to restrict the supported types in the future when we have writes.
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [x] Yes. I can contribute this feature independently.
+- [ ] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.

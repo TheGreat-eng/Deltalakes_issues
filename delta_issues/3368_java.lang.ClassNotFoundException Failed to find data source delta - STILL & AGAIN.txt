@@ -1,0 +1,61 @@
+It would be a nice feature of  DeltaLake if it can be an easy to use component within  a submittable Uber.jar, using Java, and MVN, without having to become a world expert in MVN to use it. The class incompatibility issues with Spark, and DeltaLake seem to be very common. My blocking Issue is the code below produces this, when submit:
+
+ "Exception in thread "main" java.lang.ClassNotFoundException: Failed to find data source: delta" issue. In the case:
+
+Dataset<Row> df =  ......    // valid data.  
+df.write().format("delta")
+      .mode("overwrite")
+      .save("/opt/spark-data/mydata");
+
+The first symptom of a problem was that the "overwrite" was failing on AWS S3 for an existing folder, but now its the "delta" string issue.  DeltaLake works fine in local mode, with non-uber jar.  I made it a local directory to test removing S3, in above.
+
+As one person commented this makes DeltaLake un-usable. Many people have tackled  this but there is no definitive answer, threads get closed with no solution, with many magical comments that don't seem to work. See related threads below.  I think an example and a  POM file for this should be part of the DeltaLake documentation, given the complexity and common nature of this issue, as it occurs with other components like Kafka, Avro.  There are no Java example in Delta source, maybe this would be a good example.
+
+The "delta" string cannot be provided with full class definition, to resolve this. DeltaLake (and Spark)  using untyped strings and not a FINAL String member is in itself poor programming practise. 
+
+So is there  a 're-usable'  MVN pom file (Not Gradle)  that does a Uber.jar build of DeltaLake, with AWS libraries, for Java, that can be submitted to Spark and it actually works  ? Not using the --packages and local --jars etc. If there is,  I can help document this into the DeltaLAke documentation to make a contribution. It requires using mvn-shade to merge the META INF/services/org.apache.spark.sql.sources.DataSourceRegister of all the data sources,, not replace or first or whatever strategy you use.  I have tried many things but nothing yet works ?
+
+I have a full project for this, can provide more, but here are some snippets:
+    <java.version>1.8</java.version>
+    <scala.version>2.12</scala.version>
+    <spark.version>3.2.0</spark.version>
+    <junit.version>4.13.1</junit.version>
+    <delta.version>1.1.0</delta.version>
+    <hadoop.version>3.2.0</hadoop.version>   
+    <maven-source-plugin.version>3.0.1</maven-source-plugin.version>
+    <exec-maven-plugin.version>1.6.0</exec-maven-plugin.version>
+    <maven-shade-plugin.version>3.2.4</maven-shade-plugin.version>
+
+  <dependencies>
+ 
+    <dependency>
+      <groupId>org.apache.spark</groupId>
+      <artifactId>spark-core_${scala.version}</artifactId>
+      <version>${spark.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.spark</groupId>
+      <artifactId>spark-sql_${scala.version}</artifactId>
+      <version>${spark.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>io.delta</groupId>
+      <artifactId>delta-core_${scala.version}</artifactId>
+      <version>${delta.version}</version>
+    </dependency>
+
+     <dependency>
+   <groupId>org.apache.hadoop</groupId>
+    <artifactId>hadoop-aws</artifactId>
+    <version>${hadoop.version}</version>
+    </dependency>
+
+Spark runtime is : spark-3.2.1-bin-hadoop3.2
+
+Other threads: 
+https://github.com/delta-io/delta/issues/224
+https://stackoverflow.com/questions/63456301/spark-maven-dependency-incompatibility-between-delta-core-and-spark-avro
+https://stackoverflow.com/questions/41303037/why-does-spark-application-fail-with-classnotfoundexception-failed-to-find-dat
+https://stackoverflow.com/questions/48011941/why-does-formatkafka-fail-with-failed-to-find-data-source-kafka-even-wi

@@ -1,0 +1,5 @@
+https://docs.delta.io/latest/quick-start.html#update-table-data
+
+This is an obvious mistake
+ 
+![image](https://user-images.githubusercontent.com/38400198/128992268-b20ea56d-43a3-4335-823b-19b0aede7ff1.png)

@@ -1,0 +1,20 @@
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+The `DeltaParquetFileFormat` adds additional glue for filtering the deleting rows (according to the deletion vector) from the iterator returned by the `ParquetFileFormat`. In case when the DV file is not found, the iterator returned from `ParquetFileFormat` should be close.
+
+## How was this patch tested?
+An integration simulating the DV file deletion and verifying no resource leak.
+
+## Does this PR introduce _any_ user-facing changes?
+No

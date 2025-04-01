@@ -1,0 +1,7 @@
+Since Delta will soon support **startingVersion** and **startingTimestamp** in stream source I would find it useful to have the option of **endingVersion** - similar to endingOffsets in [Kafka streams](https://spark.apache.org/docs/latest/structured-streaming-kafka-integration.html).
+
+My use case:
+I'd like to downstream all increments from source Delta until the specified commit version. When the commit version is reached, the stream will be terminated.
+
+This feature would give us interesting downstream view of "what has been commited to delta yesterday ?"
+Also offering an alternative to `Trigger.Once()`, where `maxFilesPerTrigger/maxBytesPerTrigger` is ignored and all data is processed in a single batch.  Using **endingVersion** would have the same result as `Trigger.Once()` in a resource-controlled streaming fashion (honoring maxFilesPerTrigger and maxBytesPerTrigger).

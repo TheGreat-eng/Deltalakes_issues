@@ -1,0 +1,423 @@
+## Bug
+[BUG] running delta table optimize() for delta table created by path without megastore raise an exception:
+deltaTable.optimize().executeCompaction()
+org.apache.spark.sql.AnalysisException: org.apache.hadoop.hive.ql.metadata.HiveException: java.lang.RuntimeException: Unable to instantiate org.apache.hadoop.hive.metastore.HiveMetaStoreClient
+
+### Describe the problem
+According to documentation, the creation, and usage (limitation not mentioned ) of delta table without the metastore is supported: 
+https://docs.delta.io/latest/delta-batch.html#create-a-table
+I have created a delta table by the path and found out that running optimize command leads to an error related to the metastore (when the metastore is not configured at all because of compliance and security reasons)
+
+
+#### Steps to reproduce
+
+First Databricks environment without enabled and configured the metastore.
+<!--
+from delta.tables import *
+from pyspark.sql.functions import *
+
+deltaTable = DeltaTable.forPath(spark, "<table path>")
+deltaTable.optimize().executeCompaction()
+-->
+
+#### Observed results
+
+org.apache.spark.sql.AnalysisException: org.apache.hadoop.hive.ql.metadata.HiveException: java.lang.RuntimeException: Unable to instantiate org.apache.hadoop.hive.metastore.HiveMetaStoreClient
+
+<!--
+
+-->
+
+#### Expected results
+
+<!-- What did you expect to happen? -->
+
+#### Further details
+
+<!--
+Include any additional details that may be useful for diagnosing the problem here. If including tracebacks, please include the full traceback. Large logs and files should be attached.
+-->
+
+### Environment information
+
+Python APi
+* Delta Lake version: 2.1.0
+* Spark version: 3.3.0
+* Scala version: 2.12
+* Databricks runtime 11.2
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+```
+Py4JJavaError                             Traceback (most recent call last)
+/databricks/spark/python/pyspark/sql/utils.py in deco(*a, **kw)
+    195         try:
+--> 196             return f(*a, **kw)
+    197         except Py4JJavaError as e:
+
+/databricks/spark/python/lib/py4j-0.10.9.5-src.zip/py4j/protocol.py in get_return_value(answer, gateway_client, target_id, name)
+    325             if answer[1] == REFERENCE_TYPE:
+--> 326                 raise Py4JJavaError(
+    327                     "An error occurred while calling {0}{1}{2}.\n".
+
+Py4JJavaError: An error occurred while calling o512.executeCompaction.
+: org.apache.spark.sql.AnalysisException: org.apache.hadoop.hive.ql.metadata.HiveException: java.lang.RuntimeException: Unable to instantiate org.apache.hadoop.hive.metastore.HiveMetaStoreClient
+	at org.apache.spark.sql.hive.HiveExternalCatalog.$anonfun$withClient$2(HiveExternalCatalog.scala:164)
+	at org.apache.spark.sql.hive.HiveExternalCatalog.maybeSynchronized(HiveExternalCatalog.scala:116)
+	at org.apache.spark.sql.hive.HiveExternalCatalog.$anonfun$withClient$1(HiveExternalCatalog.scala:154)
+	at com.databricks.backend.daemon.driver.ProgressReporter$.withStatusCode(ProgressReporter.scala:377)
+	at com.databricks.backend.daemon.driver.ProgressReporter$.withStatusCode(ProgressReporter.scala:363)
+	at com.databricks.spark.util.SparkDatabricksProgressReporter$.withStatusCode(ProgressReporter.scala:34)
+	at org.apache.spark.sql.hive.HiveExternalCatalog.withClient(HiveExternalCatalog.scala:153)
+	at org.apache.spark.sql.hive.HiveExternalCatalog.databaseExists(HiveExternalCatalog.scala:314)
+	at org.apache.spark.sql.internal.SharedState.externalCatalog$lzycompute(SharedState.scala:249)
+	at org.apache.spark.sql.internal.SharedState.externalCatalog(SharedState.scala:239)
+	at org.apache.spark.sql.hive.HiveSessionStateBuilder.externalCatalog(HiveSessionStateBuilder.scala:60)
+	at org.apache.spark.sql.hive.HiveSessionStateBuilder.$anonfun$hiveCatalog$1(HiveSessionStateBuilder.scala:75)
+	at org.apache.spark.sql.catalyst.catalog.SessionCatalogImpl.externalCatalog$lzycompute(SessionCatalog.scala:544)
+	at org.apache.spark.sql.catalyst.catalog.SessionCatalogImpl.externalCatalog(SessionCatalog.scala:544)
+	at org.apache.spark.sql.catalyst.catalog.SessionCatalogImpl.databaseExists(SessionCatalog.scala:771)
+	at com.databricks.sql.managedcatalog.ManagedCatalogSessionCatalog.databaseExists(ManagedCatalogSessionCatalog.scala:584)
+	at com.databricks.sql.managedcatalog.ManagedCatalogSessionCatalog.databaseExists(ManagedCatalogSessionCatalog.scala:577)
+	at com.databricks.sql.transaction.tahoe.DeltaTableIdentifier$.tableExists$1(DeltaTableIdentifier.scala:85)
+	at com.databricks.sql.transaction.tahoe.DeltaTableIdentifier$.isDeltaPath(DeltaTableIdentifier.scala:97)
+	at com.databricks.sql.transaction.tahoe.DeltaTableIdentifier$.apply(DeltaTableIdentifier.scala:106)
+	at com.databricks.sql.transaction.tahoe.DeltaAnalysisEdge$$anonfun$apply0$1.applyOrElse(DeltaAnalysisEdge.scala:237)
+	at com.databricks.sql.transaction.tahoe.DeltaAnalysisEdge$$anonfun$apply0$1.applyOrElse(DeltaAnalysisEdge.scala:100)
+	at org.apache.spark.sql.catalyst.plans.logical.AnalysisHelper.$anonfun$resolveOperatorsUpWithPruning$3(AnalysisHelper.scala:138)
+	at org.apache.spark.sql.catalyst.trees.CurrentOrigin$.withOrigin(TreeNode.scala:99)
+	at org.apache.spark.sql.catalyst.plans.logical.AnalysisHelper.$anonfun$resolveOperatorsUpWithPruning$1(AnalysisHelper.scala:138)
+	at org.apache.spark.sql.catalyst.plans.logical.AnalysisHelper$.allowInvokingTransformsInAnalyzer(AnalysisHelper.scala:324)
+	at org.apache.spark.sql.catalyst.plans.logical.AnalysisHelper.resolveOperatorsUpWithPruning(AnalysisHelper.scala:134)
+	at org.apache.spark.sql.catalyst.plans.logical.AnalysisHelper.resolveOperatorsUpWithPruning$(AnalysisHelper.scala:130)
+	at org.apache.spark.sql.catalyst.plans.logical.LogicalPlan.resolveOperatorsUpWithPruning(LogicalPlan.scala:31)
+	at org.apache.spark.sql.catalyst.plans.logical.AnalysisHelper.resolveOperatorsUp(AnalysisHelper.scala:111)
+	at org.apache.spark.sql.catalyst.plans.logical.AnalysisHelper.resolveOperatorsUp$(AnalysisHelper.scala:110)
+	at org.apache.spark.sql.catalyst.plans.logical.LogicalPlan.resolveOperatorsUp(LogicalPlan.scala:31)
+	at com.databricks.sql.transaction.tahoe.DeltaAnalysisEdge.apply0(DeltaAnalysisEdge.scala:100)
+	at com.databricks.sql.transaction.tahoe.DeltaAnalysisEdge.apply(DeltaAnalysisEdge.scala:68)
+	at com.databricks.sql.transaction.tahoe.DeltaAnalysisEdge.apply(DeltaAnalysisEdge.scala:55)
+	at org.apache.spark.sql.catalyst.rules.RuleExecutor.$anonfun$execute$3(RuleExecutor.scala:216)
+	at com.databricks.spark.util.FrameProfiler$.record(FrameProfiler.scala:80)
+	at org.apache.spark.sql.catalyst.rules.RuleExecutor.$anonfun$execute$2(RuleExecutor.scala:216)
+	at scala.collection.LinearSeqOptimized.foldLeft(LinearSeqOptimized.scala:126)
+	at scala.collection.LinearSeqOptimized.foldLeft$(LinearSeqOptimized.scala:122)
+	at scala.collection.immutable.List.foldLeft(List.scala:91)
+	at org.apache.spark.sql.catalyst.rules.RuleExecutor.$anonfun$execute$1(RuleExecutor.scala:213)
+	at org.apache.spark.sql.catalyst.rules.RuleExecutor.$anonfun$execute$1$adapted(RuleExecutor.scala:205)
+	at scala.collection.immutable.List.foreach(List.scala:431)
+	at org.apache.spark.sql.catalyst.rules.RuleExecutor.execute(RuleExecutor.scala:205)
+	at org.apache.spark.sql.catalyst.analysis.Analyzer.org$apache$spark$sql$catalyst$analysis$Analyzer$$executeSameContext(Analyzer.scala:326)
+	at org.apache.spark.sql.catalyst.analysis.Analyzer.$anonfun$execute$1(Analyzer.scala:319)
+	at org.apache.spark.sql.catalyst.analysis.AnalysisContext$.withNewAnalysisContext(Analyzer.scala:223)
+	at org.apache.spark.sql.catalyst.analysis.Analyzer.execute(Analyzer.scala:319)
+	at org.apache.spark.sql.catalyst.analysis.Analyzer.execute(Analyzer.scala:247)
+	at org.apache.spark.sql.catalyst.rules.RuleExecutor.$anonfun$executeAndTrack$1(RuleExecutor.scala:184)
+	at org.apache.spark.sql.catalyst.QueryPlanningTracker$.withTracker(QueryPlanningTracker.scala:153)
+	at org.apache.spark.sql.catalyst.rules.RuleExecutor.executeAndTrack(RuleExecutor.scala:184)
+	at org.apache.spark.sql.catalyst.analysis.Analyzer.$anonfun$executeAndCheck$1(Analyzer.scala:299)
+	at org.apache.spark.sql.catalyst.plans.logical.AnalysisHelper$.markInAnalyzer(AnalysisHelper.scala:331)
+	at org.apache.spark.sql.catalyst.analysis.Analyzer.executeAndCheck(Analyzer.scala:298)
+	at org.apache.spark.sql.execution.QueryExecution.$anonfun$analyzed$1(QueryExecution.scala:159)
+	at com.databricks.spark.util.FrameProfiler$.record(FrameProfiler.scala:80)
+	at org.apache.spark.sql.catalyst.QueryPlanningTracker.measurePhase(QueryPlanningTracker.scala:319)
+	at org.apache.spark.sql.execution.QueryExecution.$anonfun$executePhase$3(QueryExecution.scala:349)
+	at org.apache.spark.sql.execution.QueryExecution$.withInternalError(QueryExecution.scala:774)
+	at org.apache.spark.sql.execution.QueryExecution.$anonfun$executePhase$1(QueryExecution.scala:349)
+	at org.apache.spark.sql.SparkSession.withActive(SparkSession.scala:973)
+	at org.apache.spark.sql.execution.QueryExecution.executePhase(QueryExecution.scala:346)
+	at org.apache.spark.sql.execution.QueryExecution.analyzed$lzycompute(QueryExecution.scala:140)
+	at org.apache.spark.sql.execution.QueryExecution.analyzed(QueryExecution.scala:140)
+	at org.apache.spark.sql.execution.QueryExecution.assertAnalyzed(QueryExecution.scala:132)
+	at org.apache.spark.sql.Dataset$.$anonfun$ofRows$1(Dataset.scala:97)
+	at org.apache.spark.sql.SparkSession.withActive(SparkSession.scala:973)
+	at org.apache.spark.sql.Dataset$.ofRows(Dataset.scala:95)
+	at com.databricks.sql.transaction.tahoe.util.AnalysisHelper.toDataset(AnalysisHelper.scala:92)
+	at com.databricks.sql.transaction.tahoe.util.AnalysisHelper.toDataset$(AnalysisHelper.scala:91)
+	at io.delta.tables.DeltaOptimizeBuilder.toDataset(DeltaOptimizeBuilder.scala:43)
+	at io.delta.tables.DeltaOptimizeBuilder.execute(DeltaOptimizeBuilder.scala:107)
+	at io.delta.tables.DeltaOptimizeBuilder.executeCompaction(DeltaOptimizeBuilder.scala:69)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at py4j.reflection.MethodInvoker.invoke(MethodInvoker.java:244)
+	at py4j.reflection.ReflectionEngine.invoke(ReflectionEngine.java:380)
+	at py4j.Gateway.invoke(Gateway.java:306)
+	at py4j.commands.AbstractCommand.invokeMethod(AbstractCommand.java:132)
+	at py4j.commands.CallCommand.execute(CallCommand.java:79)
+	at py4j.ClientServerConnection.waitForCommands(ClientServerConnection.java:195)
+	at py4j.ClientServerConnection.run(ClientServerConnection.java:115)
+	at java.lang.Thread.run(Thread.java:748)
+Caused by: org.apache.hadoop.hive.ql.metadata.HiveException: java.lang.RuntimeException: Unable to instantiate org.apache.hadoop.hive.metastore.HiveMetaStoreClient
+	at org.apache.hadoop.hive.ql.metadata.Hive.getDatabase(Hive.java:1169)
+	at org.apache.hadoop.hive.ql.metadata.Hive.databaseExists(Hive.java:1154)
+	at org.apache.spark.sql.hive.client.Shim_v0_12.databaseExists(HiveShim.scala:619)
+	at org.apache.spark.sql.hive.client.HiveClientImpl.$anonfun$databaseExists$1(HiveClientImpl.scala:437)
+	at scala.runtime.java8.JFunction0$mcZ$sp.apply(JFunction0$mcZ$sp.java:23)
+	at org.apache.spark.sql.hive.client.HiveClientImpl.$anonfun$withHiveState$1(HiveClientImpl.scala:337)
+	at org.apache.spark.sql.hive.client.HiveClientImpl.$anonfun$retryLocked$1(HiveClientImpl.scala:238)
+	at org.apache.spark.sql.hive.client.HiveClientImpl.synchronizeOnObject(HiveClientImpl.scala:274)
+	at org.apache.spark.sql.hive.client.HiveClientImpl.retryLocked(HiveClientImpl.scala:230)
+	at org.apache.spark.sql.hive.client.HiveClientImpl.withHiveState(HiveClientImpl.scala:317)
+	at org.apache.spark.sql.hive.client.HiveClientImpl.databaseExists(HiveClientImpl.scala:437)
+	at org.apache.spark.sql.hive.client.PoolingHiveClient.$anonfun$databaseExists$1(PoolingHiveClient.scala:321)
+	at org.apache.spark.sql.hive.client.PoolingHiveClient.$anonfun$databaseExists$1$adapted(PoolingHiveClient.scala:320)
+	at org.apache.spark.sql.hive.client.PoolingHiveClient.withHiveClient(PoolingHiveClient.scala:149)
+	at org.apache.spark.sql.hive.client.PoolingHiveClient.databaseExists(PoolingHiveClient.scala:320)
+	at org.apache.spark.sql.hive.HiveExternalCatalog.$anonfun$databaseExists$1(HiveExternalCatalog.scala:314)
+	at scala.runtime.java8.JFunction0$mcZ$sp.apply(JFunction0$mcZ$sp.java:23)
+	at com.databricks.spark.util.FrameProfiler$.record(FrameProfiler.scala:80)
+	at org.apache.spark.sql.hive.HiveExternalCatalog.$anonfun$withClient$2(HiveExternalCatalog.scala:155)
+	... 86 more
+Caused by: java.lang.RuntimeException: Unable to instantiate org.apache.hadoop.hive.metastore.HiveMetaStoreClient
+	at org.apache.hadoop.hive.metastore.MetaStoreUtils.newInstance(MetaStoreUtils.java:1412)
+	at org.apache.hadoop.hive.metastore.RetryingMetaStoreClient.<init>(RetryingMetaStoreClient.java:62)
+	at org.apache.hadoop.hive.metastore.RetryingMetaStoreClient.getProxy(RetryingMetaStoreClient.java:72)
+	at org.apache.hadoop.hive.ql.metadata.Hive.createMetaStoreClient(Hive.java:2453)
+	at org.apache.hadoop.hive.ql.metadata.Hive.getMSC(Hive.java:2465)
+	at org.apache.hadoop.hive.ql.metadata.Hive.getDatabase(Hive.java:1165)
+	... 104 more
+Caused by: java.lang.reflect.InvocationTargetException
+	at sun.reflect.NativeConstructorAccessorImpl.newInstance0(Native Method)
+	at sun.reflect.NativeConstructorAccessorImpl.newInstance(NativeConstructorAccessorImpl.java:62)
+	at sun.reflect.DelegatingConstructorAccessorImpl.newInstance(DelegatingConstructorAccessorImpl.java:45)
+	at java.lang.reflect.Constructor.newInstance(Constructor.java:423)
+	at org.apache.hadoop.hive.metastore.MetaStoreUtils.newInstance(MetaStoreUtils.java:1410)
+	... 109 more
+Caused by: javax.jdo.JDOFatalInternalException: Error creating transactional connection factory
+NestedThrowables:
+java.lang.reflect.InvocationTargetException
+	at org.datanucleus.api.jdo.NucleusJDOHelper.getJDOExceptionForNucleusException(NucleusJDOHelper.java:671)
+	at org.datanucleus.api.jdo.JDOPersistenceManagerFactory.freezeConfiguration(JDOPersistenceManagerFactory.java:830)
+	at org.datanucleus.api.jdo.JDOPersistenceManagerFactory.createPersistenceManagerFactory(JDOPersistenceManagerFactory.java:334)
+	at org.datanucleus.api.jdo.JDOPersistenceManagerFactory.getPersistenceManagerFactory(JDOPersistenceManagerFactory.java:213)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at javax.jdo.JDOHelper$16.run(JDOHelper.java:1975)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at javax.jdo.JDOHelper.invoke(JDOHelper.java:1970)
+	at javax.jdo.JDOHelper.invokeGetPersistenceManagerFactoryOnImplementation(JDOHelper.java:1177)
+	at javax.jdo.JDOHelper.getPersistenceManagerFactory(JDOHelper.java:814)
+	at javax.jdo.JDOHelper.getPersistenceManagerFactory(JDOHelper.java:702)
+	at org.apache.hadoop.hive.metastore.ObjectStore.getPMF(ObjectStore.java:331)
+	at org.apache.hadoop.hive.metastore.ObjectStore.getPersistenceManager(ObjectStore.java:360)
+	at org.apache.hadoop.hive.metastore.ObjectStore.initialize(ObjectStore.java:269)
+	at org.apache.hadoop.hive.metastore.ObjectStore.setConf(ObjectStore.java:244)
+	at org.apache.hadoop.util.ReflectionUtils.setConf(ReflectionUtils.java:79)
+	at org.apache.hadoop.util.ReflectionUtils.newInstance(ReflectionUtils.java:139)
+	at org.apache.hadoop.hive.metastore.RawStoreProxy.<init>(RawStoreProxy.java:58)
+	at org.apache.hadoop.hive.metastore.RawStoreProxy.getProxy(RawStoreProxy.java:67)
+	at org.apache.hadoop.hive.metastore.HiveMetaStore$HMSHandler.newRawStore(HiveMetaStore.java:497)
+	at org.apache.hadoop.hive.metastore.HiveMetaStore$HMSHandler.getMS(HiveMetaStore.java:475)
+	at org.apache.hadoop.hive.metastore.HiveMetaStore$HMSHandler.createDefaultDB(HiveMetaStore.java:523)
+	at org.apache.hadoop.hive.metastore.HiveMetaStore$HMSHandler.init(HiveMetaStore.java:397)
+	at org.apache.hadoop.hive.metastore.HiveMetaStore$HMSHandler.<init>(HiveMetaStore.java:356)
+	at org.apache.hadoop.hive.metastore.RetryingHMSHandler.<init>(RetryingHMSHandler.java:54)
+	at org.apache.hadoop.hive.metastore.RetryingHMSHandler.getProxy(RetryingHMSHandler.java:59)
+	at org.apache.hadoop.hive.metastore.HiveMetaStore.newHMSHandler(HiveMetaStore.java:4944)
+	at org.apache.hadoop.hive.metastore.HiveMetaStoreClient.<init>(HiveMetaStoreClient.java:171)
+	... 114 more
+Caused by: java.lang.reflect.InvocationTargetException
+	at sun.reflect.NativeConstructorAccessorImpl.newInstance0(Native Method)
+	at sun.reflect.NativeConstructorAccessorImpl.newInstance(NativeConstructorAccessorImpl.java:62)
+	at sun.reflect.DelegatingConstructorAccessorImpl.newInstance(DelegatingConstructorAccessorImpl.java:45)
+	at java.lang.reflect.Constructor.newInstance(Constructor.java:423)
+	at org.datanucleus.plugin.NonManagedPluginRegistry.createExecutableExtension(NonManagedPluginRegistry.java:606)
+	at org.datanucleus.plugin.PluginManager.createExecutableExtension(PluginManager.java:330)
+	at org.datanucleus.store.AbstractStoreManager.registerConnectionFactory(AbstractStoreManager.java:203)
+	at org.datanucleus.store.AbstractStoreManager.<init>(AbstractStoreManager.java:162)
+	at org.datanucleus.store.rdbms.RDBMSStoreManager.<init>(RDBMSStoreManager.java:285)
+	at sun.reflect.NativeConstructorAccessorImpl.newInstance0(Native Method)
+	at sun.reflect.NativeConstructorAccessorImpl.newInstance(NativeConstructorAccessorImpl.java:62)
+	at sun.reflect.DelegatingConstructorAccessorImpl.newInstance(DelegatingConstructorAccessorImpl.java:45)
+	at java.lang.reflect.Constructor.newInstance(Constructor.java:423)
+	at org.datanucleus.plugin.NonManagedPluginRegistry.createExecutableExtension(NonManagedPluginRegistry.java:606)
+	at org.datanucleus.plugin.PluginManager.createExecutableExtension(PluginManager.java:301)
+	at org.datanucleus.NucleusContextHelper.createStoreManagerForProperties(NucleusContextHelper.java:133)
+	at org.datanucleus.PersistenceNucleusContextImpl.initialise(PersistenceNucleusContextImpl.java:422)
+	at org.datanucleus.api.jdo.JDOPersistenceManagerFactory.freezeConfiguration(JDOPersistenceManagerFactory.java:817)
+	... 143 more
+Caused by: org.datanucleus.exceptions.NucleusException: Attempt to invoke the "HikariCP" plugin to create a ConnectionPool gave an error : Failed to initialize pool: Could not connect to address=(host=mdv2llxgl8lou0.ceptxxgorjrc.eu-central-1.rds.amazonaws.com)(port=3306)(type=master) : Socket fail to connect to host:mdv2llxgl8lou0.ceptxxgorjrc.eu-central-1.rds.amazonaws.com, port:3306. connect timed out
+	at org.datanucleus.store.rdbms.ConnectionFactoryImpl.generateDataSources(ConnectionFactoryImpl.java:232)
+	at org.datanucleus.store.rdbms.ConnectionFactoryImpl.initialiseDataSources(ConnectionFactoryImpl.java:117)
+	at org.datanucleus.store.rdbms.ConnectionFactoryImpl.<init>(ConnectionFactoryImpl.java:82)
+	... 161 more
+Caused by: com.zaxxer.hikari.pool.HikariPool$PoolInitializationException: Failed to initialize pool: Could not connect to address=(host=mdv2llxgl8lou0.ceptxxgorjrc.eu-central-1.rds.amazonaws.com)(port=3306)(type=master) : Socket fail to connect to host:mdv2llxgl8lou0.ceptxxgorjrc.eu-central-1.rds.amazonaws.com, port:3306. connect timed out
+	at com.zaxxer.hikari.pool.HikariPool.checkFailFast(HikariPool.java:512)
+	at com.zaxxer.hikari.pool.HikariPool.<init>(HikariPool.java:105)
+	at com.zaxxer.hikari.HikariDataSource.<init>(HikariDataSource.java:71)
+	at org.datanucleus.store.rdbms.connectionpool.HikariCPConnectionPoolFactory.createConnectionPool(HikariCPConnectionPoolFactory.java:176)
+	at org.datanucleus.store.rdbms.ConnectionFactoryImpl.generateDataSources(ConnectionFactoryImpl.java:213)
+	... 163 more
+Caused by: java.sql.SQLNonTransientConnectionException: Could not connect to address=(host=mdv2llxgl8lou0.ceptxxgorjrc.eu-central-1.rds.amazonaws.com)(port=3306)(type=master) : Socket fail to connect to host:mdv2llxgl8lou0.ceptxxgorjrc.eu-central-1.rds.amazonaws.com, port:3306. connect timed out
+	at org.mariadb.jdbc.internal.util.exceptions.ExceptionFactory.createException(ExceptionFactory.java:73)
+	at org.mariadb.jdbc.internal.util.exceptions.ExceptionFactory.create(ExceptionFactory.java:197)
+	at org.mariadb.jdbc.internal.protocol.AbstractConnectProtocol.connectWithoutProxy(AbstractConnectProtocol.java:1394)
+	at org.mariadb.jdbc.internal.util.Utils.retrieveProxy(Utils.java:635)
+	at org.mariadb.jdbc.MariaDbConnection.newConnection(MariaDbConnection.java:150)
+	at org.mariadb.jdbc.Driver.connect(Driver.java:89)
+	at com.zaxxer.hikari.util.DriverDataSource.getConnection(DriverDataSource.java:95)
+	at com.zaxxer.hikari.util.DriverDataSource.getConnection(DriverDataSource.java:101)
+	at com.zaxxer.hikari.pool.PoolBase.newConnection(PoolBase.java:341)
+	at com.zaxxer.hikari.pool.HikariPool.checkFailFast(HikariPool.java:506)
+	... 167 more
+Caused by: java.sql.SQLNonTransientConnectionException: Socket fail to connect to host:mdv2llxgl8lou0.ceptxxgorjrc.eu-central-1.rds.amazonaws.com, port:3306. connect timed out
+	at org.mariadb.jdbc.internal.util.exceptions.ExceptionFactory.createException(ExceptionFactory.java:73)
+	at org.mariadb.jdbc.internal.util.exceptions.ExceptionFactory.create(ExceptionFactory.java:188)
+	at org.mariadb.jdbc.internal.protocol.AbstractConnectProtocol.createSocket(AbstractConnectProtocol.java:257)
+	at org.mariadb.jdbc.internal.protocol.AbstractConnectProtocol.createConnection(AbstractConnectProtocol.java:521)
+	at org.mariadb.jdbc.internal.protocol.AbstractConnectProtocol.connectWithoutProxy(AbstractConnectProtocol.java:1389)
+	... 174 more
+Caused by: java.net.SocketTimeoutException: connect timed out
+	at java.net.PlainSocketImpl.socketConnect(Native Method)
+	at java.net.AbstractPlainSocketImpl.doConnect(AbstractPlainSocketImpl.java:350)
+	at java.net.AbstractPlainSocketImpl.connectToAddress(AbstractPlainSocketImpl.java:206)
+	at java.net.AbstractPlainSocketImpl.connect(AbstractPlainSocketImpl.java:188)
+	at java.net.SocksSocketImpl.connect(SocksSocketImpl.java:392)
+	at java.net.Socket.connect(Socket.java:607)
+	at org.mariadb.jdbc.internal.protocol.AbstractConnectProtocol.createSocket(AbstractConnectProtocol.java:252)
+	... 176 more
+
+
+During handling of the above exception, another exception occurred:
+
+Py4JError                                 Traceback (most recent call last)
+<command-891312248629306> in <cell line: 1>()
+----> 1 deltaTable.optimize().executeCompaction()
+
+/databricks/spark/python/delta/tables.py in executeCompaction(self)
+   1382         """
+   1383         return DataFrame(
+-> 1384             self._jbuilder.executeCompaction(),
+   1385             getattr(self._spark, "_wrapped", self._spark)  # type: ignore[attr-defined]
+   1386         )
+
+/databricks/spark/python/lib/py4j-0.10.9.5-src.zip/py4j/java_gateway.py in __call__(self, *args)
+   1319 
+   1320         answer = self.gateway_client.send_command(command)
+-> 1321         return_value = get_return_value(
+   1322             answer, self.gateway_client, self.target_id, self.name)
+   1323 
+
+/databricks/spark/python/pyspark/sql/utils.py in deco(*a, **kw)
+    196             return f(*a, **kw)
+    197         except Py4JJavaError as e:
+--> 198             converted = convert_exception(e.java_exception)
+    199             if not isinstance(converted, UnknownException):
+    200                 # Hide where the exception came from that shows a non-Pythonic
+
+/databricks/spark/python/pyspark/sql/utils.py in convert_exception(e)
+    155     # Order matters. ParseException inherits AnalysisException.
+    156     elif is_instance_of(gw, e, "org.apache.spark.sql.AnalysisException"):
+--> 157         return AnalysisException(origin=e)
+    158     elif is_instance_of(gw, e, "org.apache.spark.sql.streaming.StreamingQueryException"):
+    159         return StreamingQueryException(origin=e)
+
+/databricks/spark/python/pyspark/sql/utils.py in __init__(self, desc, stackTrace, cause, origin)
+     58         self.cause = convert_exception(cause) if cause is not None else None
+     59         if self.cause is None and origin is not None and origin.getCause() is not None:
+---> 60             self.cause = convert_exception(origin.getCause())
+     61         self._origin = origin
+     62 
+
+/databricks/spark/python/pyspark/sql/utils.py in convert_exception(e)
+    188         return PythonException(msg, stacktrace)
+    189 
+--> 190     return UnknownException(desc=e.toString(), stackTrace=stacktrace, cause=c)
+    191 
+    192 
+
+/databricks/spark/python/pyspark/sql/utils.py in __init__(self, desc, stackTrace, cause, origin)
+     56             else (SparkContext._jvm.org.apache.spark.util.Utils.exceptionString(origin))
+     57         )
+---> 58         self.cause = convert_exception(cause) if cause is not None else None
+     59         if self.cause is None and origin is not None and origin.getCause() is not None:
+     60             self.cause = convert_exception(origin.getCause())
+
+/databricks/spark/python/pyspark/sql/utils.py in convert_exception(e)
+    188         return PythonException(msg, stacktrace)
+    189 
+--> 190     return UnknownException(desc=e.toString(), stackTrace=stacktrace, cause=c)
+    191 
+    192 
+
+/databricks/spark/python/pyspark/sql/utils.py in __init__(self, desc, stackTrace, cause, origin)
+     56             else (SparkContext._jvm.org.apache.spark.util.Utils.exceptionString(origin))
+     57         )
+---> 58         self.cause = convert_exception(cause) if cause is not None else None
+     59         if self.cause is None and origin is not None and origin.getCause() is not None:
+     60             self.cause = convert_exception(origin.getCause())
+
+/databricks/spark/python/pyspark/sql/utils.py in convert_exception(e)
+    188         return PythonException(msg, stacktrace)
+    189 
+--> 190     return UnknownException(desc=e.toString(), stackTrace=stacktrace, cause=c)
+    191 
+    192 
+
+/databricks/spark/python/pyspark/sql/utils.py in __init__(self, desc, stackTrace, cause, origin)
+     56             else (SparkContext._jvm.org.apache.spark.util.Utils.exceptionString(origin))
+     57         )
+---> 58         self.cause = convert_exception(cause) if cause is not None else None
+     59         if self.cause is None and origin is not None and origin.getCause() is not None:
+     60             self.cause = convert_exception(origin.getCause())
+
+/databricks/spark/python/pyspark/sql/utils.py in convert_exception(e)
+    169     from delta.exceptions import _convert_delta_exception
+    170 
+--> 171     delta_exception = _convert_delta_exception(e)
+    172     if delta_exception is not None:
+    173         return delta_exception
+
+/databricks/spark/python/delta/exceptions.py in _convert_delta_exception(e)
+    128     Convert Delta's Scala concurrent exceptions to the corresponding Python exceptions.
+    129     """
+--> 130     s: str = e.toString()
+    131     c: "JavaObject" = e.getCause()
+    132 
+
+/databricks/spark/python/lib/py4j-0.10.9.5-src.zip/py4j/java_gateway.py in __call__(self, *args)
+   1319 
+   1320         answer = self.gateway_client.send_command(command)
+-> 1321         return_value = get_return_value(
+   1322             answer, self.gateway_client, self.target_id, self.name)
+   1323 
+
+/databricks/spark/python/pyspark/sql/utils.py in deco(*a, **kw)
+    194     def deco(*a: Any, **kw: Any) -> Any:
+    195         try:
+--> 196             return f(*a, **kw)
+    197         except Py4JJavaError as e:
+    198             converted = convert_exception(e.java_exception)
+
+/databricks/spark/python/lib/py4j-0.10.9.5-src.zip/py4j/protocol.py in get_return_value(answer, gateway_client, target_id, name)
+    328                     format(target_id, ".", name), value)
+    329             else:
+--> 330                 raise Py4JError(
+    331                     "An error occurred while calling {0}{1}{2}. Trace:\n{3}\n".
+    332                     format(target_id, ".", name, value))
+
+Py4JError: An error occurred while calling o521.toString. Trace:
+java.lang.IllegalArgumentException: object is not an instance of declaring class
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at py4j.reflection.MethodInvoker.invoke(MethodInvoker.java:244)
+	at py4j.reflection.ReflectionEngine.invoke(ReflectionEngine.java:380)
+	at py4j.Gateway.invoke(Gateway.java:306)
+	at py4j.commands.AbstractCommand.invokeMethod(AbstractCommand.java:132)
+	at py4j.commands.CallCommand.execute(CallCommand.java:79)
+	at py4j.ClientServerConnection.waitForCommands(ClientServerConnection.java:195)
+	at py4j.ClientServerConnection.run(ClientServerConnection.java:115)
+	at java.lang.Thread.run(Thread.java:748)
+```
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [ ] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [X ] No. I cannot contribute a bug fix at this time.

@@ -1,0 +1,23 @@
+## Description
+
+This PR makes changes to support idempotent delta writes within foreachBatch() command. Prior to this change, streaming delta writes within foreachBatch command were not idempotent -- that is, rerunning a failed batch could result in duplicate data writes.
+
+With this change, we expose two options to the users:
+- `txnAppId`: A unique string that customers can pass on each dataframe write. For example, customers can use the StreamingQuery's id as appId.
+- `txnVersion`: A monotonically increasing number that acts as transaction version. The streaming batch id can be used as the txnVersion.
+
+Combination of txnAppId and txnVersion are used to identify duplicate writes and ignore duplicate writes by the runtime. Specifically, WriteIntoDelta class is modified to persist the transaction state (which includes the txnAppId and txnVersion) and consult on new writes to the same location.
+
+Example:
+```
+df.write.format("delta").option("txnAppId", "myapp").option("txnVersion", 1).save(tablePath)
+df.write.format("delta").option("txnAppId", "myapp").option("txnVersion", 1).save(tablePath) // this will be ignored
+```
+## How was this patch tested?
+
+New unit tests
+
+## Does this PR introduce _any_ user-facing changes?
+
+Yes, new options, as described above.
+

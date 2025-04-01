@@ -1,0 +1,18 @@
+#### Which Delta project/connector is this regarding?
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+This PR introduces necessary adjustments in our approach to locating delta files, prompted by the adoption of managed-commits. Previously, certain code paths assumed the existence of delta files for a specific version at a predictable path `_delta_log/$x.json`. This assumption is no longer valid with managed-commits, where delta files may alternatively be located at `_delta_log/_commits/$x.$uuid.json`. We attempt to locate the correct delta files from the Snapshot's LogSegment now.
+
+## How was this patch tested?
+
+Add managed-commits to some of the existing UTs
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

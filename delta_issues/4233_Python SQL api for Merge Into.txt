@@ -1,0 +1,5 @@
+Hi,
+I have seen in Databricks' website that there is option to use merge into command.
+
+Is it available? 
+Can I use it with Python api or only with sql?

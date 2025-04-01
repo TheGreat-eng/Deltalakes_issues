@@ -1,0 +1,9 @@
+## Feature request
+
+### Overview
+
+Currently Delta Lake doesn't have a test coverage report. It would be great to integration with some test coverage SBT plugin so that we can see the test coverage report in every PR.
+
+### Motivation
+
+A test coverage report would help us understand whether we have enough tests to cover changes in a PR.

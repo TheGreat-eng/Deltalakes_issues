@@ -1,0 +1,5 @@
+Is it possible to execute optimize and vacuum commands from spark job running in k8s developed in scala or deployment running in k8s developed in pure python?
+
+I don't want to use Databricks or Databricks operators. My end goal is to schedule task in airflow.
+
+So my question is: is it possible?

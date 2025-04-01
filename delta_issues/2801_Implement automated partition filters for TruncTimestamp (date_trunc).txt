@@ -1,0 +1,12 @@
+## Description
+
+Adding automated partition filter creation for generated columns using TruncTimestamp (date_trunc)
+
+Implements #1445 
+
+## How was this patch tested?
+
+Test case was added
+
+## Does this PR introduce _any_ user-facing changes?
+

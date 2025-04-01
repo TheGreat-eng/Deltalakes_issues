@@ -1,0 +1,99 @@
+## Bug
+
+### Describe the problem
+
+We have the following stack: Delta 2.2.0 running in AWS Glue 4.0 jobs with PySpark.
+
+**TL;DR:** Multiple parallel glue jobs writing to the same table can concurrently write to the same _delta_log transaction log file. The later job "wins"; it performs an overwrite on the S3 object, rather than creating a new one.
+
+**Longer version:**
+
+We are using the above Glue jobs to load data from flat files (on S3) into Delta Tables. We often have multiple files to load to the same table as part of the same batch; in this case we spawn several Glue Jobs at once, aiming to run them in parallel. The files may be written to different partitions or not; this issue still manifests.
+
+We've found that data intermittently goes missing when we process multiple files. We have traced this to a concurrent write to the transaction log.
+
+We have read up on articles on Delta Table concurrency; most of them are around read concurrency. This bug appears to be linked to S3 interactions in particular.
+
+The result of this is that data partitions exist, but the transaction log has no record of them. This, in turn, means that generating the symlink manifest does not have these partitions, which means our downstream process either don't have the data (athena) or break (redshift spectrum). Basically, it results is the table breaking ACIDity.
+
+We have a workaround we have implemented; I will describe that below. However, it would be great if this could be resolved in the framework (if possible). If there is a better way of parallelizing loads or a setting to ensure we don't overwrite log files, please let us know.
+
+#### Steps to reproduce
+
+I cannot supply the full stacks of code we use, but I will describe our setup in more detail. I also have a number of screen shots demonstrating our analysis of the situation.
+
+1. Set up a glue job with PySpark. The script should load a file from S3 to a delta table. We do not read from the existing delta table before insertion. The Spark job simply transforms the file columns into a dataframe and writes to the table; we set up the tables beforehand via configuration.
+
+Here is the spark session we set up:
+```
+def get_spark_session():
+    builder = SparkSession.builder.appName("MyApp") \
+        .config("spark.sql.extensions", "io.delta.sql.DeltaSparkSessionExtension") \
+        .config("spark.sql.catalog.spark_catalog", "org.apache.spark.sql.delta.catalog.DeltaCatalog")\
+        .config("spark.delta.logStore.class","io.delta.storage.S3SingleDriverLogStore")
+
+    spark = configure_spark_with_delta_pip(builder).getOrCreate()
+
+    return spark
+```
+
+Here is the eventual write statement. The partition columns are as shown, but the table has arbitrary other columns. The replace condition is actually generated dynamically, of course.
+```
+replace_cond = "edl_extract_dt='2023-01-01 01:01:01' and edl_file_name='test_col_basic_overwrite_source_20230101010101.csv'"
+partition_columns = ['edl_extract_dt','edl_file_name']
+data_df.write.format('delta') \
+      .mode('overwrite') \
+      .partitionBy(partition_columns) \
+      .option("replaceWhere", replace_cond) \
+      .save(destination_s3_uri)
+```
+
+2. Have a large number of files to write in the S3 source location. I've demonstrated this consistently with 20 files.
+3. Run the glue job once for each file, simultaneously. We use Step Functions to orchestrate this.
+4. Generate the symlink manifest for the Delta table after all of the above runs are complete (this just makes things easier, you could also just look at the transaction log.
+5. Examine the partitions written to the Delta location vs the partitions according to the _symlink_format_manifest folder. You *should* find a discrepancy.
+
+
+#### Observed results
+
+Here are the contents of the delta table location after the above steps. There are 20 partitions, from the 20 files.
+![Table contents on s3](https://github.com/delta-io/delta/assets/32175288/fd68beb0-0125-48cb-976e-3a03321b85a3)
+
+
+Here are the _symlink_format_manifest contents: several partitions are missing.
+![symlink format manifest](https://github.com/delta-io/delta/assets/32175288/0d8f578a-9760-4ab9-8b57-b68f02041ef2)
+
+
+Here is a view of the version history of the contents of the _delta_log folder. You can see some files have multiple overwrites, such as version ...007.json
+![delta log versions](https://github.com/delta-io/delta/assets/32175288/57982a46-cfa5-456f-87f3-cc4566eca2c8)
+
+
+Earliest to latest for version ...007.json:
+- Partition ...03.csv was written first.
+- 03 was then overwritten by 16
+- 16 was then overwritten by 13. From above, 13 is the only partition present in the symlink manifest folder.
+![transaction log 007 versions](https://github.com/delta-io/delta/assets/32175288/91502d58-3add-400a-9357-76cb02e39325)
+
+
+#### Expected results
+
+Expectation: transaction log should be consistent with all data writes that occur.
+
+#### Further details: Workaround
+
+We have implemented a kind of semaphore: Before we write to a delta table, we use a DynamoDB Table to ensure only one write happens at a time. This slows things down a bit, of course, but it's not too significant in our case.
+
+
+### Environment information
+
+* Delta Lake version: 2.2.0
+* Spark version: 3.3 (Glue 4.0)
+* Scala version: 2 (Glue 4.0)
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [ ] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [x] No. I cannot contribute a bug fix at this time.

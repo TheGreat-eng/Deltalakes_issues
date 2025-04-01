@@ -1,0 +1,10 @@
+## Description
+
+This change is a plain refactor that will help future work to improve overall merge performance, see https://github.com/delta-io/delta/issues/1827
+
+It creates a base merge class that gather functionalities that are shared by the current insert-only and classic merge code paths to allow splitting them in a following PR.
+
+Shared code to collect merge statistics is added there already.
+
+## How was this patch tested?
+This is a non-functional refactor covered by extensive merge tests, e.p. MergeIntoMetricsBase tests.

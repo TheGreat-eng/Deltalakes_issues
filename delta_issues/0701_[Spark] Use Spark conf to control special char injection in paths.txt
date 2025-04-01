@@ -1,0 +1,19 @@
+#### Which Delta project/connector is this regarding?
+
+- [X] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+Use a static Spark config to select the prefix that will be used for Parquet and DV files. This is a follow-up from commit 82f797159.
+
+## How was this patch tested?
+
+Test-only changes.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No.

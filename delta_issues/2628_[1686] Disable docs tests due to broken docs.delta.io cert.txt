@@ -1,0 +1,3 @@
+## Description
+
+Resolves #1686. docs.delta.io cert is outdated causing docs tests to fail. let's disable this test for now.

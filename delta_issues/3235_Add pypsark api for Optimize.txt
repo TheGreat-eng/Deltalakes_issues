@@ -1,0 +1,2 @@
+Can we add functions to DeltaTable to perform optimization in pyspark ?
+Or is there any other way to do in the delta release 1.2.0 ?

@@ -1,0 +1,8 @@
+Today, Kernel has Timestamp-NTZ read support. See the protocol spec [here](https://github.com/delta-io/delta/blob/master/PROTOCOL.md#timestamp-without-timezone-timestampntz). See the read support PR [here](https://github.com/delta-io/delta/pull/2855).
+
+This issue requests that we add Timestamp-NTZ _write_ support. Please refer to the delta-spark implementation as needed.
+
+A rough sketch would include:
+- Figureout from Delta-Spark on what triggers enabling the table features. Is it having a column with type timestampNtx or delta property
+- [ALREADY COMPLETE] Kernel: Add support for writing timestampNTZ in the ParquetFileWriter (it may already have it, can't recall now)
+- Update the Kernel TxnBuilderImpl and TxnImpl to upgrade the protocol appropriately and generate a new Protocol action before commit

@@ -1,0 +1,20 @@
+#### Which Delta project/connector is this regarding?
+
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [X] Other (PROTOCOL)
+
+## Description
+
+Update the Delta PROTOCOL to allow `AddCDCFile` actions that do not add Change Data Files, but instead register Data Files that are also added by `AddFile` actions. In this case the `_change_type` column in the Data Files might not be `null`. Non-change data readers should disregard this column and only process columns defined within the table's schema.
+
+## How was this patch tested?
+
+N/A
+
+## Does this PR introduce _any_ user-facing changes?
+
+Protocol clarification.

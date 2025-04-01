@@ -1,0 +1,9 @@
+Delta version 0.6.1
+Spark 2.4.4
+
+Merge sql fails , if source dataframe schema specifically dataype Decimal with scale change . Seems its not auto merging schema I am getting below exception -
+Failed to merge decimal types with incompatible scale 0 and 2;
+
+Workaround : I am applying schema diff changes before merge query  explicitly, as per version 0.6.1 delta take care auto schema merge to target table. 
+
+Thanks

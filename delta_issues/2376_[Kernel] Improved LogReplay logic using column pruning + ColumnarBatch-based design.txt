@@ -1,0 +1,22 @@
+#### Which Delta project/connector is this regarding?
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [x] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+This PR updates the core LogReplay logic that delta-kernel-api implements.
+
+Previously, `LogReplay::getAddFiles` and `LogReplay::loadTableProtocolAndMetadata` would fully deserialize each row of JSON into a Delta action, and then perform some logic or algorithm with that Action.
+
+Now, log replay uses a helper class `ActionsIterator` that takes in a read schema (e.g. AddFiles and RemoveFiles) and returns a iterator of ColumnarBatch of that specified schema. It is up to the consumer of that iterator of ColumnarBatch to deserialize whichever rows or specific columns that they need.
+
+This PR also updates the core "read Add and Remove files to determine the active files of the table" logic. It is documented clearly in the class `ActiveAddFilesIterator`, please take a look.
+
+## How was this patch tested?
+
+Trivial sanity check test end-to-end test that reads the protocol and metadata and some rows.
+
+`build/sbt 'kernelDefault/testOnly *LogReplaySuite'`

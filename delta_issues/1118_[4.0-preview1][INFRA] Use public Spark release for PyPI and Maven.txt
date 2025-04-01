@@ -1,0 +1,23 @@
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [X] Other (INFRA)
+
+## Description
+
+Updates our Spark dependencies now that the Spark release has been finalized and is no longer available at staging locations.
+
+## How was this patch tested?
+
+Existing tests should suffice.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No.

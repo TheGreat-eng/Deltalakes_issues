@@ -1,0 +1,11 @@
+Cherry-pick following commits
+
+2.0.1 AND 2.1.1
+* https://github.com/delta-io/delta/commit/7e876792efdd92a85aa3f7b81d81f34c8b276d7b
+* https://github.com/delta-io/delta/commit/9017ac0d811c0a42ba8ac45720bddf06c8f17e63
+* https://github.com/delta-io/delta/commit/6dbc55db53332c985e5bc8470df6c95106afac25
+* https://github.com/delta-io/delta/commit/23751f8eead9d73f743f4d2325657331997eb684
+
+2.0.1 ONLY
+* https://github.com/delta-io/delta/commit/ef49ae21cc6130a2b2e4d9e7b10409d43e3a540d
+* https://github.com/delta-io/delta/commit/ed9ff6e1eced91bc54b55d059805b203273838d9

@@ -1,0 +1,9 @@
+As per https://github.com/delta-io/delta/issues/195
+
+This change exposes canReturnLastCommit so that if using the `timestampAsOf` functionality the user can choose to allow timestamps greater than the last commit to be treated as 'as-at the last commit'.
+
+```scala
+        spark.read.format("delta").option("timestampAsOf", "2018-10-24 15:16:18")
+          .option("canReturnLastCommit", "false")
+          .load(tblLoc)
+```

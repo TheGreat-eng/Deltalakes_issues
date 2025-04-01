@@ -1,0 +1,21 @@
+#### Which Delta project/connector is this regarding?
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+This PR follows https://github.com/delta-io/delta/pull/2737 (https://github.com/delta-io/delta/commit/bbbace1085e46d2ebaa6204bf2603d0a4e2f23ee) to add tests for turning on schema evolution via the `.withSchemaEvolution()` Scala API.
+It also introduce a placeholder for the upcoming support for the SQL API.
+
+
+## How was this patch tested?
+
+This PR is test-only.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No.

@@ -1,0 +1,110 @@
+Two PROBLEMS:
+
+**Problem 1:**
+My delta table has some problem to update the schema and infer the new column in it. The problem occurs with only one table. Rest of the table is working fine. Below code is dynamic so there is no difference how I run for different tables.
+
+Detailed Description of my steps:
+**Step 1**
+Below code calls the other notebook where I have a SQL statement and outputs it as string variable `query`, which will be used later in the function.
+
+Also reading table
+
+```
+from pyspark.sql import functions as F
+from pyspark.sql.functions import col
+from pyspark.sql.window import Window
+
+spark.conf.set("spark.databricks.delta.schema.autoMerge.enabled", "True")
+
+query = dbutils.notebook.run(
+    f"/bronze views/VW_D365_{table.upper()}",
+    3600,
+    {
+        "append_only_mode": "yes",
+        "incremental": "yes",
+        "catalog": catalog,
+        "schema": schema,
+    },
+)
+
+df = (
+    spark.readStream.format("delta")
+    .option("readChangeFeed", "true")
+    .table(f"{catalog}.bronze.d365_{table.lower()}_ao")
+)
+```
+
+
+**Step 2** 
+Then I define the def function which will be passed when starting to write the data into the target table. Explanation of what this function is suppose to do is in the code as comments. but I think its pretty stright forward that Im prepareing the source table to merge into target table. This function is used b elo in the step 3.
+
+```
+def update_changefeed(df, table, query, epochId):
+    # Doing some transforamtion and picking up neccessary data
+    filtered_df = df.filter(
+        col("_change_type").isin("insert", "update_postimage", "delete")
+    )
+    filtered_df = filtered_df.drop(
+        "_commit_timestamp", "_change_type", "_commit_version"
+    )
+    w = Window.partitionBy("id").orderBy(F.col("modifiedon").desc())
+    filtered_df = (
+        filtered_df.withWatermark("modifiedon", "1 second")
+        .withColumn("rn", F.row_number().over(w))
+        .where(F.col("rn") == 1)
+        .drop("rn")
+    )
+    # Creating the global temp view on top of the dataframe in order to apply the select statement later
+    filtered_df.createOrReplaceGlobalTempView(f"tmp_D365_{table}")
+    # "query" refers to the output of the nootebook I run in the first step
+    dfUpdates = sqlContext.sql(query)
+    dfUpdates.columns
+    # Below entire process is to collect the column names from source and target table to pass it in the merge function.
+    # we will be merging on columns which contain BK in their names.
+    p = re.compile("^BK_")
+    list_of_columns = dfUpdates.columns
+    list_of_BK_columns = [s for s in dfUpdates.columns if p.match(s)]
+    string = ""
+    for column in list_of_BK_columns:
+        string += f"table.{column} = newData.{column} and "
+    string_insert = ""
+    for column in list_of_BK_columns:
+        string_insert += f"table.{column} = newData.{column} and "
+    string_insert[:-4]
+    dictionary = {}
+    for key in list_of_columns:
+        dictionary[key] = f"newData.{key}"
+    # Executing the merge function itself
+
+    deltaTable = DeltaTable.forPath(
+        spark,
+        f"abfss://silver@{storage_account}.dfs.core.windows.net/D365/{table.lower()}_ao",
+    )
+    deltaTable.alias("table").merge(
+        dfUpdates.alias("newData"), string
+    ).whenMatchedUpdate(set=dictionary).whenNotMatchedInsert(
+        values=dictionary
+    ).execute()
+```
+
+**Step 3**
+
+Writing the df to target table.
+
+```
+df.writeStream.foreachBatch(
+    lambda df, epochId: update_changefeed(df, table, query, epochId)
+).option("checkpointLocation", checkpoint_directory).trigger(availableNow=True).start()
+```
+
+I newly dicovered the `spark.databricks.delta.schema.autoMerge.enabled` and im not fully aware how it works in the backend. But before I woul have enabled this property, I was getting this error : `AnalysisException: cannot resolve new_column in UPDATE clause given columns [list of columns in the target table].` 
+
+Once I have enabled autoMerge, it works for all the tables except one table, The error Im getting for that table is : `SET column new_column  not found given columns: [list of columns in the target table]`
+
+
+Not sure whats going differently with this one table.
+
+
+`Problem 2`
+
+When I run the notebook from Azure Data Factory (ADF), schema evolution is not working for any table. Pipepline only failes with the above problematic table with the same error but rest of the tables does not fail. But when checking the table in databricks new column is not in my target table. This works only if I run the notebook manually myself.

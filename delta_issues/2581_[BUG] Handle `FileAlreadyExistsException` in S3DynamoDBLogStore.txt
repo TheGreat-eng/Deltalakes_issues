@@ -1,0 +1,15 @@
+See this commit which initially attempted to solve this bug, but we decided to factor it out to a new PR later.
+
+https://github.com/delta-io/delta/pull/1712/commits/4c70285399f5dcb85f5a50611e9c3fc8ee996340
+
+During the S3DynamoDBLogStore commit logic, we will
+1. Create a temp file `T(N)`
+2. Commit an entry to DynamoDB containing info for `E(T(N), complete=false)`
+3. Copy `T(N)` into `N.json`
+4. Commit `E(complete=true)` to DynamoDB
+
+Concurrent readers or writers may see the incomplete entry from step 2 and just before step 3. Thus, they will try and perform a "recovery" and copy `T(N)` into `N.json`. However, maybe N.json already got written - there is no mutual exclusion on S3.
+
+Thus, these readers or writers may throw a `FileAlreadyExistsException` when, in reality, this recovery operation is no longer needed, since someone else committed/recovered already!
+
+We need to make sure we do NOT throw FileAlreadyExistsException in this case.

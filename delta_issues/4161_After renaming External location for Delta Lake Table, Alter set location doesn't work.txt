@@ -1,0 +1,6 @@
+I created an external Delta Lake table pointing to a location. Then rename the location folder. Then tried to alter the location. It gives me an error saying `Error in SQL statement: AnalysisException: ``<table>`` is not a Delta table.;`
+
+I am attaching the MCVE notebook. Extract the `Delta-bug.zip` and you will get the Databricks Notebook.
+
+[Delta-bug.zip](https://github.com/delta-io/delta/files/3581057/Delta-bug.zip)
+

@@ -1,0 +1,19 @@
+#### Which Delta project/connector is this regarding?
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+This PR fixes a correctness bug when Column Mapping is enabled. The issue occurs when a column is renamed to the physical name of another column. If a query filters on this column then the Parquet scan incorrectly applies this filter to the other column. This PR fixes this problem by translating the column names in the filters from logical to physical in `DeltaParquetFileFormat` before passing them on to `ParquetFileFormat`. 
+
+## How was this patch tested?
+
+Added a unit test to `DeltaColumnMappingSuite`.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No 

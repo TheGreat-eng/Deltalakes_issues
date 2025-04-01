@@ -1,0 +1,18 @@
+#### Which Delta project/connector is this regarding?
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+Handle CommitFailedException in OptimisticTransaction::commitLarge depending on the values of `retryable` and `conflict` in the exception.
+
+## How was this patch tested?
+
+UTs to cover the scenarios
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

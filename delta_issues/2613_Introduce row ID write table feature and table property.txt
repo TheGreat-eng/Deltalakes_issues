@@ -1,0 +1,14 @@
+## Description
+
+This change adds knobs to enable Row IDs when creating a new Delta table, as defined in the Row ID specification (https://github.com/delta-io/delta/pull/1610):
+ - Write table feature `rowIds`: Require writers to support row IDs. Used to enable row IDs on newly created tables.
+ - Table property: `rowIds.enabled`: Indicate whether all rows have an assigned row ID.
+ - SQL conf `rowIds.allowForDevOnly`: restrict the use of Row IDs to testing for now.
+
+## How was this patch tested?
+Adding test suite RowIdSuite:
+ - Test enabling Row IDs on a new table succeeds
+ - Test enabling Row IDs on an existing table fails.
+
+## Does this PR introduce _any_ user-facing changes?
+No, an internal configuration `rowIds.allowForDevOnly` is introduced to hide the partial row ID implementation during development. The flag is enabled in tests only.

@@ -1,0 +1,3 @@
+See the project plan at #1105 
+
+This PR adds two evolvability tests for CDF. Specifically, we test that CDF will continue to work even if there is some future column inside the delta log and checkpoint.

@@ -1,0 +1,11 @@
+## Overview
+This is the issue to track interest, feature requests, and progress being made on support for arbitrary column names in Delta Lake, which is a part of implementing “column renaming and dropping” as outlined on the Delta OSS 2022 H1 roadmap [here](https://github.com/delta-io/delta/issues/920).
+
+Delta tables use Parquet as the underlying file format. Right now, a Delta column must be stored in the underlying Parquet files using the same name. Thus, users can't name a Delta column using [characters disallowed by Parquet](https://github.com/apache/parquet-mr/pull/361). This limitation could cause inconvenience for Delta users who want to directly ingest data that contains columns with special characters, e.g., columns with spaces are common in CSV. The end goal of this issue is to lift the Delta column naming restrictions inherited from Parquet. 
+## Requirements
+Users can name Delta columns [using characters disallowed by Parquet](https://github.com/apache/parquet-mr/pull/361), without concerning what column names the underlying Parquet files use. When a Delta column contains such characters, all existing Delta operations and API behaviors should not be impacted.
+
+Please see the detailed requirements [here](https://docs.google.com/document/d/1NeqRyjdPwFWXDwoYgaMs69QRGyeW-2qdZ5Da7ywoRUo/edit#heading=h.5nbmb6o3kbe3).
+
+## Design Sketch
+Please see the detailed design sketch [here](https://docs.google.com/document/d/1NeqRyjdPwFWXDwoYgaMs69QRGyeW-2qdZ5Da7ywoRUo/edit#heading=h.prqd98d97f8o).

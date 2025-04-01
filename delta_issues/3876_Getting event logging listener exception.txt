@@ -1,0 +1,16 @@
+**Delta version:** 2.11:0.6.0
+**EMR Version:** 5.30
+
+**Exception:**
+20/05/28 08:45:00 ERROR AsyncEventQueue: Listener EventLoggingListener threw an exception
+java.lang.ClassCastException: java.util.Collections$SynchronizedSet cannot be cast to java.util.List
+at org.apache.spark.util.JsonProtocol$.accumValueToJson(JsonProtocol.scala:348)
+	at org.apache.spark.util.JsonProtocol$$anonfun$accumulableInfoToJson$3.apply(JsonProtocol.scala:324)
+	at org.apache.spark.util.JsonProtocol$$anonfun$accumulableInfoToJson$3.apply(JsonProtocol.scala:324)
+	at scala.Option.map(Option.scala:146)
+
+
+Facing this while using **Delta Merge** operation
+
+**Found a similar error raised here:**
+https://stackoverflow.com/questions/61799041/strange-non-critical-exception-when-using-spark-2-4-3-emr-5-25-0-with-delta-la

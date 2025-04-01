@@ -1,0 +1,2 @@
+- changed tests to use the spark-submit in package mode instead of jars.
+- quality of life change to remove INFO messages from log

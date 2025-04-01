@@ -1,0 +1,66 @@
+## Bug
+
+
+
+- [ ] Spark### Describe the problem
+
+#### Steps to reproduce
+
+<!--
+Please include copy-pastable code snippets if possible.
+df_target=spark.read.format('DELTA').load(target_path)
+df_target_check=df_no_duplicates.groupby(['AF_TAG_NAME','local_timestamp']).count().where('count > 1').sort('count', ascending=False)
+display(df_target_check)
+df_target_check.printSchema()
+
+No data available
+root
+ |-- AF_TAG_NAME: string (nullable = true)
+ |-- local_timestamp: timestamp (nullable = true)
+ |-- count: long (nullable = false)
+
+
+
+
+#### Observed results
+
+display (df_no_duplicates.groupby(['AF_TAG_NAME','local_timestamp']).count().where('count > 1').sort('count', ascending=False)) 
+No data available
+root
+ |-- AF_TAG_NAME: string (nullable = true)
+ |-- DAYTIME: string (nullable = true)
+ |-- MESSAGE_TYPE: string (nullable = true)
+ |-- PI_POINT_NAME: string (nullable = true)
+ |-- VALUE: string (nullable = true)
+ |-- UTC_date: date (nullable = true)
+ |-- local_timestamp: timestamp (nullable = true)
+ |-- processed_date: string (nullable = false)
+#### Expected results
+
+merge 
+
+
+#### Further details
+
+error details 
+
+An error occurred while calling o4898.execute.
+: org.apache.spark.sql.delta.DeltaUnsupportedOperationException: Cannot perform Merge as multiple source rows matched and attempted to modify the same
+target row in the Delta table in possibly conflicting ways. By SQL semantics of Merge,
+when multiple source rows match on the same target row, the result may be ambiguous
+as it is unclear which source row should be used to update or delete the matching
+target row. You can preprocess the source table to eliminate the possibility of
+multiple matches. Please refer to
+### Environment information
+
+* Delta Lake version:2.2
+* Spark version:3.3
+* Scala version:
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [ ] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute a bug fix at this time.

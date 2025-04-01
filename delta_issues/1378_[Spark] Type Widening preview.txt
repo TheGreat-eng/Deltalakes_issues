@@ -1,0 +1,31 @@
+## Description
+Expose the type widening table feature outside of testing and set its preview user-facing name: typeWidening-preview (instead of typeWidening-dev used until now).
+
+Feature description: https://github.com/delta-io/delta/issues/2622
+The type changes that are supported for not are `byte` -> `short` -> `int`. Other types depend on Spark changes which are going to land in Spark 4.0 and will be available once Delta picks up that Spark version.
+
+## How was this patch tested?
+Extensive testing in `DeltaTypeWidening*Suite`.
+
+## Does this PR introduce _any_ user-facing changes?
+User facing changes were already covered in PRs implementing this feature. In short, it allows:
+- Adding the type widening table feature (using a table property)
+```
+ALTER TABLE t SET TBLPROPERTIES (‘delta.enableTypeWidening = true);
+```
+- Manual type changes:
+```
+ALTER TABLE t CHANGE COLUMN col TYPE INT;
+```
+- Automatic type changes via schema evolution:
+```
+CREATE TABLE target (id int, value short);
+CREATE TABLE source (id int, value in);
+SET spark.databricks.delta.schema.autoMerge.enabled = true;
+INSERT INTO target SELECT * FROM source;
+-- value now has type int in target
+```
+- Dropping the table feature which rewrites data to make the table reading by all readers:
+```
+ALTER TABLE t DROP FEATURE 'typeWidening'
+```

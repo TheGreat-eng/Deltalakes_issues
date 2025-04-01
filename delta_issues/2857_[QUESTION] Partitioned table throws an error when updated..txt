@@ -1,0 +1,138 @@
+**Context**: I'm performing updates on a delta table in pyspark. This table is partitioned by Code, Year and Month. I run a while loop by date to update this table. This table on prod environment has 7 billion lines. I used partitions to accelarte the update proccess
+
+**Problem**: When  I use a partitioned table like I said before, I got an error in the secod iteration of my for loop in the merge proccess of the deltatable.
+
+Logs:
+ ```py4j.protocol.Py4JJavaError:An error occurred while calling o2070.execute. : java.lang.NoSuchMethodError: org.apache.spark.sql.catalyst.expressions.ElementAt$.apply$default$3()Lscala/Option;
+	at org.apache.spark.sql.delta.CheckpointV2$.$anonfun$extractPartitionValues$1(Checkpoints.scala:727)
+	at scala.collection.TraversableLike.$anonfun$map$1(TraversableLike.scala:286)
+	at scala.collection.Iterator.foreach(Iterator.scala:943)
+	at scala.collection.Iterator.foreach$(Iterator.scala:943)
+	at scala.collection.AbstractIterator.foreach(Iterator.scala:1431)
+	at scala.collection.IterableLike.foreach(IterableLike.scala:74)
+	at scala.collection.IterableLike.foreach$(IterableLike.scala:73)
+	at org.apache.spark.sql.types.StructType.foreach(StructType.scala:102)
+	at scala.collection.TraversableLike.map(TraversableLike.scala:286)
+	at scala.collection.TraversableLike.map$(TraversableLike.scala:279)
+	at org.apache.spark.sql.types.StructType.map(StructType.scala:102)
+	at org.apache.spark.sql.delta.CheckpointV2$.extractPartitionValues(Checkpoints.scala:724)
+	at org.apache.spark.sql.delta.Checkpoints$.buildCheckpoint(Checkpoints.scala:689)
+	at org.apache.spark.sql.delta.Checkpoints$.$anonfun$writeCheckpoint$1(Checkpoints.scala:531)
+	at org.apache.spark.sql.delta.metering.DeltaLogging.withDmqTag(DeltaLogging.scala:143)
+	at org.apache.spark.sql.delta.metering.DeltaLogging.withDmqTag$(DeltaLogging.scala:142)
+	at org.apache.spark.sql.delta.Checkpoints$.withDmqTag(Checkpoints.scala:460)
+	at org.apache.spark.sql.delta.Checkpoints$.writeCheckpoint(Checkpoints.scala:487)
+	at org.apache.spark.sql.delta.Checkpoints.writeCheckpointFiles(Checkpoints.scala:361)
+	at org.apache.spark.sql.delta.Checkpoints.writeCheckpointFiles$(Checkpoints.scala:359)
+	at org.apache.spark.sql.delta.DeltaLog.writeCheckpointFiles(DeltaLog.scala:63)
+	at org.apache.spark.sql.delta.Checkpoints.checkpointAndCleanUpDeltaLog(Checkpoints.scala:346)
+	at org.apache.spark.sql.delta.Checkpoints.checkpointAndCleanUpDeltaLog$(Checkpoints.scala:344)
+	at org.apache.spark.sql.delta.DeltaLog.checkpointAndCleanUpDeltaLog(DeltaLog.scala:63)
+	at org.apache.spark.sql.delta.Checkpoints.$anonfun$checkpoint$2(Checkpoints.scala:318)
+	at scala.runtime.java8.JFunction0$mcV$sp.apply(JFunction0$mcV$sp.java:23)
+	at org.apache.spark.sql.delta.metering.DeltaLogging.recordFrameProfile(DeltaLogging.scala:139)
+	at org.apache.spark.sql.delta.metering.DeltaLogging.recordFrameProfile$(DeltaLogging.scala:137)
+	at org.apache.spark.sql.delta.DeltaLog.recordFrameProfile(DeltaLog.scala:63)
+	at org.apache.spark.sql.delta.metering.DeltaLogging.$anonfun$recordDeltaOperationInternal$1(DeltaLogging.scala:132)
+	at com.databricks.spark.util.DatabricksLogging.recordOperation(DatabricksLogging.scala:77)
+	at com.databricks.spark.util.DatabricksLogging.recordOperation$(DatabricksLogging.scala:67)
+	at org.apache.spark.sql.delta.DeltaLog.recordOperation(DeltaLog.scala:63)
+	at org.apache.spark.sql.delta.metering.DeltaLogging.recordDeltaOperationInternal(DeltaLogging.scala:131)
+	at org.apache.spark.sql.delta.metering.DeltaLogging.recordDeltaOperation(DeltaLogging.scala:121)
+	at org.apache.spark.sql.delta.metering.DeltaLogging.recordDeltaOperation$(DeltaLogging.scala:109)
+	at org.apache.spark.sql.delta.DeltaLog.recordDeltaOperation(DeltaLog.scala:63)
+	at org.apache.spark.sql.delta.Checkpoints.$anonfun$checkpoint$1(Checkpoints.scala:314)
+	at scala.runtime.java8.JFunction0$mcV$sp.apply(JFunction0$mcV$sp.java:23)
+	at org.apache.spark.sql.delta.metering.DeltaLogging.withDmqTag(DeltaLogging.scala:143)
+	at org.apache.spark.sql.delta.metering.DeltaLogging.withDmqTag$(DeltaLogging.scala:142)
+	at org.apache.spark.sql.delta.DeltaLog.withDmqTag(DeltaLog.scala:63)
+	at org.apache.spark.sql.delta.Checkpoints.checkpoint(Checkpoints.scala:313)
+	at org.apache.spark.sql.delta.Checkpoints.checkpoint$(Checkpoints.scala:312)
+	at org.apache.spark.sql.delta.DeltaLog.checkpoint(DeltaLog.scala:63)
+	at org.apache.spark.sql.delta.OptimisticTransactionImpl.postCommit(OptimisticTransaction.scala:1097)
+	at org.apache.spark.sql.delta.OptimisticTransactionImpl.postCommit$(OptimisticTransaction.scala:1092)
+	at org.apache.spark.sql.delta.OptimisticTransaction.postCommit(OptimisticTransaction.scala:101)
+	at org.apache.spark.sql.delta.OptimisticTransactionImpl.liftedTree1$1(OptimisticTransaction.scala:750)
+	at org.apache.spark.sql.delta.OptimisticTransactionImpl.$anonfun$commit$1(OptimisticTransaction.scala:691)
+	at scala.runtime.java8.JFunction0$mcJ$sp.apply(JFunction0$mcJ$sp.java:23)
+	at org.apache.spark.sql.delta.metering.DeltaLogging.recordFrameProfile(DeltaLogging.scala:139)
+	at org.apache.spark.sql.delta.metering.DeltaLogging.recordFrameProfile$(DeltaLogging.scala:137)
+	at org.apache.spark.sql.delta.OptimisticTransaction.recordFrameProfile(OptimisticTransaction.scala:101)
+	at org.apache.spark.sql.delta.metering.DeltaLogging.$anonfun$recordDeltaOperationInternal$1(DeltaLogging.scala:132)
+	at com.databricks.spark.util.DatabricksLogging.recordOperation(DatabricksLogging.scala:77)
+	at com.databricks.spark.util.DatabricksLogging.recordOperation$(DatabricksLogging.scala:67)
+	at org.apache.spark.sql.delta.OptimisticTransaction.recordOperation(OptimisticTransaction.scala:101)
+	at org.apache.spark.sql.delta.metering.DeltaLogging.recordDeltaOperationInternal(DeltaLogging.scala:131)
+	at org.apache.spark.sql.delta.metering.DeltaLogging.recordDeltaOperation(DeltaLogging.scala:121)
+	at org.apache.spark.sql.delta.metering.DeltaLogging.recordDeltaOperation$(DeltaLogging.scala:109)
+	at org.apache.spark.sql.delta.OptimisticTransaction.recordDeltaOperation(OptimisticTransaction.scala:101)
+	at org.apache.spark.sql.delta.OptimisticTransactionImpl.commit(OptimisticTransaction.scala:688)
+	at org.apache.spark.sql.delta.OptimisticTransactionImpl.commit$(OptimisticTransaction.scala:686)
+	at org.apache.spark.sql.delta.OptimisticTransaction.commit(OptimisticTransaction.scala:101)
+	at org.apache.spark.sql.delta.commands.MergeIntoCommand.$anonfun$run$2(MergeIntoCommand.scala:363)
+	at org.apache.spark.sql.delta.commands.MergeIntoCommand.$anonfun$run$2$adapted(MergeIntoCommand.scala:319)
+	at org.apache.spark.sql.delta.DeltaLog.withNewTransaction(DeltaLog.scala:221)
+	at org.apache.spark.sql.delta.commands.MergeIntoCommand.$anonfun$run$1(MergeIntoCommand.scala:319)
+	at scala.runtime.java8.JFunction0$mcV$sp.apply(JFunction0$mcV$sp.java:23)
+	at org.apache.spark.sql.delta.metering.DeltaLogging.recordFrameProfile(DeltaLogging.scala:139)
+	at org.apache.spark.sql.delta.metering.DeltaLogging.recordFrameProfile$(DeltaLogging.scala:137)
+	at org.apache.spark.sql.delta.commands.MergeIntoCommand.recordFrameProfile(MergeIntoCommand.scala:215)
+	at org.apache.spark.sql.delta.metering.DeltaLogging.$anonfun$recordDeltaOperationInternal$1(DeltaLogging.scala:132)
+	at com.databricks.spark.util.DatabricksLogging.recordOperation(DatabricksLogging.scala:77)
+	at com.databricks.spark.util.DatabricksLogging.recordOperation$(DatabricksLogging.scala:67)
+	at org.apache.spark.sql.delta.commands.MergeIntoCommand.recordOperation(MergeIntoCommand.scala:215)
+	at org.apache.spark.sql.delta.metering.DeltaLogging.recordDeltaOperationInternal(DeltaLogging.scala:131)
+	at org.apache.spark.sql.delta.metering.DeltaLogging.recordDeltaOperation(DeltaLogging.scala:121)
+	at org.apache.spark.sql.delta.metering.DeltaLogging.recordDeltaOperation$(DeltaLogging.scala:109)
+	at org.apache.spark.sql.delta.commands.MergeIntoCommand.recordDeltaOperation(MergeIntoCommand.scala:215)
+	at org.apache.spark.sql.delta.commands.MergeIntoCommand.run(MergeIntoCommand.scala:317)
+	at io.delta.tables.DeltaMergeBuilder.$anonfun$execute$1(DeltaMergeBuilder.scala:230)
+	at org.apache.spark.sql.delta.util.AnalysisHelper.improveUnsupportedOpError(AnalysisHelper.scala:104)
+	at org.apache.spark.sql.delta.util.AnalysisHelper.improveUnsupportedOpError$(AnalysisHelper.scala:90)
+	at io.delta.tables.DeltaMergeBuilder.improveUnsupportedOpError(DeltaMergeBuilder.scala:122)
+	at io.delta.tables.DeltaMergeBuilder.execute(DeltaMergeBuilder.scala:206)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at py4j.reflection.MethodInvoker.invoke(MethodInvoker.java:244)
+	at py4j.reflection.ReflectionEngine.invoke(ReflectionEngine.java:357)
+	at py4j.Gateway.invoke(Gateway.java:282)
+	at py4j.commands.AbstractCommand.invokeMethod(AbstractCommand.java:132)
+	at py4j.commands.CallCommand.execute(CallCommand.java:79)
+	at py4j.ClientServerConnection.waitForCommands(ClientServerConnection.java:182)
+	at py4j.ClientServerConnection.run(ClientServerConnection.java:106)
+	at java.lang.Thread.run(Thread.java:748)
+```
+
+
+Spark returns me the following warning when using partitioned tables.
+
+```WARN DAGScheduler: Broadcasting large task binary with size 1861.8 KiB```
+
+**Code (Abstracted):**
+
+```
+table.write.partitionBy("Code", "Year", "Month").format('delta').save(path)
+
+deltaTable.alias("t0").merge(
+        df.alias("t1"),
+        " t0.Code= t1.CodeAND "
+        " t0.Year = t1.Year AND "
+        " t0.Month = t1.Month AND "
+        " t0.Date = t1.Date"
+    ).whenMatchedUpdate(
+        set={
+            ...
+        }
+    ).execute()
+```
+
+I'm using **Spark 3.2.1 (pyspark)** and Delta Package **("io.delta:delta-core_2.12:2.1.0")**
+
+
+**Question: Is this a bug from delta core? Or is a problem with spark due the WARN of DAGScheduler?**
+
+**NOTE**: When my table is not partitioned my code runs perfectly. 
+
+Thanks in advance!

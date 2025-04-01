@@ -1,0 +1,11 @@
+## Description
+Given now Kernel-API module contains Jackson libs:
+1) Remove `JsonHandler.deserializeStructType` and its usages
+2) Rename `DataTypeParser` to `DataTypeJSONSerDe` (similarly the test suite)
+3) Add `StructType` serialization utilities to `DataTypeJSONSerDe`
+
+## How was this patch tested?
+Unit tests
+
+## Does this PR introduce _any_ user-facing changes?
+For connectors that implement custom `JsonHandler`, don't need to implement `deserializeStructType` API.

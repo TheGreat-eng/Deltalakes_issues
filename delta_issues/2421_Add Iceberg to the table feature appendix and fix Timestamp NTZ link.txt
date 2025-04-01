@@ -1,0 +1,11 @@
+## Description
+
+Adds icebergCompatV1 to the table features in the appendix. And fix the Timestamp NTZ link
+
+## How was this patch tested?
+
+N/A
+
+## Does this PR introduce _any_ user-facing changes?
+
+Docs only

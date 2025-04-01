@@ -1,0 +1,12 @@
+
+import spark.implicits._
+dbutils.fs.ls(folderName).toDF
+
+throws an error of 
+
+ value toDF is not a member of Seq[com.databricks.backend.daemon.dbutils.FileInfo]
+
+But it works fine in databricks notebook. Can anyone advice what I am missing?
+
+I am using the following library
+"com.databricks" %% "dbutils-api" % "0.0.4"

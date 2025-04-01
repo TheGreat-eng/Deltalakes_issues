@@ -1,0 +1,413 @@
+## Bug
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the issue title
+For example: [BUG][Spark] Title of my issue
+-->
+
+- [ x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+### Describe the problem
+I downloaded a copy of the repository on my local and when I ran build/sbt compile, it errors out and included below is the error stack for the same. The main issue seems to be with icebergShaded directory in path iceberg/src/main/scala/org/apache/spark/sql/delta/icebergShaded/. Any help on this is heavily appreciated. 
+#### Steps to reproduce
+Scala version:
+val scala212 = "2.12.18"
+val scala213 = "2.13.13"
+Java Version 8 
+
+ERROR STACK: 
+[error] /Users/puf669/Desktop/delta-master/iceberg/src/main/scala/org/apache/spark/sql/delta/icebergShaded/IcebergConversionTransaction.scala:33:8: not found: object shadedForDelta
+[error] import shadedForDelta.org.apache.iceberg.{AppendFiles, DeleteFiles, OverwriteFiles, PendingUpdate, RewriteFiles, Transaction => IcebergTransaction}
+[error]        ^
+[error] /Users/puf669/Desktop/delta-master/iceberg/src/main/scala/org/apache/spark/sql/delta/icebergShaded/IcebergConversionTransaction.scala:34:8: not found: object shadedForDelta
+[error] import shadedForDelta.org.apache.iceberg.ExpireSnapshots
+[error]        ^
+[error] /Users/puf669/Desktop/delta-master/iceberg/src/main/scala/org/apache/spark/sql/delta/icebergShaded/IcebergConversionTransaction.scala:35:8: not found: object shadedForDelta
+[error] import shadedForDelta.org.apache.iceberg.mapping.MappingUtil
+[error]        ^
+[error] /Users/puf669/Desktop/delta-master/iceberg/src/main/scala/org/apache/spark/sql/delta/icebergShaded/IcebergConversionTransaction.scala:36:8: not found: object shadedForDelta
+[error] import shadedForDelta.org.apache.iceberg.mapping.NameMappingParser
+[error]        ^
+[error] /Users/puf669/Desktop/delta-master/iceberg/src/main/scala/org/apache/spark/sql/delta/icebergShaded/IcebergConversionTransaction.scala:68:52: not found: type PendingUpdate
+[error]   protected abstract class TransactionHelper(impl: PendingUpdate[_]) {
+[error]                                                    ^
+[error] /Users/puf669/Desktop/delta-master/iceberg/src/main/scala/org/apache/spark/sql/delta/icebergShaded/IcebergConversionTransaction.scala:87:36: not found: type AppendFiles
+[error]   class AppendOnlyHelper(appender: AppendFiles) extends TransactionHelper(appender) {
+[error]                                    ^
+[error] /Users/puf669/Desktop/delta-master/iceberg/src/main/scala/org/apache/spark/sql/delta/icebergShaded/IcebergConversionTransaction.scala:111:35: not found: type DeleteFiles
+[error]   class RemoveOnlyHelper(deleter: DeleteFiles) extends TransactionHelper(deleter) {
+[error]                                   ^
+[error] /Users/puf669/Desktop/delta-master/iceberg/src/main/scala/org/apache/spark/sql/delta/icebergShaded/IcebergConversionTransaction.scala:128:37: not found: type OverwriteFiles
+[error]   class OverwriteHelper(overwriter: OverwriteFiles) extends TransactionHelper(overwriter) {
+[error]                                     ^
+[error] /Users/puf669/Desktop/delta-master/iceberg/src/main/scala/org/apache/spark/sql/delta/icebergShaded/IcebergConversionTransaction.scala:160:33: not found: type RewriteFiles
+[error]   class RewriteHelper(rewriter: RewriteFiles) extends TransactionHelper(rewriter) {
+[error]                                 ^
+[error] /Users/puf669/Desktop/delta-master/iceberg/src/main/scala/org/apache/spark/sql/delta/icebergShaded/IcebergTransactionUtils.scala:28:8: not found: object shadedForDelta
+[error] import shadedForDelta.org.apache.iceberg.{DataFile, DataFiles, FileFormat, PartitionSpec, Schema => IcebergSchema}
+[error]        ^
+[error] /Users/puf669/Desktop/delta-master/iceberg/src/main/scala/org/apache/spark/sql/delta/icebergShaded/IcebergTransactionUtils.scala:117:62: not found: type DataFile
+[error]       logicalToPhysicalPartitionNames: Map[String, String]): DataFile = {
+[error]                                                              ^
+[error] /Users/puf669/Desktop/delta-master/iceberg/src/main/scala/org/apache/spark/sql/delta/icebergShaded/IcebergTransactionUtils.scala:116:22: not found: type PartitionSpec
+[error]       partitionSpec: PartitionSpec,
+[error]                      ^
+[error] /Users/puf669/Desktop/delta-master/iceberg/src/main/scala/org/apache/spark/sql/delta/icebergShaded/IcebergTransactionUtils.scala:51:39: not found: type PartitionSpec
+[error]       partitionColumns: Seq[String]): PartitionSpec = {
+[error]                                       ^
+[error] /Users/puf669/Desktop/delta-master/iceberg/src/main/scala/org/apache/spark/sql/delta/icebergShaded/IcebergTransactionUtils.scala:50:22: not found: type IcebergSchema
+[error]       icebergSchema: IcebergSchema,
+[error]                      ^
+[error] /Users/puf669/Desktop/delta-master/iceberg/src/main/scala/org/apache/spark/sql/delta/icebergShaded/IcebergSchemaUtils.scala:23:8: not found: object shadedForDelta
+[error] import shadedForDelta.org.apache.iceberg.{Schema => IcebergSchema}
+[error]        ^
+[error] /Users/puf669/Desktop/delta-master/iceberg/src/main/scala/org/apache/spark/sql/delta/icebergShaded/IcebergSchemaUtils.scala:41:67: not found: type IcebergSchema
+[error]   def convertDeltaSchemaToIcebergSchema(deltaSchema: StructType): IcebergSchema = {
+[error]                                                                   ^
+[error] /Users/puf669/Desktop/delta-master/iceberg/src/main/scala/org/apache/spark/sql/delta/icebergShaded/IcebergTransactionUtils.scala:70:28: not found: type DataFile
+[error]       deltaLog: DeltaLog): DataFile = {
+[error]                            ^
+[error] /Users/puf669/Desktop/delta-master/iceberg/src/main/scala/org/apache/spark/sql/delta/icebergShaded/IcebergTransactionUtils.scala:66:22: not found: type PartitionSpec
+[error]       partitionSpec: PartitionSpec,
+[error]                      ^
+[error] /Users/puf669/Desktop/delta-master/iceberg/src/main/scala/org/apache/spark/sql/delta/icebergShaded/IcebergConversionTransaction.scala:188:46: not found: type ExpireSnapshots
+[error]   class ExpireSnapshotHelper(expireSnapshot: ExpireSnapshots)
+[error]                                              ^
+[error] /Users/puf669/Desktop/delta-master/iceberg/src/main/scala/org/apache/spark/sql/delta/icebergShaded/IcebergConversionTransaction.scala:445:62: not found: type IcebergTransaction
+[error]   private def withStartSnapshotId(txn: IcebergTransaction): (IcebergTransaction, Option[Long]) =
+[error]                                                              ^
+[error] /Users/puf669/Desktop/delta-master/iceberg/src/main/scala/org/apache/spark/sql/delta/icebergShaded/IcebergConversionTransaction.scala:445:40: not found: type IcebergTransaction
+[error]   private def withStartSnapshotId(txn: IcebergTransaction): (IcebergTransaction, Option[Long]) =
+[error]                                        ^
+[error] /Users/puf669/Desktop/delta-master/iceberg/src/main/scala/org/apache/spark/sql/delta/icebergShaded/IcebergConversionTransaction.scala:388:7: not found: type IcebergTransaction
+[error]       IcebergTransaction = {
+[error]       ^
+[error] /Users/puf669/Desktop/delta-master/iceberg/src/main/scala/org/apache/spark/sql/delta/icebergShaded/IcebergConversionTransaction.scala:227:40: value newAppend is not a member of Any
+[error]     val ret = new AppendOnlyHelper(txn.newAppend())
+[error]                                        ^
+[error] /Users/puf669/Desktop/delta-master/iceberg/src/main/scala/org/apache/spark/sql/delta/icebergShaded/IcebergConversionTransaction.scala:233:40: value newDelete is not a member of Any
+[error]     val ret = new RemoveOnlyHelper(txn.newDelete())
+[error]                                        ^
+[error] /Users/puf669/Desktop/delta-master/iceberg/src/main/scala/org/apache/spark/sql/delta/icebergShaded/IcebergConversionTransaction.scala:239:39: value newOverwrite is not a member of Any
+[error]     val ret = new OverwriteHelper(txn.newOverwrite())
+[error]                                       ^
+[error] /Users/puf669/Desktop/delta-master/iceberg/src/main/scala/org/apache/spark/sql/delta/icebergShaded/IcebergConversionTransaction.scala:245:37: value newRewrite is not a member of Any
+[error]     val ret = new RewriteHelper(txn.newRewrite())
+[error]                                     ^
+[error] /Users/puf669/Desktop/delta-master/iceberg/src/main/scala/org/apache/spark/sql/delta/icebergShaded/IcebergConversionTransaction.scala:251:44: value expireSnapshots is not a member of Any
+[error]     val ret = new ExpireSnapshotHelper(txn.expireSnapshots())
+[error]                                            ^
+[error] /Users/puf669/Desktop/delta-master/iceberg/src/main/scala/org/apache/spark/sql/delta/icebergShaded/IcebergConversionTransaction.scala:284:11: value setSchema is not a member of Any
+[error]       txn.setSchema(icebergSchema).commit()
+[error]           ^
+[error] /Users/puf669/Desktop/delta-master/iceberg/src/main/scala/org/apache/spark/sql/delta/icebergShaded/IcebergConversionTransaction.scala:301:25: value updateProperties is not a member of Any
+[error]       val updater = txn.updateProperties()
+[error]                         ^
+[error] /Users/puf669/Desktop/delta-master/iceberg/src/main/scala/org/apache/spark/sql/delta/icebergShaded/IcebergConversionTransaction.scala:327:23: not found: value NameMappingParser
+[error]     val nameMapping = NameMappingParser.toJson(MappingUtil.create(icebergSchema))
+[error]                       ^
+[error] /Users/puf669/Desktop/delta-master/iceberg/src/main/scala/org/apache/spark/sql/delta/icebergShaded/IcebergConversionTransaction.scala:327:48: not found: value MappingUtil
+[error]     val nameMapping = NameMappingParser.toJson(MappingUtil.create(icebergSchema))
+[error]                                                ^
+[error] /Users/puf669/Desktop/delta-master/iceberg/src/main/scala/org/apache/spark/sql/delta/icebergShaded/IcebergConversionTransaction.scala:334:9: value updateProperties is not a member of Any
+[error]     txn.updateProperties()
+[error]         ^
+[error] /Users/puf669/Desktop/delta-master/iceberg/src/main/scala/org/apache/spark/sql/delta/icebergShaded/IcebergConversionTransaction.scala:360:11: value commitTransaction is not a member of Any
+[error]       txn.commitTransaction()
+[error]           ^
+[error] /Users/puf669/Desktop/delta-master/iceberg/src/main/scala/org/apache/spark/sql/delta/icebergShaded/IcebergTransactionUtils.scala:35:8: not found: object shadedForDelta
+[error] import shadedForDelta.org.apache.iceberg.hive.HiveCatalog
+[error]        ^
+[error] /Users/puf669/Desktop/delta-master/iceberg/src/main/scala/org/apache/spark/sql/delta/icebergShaded/IcebergTransactionUtils.scala:218:49: not found: type HiveCatalog
+[error]   def createHiveCatalog(conf : Configuration) : HiveCatalog = {
+[error]                                                 ^
+[error] /Users/puf669/Desktop/delta-master/iceberg/src/main/scala/org/apache/spark/sql/delta/icebergShaded/IcebergTransactionUtils.scala:33:8: not found: object shadedForDelta
+[error] import shadedForDelta.org.apache.iceberg.catalog.{Namespace, TableIdentifier => IcebergTableIdentifier}
+[error]        ^
+[error] /Users/puf669/Desktop/delta-master/iceberg/src/main/scala/org/apache/spark/sql/delta/icebergShaded/IcebergTransactionUtils.scala:231:42: not found: type IcebergTableIdentifier
+[error]       identifier: SparkTableIdentifier): IcebergTableIdentifier = {
+[error]                                          ^
+[warn] /Users/puf669/Desktop/delta-master/iceberg/src/main/scala/org/apache/spark/sql/delta/icebergShaded/IcebergConversionTransaction.scala:33:43: Unused import
+[warn] import shadedForDelta.org.apache.iceberg.{AppendFiles, DeleteFiles, OverwriteFiles, PendingUpdate, RewriteFiles, Transaction => IcebergTransaction}
+[warn]                                           ^
+[warn] /Users/puf669/Desktop/delta-master/iceberg/src/main/scala/org/apache/spark/sql/delta/icebergShaded/IcebergConversionTransaction.scala:33:56: Unused import
+[warn] import shadedForDelta.org.apache.iceberg.{AppendFiles, DeleteFiles, OverwriteFiles, PendingUpdate, RewriteFiles, Transaction => IcebergTransaction}
+[warn]                                                        ^
+[warn] /Users/puf669/Desktop/delta-master/iceberg/src/main/scala/org/apache/spark/sql/delta/icebergShaded/IcebergConversionTransaction.scala:33:69: Unused import
+[warn] import shadedForDelta.org.apache.iceberg.{AppendFiles, DeleteFiles, OverwriteFiles, PendingUpdate, RewriteFiles, Transaction => IcebergTransaction}
+[warn]                                                                     ^
+[warn] /Users/puf669/Desktop/delta-master/iceberg/src/main/scala/org/apache/spark/sql/delta/icebergShaded/IcebergConversionTransaction.scala:33:85: Unused import
+[warn] import shadedForDelta.org.apache.iceberg.{AppendFiles, DeleteFiles, OverwriteFiles, PendingUpdate, RewriteFiles, Transaction => IcebergTransaction}
+[warn]                                                                                     ^
+[warn] /Users/puf669/Desktop/delta-master/iceberg/src/main/scala/org/apache/spark/sql/delta/icebergShaded/IcebergConversionTransaction.scala:33:100: Unused import
+[warn] import shadedForDelta.org.apache.iceberg.{AppendFiles, DeleteFiles, OverwriteFiles, PendingUpdate, RewriteFiles, Transaction => IcebergTransaction}
+[warn]                                                                                                    ^
+[warn] /Users/puf669/Desktop/delta-master/iceberg/src/main/scala/org/apache/spark/sql/delta/icebergShaded/IcebergConversionTransaction.scala:33:114: Unused import
+[warn] import shadedForDelta.org.apache.iceberg.{AppendFiles, DeleteFiles, OverwriteFiles, PendingUpdate, RewriteFiles, Transaction => IcebergTransaction}
+[warn]                                                                                                                  ^
+[warn] /Users/puf669/Desktop/delta-master/iceberg/src/main/scala/org/apache/spark/sql/delta/icebergShaded/IcebergConversionTransaction.scala:34:42: Unused import
+[warn] import shadedForDelta.org.apache.iceberg.ExpireSnapshots
+[warn]                                          ^
+[warn] /Users/puf669/Desktop/delta-master/iceberg/src/main/scala/org/apache/spark/sql/delta/icebergShaded/IcebergConversionTransaction.scala:35:50: Unused import
+[warn] import shadedForDelta.org.apache.iceberg.mapping.MappingUtil
+[warn]                                                  ^
+[warn] /Users/puf669/Desktop/delta-master/iceberg/src/main/scala/org/apache/spark/sql/delta/icebergShaded/IcebergConversionTransaction.scala:36:50: Unused import
+[warn] import shadedForDelta.org.apache.iceberg.mapping.NameMappingParser
+[warn]                                                  ^
+[error] /Users/puf669/Desktop/delta-master/iceberg/src/main/scala/org/apache/spark/sql/delta/icebergShaded/IcebergConverter.scala:34:8: not found: object shadedForDelta
+[error] import shadedForDelta.org.apache.iceberg.{Table => IcebergTable}
+[error]        ^
+[error] /Users/puf669/Desktop/delta-master/iceberg/src/main/scala/org/apache/spark/sql/delta/icebergShaded/IcebergConverter.scala:35:8: not found: object shadedForDelta
+[error] import shadedForDelta.org.apache.iceberg.hive.{HiveCatalog, HiveTableOperations}
+[error]        ^
+[error] /Users/puf669/Desktop/delta-master/iceberg/src/main/scala/org/apache/spark/sql/delta/icebergShaded/IcebergConverter.scala:57:50: not found: type IcebergTable
+[error]   def getLastConvertedDeltaVersion(table: Option[IcebergTable]): Option[Long] =
+[error]                                                  ^
+[error] /Users/puf669/Desktop/delta-master/iceberg/src/main/scala/org/apache/spark/sql/delta/icebergShaded/IcebergConverter.scala:58:77: value toLong is not a member of Nothing
+[error]     table.flatMap(_.properties().asScala.get(DELTA_VERSION_PROPERTY)).map(_.toLong)
+[error]                                                                             ^
+[error] /Users/puf669/Desktop/delta-master/iceberg/src/main/scala/org/apache/spark/sql/delta/icebergShaded/IcebergConverter.scala:380:63: not found: type IcebergTable
+[error]       snapshot: Snapshot, catalogTable: CatalogTable): Option[IcebergTable] = {
+[error]                                                               ^
+[error] /Users/puf669/Desktop/delta-master/iceberg/src/main/scala/org/apache/spark/sql/delta/icebergShaded/IcebergConverter.scala:245:83: value snapshotId is not a member of Nothing
+[error]       lastConvertedIcebergTable.flatMap(it => Option(it.currentSnapshot())).map(_.snapshotId())
+[error]                                                                                   ^
+[warn] /Users/puf669/Desktop/delta-master/iceberg/src/main/scala/org/apache/spark/sql/delta/icebergShaded/IcebergConverter.scala:34:43: Unused import
+[warn] import shadedForDelta.org.apache.iceberg.{Table => IcebergTable}
+[warn]                                           ^
+[warn] /Users/puf669/Desktop/delta-master/iceberg/src/main/scala/org/apache/spark/sql/delta/icebergShaded/IcebergConverter.scala:35:48: Unused import
+[warn] import shadedForDelta.org.apache.iceberg.hive.{HiveCatalog, HiveTableOperations}
+[warn]                                                ^
+[warn] /Users/puf669/Desktop/delta-master/iceberg/src/main/scala/org/apache/spark/sql/delta/icebergShaded/IcebergConverter.scala:35:61: Unused import
+[warn] import shadedForDelta.org.apache.iceberg.hive.{HiveCatalog, HiveTableOperations}
+[warn]                                                             ^
+[error] /Users/puf669/Desktop/delta-master/iceberg/src/main/scala/org/apache/spark/sql/delta/icebergShaded/IcebergSchemaUtils.scala:24:8: not found: object shadedForDelta
+[error] import shadedForDelta.org.apache.iceberg.types.{Type => IcebergType, Types => IcebergTypes}
+[error]        ^
+[error] /Users/puf669/Desktop/delta-master/iceberg/src/main/scala/org/apache/spark/sql/delta/icebergShaded/IcebergSchemaUtils.scala:58:62: not found: value IcebergTypes
+[error]   private[delta] def convertStruct(deltaSchema: StructType): IcebergTypes.StructType = {
+[error]                                                              ^
+[error] /Users/puf669/Desktop/delta-master/iceberg/src/main/scala/org/apache/spark/sql/delta/icebergShaded/IcebergSchemaUtils.scala:43:9: not found: type IcebergSchema
+[error]     new IcebergSchema(icebergStruct.fields())
+[error]         ^
+[error] /Users/puf669/Desktop/delta-master/iceberg/src/main/scala/org/apache/spark/sql/delta/icebergShaded/IcebergSchemaUtils.scala:69:11: not found: type IcebergType
+[error]         : IcebergType = elem match {
+[error]           ^
+[error] /Users/puf669/Desktop/delta-master/iceberg/src/main/scala/org/apache/spark/sql/delta/icebergShaded/IcebergSchemaUtils.scala:71:9: not found: value IcebergTypes
+[error]         IcebergTypes.StructType.of(fields.map { f =>
+[error]         ^
+[error] /Users/puf669/Desktop/delta-master/iceberg/src/main/scala/org/apache/spark/sql/delta/icebergShaded/IcebergSchemaUtils.scala:76:11: not found: value IcebergTypes
+[error]           IcebergTypes.NestedField.of(
+[error]           ^
+[error] /Users/puf669/Desktop/delta-master/iceberg/src/main/scala/org/apache/spark/sql/delta/icebergShaded/IcebergSchemaUtils.scala:83:11: value toList is not a member of Array[Nothing]
+[error] possible cause: maybe a semicolon is missing before `value toList'?
+[error]         }.toList.asJava)
+[error]           ^
+[error] /Users/puf669/Desktop/delta-master/iceberg/src/main/scala/org/apache/spark/sql/delta/icebergShaded/IcebergSchemaUtils.scala:89:11: not found: value IcebergTypes
+[error]           IcebergTypes.ListType.ofOptional(id, transform(elementType, field, currName))
+[error]           ^
+[error] /Users/puf669/Desktop/delta-master/iceberg/src/main/scala/org/apache/spark/sql/delta/icebergShaded/IcebergSchemaUtils.scala:91:11: not found: value IcebergTypes
+[error]           IcebergTypes.ListType.ofRequired(id, transform(elementType, field, currName))
+[error]           ^
+[error] /Users/puf669/Desktop/delta-master/iceberg/src/main/scala/org/apache/spark/sql/delta/icebergShaded/IcebergSchemaUtils.scala:100:11: not found: value IcebergTypes
+[error]           IcebergTypes.MapType.ofOptional(
+[error]           ^
+[error] /Users/puf669/Desktop/delta-master/iceberg/src/main/scala/org/apache/spark/sql/delta/icebergShaded/IcebergSchemaUtils.scala:107:11: not found: value IcebergTypes
+[error]           IcebergTypes.MapType.ofRequired(
+[error]           ^
+[error] /Users/puf669/Desktop/delta-master/iceberg/src/main/scala/org/apache/spark/sql/delta/icebergShaded/IcebergSchemaUtils.scala:131:61: not found: value IcebergType
+[error]   private[delta] def convertAtomic[E <: DataType](elem: E): IcebergType.PrimitiveType = elem match {
+[error]                                                             ^
+[error] /Users/puf669/Desktop/delta-master/iceberg/src/main/scala/org/apache/spark/sql/delta/icebergShaded/IcebergSchemaUtils.scala:132:24: not found: value IcebergTypes
+[error]     case StringType => IcebergTypes.StringType.get()
+[error]                        ^
+[error] /Users/puf669/Desktop/delta-master/iceberg/src/main/scala/org/apache/spark/sql/delta/icebergShaded/IcebergSchemaUtils.scala:133:22: not found: value IcebergTypes
+[error]     case LongType => IcebergTypes.LongType.get()
+[error]                      ^
+[error] /Users/puf669/Desktop/delta-master/iceberg/src/main/scala/org/apache/spark/sql/delta/icebergShaded/IcebergSchemaUtils.scala:134:48: not found: value IcebergTypes
+[error]     case IntegerType | ShortType | ByteType => IcebergTypes.IntegerType.get()
+[error]                                                ^
+[error] /Users/puf669/Desktop/delta-master/iceberg/src/main/scala/org/apache/spark/sql/delta/icebergShaded/IcebergSchemaUtils.scala:135:23: not found: value IcebergTypes
+[error]     case FloatType => IcebergTypes.FloatType.get()
+[error]                       ^
+[error] /Users/puf669/Desktop/delta-master/iceberg/src/main/scala/org/apache/spark/sql/delta/icebergShaded/IcebergSchemaUtils.scala:136:24: not found: value IcebergTypes
+[error]     case DoubleType => IcebergTypes.DoubleType.get()
+[error]                        ^
+[error] /Users/puf669/Desktop/delta-master/iceberg/src/main/scala/org/apache/spark/sql/delta/icebergShaded/IcebergSchemaUtils.scala:137:28: not found: value IcebergTypes
+[error]     case d: DecimalType => IcebergTypes.DecimalType.of(d.precision, d.scale)
+[error]                            ^
+[error] /Users/puf669/Desktop/delta-master/iceberg/src/main/scala/org/apache/spark/sql/delta/icebergShaded/IcebergSchemaUtils.scala:138:25: not found: value IcebergTypes
+[error]     case BooleanType => IcebergTypes.BooleanType.get()
+[error]                         ^
+[error] /Users/puf669/Desktop/delta-master/iceberg/src/main/scala/org/apache/spark/sql/delta/icebergShaded/IcebergSchemaUtils.scala:139:24: not found: value IcebergTypes
+[error]     case BinaryType => IcebergTypes.BinaryType.get()
+[error]                        ^
+[error] /Users/puf669/Desktop/delta-master/iceberg/src/main/scala/org/apache/spark/sql/delta/icebergShaded/IcebergSchemaUtils.scala:140:22: not found: value IcebergTypes
+[error]     case DateType => IcebergTypes.DateType.get()
+[error]                      ^
+[error] /Users/puf669/Desktop/delta-master/iceberg/src/main/scala/org/apache/spark/sql/delta/icebergShaded/IcebergSchemaUtils.scala:141:27: not found: value IcebergTypes
+[error]     case TimestampType => IcebergTypes.TimestampType.withZone()
+[error]                           ^
+[error] /Users/puf669/Desktop/delta-master/iceberg/src/main/scala/org/apache/spark/sql/delta/icebergShaded/IcebergSchemaUtils.scala:142:30: not found: value IcebergTypes
+[error]     case TimestampNTZType => IcebergTypes.TimestampType.withoutZone()
+[error]                              ^
+[warn] /Users/puf669/Desktop/delta-master/iceberg/src/main/scala/org/apache/spark/sql/delta/icebergShaded/IcebergSchemaUtils.scala:19:40: Unused import
+[warn] import scala.collection.JavaConverters._
+[warn]                                        ^
+[warn] /Users/puf669/Desktop/delta-master/iceberg/src/main/scala/org/apache/spark/sql/delta/icebergShaded/IcebergSchemaUtils.scala:23:43: Unused import
+[warn] import shadedForDelta.org.apache.iceberg.{Schema => IcebergSchema}
+[warn]                                           ^
+[warn] /Users/puf669/Desktop/delta-master/iceberg/src/main/scala/org/apache/spark/sql/delta/icebergShaded/IcebergSchemaUtils.scala:24:49: Unused import
+[warn] import shadedForDelta.org.apache.iceberg.types.{Type => IcebergType, Types => IcebergTypes}
+[warn]                                                 ^
+[warn] /Users/puf669/Desktop/delta-master/iceberg/src/main/scala/org/apache/spark/sql/delta/icebergShaded/IcebergSchemaUtils.scala:24:70: Unused import
+[warn] import shadedForDelta.org.apache.iceberg.types.{Type => IcebergType, Types => IcebergTypes}
+[warn]                                                                      ^
+[error] /Users/puf669/Desktop/delta-master/iceberg/src/main/scala/org/apache/spark/sql/delta/icebergShaded/IcebergStatsConverter.scala:24:8: not found: object shadedForDelta
+[error] import shadedForDelta.org.apache.iceberg.types.Conversions
+[error]        ^
+[error] /Users/puf669/Desktop/delta-master/iceberg/src/main/scala/org/apache/spark/sql/delta/icebergShaded/IcebergStatsConverter.scala:114:13: not found: value Conversions
+[error]             Conversions.toByteBuffer(IcebergSchemaUtils.convertAtomic(b), statVal))
+[error]             ^
+[error] /Users/puf669/Desktop/delta-master/iceberg/src/main/scala/org/apache/spark/sql/delta/icebergShaded/IcebergStatsConverter.scala:119:13: not found: value Conversions
+[error]             Conversions.toByteBuffer(IcebergSchemaUtils.convertAtomic(s), statVal))
+[error]             ^
+[error] /Users/puf669/Desktop/delta-master/iceberg/src/main/scala/org/apache/spark/sql/delta/icebergShaded/IcebergStatsConverter.scala:133:13: not found: value Conversions
+[error]             Conversions.toByteBuffer(IcebergSchemaUtils.convertAtomic(dt), compatibleStatsVal))
+[error]             ^
+[warn] /Users/puf669/Desktop/delta-master/iceberg/src/main/scala/org/apache/spark/sql/delta/icebergShaded/IcebergStatsConverter.scala:24:48: Unused import
+[warn] import shadedForDelta.org.apache.iceberg.types.Conversions
+[warn]                                                ^
+[error] /Users/puf669/Desktop/delta-master/iceberg/src/main/scala/org/apache/spark/sql/delta/icebergShaded/IcebergTransactionUtils.scala:29:8: not found: object shadedForDelta
+[error] import shadedForDelta.org.apache.iceberg.Metrics
+[error]        ^
+[error] /Users/puf669/Desktop/delta-master/iceberg/src/main/scala/org/apache/spark/sql/delta/icebergShaded/IcebergTransactionUtils.scala:30:8: not found: object shadedForDelta
+[error] import shadedForDelta.org.apache.iceberg.TableProperties
+[error]        ^
+[error] /Users/puf669/Desktop/delta-master/iceberg/src/main/scala/org/apache/spark/sql/delta/icebergShaded/IcebergTransactionUtils.scala:53:7: not found: value PartitionSpec
+[error]       PartitionSpec.unpartitioned
+[error]       ^
+[error] /Users/puf669/Desktop/delta-master/iceberg/src/main/scala/org/apache/spark/sql/delta/icebergShaded/IcebergTransactionUtils.scala:55:21: not found: value PartitionSpec
+[error]       val builder = PartitionSpec.builderFor(icebergSchema)
+[error]                     ^
+[error] /Users/puf669/Desktop/delta-master/iceberg/src/main/scala/org/apache/spark/sql/delta/icebergShaded/IcebergTransactionUtils.scala:180:62: not found: value DataFiles
+[error]       logicalToPhysicalPartitionNames: Map[String, String]): DataFiles.Builder = {
+[error]                                                              ^
+[error] /Users/puf669/Desktop/delta-master/iceberg/src/main/scala/org/apache/spark/sql/delta/icebergShaded/IcebergTransactionUtils.scala:179:22: not found: type PartitionSpec
+[error]       partitionSpec: PartitionSpec,
+[error]                      ^
+[error] /Users/puf669/Desktop/delta-master/iceberg/src/main/scala/org/apache/spark/sql/delta/icebergShaded/IcebergTransactionUtils.scala:88:27: not found: type Metrics
+[error]         val metrics = new Metrics(
+[error]                           ^
+[error] /Users/puf669/Desktop/delta-master/iceberg/src/main/scala/org/apache/spark/sql/delta/icebergShaded/IcebergTransactionUtils.scala:183:19: not found: value DataFiles
+[error]     var builder = DataFiles
+[error]                   ^
+[error] /Users/puf669/Desktop/delta-master/iceberg/src/main/scala/org/apache/spark/sql/delta/icebergShaded/IcebergTransactionUtils.scala:187:19: not found: value FileFormat
+[error]       .withFormat(FileFormat.PARQUET)
+[error]                   ^
+[error] /Users/puf669/Desktop/delta-master/iceberg/src/main/scala/org/apache/spark/sql/delta/icebergShaded/IcebergTransactionUtils.scala:219:23: not found: type HiveCatalog
+[error]     val catalog = new HiveCatalog()
+[error]                       ^
+[error] /Users/puf669/Desktop/delta-master/iceberg/src/main/scala/org/apache/spark/sql/delta/icebergShaded/IcebergTransactionUtils.scala:233:30: not found: value Namespace
+[error]       case Some(database) => Namespace.of(database)
+[error]                              ^
+[error] /Users/puf669/Desktop/delta-master/iceberg/src/main/scala/org/apache/spark/sql/delta/icebergShaded/IcebergTransactionUtils.scala:234:17: not found: value Namespace
+[error]       case _ => Namespace.empty()
+[error]                 ^
+[error] /Users/puf669/Desktop/delta-master/iceberg/src/main/scala/org/apache/spark/sql/delta/icebergShaded/IcebergTransactionUtils.scala:236:5: not found: value IcebergTableIdentifier
+[error]     IcebergTableIdentifier.of(namespace, identifier.table)
+[error]     ^
+[error] /Users/puf669/Desktop/delta-master/iceberg/src/main/scala/org/apache/spark/sql/delta/icebergShaded/IcebergTransactionUtils.scala:253:31: not found: value TableProperties
+[error]     lazy val icebergDefault = TableProperties.MAX_SNAPSHOT_AGE_MS_DEFAULT
+[error]                               ^
+[error] /Users/puf669/Desktop/delta-master/iceberg/src/main/scala/org/apache/spark/sql/delta/icebergShaded/IcebergTransactionUtils.scala:255:11: not found: value TableProperties
+[error]       Map(TableProperties.MAX_SNAPSHOT_AGE_MS -> (retentionMs min icebergDefault).toString)
+[error]           ^
+[error] /Users/puf669/Desktop/delta-master/iceberg/src/main/scala/org/apache/spark/sql/delta/icebergShaded/IcebergTransactionUtils.scala:277:18: not found: value TableProperties
+[error]       .getOrElse(TableProperties.MAX_SNAPSHOT_AGE_MS, s"$defaultRetentionDelta").toLong
+[error]                  ^
+[error] /Users/puf669/Desktop/delta-master/iceberg/src/main/scala/org/apache/spark/sql/delta/icebergShaded/IcebergTransactionUtils.scala:279:30: not found: value TableProperties
+[error]     usrSpecifiedProperty.get(TableProperties.MAX_SNAPSHOT_AGE_MS).foreach { proposedMs =>
+[error]                              ^
+[error] /Users/puf669/Desktop/delta-master/iceberg/src/main/scala/org/apache/spark/sql/delta/icebergShaded/IcebergTransactionUtils.scala:282:33: not found: value TableProperties
+[error]           s"Uniform iceberg's ${TableProperties.MAX_SNAPSHOT_AGE_MS} should be set >= " +
+[error]                                 ^
+[warn] /Users/puf669/Desktop/delta-master/iceberg/src/main/scala/org/apache/spark/sql/delta/icebergShaded/IcebergTransactionUtils.scala:22:83: Unused import
+[warn] import org.apache.spark.sql.delta.{DeltaColumnMapping, DeltaConfig, DeltaConfigs, DeltaErrors, DeltaLog, DeltaRuntimeException}
+[warn]                                                                                   ^
+[warn] /Users/puf669/Desktop/delta-master/iceberg/src/main/scala/org/apache/spark/sql/delta/icebergShaded/IcebergTransactionUtils.scala:22:106: Unused import
+[warn] import org.apache.spark.sql.delta.{DeltaColumnMapping, DeltaConfig, DeltaConfigs, DeltaErrors, DeltaLog, DeltaRuntimeException}
+[warn]                                                                                                          ^
+[warn] /Users/puf669/Desktop/delta-master/iceberg/src/main/scala/org/apache/spark/sql/delta/icebergShaded/IcebergTransactionUtils.scala:28:43: Unused import
+[warn] import shadedForDelta.org.apache.iceberg.{DataFile, DataFiles, FileFormat, PartitionSpec, Schema => IcebergSchema}
+[warn]                                           ^
+[warn] /Users/puf669/Desktop/delta-master/iceberg/src/main/scala/org/apache/spark/sql/delta/icebergShaded/IcebergTransactionUtils.scala:28:53: Unused import
+[warn] import shadedForDelta.org.apache.iceberg.{DataFile, DataFiles, FileFormat, PartitionSpec, Schema => IcebergSchema}
+[warn]                                                     ^
+[warn] /Users/puf669/Desktop/delta-master/iceberg/src/main/scala/org/apache/spark/sql/delta/icebergShaded/IcebergTransactionUtils.scala:28:64: Unused import
+[warn] import shadedForDelta.org.apache.iceberg.{DataFile, DataFiles, FileFormat, PartitionSpec, Schema => IcebergSchema}
+[warn]                                                                ^
+[warn] /Users/puf669/Desktop/delta-master/iceberg/src/main/scala/org/apache/spark/sql/delta/icebergShaded/IcebergTransactionUtils.scala:28:76: Unused import
+[warn] import shadedForDelta.org.apache.iceberg.{DataFile, DataFiles, FileFormat, PartitionSpec, Schema => IcebergSchema}
+[warn]                                                                            ^
+[warn] /Users/puf669/Desktop/delta-master/iceberg/src/main/scala/org/apache/spark/sql/delta/icebergShaded/IcebergTransactionUtils.scala:28:91: Unused import
+[warn] import shadedForDelta.org.apache.iceberg.{DataFile, DataFiles, FileFormat, PartitionSpec, Schema => IcebergSchema}
+[warn]                                                                                           ^
+[warn] /Users/puf669/Desktop/delta-master/iceberg/src/main/scala/org/apache/spark/sql/delta/icebergShaded/IcebergTransactionUtils.scala:29:42: Unused import
+[warn] import shadedForDelta.org.apache.iceberg.Metrics
+[warn]                                          ^
+[warn] /Users/puf669/Desktop/delta-master/iceberg/src/main/scala/org/apache/spark/sql/delta/icebergShaded/IcebergTransactionUtils.scala:30:42: Unused import
+[warn] import shadedForDelta.org.apache.iceberg.TableProperties
+[warn]                                          ^
+[warn] /Users/puf669/Desktop/delta-master/iceberg/src/main/scala/org/apache/spark/sql/delta/icebergShaded/IcebergTransactionUtils.scala:33:51: Unused import
+[warn] import shadedForDelta.org.apache.iceberg.catalog.{Namespace, TableIdentifier => IcebergTableIdentifier}
+[warn]                                                   ^
+[warn] /Users/puf669/Desktop/delta-master/iceberg/src/main/scala/org/apache/spark/sql/delta/icebergShaded/IcebergTransactionUtils.scala:33:62: Unused import
+[warn] import shadedForDelta.org.apache.iceberg.catalog.{Namespace, TableIdentifier => IcebergTableIdentifier}
+[warn]                                                              ^
+[warn] /Users/puf669/Desktop/delta-master/iceberg/src/main/scala/org/apache/spark/sql/delta/icebergShaded/IcebergTransactionUtils.scala:35:47: Unused import
+[warn] import shadedForDelta.org.apache.iceberg.hive.HiveCatalog
+[warn]                                               ^
+[warn] 33 warnings found
+[error] 88 errors found
+[error] (iceberg / Compile / compileIncremental) Compilation failed
+[error] Total time: 28 s, completed 05-Jul-2024, 4:06:06 pm
+<!--
+Please include copy-pastable code snippets if possible.
+1. _____
+2. _____
+3. _____
+-->
+
+#### Observed results
+
+<!-- What happened?  This could be a description, log output, etc. -->
+
+#### Expected results
+
+<!-- What did you expect to happen? -->
+
+#### Further details
+
+<!--
+Include any additional details that may be useful for diagnosing the problem here. If including tracebacks, please include the full traceback. Large logs and files should be attached.
+-->
+
+### Environment information
+
+* Delta Lake version:
+* Spark version:3.5.0
+* Scala version:2.12.18
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [ ] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [ x] No. I cannot contribute a bug fix at this time.

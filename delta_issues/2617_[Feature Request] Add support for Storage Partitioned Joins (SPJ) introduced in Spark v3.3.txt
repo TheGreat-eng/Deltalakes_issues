@@ -1,0 +1,27 @@
+## Feature request
+
+Feature request to support Storage Partitioned Joins (SPJ) introduced in Spark 3.3.
+
+### Overview
+
+Spark 3.3 added support for Storage Partitioned Joins (SPJ). A partitioned join (or partition wise join) uses data partitions to split a join into a series of smaller independent joins.
+
+### Motivation
+If two tables are partitioned by same (or subset?) set of columns, this feature can improve the performance of join/merge operations. For example - Two tables that are partitioned by hour could be joined hour-by-hour. This can especially be helpful for `MERGE INTO` operations.
+
+This has the potential to benefit users that perform joins/merge on partitioned tables.
+
+### Further details
+
+1. The [Feature SPIP](https://docs.google.com/document/d/1foTkDSM91VxKgkEcBMsuAvEjNybjja-uHk-r3vtXWFE/edit#) very well documents the feature.
+2. Spark support Umbrella JIRA: https://issues.apache.org/jira/browse/SPARK-37375
+3. YouTube demo: https://www.youtube.com/watch?v=ioLeHZDMSuU
+4. Iceberg supports SPJ, PR: https://github.com/apache/iceberg/pull/6371
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [ ] Yes. I can contribute this feature independently.
+- [ ] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [X] No. I cannot contribute this feature at this time.

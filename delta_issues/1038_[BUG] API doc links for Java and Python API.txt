@@ -1,0 +1,32 @@
+## Bug
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the issue title
+For example: [BUG][Spark] Title of my issue
+-->
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+### Describe the problem
+Links to the API docs for the Java and Python API seem to be wrong in the README (see the links listed [here](https://github.com/delta-io/delta?tab=readme-ov-file#api-documentation)), since they result in a 404 response.
+
+#### Observed results
+
+API links result in 404 response.
+
+#### Expected results
+
+Should be forwarded to [Java API doc](https://docs.delta.io/latest/api/java/spark/index.html) and respectively [Python API doc](https://docs.delta.io/latest/api/python/spark/index.html)
+
+### Willingness to contribute
+
+I will open a PR to fix the links in the README
+
+- [x] Yes. I can contribute a fix for this bug independently.
+- [ ] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute a bug fix at this time.

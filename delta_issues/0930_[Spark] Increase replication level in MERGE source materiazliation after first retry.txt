@@ -1,0 +1,7 @@
+
+## Description
+Source materialization for MERGE INTO currently uses 2-way replication on retries. This may not be enough when executors are aggressively killed, for example when using spot instances.
+This change retains 2-way replication on the first retry, then increases it 3-way by default on the following retries.
+
+## How was this patch tested?
+Update merge source materialization test

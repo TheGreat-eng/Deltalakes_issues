@@ -1,0 +1,31 @@
+I am currently doing a PoC using delta Lake and I am having issues with running OPTIMIZE on spark:
+
+```python
+spark.sql("CREATE TABLE emails_op USING DELTA LOCATION './my_delta_table'")
+spark.sql("SELECT count(*) FROM emails_op").collect()
+>> [Row(count(1)=8470)]
+spark.sql("OPTIMIZE emails_op ZORDER by (hash)")
+```
+
+```
+Py4JJavaError: An error occurred while calling o31.sql.
+: org.apache.spark.sql.catalyst.parser.ParseException: 
+mismatched input 'OPTIMIZE' expecting {'(', 'SELECT', 'FROM', 'ADD', 'DESC', 'WITH', 'VALUES', 'CREATE', 'TABLE', 'INSERT', 'DELETE', 'DESCRIBE', 'EXPLAIN', 'SHOW', 'USE', 'DROP', 'ALTER', 'MAP', 'SET', 'RESET', 'START', 'COMMIT', 'ROLLBACK', 'REDUCE', 'REFRESH', 'CLEAR', 'CACHE', 'UNCACHE', 'DFS', 'TRUNCATE', 'ANALYZE', 'LIST', 'REVOKE', 'GRANT', 'LOCK', 'UNLOCK', 'MSCK', 'EXPORT', 'IMPORT', 'LOAD'}(line 1, pos 0)
+
+== SQL ==
+OPTIMIZE emails_op ZORDER by (hash)
+^^^
+
+ParseException: "\nmismatched input 'OPTIMIZE' expecting {'(', 'SELECT', 'FROM', 'ADD', 'DESC', 'WITH', 'VALUES', 'CREATE', 'TABLE', 'INSERT', 'DELETE', 'DESCRIBE', 'EXPLAIN', 'SHOW', 'USE', 'DROP', 'ALTER', 'MAP', 'SET', 'RESET', 'START', 'COMMIT', 'ROLLBACK', 'REDUCE', 'REFRESH', 'CLEAR', 'CACHE', 'UNCACHE', 'DFS', 'TRUNCATE', 'ANALYZE', 'LIST', 'REVOKE', 'GRANT', 'LOCK', 'UNLOCK', 'MSCK', 'EXPORT', 'IMPORT', 'LOAD'}(line 1, pos 0)\n\n== SQL ==\nOPTIMIZE emails_op ZORDER by (hash)\n^^^\n"
+```
+
+
+I am running Delta locally with:
+```
+pyspark --packages io.delta:delta-core_2.11:0.4.0 --conf "spark.databricks.delta.retentionDurationCheck.enabled=false" --conf "spark.sql.extensions=io.delta.sql.DeltaSparkSessionExtension"
+[I 16:17:34.690 NotebookApp] The port 8888 is already
+```
+
+Is there a version requirement that is not specified on the documentation? Or is this feature just not available in the open source Delta lake?
+
+Thanks,

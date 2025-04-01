@@ -1,0 +1,17 @@
+#### Which Delta project/connector is this regarding?
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+In this PR, we add DDLTestUtils helper and ColumnSpec traits so that we have flexible interfaces for defining Delta tables. This will enable us to test both Scala and SQL interfaces easier. This PR introduces the helpers but this interface will not be used until later. 
+
+We don't reuse the helper functions in GeneratedColumnSuite because they are less flexible. We can rewrite GeneratedColumnSuite to use DDLTestUtils later on.
+
+## How was this patch tested?
+Unused code. Introducing the interface only.
+
+## Does this PR introduce _any_ user-facing changes?
+No.

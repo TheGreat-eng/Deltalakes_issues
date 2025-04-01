@@ -1,0 +1,38 @@
+## Feature request
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the issue title
+For example: [Feature Request][Spark] Title of my issue
+-->
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+### Overview
+
+Setting `delta.dataSkippingStatsColumns` to a struct column will fail if any column inside the struct does not support gathering stats (binary, arrays, maps, etc). This should be more lenient to just skip columns that aren't supported rather than throwing an exception.
+
+### Motivation
+
+Our use case is a single top level struct that has all the import fields we care about, and we want to gather stats on all of them. But this struct has a mix of column types, including arrays and maps, which means we currently can't use `delta.dataSkippingStatsColumns`. We also have different columns in this struct in various tables, so trying to include each individually supported field would also be extremely difficult. This is also inconsistent with `dataSkippingNumIndexedCols`, which allows for these unsupported types (and in fact still gathers null counts on them, even if it can't gather min/max stats).
+
+While it may make sense to raise in exception if the direct column specified by `dataSkippingStatsColumns` is unsupported, it should be allowed to specify a struct that has a mix of types within it.
+
+### Further details
+
+<!--
+Use this section to include any additional information about the feature. If you have a proposal for how to implement this feature, please include it here. For implementation guidelines, please read our contributor guidelines: https://github.com/delta-io/delta/blob/master/CONTRIBUTING.md
+If there are any specific requirements for this feature that are not immediately obvious please outline them here.
+-->
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [x] Yes. I can contribute this feature independently.
+- [ ] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.

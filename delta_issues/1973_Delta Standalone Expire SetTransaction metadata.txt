@@ -1,0 +1,27 @@
+## Feature request
+
+#### Which Delta project/connector is this regarding?
+
+-  [ ] Spark
+-  [x] Standalone
+-  [ ] Flink
+-  [ ] Kernel
+-  [ ] Other (fill in here)
+
+### Overview
+
+The spark log replay [code](https://github.com/delta-io/delta/blob/79c848f1f555e07c5d2ff368627d1414424cbef5/spark/src/main/scala/org/apache/spark/sql/delta/actions/InMemoryLogReplay.scala#L87-L95) expires transaction metadata based on user configuration. Delta standalone [code](https://github.com/delta-io/delta/blob/79c848f1f555e07c5d2ff368627d1414424cbef5/connectors/standalone/src/main/scala/io/delta/standalone/internal/actions/InMemoryLogReplay.scala#L4) has diverged and does not appear to support this functionality.
+
+### Motivation
+
+This is missing functionality that exists in the spark focused implementation.
+
+### Further details
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [ ] Yes. I can contribute this feature independently.
+- [x] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.

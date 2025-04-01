@@ -1,0 +1,24 @@
+## Feature request
+
+#### Which Delta project/connector is this regarding?
+- [X] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+### Overview
+I'd like to confirm what is the current usage of tombstones in the checkpoint files. I couldn't find any references to it in the code.
+
+If they are not used, I'd suggest having an option to don't include it in the checkpoint, since is some scenarios like when running MERGE command could rewrite all the files, and the checkpoint become huge and most of the data are tombstones.
+
+### Motivation
+Tombstones are likely only wasting space and causing performance issues.
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [ ] Yes. I can contribute this feature independently.
+- [ ] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [X] No. I cannot contribute this feature at this time.

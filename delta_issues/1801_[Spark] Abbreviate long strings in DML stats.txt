@@ -1,0 +1,19 @@
+#### Which Delta project/connector is this regarding?
+
+- [X] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+The stats of DML commands contain the raw expression strings that can be arbitrarily long. The result is that the JSON blob is truncated at 16K and is not parseable. This commit fixes this issue by truncating the long string fields.
+
+## How was this patch tested?
+
+Existing tests.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

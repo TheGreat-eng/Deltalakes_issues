@@ -1,0 +1,1 @@
+DeltaLogging's Scaladoc says that underneath it uses `com.databricks.spark.util.UsageLogging`, but I guess it's `com.databricks.spark.util.DatabricksLogging`.

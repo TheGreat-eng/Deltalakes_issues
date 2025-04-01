@@ -1,0 +1,1 @@
+This tracks the ongoing work and discussions for building the Scala/Java APIs for SQL MERGE (that is, upserts) on Delta Lake tables.

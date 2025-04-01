@@ -1,0 +1,14 @@
+After using Spark SQL to transfer data to hdfs，I get an error when I query the contents of this table
+
+`Error operating EXECUTE_STATEMENT: org.apache.spark.SparkException: Job aborted due to stage failure: Task 4 in stage 197.0 failed 4 times, most recent failure: Lost task 4.3 in stage 197.0 (TID 3521) (data198 executor 2): java.io.FileNotFoundException: File does not exist: hdfs://data197:8020/user/hive/warehouse/zilaishui_dwd.db/jbyjslmx1/part-00019-f2606e9e-691a-4188-ae6b-47d34ecaf37a-c000.snappy.parquet
+It is possible the underlying files have been updated. You can explicitly invalidate the cache in Spark by running 'REFRESH TABLE tableName' command in SQL or by recreating the Dataset/DataFrame involved.`
+
+The delta log does record the above file information, but the hdfs does not exist.The probability of this problem is very small.I don't know whether the problem is on HDFS or Delta, or my hardware.
+
+Now the data in this table cannot be queried. How can I solve this problem
+
+### Environment information
+
+* Delta Lake version:1.0.0
+* Spark version: 3.1.2
+* Scala version: 2.12

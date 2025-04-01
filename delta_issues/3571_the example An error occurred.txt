@@ -1,0 +1,27 @@
+![image](https://user-images.githubusercontent.com/38400198/128840157-ee94a91d-4f61-4a71-a795-07b8debfa9d9.png)
+the code like this ,but it is error,How can i fix it
+
+https://docs.delta.io/latest/quick-start.html#conditional-update-without-overwrite
+
+```
+// Upsert (merge) new data
+Dataset<Row> newData = spark.range(0, 20).toDF();
+
+deltaTable.as("oldData")
+  .merge(
+    newData.as("newData"),
+    "oldData.id = newData.id")
+  .whenMatched()
+  .update(
+    new HashMap<String, Column>() {{
+      put("id", functions.col("newData.id"));
+    }})
+  .whenNotMatched()
+  .insertExpr(
+    new HashMap<String, Column>() {{
+      put("id", functions.col("newData.id"));
+    }})
+  .execute();
+
+deltaTable.toDF().show();
+```

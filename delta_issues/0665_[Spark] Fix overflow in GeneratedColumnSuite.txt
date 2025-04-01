@@ -1,0 +1,6 @@
+## Description
+Small test fix, follow up from https://github.com/delta-io/delta/pull/3601
+The test contains an overflow and fails when running with ANSI_MODE enabled.
+
+## How was this patch tested?
+Test-only

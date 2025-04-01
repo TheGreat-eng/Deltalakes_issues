@@ -1,0 +1,7 @@
+Hello,
+up to now as I understand , streaming on delta table doesn't permit update and delete merges, only append ones.
+It could be interesting to be able to update and delete rows too.  My use case is the following ; I've debezium which sends cdc in kafka ; I would like to stream kafka and update continuously my delta table. 
+It is possible with Matereialize (https://materialize.com/materialize-under-the-hood/). for instance.
+
+Regards
+xavier

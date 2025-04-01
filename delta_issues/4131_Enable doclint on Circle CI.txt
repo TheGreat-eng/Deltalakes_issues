@@ -1,0 +1,3 @@
+Looks like `doclint` is disabled on Circle CI. See https://github.com/Debian/openjdk-8/blob/master/debian/patches/disable-doclint-by-default.patch
+
+This PR enables it manually to test our javadoc. In addition, it also includes the private package `io.delta.sql.parser` to fix javadoc build.

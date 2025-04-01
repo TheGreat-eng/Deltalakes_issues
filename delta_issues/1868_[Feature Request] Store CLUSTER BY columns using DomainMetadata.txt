@@ -1,0 +1,32 @@
+## Feature request
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the issue title
+For example: [Feature Request][Spark] Title of my issue
+-->
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+### Overview
+
+<!-- Provide a high-level description of the feature request. -->
+Uber issue: https://github.com/delta-io/delta/issues/1874
+Parser support for CLUSTER BY syntax was added in https://github.com/delta-io/delta/pull/2328. According to the [protocol](https://github.com/delta-io/delta/blob/master/PROTOCOL.md#writer-requirements-for-clustered-table), clustering columns should be stored in the domain metadata with `delta.clustering` as the domain name.
+
+### Motivation
+
+<!-- How will this feature be used? Why is it important? Which users will benefit from it? -->
+After this is completed, users will be able to run end-to-end CLUSTER BY queries to create a clustered table.
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [x] Yes. I can contribute this feature independently.
+- [ ] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.

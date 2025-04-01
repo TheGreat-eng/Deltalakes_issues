@@ -1,0 +1,6 @@
+## Feature request
+Part of delta-io/delta#1783
+
+Currently the expressions in Delta Kernel module don't have tests. Need to write the test spec and execute it.
+
+https://github.com/delta-io/delta/pull/1842#discussion_r1235987084

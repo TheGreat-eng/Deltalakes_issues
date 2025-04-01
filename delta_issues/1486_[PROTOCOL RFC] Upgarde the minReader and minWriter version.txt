@@ -1,0 +1,20 @@
+## Protocol Change Request
+
+### Description of the protocol change
+
+As per our requirements the delta tables are created through databricks platform using pyspark in the object store where protocol minReaderVersion is 3 and minWriterVersion is 7. We are currently going to host the delta sharing server on our infrastructure to share the data with the users . So currently reading API data from delta sharing server is throwing unsupported operation errors as the reader and writer version are 1 and 2 in the connectors.
+
+<!--
+The databricks platform currently supports delta sharing through unity catalogue which is currently not approved by the organization since it supports vendor lock in and the guidelines are to move to open source infrastructure. Hence we are exploring the option of implementing and hosting the delta sharing server on our infrastructure for table sharing and querying data. But since currently the tables protocol (3,7) are not compatible with the connector protocol (1,2) the delta sharing server is unable to query any data and throws Unsupported Operation.
+--> 
+
+
+### Willingness to contribute
+
+The Delta Lake Community encourages protocol innovations. Would you or another member of your organization be willing to contribute this feature to the Delta Lake code base?
+
+- [ ] Yes. I can contribute.
+- [x] Yes. I would be willing to contribute with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute at this time.
+
+

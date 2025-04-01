@@ -1,0 +1,13 @@
+The [python example](https://docs.delta.io/latest/quick-start.html#python) is not copy-paste ready.
+It suffers from wrong namespace on builder = and there is a double `spark =`
+
+The better example is:
+```
+from delta import *
+
+builder = SparkSession.builder.appName("MyApp") \
+    .config("spark.sql.extensions", "io.delta.sql.DeltaSparkSessionExtension") \
+    .config("spark.sql.catalog.spark_catalog", "org.apache.spark.sql.delta.catalog.DeltaCatalog")
+
+spark = configure_spark_with_delta_pip(builder).getOrCreate()
+```

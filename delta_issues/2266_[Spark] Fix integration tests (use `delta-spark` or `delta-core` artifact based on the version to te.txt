@@ -1,0 +1,24 @@
+#### Which Delta project/connector is this regarding?
+
+- [X] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+Update our integration tests (scala, python, with pip, without pip) to use the artifact `delta-spark` when the version is >= 3, else `delta-core`.
+
+## How was this patch tested?
+
+```
+python3 run-integration-tests.py --version 3.0.0rc1 --no-pip
+python3 run-integration-tests.py --version 2.4.0 --no-pip
+
+python3 run-integration-tests.py --version 3.0.0rc1 --pip-only
+python3 run-integration-tests.py --version 2.4.0 --pip-only
+```
+
+## Does this PR introduce _any_ user-facing changes?
+No

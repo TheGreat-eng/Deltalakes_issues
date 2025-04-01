@@ -1,0 +1,9 @@
+## Description
+
+This PR is part of https://github.com/delta-io/delta/issues/1701. A detailed overview of changes is described at https://github.com/delta-io/delta/issues/1701.
+
+This is the first PR to add support to allow reading CDC from files that have DV associated. In this PR we do some preparation work to allow fine control of how to handle masked rows: keep or drop. Later these two types will be used by CDCReader to pull masked rows out from files.
+
+## How was this patch tested?
+
+Existing test because it's refactor-only.

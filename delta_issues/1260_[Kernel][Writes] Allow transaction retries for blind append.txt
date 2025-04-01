@@ -1,0 +1,5 @@
+## Description
+Currently, Kernel throws an exception when there is a conflict (i.e., there already exists a committed file at a given version). We should retry the transaction as the current support is just for blind appends. Retry checks if there are no logical conflicts (`metadata`, `protocol` or `txn` (Set Tranaction)) conflicts that affect the blind append.
+
+## How was this patch tested?
+Tests for protocol, metadata and setTxn conflicts. Also tests to verify blind appends are retried and committed.

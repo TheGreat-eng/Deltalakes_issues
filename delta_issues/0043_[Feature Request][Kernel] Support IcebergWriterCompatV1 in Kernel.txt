@@ -1,0 +1,42 @@
+## Feature request
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the issue title
+For example: [Feature Request][Spark] Title of my issue
+-->
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [X] Kernel
+- [ ] Other (fill in here)
+
+### Overview
+
+See this PR for the RFC for the new writer feature https://github.com/delta-io/delta/pull/4285. Support writing to tables with this feature in Delta Kernel.
+
+### Project plan
+
+
+| Number | Description | Link | Depends on | Status |
+| ----- | -------- | ------- | --------| ----- |
+| 0 | Refactor `icebergCompatV2`  | https://github.com/delta-io/delta/pull/4287 | None | MERGED |
+| 1 | Introduce table feature `icebergWriterCompatV1` | https://github.com/delta-io/delta/pull/4290 | 0 | MERGED |
+| 2 | Validation/updater class | https://github.com/delta-io/delta/pull/4291 | 1 | MERGED |
+| 3 | E2E integration with TransactionBuilder | https://github.com/delta-io/delta/pull/4303 | None | MERGED |
+| ? | [P0] Additional enforcement: physicalName = fieldID |
+| ? | [P0] Address the other legacy features besides `invariants` being supported but inactive |
+| ? | [P0] Should we block disabling the conf? |
+
+Future work
+
+- [P0][Blocked] Update once we add clustering feature support
+- [P1][Blocked] Once we support schema evolution update tests to check for adding new columns of byte/short type & for enabling schema-enabled-incompatible features on existing tables
+- [P1][Blocked] Cross-test with Delta-Spark
+- [P2] Update the tests in TableFeaturesSuite to use `v2Checkpoint` instead of `deletionVectors` with the iceberg compat features since it's a little weird
+- [P2] Convert metadata validator/updater for writerV1 + v2 to be singleton https://github.com/delta-io/delta/pull/4291#discussion_r2006761278
+- [P2] Improve error message for incompatible features
+- [P2] [Clarify comment?](https://github.com/delta-io/delta/pull/4303#discussion_r2008347414) 
+
+

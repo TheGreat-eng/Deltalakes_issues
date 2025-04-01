@@ -1,0 +1,20 @@
+ val updatePath = tablePath + "lake_" + accValue._1
+              log.info("updatepath:"+updatePath)
+
+              if (DeltaTableUtils.isDeltaTable(sparks, new Path(updatePath))) {
+
+                val deltaTable = DeltaTable.forPath(sparks, updatePath)
+
+                deltaTable.as("events")
+                  .merge(
+                    deltaLakeTable.as("updates"),
+                    "events.primarykey = updates.primarykey")
+                  .whenMatched().updateAll()
+                  .whenNotMatched().insertAll()
+                  .execute()
+              }
+
+In Spark's foreach batch, two or more records are updated in a very short time. There is no record in delta table. So these two pieces of data are inserted into the table. Why two update records are inserted into the table at the same time? After inserting a record, the second record updates the record. Because there are two records in the table, the subsequent update records report errors
+
+cannot perform MERGE as multiple source rows  matched and attempted  to update the same
+

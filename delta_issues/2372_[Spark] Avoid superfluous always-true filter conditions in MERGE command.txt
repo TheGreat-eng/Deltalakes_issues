@@ -1,0 +1,13 @@
+## Description
+
+While building the output dataset to write to a delta table as part of MERGE command, Delta Lake builds conditions based on optional parts that lead to extra processing (possibly even slowing down MERGE execution = just guessing = no evidence = just gut feelings).
+
+Although Spark SQL optimizer could likely remove such extra always-true filter conditions, so can we (making the codebase smaller and easier to comprehend, hopefully). Hence the PR.
+
+## How was this patch tested?
+
+Local builds
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

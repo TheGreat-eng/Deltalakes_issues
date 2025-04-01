@@ -1,0 +1,18 @@
+#### Which Delta project/connector is this regarding?
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [X] Other (storage-s3-dynamodb)
+
+## Description
+
+I was trying to track down the source of a weird FileSystemException and eventually discovered what it meant after looking at the source code. This is a minor change to the language used to help push you into a direction to discover the actual issue. My original change was to introduce a new, more specific exception type, but that would likely be a more painful breaking change.
+
+## How was this patch tested?
+
+Executed unit tests locally.
+
+## Does this PR introduce _any_ user-facing changes?
+
+Yes, exception message text changed which if being explicitly tested against may fail.

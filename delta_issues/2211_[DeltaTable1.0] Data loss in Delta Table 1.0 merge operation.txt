@@ -1,0 +1,54 @@
+Hi All, I am a newbie here. I am debugging one data-loss issue in our pipeline where we merge the new (CSV) data into the existing Delta Table. So far I have been able to arrive to the following where I see that SortMergeJoin output had 12,722,165 records whereas after couple of steps, 12,721,496 records were written to the table. So during the serialization of the records to the store 669 recoreds are missed. What could be the reason for this? This difference of rows is surfaced at data-loss in our use-cases.
+
+![image](https://github.com/delta-io/delta/assets/19485854/4e6bcfc7-739e-401a-af5b-75ec545806e1)
+
+This is also reflected through the Delta Table transaction log where the output rows are not aligned with the breakdown of rest of the operations. _I have marked some pointers (A, B... ) on the specific metrics to show the outcome of my theory._
+
+```
+{
+
+      "commitInfo": {
+            "timestamp": 1695218912193,
+            "operation": "MERGE",
+            "operationParameters": {
+                  "predicate": "(((target.`PartitionId` IN ('2022', '2023')) AND (target.`PartitionId` = source.`PartitionId`)) AND (target.`Id` = source.`Id`))",
+                  "matchedPredicates": "[{\"predicate\":\"(source.`versionnumber` > target.`versionnumber`)\",\"actionType\":\"update\"}]",
+                  "notMatchedPredicates": "[{\"actionType\":\"insert\"}]"
+            },
+            "readVersion": 1738,
+            "isBlindAppend": false,
+            "operationMetrics": {
+                  "numTargetRowsCopied": "12720032", (A)
+                  "numTargetRowsDeleted": "0",       (B)
+                  "numTargetFilesAdded": "2",
+                  "executionTimeMs": "2058018",
+                  "numTargetRowsInserted": "11",     (C)
+                  "scanTimeMs": "99636",
+                  "numTargetRowsUpdated": "2122",    (D)
+                  "numOutputRows": "12721496",       (E)
+                  "numSourceRows": "2133",           (F)
+                  "numTargetFilesRemoved": "2",
+                  "rewriteTimeMs": "1957630"
+            }
+      }
+    }
+```
+
+Based on my observations, I have following equations which are most held true.
+
+Eq1: numTargetRowsCopied (A) + numTargetRowsInserted (C) + numTargetRowsUpdated (D) - numTargetRowsDeleted (B) == numOutputRows (E)
+
+Eq2:  numTargetRowsDeleted (B) + numTargetRowsInserted (C) + numTargetRowsUpdated (D) == numSourceRows (F)
+
+But whenever we see data loss, we see that E2 is true (i.e., input data was correctly received) but E1 is not true (i.e., some data got dropped somehow). 
+
+In this particular example, for E1, I see a difference of 669 rows (i.e., these many rows are not there in Delta Table). I am not sure if it is by design. In what circumstances, such difference can be observed?
+
+Are there any known issues in Delta Table 1.0 stack which can lead to this? I am looking for some pointers to dig further into this issue.
+
+We are using PySpark SDK for Delta Table and compute is through Synapse Spark pools.
+
+- Apache Spark - 3.1
+- Delta Lake version - 1.0
+
+Any input here will be very helpful. TIA.

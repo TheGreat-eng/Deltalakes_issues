@@ -1,0 +1,11 @@
+## Description
+
+This PR removes the RowIdHighWaterMark action by using the DomainMetadata action instead. This allows us to get rid of the special `DomainMetadata`, which simplifies and speeds up log replay. As part of doing this it adds a dependency between the row tracking and domain metadata table features.
+
+## How was this patch tested?
+
+Existing tests to make sure nothing breaks.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

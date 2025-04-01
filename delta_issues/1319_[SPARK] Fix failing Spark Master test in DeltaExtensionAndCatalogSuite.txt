@@ -1,0 +1,22 @@
+#### Which Delta project/connector is this regarding?
+
+- [X] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+Fix failing test `DeltaLog should throw exception if spark.sql.catalog.spark_catalog config is not found` in `DeltaExtensionAndCatalogSuite` by replacing `.getOption($key).isEmpty` with `.contains($key)`
+
+- In Spark 3.5, `spark.conf.getOption("spark.sql.catalog.spark_catalog")` returned `None`
+- In Spark Master (4.0), `spark.conf.getOption("spark.sql.catalog.spark_catalog")` returned `Some("undefined")`. I'm not sure why
+
+## How was this patch tested?
+
+Existing UTs.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

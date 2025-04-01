@@ -1,0 +1,39 @@
+As title. Noticed internally that we need to perform GDPR deletes on our delta table which is a streaming source, however on performing the delete, several files will be rewritten. And from our experiment the _new files_ that are added do not have `dataChange=false` which means the streaming will pick them up again ([per this](https://github.com/delta-io/delta/blob/0d07d094ccd520c1adbe45dde4804c754c0a4baa/core/src/main/scala/org/apache/spark/sql/delta/sources/DeltaSource.scala#L229-L232)).
+
+
+
+```scala
+
+import org.apache.spark.sql.{functions=>F}
+
+
+val sourceTable = "test_delete_change_data"
+
+spark.sql(s"DROP TABLE IF EXISTS $sourceTable")
+// Set to false so we can control how many files we create
+spark.sql("set spark.databricks.delta.optimizeWrite.enabled = false;")
+spark.sql("set spark.databricks.delta.autoCompact.enabled = false;")
+spark.sql("set spark.databricks.delta.properties.defaults.autoOptimize.optimizeWrite = false;")
+spark.sql("set spark.databricks.delta.properties.defaults.autoOptimize.autoCompact = false;")
+
+val _ = spark.range(100)
+        .repartition(4) // To create 4 files only
+        .write.format("delta")
+        .mode("overwrite")
+        .saveAsTable(sourceTable)
+
+val checkpointLocation = spark.sql(s"DESCRIBE DETAIL $sourceTable").select("location").collect().head.getString(0)
+
+
+// This display shows original files
+display(spark.read.json(s"${checkpointLocation}/_delta_log/00000000000000000000.json").filter(F.col("add").isNotNull).select("add.*"))
+
+// Perform the delete
+display(spark.sql(s"DELETE FROM $sourceTable WHERE id % 20 == 0"))
+
+// This shows the file added from the second commit
+display(spark.read.json(s"${checkpointLocation}/_delta_log/00000000000000000001.json").filter(F.col("add").isNotNull).select("add.*"))
+
+```
+
+Sorry if I missed something totally obvious.

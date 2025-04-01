@@ -1,0 +1,2 @@
+This PR improves the conflict detection logic by treating the following case.
+when the winning commit rearranges data (enabled by #223)  and the current transaction is just reading and appending files, the current commit should be allowed.   

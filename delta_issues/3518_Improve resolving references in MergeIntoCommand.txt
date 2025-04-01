@@ -1,0 +1,32 @@
+This PR fixes a perf issue in MergeIntoCommand.
+
+In `MergeIntoCommand`.`writeAllChanges`, `resolveOnJoinedPlan` applies `tryResolveReferences` for each column.
+
+However, in `tryResolveReferences`, it calls `sparkSession.sessionState.analyzer.execute(newPlan)` for fake logical plan which is quite expensive. (ref: https://github.com/apache/spark/blob/38d39812c176e4b52a08397f7936f87ea32930e7/sql/catalyst/src/main/scala/org/apache/spark/sql/catalyst/analysis/Analyzer.scala#L247)
+
+```
+ val newPlan = FakeLogicalPlan(Seq(expr), planContainingExpr.children)
+    sparkSession.sessionState.analyzer.execute(newPlan) match {
+```
+
+If a table has many columns -few hundreds to thousands-, it will take some time on driver.
+I tested with 1000 columns and the following code took 22~25 seconds on both spark 2.4 & spark 3.1.
+```
+// call resolveOnJoinedPlan 4 times
+val processor = new JoinedRowProcessor(
+      targetRowHasNoMatch = resolveOnJoinedPlan(Seq(col(SOURCE_ROW_PRESENT_COL).isNull.expr)).head,
+      sourceRowHasNoMatch = resolveOnJoinedPlan(Seq(col(TARGET_ROW_PRESENT_COL).isNull.expr)).head,
+      matchedConditions = matchedClauses.map(clauseCondition),
+      matchedOutputs = matchedClauses.map(matchedClauseOutput),
+      notMatchedConditions = notMatchedClauses.map(clauseCondition),
+      notMatchedOutputs = notMatchedClauses.map(notMatchedClauseOutput),
+      noopCopyOutput =
+        resolveOnJoinedPlan(targetOutputCols :+ Literal.FalseLiteral :+ incrNoopCountExpr),
+      deleteRowOutput =
+        resolveOnJoinedPlan(targetOutputCols :+ Literal.TrueLiteral :+ Literal.TrueLiteral),
+      joinedAttributes = joinedPlan.output,
+      joinedRowEncoder = joinedRowEncoder,
+      outputRowEncoder = outputRowEncoder)
+```
+
+With this fix, it took less than 1 second.

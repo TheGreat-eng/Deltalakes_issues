@@ -1,0 +1,11 @@
+Hi Team,
+if we input multiple columns to ZORDER,  does the column order matter?  
+
+e.g. 
+optimize table_name ZORDER BY c1, c2
+vs
+optimize table_name ZORDER BY c2, c1
+
+And what is the guideline for the column order? 
+
+Thanks

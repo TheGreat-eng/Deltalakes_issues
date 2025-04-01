@@ -1,0 +1,17 @@
+I was trying to get the delta compression type during read and writes, the underlying file format is parquet, setting compression type globally using 'spark.sql.parquet.compression.codec'='zstd' works fine, but how do I set it for individual table 
+
+sql("CREATE TABLE delta (id int, name string) USING delta LOCATION '${path}' OPTIONS ('compression'='zstd')")
+or 
+sql("CREATE TABLE delta (id int, name string) USING delta LOCATION '${path}' OPTIONS ('parquet.compression'='zstd')")
+does not set the compression.
+
+spark.range(100).write.format("delta").option("compression", "zstd").mode("overwrite").saveAsTable("" +
+    "deltaTab")
+ spark.read.table("deltaTab").show
+ works 
+ saving and not creating a table works,
+
+spark.range(100).write.format("delta")\
+  .option("compression", "zstd").mode("overwrite").save("zstd.delta")
+??
+

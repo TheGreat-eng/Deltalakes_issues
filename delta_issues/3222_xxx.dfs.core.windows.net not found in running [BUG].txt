@@ -1,0 +1,46 @@
+Delta lake uses data lake storage gen2 for storage and generates an error of xxx.dfs.core.windows.net not found. The error occurs after the program runs for a few days, and it suddenly appears during normal operation. question.
+
+------------------->
+Configuration property xxx.dfs.core.windows.net not found.
+	at org.apache.hadoop.fs.azurebfs.AbfsConfiguration.getStorageAccountKey(AbfsConfiguration.java:342) ~[?:?]
+	at org.apache.hadoop.fs.azurebfs.AzureBlobFileSystemStore.initializeClient(AzureBlobFileSystemStore.java:812) ~[?:?]
+	at org.apache.hadoop.fs.azurebfs.AzureBlobFileSystemStore.<init>(AzureBlobFileSystemStore.java:149) ~[?:?]
+	at org.apache.hadoop.fs.azurebfs.AzureBlobFileSystem.initialize(AzureBlobFileSystem.java:108) ~[?:?]
+	at org.apache.hadoop.fs.FileSystem.createFileSystem(FileSystem.java:3303) ~[hadoop-common-3.2.0.jar:?]
+	at org.apache.hadoop.fs.FileSystem.access$200(FileSystem.java:124) ~[hadoop-common-3.2.0.jar:?]
+	at org.apache.hadoop.fs.FileSystem$Cache.getInternal(FileSystem.java:3352) ~[hadoop-common-3.2.0.jar:?]
+	at org.apache.hadoop.fs.FileSystem$Cache.get(FileSystem.java:3320) ~[hadoop-common-3.2.0.jar:?]
+	at org.apache.hadoop.fs.FileSystem.get(FileSystem.java:479) ~[hadoop-common-3.2.0.jar:?]
+	at org.apache.hadoop.fs.Path.getFileSystem(Path.java:361) ~[hadoop-common-3.2.0.jar:?]
+	at org.apache.parquet.hadoop.util.HadoopOutputFile.fromPath(HadoopOutputFile.java:58) ~[parquet-hadoop-1.10.1.jar:1.10.1]
+	at org.apache.parquet.hadoop.ParquetOutputFormat.getRecordWriter(ParquetOutputFormat.java:389) ~[parquet-hadoop-1.10.1.jar:1.10.1]
+	at org.apache.parquet.hadoop.ParquetOutputFormat.getRecordWriter(ParquetOutputFormat.java:349) ~[parquet-hadoop-1.10.1.jar:1.10.1]
+	at org.apache.spark.sql.execution.datasources.parquet.ParquetOutputWriter.<init>(ParquetOutputWriter.scala:36) ~[spark-sql_2.12-3.1.1.jar:3.1.1]
+	at org.apache.spark.sql.execution.datasources.parquet.ParquetFileFormat$$anon$1.newInstance(ParquetFileFormat.scala:149) ~[spark-sql_2.12-3.1.1.jar:3.1.1]
+	at org.apache.spark.sql.delta.Checkpoints$.$anonfun$writeCheckpoint$2(Checkpoints.scala:286) ~[?:?]
+	at org.apache.spark.rdd.RDD.$anonfun$mapPartitions$2(RDD.scala:863) ~[spark-core_2.12-3.1.1.jar:3.1.1]
+	at org.apache.spark.rdd.RDD.$anonfun$mapPartitions$2$adapted(RDD.scala:863) ~[spark-core_2.12-3.1.1.jar:3.1.1]
+	at org.apache.spark.rdd.MapPartitionsRDD.compute(MapPartitionsRDD.scala:52) ~[spark-core_2.12-3.1.1.ja
+<-------------------
+
+According to the documentation of hadoop-azure, the problem is caused by the wrong url, but there is no problem with my url, because the program can run normally, and it has been running for a few days, and the log can be queried that the problem will occur frequently Generated, but sometimes the executor will retry successfully, and sometimes the executor will fail to retry and cause the entire task to fail
+
+According to the official documentation of delta lake connecting to data lake storage gen2, the connection is using oAuth, but my connection method is using shareKey
+
+            String accountName = conf.get("spark.sensor.storage.azure.accountName", "");
+            String accountKey = conf.get("spark.sensor.storage.azure.accountKey", "");
+            String system = conf.get("spark.sensor.storage.azure.system", "");
+            conf.set("spark.delta.logStore.class", "org.apache.spark.sql.delta.storage.AzureLogStore");
+            conf.set("fs.azure.account.auth.type." + accountName + ".dfs.core.windows.net", "SharedKey");
+            conf.set("fs.azure.account.key." + accountName + ".dfs.core.windows.net", accountKey);
+            conf.set("fs.azure.enable.flush", "true");
+            conf.set("fs.azure.enable.check.access", "true");
+
+Does it have anything to do with this?
+
+Environment information
+Azure data lake storage gen2
+Delta Lake version: 1.0.0
+Spark version: 3.1.2
+Hadoop version: 3.2.0
+Scala version: 2.12

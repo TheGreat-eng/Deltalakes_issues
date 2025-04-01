@@ -1,0 +1,19 @@
+#### Which Delta project/connector is this regarding?
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+Make sure that version and maxVersionInclusive are formatted correctly.
+
+## How was this patch tested?
+
+Build
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

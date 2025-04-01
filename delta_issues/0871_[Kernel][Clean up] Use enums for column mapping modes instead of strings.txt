@@ -1,0 +1,5 @@
+## Description
+Resolve to `enum` as part of the `TableConfig` fetch methods. This avoids comparing strings and dealing with case sensitivity.
+
+## How was this patch tested?
+Existing tests.

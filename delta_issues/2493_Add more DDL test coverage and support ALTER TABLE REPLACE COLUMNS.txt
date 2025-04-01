@@ -1,0 +1,25 @@
+<!--
+Thanks for sending a pull request!  Here are some tips for you:
+  1. If this is your first time, please read our contributor guidelines: https://github.com/delta-io/delta/blob/master/CONTRIBUTING.md
+  2. If the PR is unfinished, add '[WIP]' in your PR title, e.g., '[WIP] Your PR title ...'.
+  3. Be sure to keep the PR description updated to reflect all changes.
+  4. Please write your PR title to summarize what this PR proposes.
+  5. If possible, provide a concise example to reproduce the issue for a faster review.
+  6. If applicable, include the corresponding issue number in the PR title and link it in the body.
+-->
+
+## Description
+
+This PR adds more DDL test coverage around commands like SHOW TBLPROPERTIES, SHOW COLUMNS, DESC COLUMN and also adds support for ALTER TABLE REPLACE COLUMNS.
+
+REPLACE COLUMNS as it is implemented today drops all columns and then adds all new columns. This is actually undesirable for a Delta table, as it will cause all data to be dropped when column mapping is enabled. Therefore the way we implement is to look at the final schema, which is provided by all the ADD COLUMN table changes that are provided and try to resolve the differences. If a difference is ambiguous, then we will throw an error.
+
+A column being dropped and added would lead to an ambiguous change, because we don't know if we should be treating that as a column rename or literally a drop + add. Users should explicitly call ALTER TABLE drop columns + ALTER TABLE add columns instead.
+
+## How was this patch tested?
+
+This patch introduces many new unit tests
+
+## Does this PR introduce _any_ user-facing changes?
+
+Yes, this PR may start throwing ambiguous change errors for ALTER TABLE REPLACE COLUMNS. I doubt that it is used as much, but it would prevent accidental deletion of data. Users can do a REPLACE TABLE if they really wanted to replace the table with empty data.

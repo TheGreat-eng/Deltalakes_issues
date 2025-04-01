@@ -1,0 +1,41 @@
+### Description
+when 2 jobs run OPTIMIZE command on same delta table, one of them throws Py4JJavaError exception. I was expecting ConcurrentDeleteDeleteException exception.
+
+#### Steps to reproduce
+Run OPTIMIZE command concurrently on same delta table
+
+<!--
+Please include copy-pastable code snippets if possible.
+1. _____
+2. _____
+3. _____
+-->
+
+#### Observed results
+
+Exception of Py4JJavaError is raised
+![image](https://github.com/delta-io/delta/assets/57526133/5be9ddad-ae3c-48f6-a26d-4fe99007b1b8)
+
+#### Expected results
+
+Exception of ConcurrentDeleteDeleteException
+
+#### Further details
+
+<!--
+Include any additional details that may be useful for diagnosing the problem here. If including tracebacks, please include the full traceback. Large logs and files should be attached.
+-->
+
+### Environment information
+* DataBricks run time : 12.2 LTS (includes Apache Spark 3.3.2, Scala 2.12)
+* Delta Lake version : 2.2.0
+* Spark version: 3.3.2
+* Scala version: 2.12
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [ ] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [X] No. I cannot contribute a bug fix at this time.

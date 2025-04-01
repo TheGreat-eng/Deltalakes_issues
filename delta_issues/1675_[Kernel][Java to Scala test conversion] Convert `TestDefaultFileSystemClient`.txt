@@ -1,0 +1,5 @@
+Convert the tests written in Java to Scala. Scala suites have better test framework and takes few lines to write a test compared to Java.
+
+Java suite: [TestDefaultFileSystemClient](https://github.com/delta-io/delta/blob/master/kernel/kernel-defaults/src/test/java/io/delta/kernel/defaults/client/TestDefaultFileSystemClient.java)
+
+Target Scala suite [DefaultFileSystemClientSuite](https://github.com/delta-io/delta/tree/master/kernel/kernel-defaults/src/test/scala/io/delta/kernel/defaults/client) (needs a new file)

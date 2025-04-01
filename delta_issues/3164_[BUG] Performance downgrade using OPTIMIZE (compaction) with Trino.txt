@@ -1,0 +1,30 @@
+## Bug
+
+### Describe the problem
+We were happy to see that OSS delta lake supported compaction, so we upgraded and tried to optimize our current tables. However, we observed the performance downgrade after compaction.
+
+We use Starburst Enterprise (Trino) to query the delta lake on the top of S3, and here's our performance test using TPC-DS, and the chart below shows the size and object numbers of each table. 
+![image](https://user-images.githubusercontent.com/24840232/170155351-1b38c435-c809-4577-980f-acfbccef160c.png)
+
+After compaction, each table's files were merged into one file, one example below.
+![Screen Shot 2022-05-24 at 5 53 28 PM](https://user-images.githubusercontent.com/24840232/170155462-c084fa48-dc38-4495-98b6-1803df8ca10b.png)
+
+Then we did the benchmark test and the comparsion, the below is the result of the query elapsed time, the left (blue) is before the compaction, and the right (red) is after.
+![Screen Shot 2022-05-24 at 5 41 30 PM](https://user-images.githubusercontent.com/24840232/170154418-59077074-23df-43fe-8898-8a10677e966c.png)
+
+The samiliar downgraded performance was also observed on our data (we have large partitioned tables, and test the benchmarks on select with different filters and complex join queries)
+
+### Environment information
+
+* Delta Lake version: 1.2.1
+* Spark version: 3.2.1
+* Scala version: 2.12
+* Starburst/Trino version: 370-e.3
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [ ] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [x] No. I cannot contribute a bug fix at this time.

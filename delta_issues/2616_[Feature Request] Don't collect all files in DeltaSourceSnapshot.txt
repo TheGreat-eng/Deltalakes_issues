@@ -1,0 +1,29 @@
+## Feature request
+
+### Overview
+
+<!-- Provide a high-level description of the feature request. -->
+We have several times hit issues running out of memory starting a new stream on a large Delta table. I finally traced through the code to see what the memory requirements should be and it appears that `SnapshotIterator.iterator` `collect`s all files (including stats) to create an iterator on the list of files. This can take a very large amount of memory on the driver for large tables.
+
+Additionally, it would appear that the final list to create a `TahoeBatchFileIndex` also includes the stats as well? And I don't think anything related to streaming currently uses file stats that I can tell? So it would be helpful to be able to drop the stats for streaming things at least to avoid collecting all that on the driver. 
+
+### Motivation
+
+<!-- How will this feature be used? Why is it important? Which users will benefit from it? -->
+Starting a stream on a large table requires a lot of driver memory.
+
+### Further details
+
+<!--
+Use this section to include any additional information about the feature. If you have a proposal for how to implement this feature, please include it here. For implementation guidelines, please read our contributor guidelines: https://github.com/delta-io/delta/blob/master/CONTRIBUTING.md
+If there are any specific requirements for this feature that are not immediately obvious please outline them here.
+-->
+Any feedback on my assumptions about how stats are used or any ideas for how to not do a collect on the entire snapshot would be welcome.
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [ ] Yes. I can contribute this feature independently.
+- [X] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.

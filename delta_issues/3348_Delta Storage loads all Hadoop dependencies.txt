@@ -1,0 +1,1 @@
+This may already be being tracked, but noticed this while trying to test things out on master. delta-storage depends on `hadoop-common` and not as a provided dependency, so if you `spark-shell --packages io.delta:delta-core_2.12:1.2.0-SNAPSHOT` it will load Hadoop and all the things it depends on.

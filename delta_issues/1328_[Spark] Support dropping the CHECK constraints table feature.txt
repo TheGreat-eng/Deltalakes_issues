@@ -1,0 +1,23 @@
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+This PR adds support for dropping the `checkConstraints` table feature using the `ALTER TABLE ... DROP FEATURE` command. It throws an error if the table still contains CHECK constraints (as dropping a feature should never change the logical state of a table).
+
+## How was this patch tested?
+
+Added a test to `CheckConstraintsSuite`
+
+## Does this PR introduce _any_ user-facing changes?
+
+Yes, `ALTER TABLE ... DROP FEATURE checkConstraints` is now supported.

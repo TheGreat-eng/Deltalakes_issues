@@ -1,0 +1,5 @@
+`getTouchedFiles` incorrectly calls `toUri` which will escape the table path when it contains special chars. This causes Merge/Update/Delete not able to find matches files in this case.
+
+This PR removes `toUri` to fix the issue and adds a test to confirm the fix.
+
+Fix #724

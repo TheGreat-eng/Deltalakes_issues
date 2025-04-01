@@ -1,0 +1,3 @@
+In the last few commits of the core scala DynamoDBLogStore work, we a) refactored from contribs to storage-dynamodb artifact, and also renamed `DynamoDBLogStore.scala` to `DynamoDBLogStoreScala.scala`
+
+This PR updates the integration tests to work with those latest changes.

@@ -1,0 +1,32 @@
+#### Which Delta project/connector is this regarding?
+
+- [X] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+This PR teaches the `MERGE INTO` command to turn on schema evolution when there exists `WITH SCHEMA EVOLUTION` keywords in the commands.
+
+Changes in this PR are:
+
+1. Modify case classes `MergeIntoCommand` and `DeltaMergeInto` to store schema evolution enablement information.
+2. For `DeltaMergeInto`, we reuse the existing migrateSchema fields instead of adding a new one.
+3. Scala user-facing `DeltaMergeBuilder` API.
+
+Changed to be done but not in this PR:
+
+1. Python user-facing DeltaMergeBuilder API.
+2. Extend schema evolution tests to test `WITH SCHEMA EVOLUTION` keywords.
+
+## How was this patch tested?
+
+Improving the existing tests.
+
+
+
+## Does this PR introduce _any_ user-facing changes?
+
+This PR allows user to turn on automatic scheme evolution for a specific MERGE command by issuing `MERGE WITH SCHEMA EVOLUTION INTO ...` SQL commands.

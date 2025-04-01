@@ -1,0 +1,42 @@
+The Delta Lake 1.0.0 docs contain [an example](https://docs.delta.io/1.0.0/delta-batch.html#replace-columns) for replacing columns using `ALTER TABLE table_name REPLACE COLUMNS...`.  However, when I try to run this, I'm getting an exception from `DeltaCatalog`.
+
+```
+ALTER TABLE table_name REPLACE COLUMNS (col_1 string, col_2 double)
+
+throws:
+
+java.lang.UnsupportedOperationException: Unrecognized column change class org.apache.spark.sql.connector.catalog.TableChange$DeleteColumn. You may be running an out of date Delta Lake version.
+	at org.apache.spark.sql.delta.catalog.DeltaCatalog.$anonfun$alterTable$9(DeltaCatalog.scala:504)
+	at org.apache.spark.sql.delta.catalog.DeltaCatalog.$anonfun$alterTable$9$adapted(DeltaCatalog.scala:476)
+	at scala.collection.IndexedSeqOptimized.foreach(IndexedSeqOptimized.scala:36)
+	at scala.collection.IndexedSeqOptimized.foreach$(IndexedSeqOptimized.scala:33)
+	at scala.collection.mutable.WrappedArray.foreach(WrappedArray.scala:38)
+	at org.apache.spark.sql.delta.catalog.DeltaCatalog.$anonfun$alterTable$2(DeltaCatalog.scala:476)
+	at scala.collection.immutable.Map$Map2.foreach(Map.scala:159)
+	at org.apache.spark.sql.delta.catalog.DeltaCatalog.alterTable(DeltaCatalog.scala:431)
+	at org.apache.spark.sql.delta.catalog.DeltaCatalog.alterTable(DeltaCatalog.scala:57)
+	at org.apache.spark.sql.execution.datasources.v2.AlterTableExec.run(AlterTableExec.scala:37)
+	at org.apache.spark.sql.execution.datasources.v2.V2CommandExec.result$lzycompute(V2CommandExec.scala:40)
+	at org.apache.spark.sql.execution.datasources.v2.V2CommandExec.result(V2CommandExec.scala:40)
+	at org.apache.spark.sql.execution.datasources.v2.V2CommandExec.executeCollect(V2CommandExec.scala:46)
+	at org.apache.spark.sql.Dataset.$anonfun$logicalPlan$1(Dataset.scala:228)
+	at org.apache.spark.sql.Dataset.$anonfun$withAction$1(Dataset.scala:3687)
+	at org.apache.spark.sql.execution.SQLExecution$.$anonfun$withNewExecutionId$5(SQLExecution.scala:103)
+	at org.apache.spark.sql.execution.SQLExecution$.withSQLConfPropagated(SQLExecution.scala:163)
+	at org.apache.spark.sql.execution.SQLExecution$.$anonfun$withNewExecutionId$1(SQLExecution.scala:90)
+	at org.apache.spark.sql.SparkSession.withActive(SparkSession.scala:772)
+	at org.apache.spark.sql.execution.SQLExecution$.withNewExecutionId(SQLExecution.scala:64)
+	at org.apache.spark.sql.Dataset.withAction(Dataset.scala:3685)
+	at org.apache.spark.sql.Dataset.<init>(Dataset.scala:228)
+	at org.apache.spark.sql.Dataset$.$anonfun$ofRows$2(Dataset.scala:99)
+	at org.apache.spark.sql.SparkSession.withActive(SparkSession.scala:772)
+	at org.apache.spark.sql.Dataset$.ofRows(Dataset.scala:96)
+	at org.apache.spark.sql.SparkSession.$anonfun$sql$1(SparkSession.scala:615)
+	at org.apache.spark.sql.SparkSession.withActive(SparkSession.scala:772)
+	at org.apache.spark.sql.SparkSession.sql(SparkSession.scala:610)
+        ...
+```
+
+I took a look at `DeltaCatalog` and confirmed that `alterTable()` doesn't handle `DeleteColumn`.
+
+Is this actually a supported scenario? I took a look through the unit tests and there seem to be no tests covering this.

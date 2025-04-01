@@ -1,0 +1,21 @@
+Hi folks,
+
+We have a read stream attached to a Delta table that will not recognize or accept a starting cursor. The stream is setup like so:
+
+````
+    stream = (
+      spark.readStream
+      .format('delta')
+      .option('startingVersion', 'latest')
+      .load('/mnt/table')
+    )
+````
+
+The stream insists on starting from the first data and processing the whole table, but never makes it past the first batch, and keeps resetting the cursor. We have evidence of this as every batch that finishes and flushes a checkpoint offset shows:
+
+``"isStartingVersion":true``
+
+We have other streams attached to the same Delta table that work perfectly, and show ``"isStartingVersion":false.``
+We have tried clearing the checkpoint directory and tried using both ``startingVersion`` and ``startingTimestamp`` but to no avail - it always gets stuck on the same rows.
+
+We are on Databricks Runtime 7.4.

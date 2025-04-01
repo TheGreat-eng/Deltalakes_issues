@@ -1,0 +1,18 @@
+#### Which Delta project/connector is this regarding?
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+In this PR, we replace an assertion error with an actual exception. This improves the error message from an internal error in spark to a more actionable error indicating user error. The assertion comes from an assumption that the code in DeltaAnalysis is run after PreprocessTableInsertion (resolution), but this is not the case. We choose to duplicate the check instead of reordering the rules to have a smaller change.
+
+## How was this patch tested?
+
+New tests.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No. The error message is improved.

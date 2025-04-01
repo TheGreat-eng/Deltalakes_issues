@@ -1,0 +1,15 @@
+## Bug
+
+#### Which Delta project/connector is this regarding?
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [X] Kernel
+- [ ] Other (fill in here)
+
+### Describe the problem
+
+In-Commit Timestamps (ICT) is a table feature that changes who/what owns the actual timestamp of a Delta commit. Previously, it was the timestamp of the commit file status. With ICT, it is moved to the CommitInfo action which must be the first action in a Delta write.
+
+Today, Kernel does not take into account the ICT feature during time travel by timestamp reads. This means that we may request a historical time `T` which incorrectly loads a Delta version `X` (with file status timestamp matching T) instead of loading Delta verion `Y` (which has a CommitInfo indicating that this, in fact, is the right version to load).

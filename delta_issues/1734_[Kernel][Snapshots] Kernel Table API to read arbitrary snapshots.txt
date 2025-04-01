@@ -1,0 +1,30 @@
+## Feature request
+
+#### Which Delta project/connector is this regarding?
+
+Related to the Druid-Delta Lake connector https://github.com/apache/druid/pull/15755. Currently in 3.0.0, the `Table` interface only supports reading the [latest](https://docs.delta.io/3.0.0/api/java/kernel/io/delta/kernel/Table.html#getLatestSnapshot-io.delta.kernel.client.TableClient-) snapshot. I see the same for the pre-release version [3.1.0](https://docs.delta.io/3.1.0/api/java/kernel/index.html). How feasible would it be to add support for reading arbitrary snapshots in the Delta Kernel?
+
+<!--
+Please add the component selected below to the beginning of the issue title
+For example: [Feature Request][Spark] Title of my issue
+-->
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [x] Kernel
+- [ ] Other (fill in here)
+
+
+<!--
+Use this section to include any additional information about the feature. If you have a proposal for how to implement this feature, please include it here. For implementation guidelines, please read our contributor guidelines: https://github.com/delta-io/delta/blob/master/CONTRIBUTING.md
+If there are any specific requirements for this feature that are not immediately obvious please outline them here.
+-->
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [ ] Yes. I can contribute this feature independently.
+- [x] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.

@@ -1,0 +1,64 @@
+## Bug
+
+### Describe the problem
+Following unit tests fail:
+
+-  Metadata (with all defaults)
+-  Metadata - json serialization/deserialization
+- Metadata with empty createdTime- json serialization/deserialization
+- 
+#### Steps to reproduce
+```bash
+git checkout master
+build/sbt "testOnly org.apache.spark.sql.delta.ActionSerializerSuite"
+```
+```
+ Metadata (with all defaults) - json serialization/deserialization *** FAILED *** (623 milliseconds)
+[info]   "{"metaData":{"id":"[10daabbc-d843-4fe4-abe5-0ccb83ba681e]","format":{"provide..." did not equal "{"metaData":{"id":"[testId]","format":{"provide..." (ActionSerializerSuite.scala:344)
+[info]   Analysis:
+[info]   "{"metaData":{"id":"[10daabbc-d843-4fe4-abe5-0ccb83ba681e]","format":{"provide..." -> "{"metaData":{"id":"[testId]","format":{"provide..."
+
+============================================================
+[info] Tests: succeeded 25, failed 3, canceled 0, ignored 0, pending 0
+[info] *** 3 TESTS FAILED ***
+[error] Failed tests:
+[error]         org.apache.spark.sql.delta.ActionSerializerSuite
+[error] (core / Test / testOnly) sbt.TestsFailedException: Tests unsuccessful
+[error] Total time: 24 s, completed Jul 21, 2022 9:56:50 AM
+➜  delta git:(master)$ build/sbt "testOnly org.apache.spark.sql.delta.ActionSerializerSuite"
+
+```
+<!--
+Please include copy-pastable code snippets if possible.
+1. _____
+2. _____
+3. _____
+-->
+
+#### Observed results
+
+<!-- What happened?  This could be a description, log output, etc. -->
+
+#### Expected results
+
+<!-- What did you expect to happen? -->
+
+#### Further details
+
+<!--
+Include any additional details that may be useful for diagnosing the problem here. If including tracebacks, please include the full traceback. Large logs and files should be attached.
+-->
+
+### Environment information
+
+* Delta Lake version:
+* Spark version:
+* Scala version:
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [ ] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [x] No. I cannot contribute a bug fix at this time.

@@ -1,0 +1,60 @@
+## Question
+
+#### Which Delta project/connector is this regarding?
+
+- [X] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+### Overview
+We have some logic that looks like this:
+```python
+def x_batch(x_df: DataFrame, batch_id: int) -> None:
+    // do stuff including a merge
+
+def y_batch(y_df: DataFrame, batch_id: int) -> None:
+    // do stuff including a merge
+
+x_kafka_topic.writeStream.forEachBatch(x_batch)
+y_kafka_topic.writeStream.forEachBatch(y_batch)
+```
+We would like to use idempotent writes for each of these batches, however, because we're using a Delta Merge operation within the `forEachBatch`, we have to set the idempotency at the `SparkSession` conf level.
+
+Is this safe? It isn't obvious that it would be:
+```python
+def x_batch(x_df: DataFrame, batch_id: int) -> None:
+    spark = x_df.sparkSession
+    spark.conf.set("spark.databricks.delta.write.txnAppId", f"x-{SETTINGS.version.major}")
+    spark.conf.set("spark.databricks.delta.write.txnVersion", batch_id)
+    // do stuff including a merge
+
+def y_batch(y_df: DataFrame, batch_id: int) -> None:
+    spark = y_df.sparkSession
+    spark.conf.set("spark.databricks.delta.write.txnAppId", f"y-{SETTINGS.version.major}")
+    spark.conf.set("spark.databricks.delta.write.txnVersion", batch_id)
+    // do stuff including a merge
+
+x_kafka_topic.writeStream.forEachBatch(x_batch)
+y_kafka_topic.writeStream.forEachBatch(y_batch)
+``` 
+
+### Motivation
+
+I noticed in [the original feature request](https://github.com/delta-io/delta/issues/1421) asking for this that `.option(...)` would be added to `DeltaMergeBuilder`, but [it is clear from the implementation](https://github.com/delta-io/delta/commit/f1ec3a0d77a2ab2701fbc8170adae3d5d7d10d90) that it did not get added.
+
+If this is _not_ safe to do, then I would change this question to a feature request and allow options to be set on the `DeltaMergeBuilder`.
+
+### Further details
+
+Spark 3.4.0
+Delta 2.4.0
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [ ] Yes. I can contribute this feature independently.
+- [X] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.

@@ -1,0 +1,3 @@
+We use `spark-submit` to run `test_pip_utils.py`, but it doesn't call `unittest.main` similar to https://github.com/delta-io/delta/blob/e36dc6b9ca8ea8e893080dcea847978d5835125b/python/delta/tests/test_sql.py#L157-L163
+
+Hence tests in test_pip_utils.py are not triggered.

@@ -1,0 +1,21 @@
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [X] Kernel
+- [ ] Other (fill in here)
+
+## Description
+Resolves #2149.
+Added validation that readSchema is a subset of the table schema in ScanBuilder.
+
+## How was this patch tested?
+Tests added to `ScanSuite.scala`.
+
+## Does this PR introduce _any_ user-facing changes?
+No.

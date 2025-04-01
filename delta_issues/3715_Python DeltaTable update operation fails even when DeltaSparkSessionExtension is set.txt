@@ -1,0 +1,58 @@
+I am attempting to use the [update operation](https://docs.delta.io/latest/api/python/index.html#delta.tables.DeltaTable.update) with the Python api. Spark version is **3.0.1**. I launch pyspark with 
+```
+pyspark --packages io.delta:delta-core_2.12:0.8.0,org.apache.hadoop:hadoop-aws:2.8.5
+```
+
+My spark session is configured with
+
+```
+spark = (
+    pyspark.sql.SparkSession.builder.appName("appname")
+    .config("spark.jars.packages", "io.delta:delta-core_2.12:0.8.0,org.apache.hadoop:hadoop-aws:2.8.5")
+    .config("spark.sql.extensions", "io.delta.sql.DeltaSparkSessionExtension")
+    .config("spark.sql.catalog.spark_catalog", "org.apache.spark.sql.delta.catalog.DeltaCatalog")
+    .config("spark.delta.logStore.class", "org.apache.spark.sql.delta.storage.S3SingleDriverLogStore")
+    .getOrCreate()
+)
+
+spark.sparkContext._conf.getAll()
+
+hadoop_conf = spark._jsc.hadoopConfiguration()
+hadoop_conf.set("fs.s3a.access.key", access_key)
+hadoop_conf.set("fs.s3a.secret.key", secret_key)
+```
+
+To handle re-uploads of stacked data I perform an update operation and then a merge operation:
+```
+delta_table = DeltaTable.forPath(spark, table_path)
+print("Prepare submissions for re-import")
+submission_ids = source_df.select("submission_id").distinct().collect()
+for sub in submission_ids:
+    delta_table.update(condition = f"submission_id = {sub['submission_id']}",
+                       set = { "deleted": sparkf.lit(True) } )
+
+print(f"Count before: {delta_table.toDF().count()}")
+print("Merging new submissions into delta table")
+delta_table.alias("dest").merge(
+    source=source_df.alias("updates"), condition=sparkf.expr("dest.id = updates.id")
+).whenMatchedUpdateAll().whenNotMatchedInsertAll().execute()
+print(f"Count after: {delta_table.toDF().count()}")
+```
+
+And this error occurs which does not make sense as the config options are already set above when defining the spark session.
+```
+This Delta operation requires the SparkSession to be configured with the
+DeltaSparkSessionExtension and the DeltaCatalog. Please set the necessary
+configurations when creating the SparkSession as shown below.
+
+  SparkSession.builder()
+    .option("spark.sql.extensions", "io.delta.sql.DeltaSparkSessionExtension")
+    .option("spark.sql.catalog.spark_catalog", "org.apache.spark.sql.delta.catalog.DeltaCatalog")
+    ...
+    .build()
+      ;
+```
+
+If I skip the update operation, the merge (which I assume also requires the DeltaSparkSessionExtension) works just fine. This makes no sense, why does the update operation throw this error but the merge operation does not?
+
+EDIT: The same error is thrown if I change the update command to [delete](https://docs.delta.io/latest/api/python/index.html#delta.tables.DeltaTable.delete).

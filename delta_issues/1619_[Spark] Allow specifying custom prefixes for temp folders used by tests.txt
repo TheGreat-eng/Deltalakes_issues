@@ -1,0 +1,19 @@
+#### Which Delta project/connector is this regarding?
+
+- [X] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+This PR introduces a new trait, `DeltaSQLTestUtils`, to be used by all tests as a replacement for Apache Spark's `SQLTestUtils.` The new trait provides an ability for each test to specify a custom name prefix for temporary folders, so we can test the behavior of Delta Lake when a table's path contains special characters.
+
+## How was this patch tested?
+
+Not needed.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No.

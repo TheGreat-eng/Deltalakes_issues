@@ -1,0 +1,5 @@
+Vacuum command gives us the opportunity to perform a "dry-run" vacuum, just to know the list of files that are gonna be deleted. There isn't the same feature for logs. 
+
+Knowing the list of logs to be deleted can be useful to move logs somewhere else instead of deleting them, and restore them in case of need. For example, such a feature can be used to move useless logs from the delta table to another location to save space and cost (from S3 to Glacier in my case) and restore them just when you want to use the time-traveling feature.
+
+I think it could be useful to implement dry-run mode for logs and I would be very happy to work on such a feature.

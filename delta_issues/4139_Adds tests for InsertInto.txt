@@ -1,0 +1,6 @@
+This PR adds a bunch of tests for insert into through the DataFrameWriter + SQL APIs. Most of these tests were inlined over from OSS Spark and we add more tests around schema enforcement in INSERT INTO which is a new feature.
+
+We also add support for the syntax delta.`/some/path` and use this in INSERT INTO so that users can do 
+```sql
+INSERT INTO delta.`/some/path` VALUES (1, "a")
+```

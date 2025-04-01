@@ -1,0 +1,24 @@
+#### Which Delta project/connector is this regarding?
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [X] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+This PR does some misc improvements:
+
+- turn public member values in LogSegment to be private; add proper getters
+- add better validation
+- add isComplete and toString methods
+- add toString method in FileStatus
+
+## How was this patch tested?
+
+New UTs
+
+## Does this PR introduce _any_ user-facing changes?
+
+No.

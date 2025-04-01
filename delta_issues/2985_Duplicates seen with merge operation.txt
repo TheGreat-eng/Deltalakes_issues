@@ -1,0 +1,6 @@
+ deltaTable.alias("original")\
+    .merge(batch_of_records.alias("updates"), "original.id = updates.id")\
+    ..whenMatchedUpdateAll().whenNotMatchedInsertAll().execute()
+
+
+ID column which was used in this example is unique.

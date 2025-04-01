@@ -1,0 +1,56 @@
+### Describe the problem
+When upgrading from Databricks 9.1 LTS (includes Apache Spark 3.1.2, Scala 2.12) to 10.4 LTS (includes Apache Spark 3.2.1, Scala 2.12), exception thrown while reading checkpoint file in `_delta_log ` folder (stored in Azure data lake)
+
+#### Steps to reproduce (it probably depends on the data schema)
+1. Create a job to generate some history data processed using Databricks 9.1 LTS (includes Apache Spark 3.1.2, Scala 2.12), (stored in Azure data lake)
+2. Upgrade Databricks version 10.4 LTS (includes Apache Spark 3.2.1, Scala 2.12)
+3. Run the job again
+
+#### Observed results
+
+```
+org.apache.spark.SparkException: Job aborted due to stage failure: Task 0 in stage 2.0 failed 4 times, most recent failure: Lost task 0.3 in stage 2.0 (TID 11) (10.41.200.71 executor 0): com.databricks.sql.io.FileReadException: Error while reading file abfss:****@***.core.windows.net/path/to/table/_delta_log/00000000000000000706.checkpoint.parquet.
+	at org.apache.spark.sql.execution.datasources.FileScanRDD$$anon$1$$anon$2.logFileNameAndThrow(FileScanRDD.scala:521)
+	at org.apache.spark.sql.execution.datasources.FileScanRDD$$anon$1$$anon$2.getNext(FileScanRDD.scala:494)
+	at org.apache.spark.util.NextIterator.hasNext(NextIterator.scala:73)
+	at org.apache.spark.sql.execution.datasources.FileScanRDD$$anon$1.$anonfun$prepareNextFile$1(FileScanRDD.scala:700)
+	at scala.concurrent.Future$.$anonfun$apply$1(Future.scala:659)
+	at scala.util.Success.$anonfun$map$1(Try.scala:255)
+	at scala.util.Success.map(Try.scala:213)
+	at scala.concurrent.Future.$anonfun$map$1(Future.scala:292)
+	at scala.concurrent.impl.Promise.liftedTree1$1(Promise.scala:33)
+	at scala.concurrent.impl.Promise.$anonfun$transform$1(Promise.scala:33)
+	at scala.concurrent.impl.CallbackRunnable.run(Promise.scala:64)
+	at org.apache.spark.util.threads.SparkThreadLocalCapturingRunnable.$anonfun$run$1(SparkThreadLocalForwardingThreadPoolExecutor.scala:104)
+	at scala.runtime.java8.JFunction0$mcV$sp.apply(JFunction0$mcV$sp.java:23)
+	at org.apache.spark.util.threads.SparkThreadLocalCapturingHelper.runWithCaptured(SparkThreadLocalForwardingThreadPoolExecutor.scala:68)
+	at org.apache.spark.util.threads.SparkThreadLocalCapturingHelper.runWithCaptured$(SparkThreadLocalForwardingThreadPoolExecutor.scala:54)
+	at org.apache.spark.util.threads.SparkThreadLocalCapturingRunnable.runWithCaptured(SparkThreadLocalForwardingThreadPoolExecutor.scala:101)
+	at org.apache.spark.util.threads.SparkThreadLocalCapturingRunnable.run(SparkThreadLocalForwardingThreadPoolExecutor.scala:104)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+	at java.lang.Thread.run(Thread.java:748)
+Caused by: java.lang.RuntimeException: Unable to create Parquet converter for data type "void" whose Parquet type is optional group stats_parsed {
+  optional int64 numRecords;
+  optional group minValues {
+    optional binary trackingId (STRING);
+    optional int64 ctUpload;
+    optional binary type (STRING);
+    optional binary data (STRING);
+    optional int96 vtStart;
+    ...
+```
+
+### Environment information
+* Azure Databricks
+* Delta Lake version: 1.1.0
+* Spark version: 3.2.1
+* Scala version: 2.12
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [ ] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [x] No. I cannot contribute a bug fix at this time.

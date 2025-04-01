@@ -1,0 +1,18 @@
+#### Which Delta project/connector is this regarding?
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+This PR proposes to mark DeltaConfig.DATA_SKIPPING_NUM_INDEXED_COLS lazy. Otherwise, it might ending up with `null` because of the initialization order. See the stacktrace below:
+
+## How was this patch tested?
+
+Existing Ci should test it out.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No.

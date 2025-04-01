@@ -1,0 +1,8 @@
+Hi Guys,
+
+I need to retrieve some log information to help to make some decisions on compact operation, I made my own Delta Log reader, but will be great if I could use Delta log reader, today is only available for scala, is it possible to make an API to python?
+
+
+https://github.com/delta-io/delta/blob/master/src/main/scala/org/apache/spark/sql/delta/DeltaLog.scala
+
+thank you.

@@ -1,0 +1,5 @@
+At the bottom of https://docs.delta.io/1.1.0/delta-batch.html#dataframe-options there is:
+
+> You can find the details of the Hadoop file system configurations for your storage in _.
+
+Note the hanging `_`. No idea where it comes from but surely the sentence is not finished.

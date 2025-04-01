@@ -1,0 +1,1 @@
+Add: smart_store_to_log0

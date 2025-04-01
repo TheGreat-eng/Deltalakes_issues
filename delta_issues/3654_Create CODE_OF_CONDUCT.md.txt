@@ -1,0 +1,3 @@
+Noticed while preparing some Delta community work around Data and AI Summit that this project doesn't actually have a defined code of conduct.
+
+Pilfering the one we're using for delta-rs with just the Enforcement/reporting section changed,

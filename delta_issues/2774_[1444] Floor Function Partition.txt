@@ -1,0 +1,9 @@
+## Description
+
+Resolves https://github.com/delta-io/delta/issues/1444
+
+## How was this patch tested?
+
+added test in OptimizeGeneratedColumnSuite
+
+## Does this PR introduce _any_ user-facing changes?

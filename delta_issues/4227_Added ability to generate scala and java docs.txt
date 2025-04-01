@@ -1,0 +1,3 @@
+Added sbt-unidoc to generate Scala and Java docs. To generate both docs, just run `build/sbt unidoc`
+- Any classes not directly in `io.delta` will be ignored from the docs.
+- Unidoc will be generated when testing so that we can verify that docs are never broken. The overhead of generating the docs is just a few seconds, so does not add much to test times.

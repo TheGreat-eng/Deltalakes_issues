@@ -1,0 +1,25 @@
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [X] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+Builds delta-spark using the published snapshots for the current Spark master in preparation for the Spark 4.0 release.
+
+Compilation and test fixes.
+
+Spark fixes so far
+- https://github.com/apache/spark/pull/45476
+- https://github.com/apache/spark/pull/45440
+
+## How was this patch tested?
+
+[IN PROGRESS]

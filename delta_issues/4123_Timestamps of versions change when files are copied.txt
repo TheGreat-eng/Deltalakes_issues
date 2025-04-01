@@ -1,0 +1,2 @@
+I have a (tiny) delta table containing multiple versions. When I copy the delta table files to another location, the timestamps in the history are wrong. As far as I understand now, the timestamp in the delta log json files is overwritten by the modification timestamp of those files. 
+I want to use the copy of the table as input in my tests that test the data loading code. Is there a way to preserve the timestamps (i.e. using the timestamps within the json) or what would be the best approach for such tests?  

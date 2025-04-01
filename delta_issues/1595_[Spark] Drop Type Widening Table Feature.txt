@@ -1,0 +1,29 @@
+This PR includes changes from https://github.com/delta-io/delta/pull/2708 which isn't merged yet.
+The changes related only to dropping the table feature are in commit https://github.com/delta-io/delta/pull/2720/commits/e2601a6e049f82f8e7fc68f3284d7b9efcffa54b
+
+
+## Description
+This change is part of the type widening table feature.
+Type widening feature request: https://github.com/delta-io/delta/issues/2622
+Type Widening protocol RFC: https://github.com/delta-io/delta/pull/2624
+
+It adds the ability to remove the type widening table feature by running the `ALTER TABLE DROP FEATURE` command.
+Before dropping the table feature, traces of it are removed from the current version of the table:
+- Files that were written before the latest type change and thus contain types that differ from the current table schema are rewritten using an internal `REORG TABLE` operation.
+- Metadata in the table schema recording previous type changes is removed.
+
+## How was this patch tested?
+- A new set of tests are added to `DeltaTypeWideningSuite` to cover dropping the table feature with tables in various states: with/without files to rewrite or metadata to remove.
+
+## Does this PR introduce _any_ user-facing changes?
+The table feature is available in testing only, there's no user-facing changes as of now.
+
+When the feature is available, this change enables the following user action:
+- Drop the type widening table feature:
+```
+ALTER TABLE t DROP FEATURE typeWidening
+```
+This succeeds immediately if no version of the table contains traces of the table feature (= no type changes were applied in the available history of the table.
+Otherwise, if the current version contains traces of the feature, these are removed: files are rewritten if needed and type widening metadata is removed from the table schema. Then, an error `DELTA_FEATURE_DROP_WAIT_FOR_RETENTION_PERIOD` is thrown, telling the user to retry once the retention period expires.
+
+If only previous versions contain traces of the feature, no action is applied on the table, and an error `DELTA_FEATURE_DROP_HISTORICAL_VERSIONS_EXIST` is thrown, telling the user to retry once the retention period expires.

@@ -1,0 +1,58 @@
+## Feature request
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the issue title
+For example: [Feature Request][Spark] Title of my issue
+-->
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+### Overview & Motivation
+
+This task is part of the Deletion Vectors to speed up DML operations. Refer to the https://github.com/delta-io/delta/issues/1367 for the design and details.
+
+The scope of this issue is to support the UPDATE command with Deletion Vectors (DVs). In the current implementation, UPDATE rewrites all files having at least one row that matches the UPDATE condition. The rewrite copies over unmodified rows. This could be an expensive operation if the UPDATE is touching only a few rows per file. Using DVs, the copy can be avoided.
+
+This FR follows [[Feature Request] Support DELETE command with Deletion Vectors](https://github.com/delta-io/delta/issues/1591). Click on the link to find more info.
+
+### Further details
+
+The current implementation of the UPDATE has the following steps:
+
+- Step 1: Find the data files in the current snapshot that have rows matching the UPDATE condition.
+- Step 2: Replace the TahoeFileIndex in the original table scan with a TahoeBatchFileIndex that contains the file list generated in Step 1.
+- Step 3: Rewrite the files using the scan created in Step 2.
+- Step 4: Use the Delta protocol to remove all files from Step 1 and add new files generated in Step 3.
+
+UPDATE with DVs modifies the above steps as follows:
+
+- Step 1: (not changed) Find the data files in the current snapshot that have rows matching the update condition. Call the file list generated as candidate files.
+- Step 2: Replace the TahoeFileIndex in the original table scan with a TahoeBatchFileIndex that contains the candidate files generated in Step 1. In addition, we also modify the Scan and TahoeBatchFileIndex to select a few additional metadata columns.
+	- _metadata.file_path - the absolute path of the data file
+	- row_index - number corresponds to the position of this row in the data file from which it is read.
+- Step 3.1 (process unmodified rows): Scan files using the scan created in Step 2, write DVs and output `(AddFile(new_dv), RemoveFile(old_dv)` pairs for files that are partially updated, or `RemoveFile` for those that are fully updated.
+- Step 3.2 (process modified rows): Rewrite files using the scan created in Step 2, but write only the updated rows.
+- Step 4: Write file actions produced by Step 3.1 and Step 3.2 to Delta log.
+
+The "avoid copying rows" benefit described in the "Overview & Motivation" section is implemented in Step 3.1.
+
+### Pull requests
+
+| Feature | PR |
+|---|---|
+| UPDATE produces DVs (w/ and w/o CDC) | https://github.com/delta-io/delta/pull/1942 |
+| Metrics | Pending |
+| Tests | Pending |
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [x] Yes. I can contribute this feature independently.
+- [ ] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.

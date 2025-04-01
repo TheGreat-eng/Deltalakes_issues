@@ -1,0 +1,4 @@
+I have created a manifest file to retrieve DeltaTable data from athena. 
+Is it possible to create a point-in-time manifest file to retrieve old version data without rollback the data?
+
+Thank you

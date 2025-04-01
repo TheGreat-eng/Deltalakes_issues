@@ -1,0 +1,8 @@
+## Description
+All code paths implementing type widening so far had a clear 'before' and 'after' schema and checked that 'before' could be widened to 'after'.
+An additional use case is, given two schemas from two separate flows, to compute wider schema from the two.
+To support this, 'bidirectional' widening modes are added to `SchemaMergingUtils.mergeSchemas()`.
+These allow picking the wider of the two input types, or, for decimals, picking a decimal type that is wider than each input.
+
+## How was this patch tested?
+Added unit tests for `SchemaMergingUtils.mergeSchemas()`.

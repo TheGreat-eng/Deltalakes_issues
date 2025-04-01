@@ -1,0 +1,96 @@
+<!--
+Thanks for sending a pull request!  Here are some tips for you:
+  1. If this is your first time, please read our contributor guidelines: https://github.com/delta-io/delta/blob/master/CONTRIBUTING.md
+  2. If the PR is unfinished, add '[WIP]' in your PR title, e.g., '[WIP] Your PR title ...'.
+  3. Be sure to keep the PR description updated to reflect all changes.
+  4. Please write your PR title to summarize what this PR proposes.
+  5. If possible, provide a concise example to reproduce the issue for a faster review.
+  6. If applicable, include the corresponding issue number in the PR title and link it in the body.
+-->
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [x] Other (Hudi)
+
+## Description
+
+<!--
+- Describe what this PR changes.
+- Describe why we need the change.
+ 
+If this PR resolves an issue be sure to include "Resolves #XXX" to correctly link and close the issue upon merge.
+-->
+This PR fixes a bug in the Delta->Hudi schema conversion for structs. Previously, any table conversion that included at least one struct somewhere in the schema would fail. This is because the previous code was incorrectly naming the Avro RecordSchemas. There were two problems:
+
+1.  There was no namespace added to each record, so for a struct column with the following schema:
+     ` (myName STRUCT<myName: STRUCT<field1: INT>>)`
+there would be an error due to the duplicate naming of the two structs. (**Avro does not allow recordSchemas with the same name under the same namespace**) It would incorrectly place the nested struct in the same namespace as the parent struct, and even though our schema should be valid the Avro schema creation would fail.
+
+2. For some reason we were naming each record by its data type name instead of its own name. Since we represent the Delta schema as a struct, even if we don't have any nested structs inside our table, as long as we have at least one struct column in the schema we will end up creating a nested struct. Both of these records would be named "struct" and be under the same namespace (due to problem 1), so we would run into a duplication error even if we just have a single struct of ints.
+
+So for an example table defined as follows:
+`CREATE TABLE myTable (col1 STRUCT<field1: INT, field2: STRING>)`
+the previous code would not work because it would represent our overall schema as a struct with name "struct", and our struct column would be a nested struct with name "struct" under the same namespace.
+
+Now, I have changed it so that it works and is compatible with Spark+Hudi. We are now using namespaces and also naming with column names rather than column type names. For this example, our Avro schema would look like this:
+
+```
+{
+  "type": "record",
+  "name": "table",
+  "fields": [
+    {
+      "name": "col1",
+      "type": [
+        "null",
+        {
+          "type": "record",
+          "name": "col1",
+          "namespace": "table",
+          "fields": [
+            {
+              "name": "field1",
+              "type": [
+                "null",
+                "int"
+              ]
+            },
+            {
+              "name": "field2",
+              "type": [
+                "null",
+                "string"
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+```
+
+## How was this patch tested?
+Unit test and manually tested with Hudi SparkSession reader.
+<!--
+If tests were added, say they were added here. Please make sure to test the changes thoroughly including negative and positive cases if possible.
+If the changes were tested in any way other than unit tests, please clarify how you tested step by step (ideally copy and paste-able, so that other reviewers can test and check, and descendants can verify in the future).
+If the changes were not tested, please explain why.
+-->
+
+## Does this PR introduce _any_ user-facing changes?
+
+<!--
+If yes, please clarify the previous behavior and the change this PR proposes - provide the console output, description and/or an example to show the behavior difference if possible.
+If possible, please also clarify if this is a user-facing change compared to the released Delta Lake versions or within the unreleased branches such as master.
+If no, write 'No'.
+-->
+No

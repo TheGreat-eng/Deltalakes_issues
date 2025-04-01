@@ -1,0 +1,5 @@
+- updates `LogStore.java` interface to include `throw IOException` when applicable
+- adds `HadoopFileSystemLogStore.java` abstract class
+- adds `HDFSLogStore.java`
+- updates `LogStoreSuite`
+- updates `DelegatingLogStoreSuite`

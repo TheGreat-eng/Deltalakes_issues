@@ -1,0 +1,14 @@
+## Bug
+Currently, if delta.checkpoint.writeStatsAsStruct is set to true, the output contains parsed partition values but does not include parsed stats. 
+
+I think the [code](https://github.com/delta-io/delta/blob/4c5fa1f5b5069d1b247cf1a337ffdc87f7edfce7/spark/src/main/scala/org/apache/spark/sql/delta/Checkpoints.scala#L632) includes just parsed partition values right now but no support for parsed stats is present.
+
+Would it be possible to add stats_parsed?
+
+
+### Motivation
+
+The protocol states:
+
+>stats_parsed: The stats can be stored in their [original format](https://github.com/delta-io/delta/blob/master/PROTOCOL.md#Per-file-Statistics). This field needs to be written when statistics are available and the table property: delta.checkpoint.writeStatsAsStruct is set to true. When this property is set to false (which is the default), this field should be omitted from the checkpoint.
+

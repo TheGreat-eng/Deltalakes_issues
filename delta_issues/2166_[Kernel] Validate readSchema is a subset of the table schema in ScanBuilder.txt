@@ -1,0 +1,22 @@
+## Feature request
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the issue title
+For example: [Feature Request][Spark] Title of my issue
+-->
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [x] Kernel
+- [ ] Other (fill in here)
+
+### Overview
+
+Validate that the read schema provided in ScanBuilder is a subset of the snapshot schema.
+https://github.com/delta-io/delta/blob/master/kernel/kernel-api/src/main/java/io/delta/kernel/internal/ScanBuilderImpl.java#L80
+
+### Motivation
+
+Better validation / error messages.

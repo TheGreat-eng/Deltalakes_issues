@@ -1,0 +1,32 @@
+## Feature request
+
+#### Which Delta project/connector is this regarding?
+
+- [X] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+### Overview
+
+Follow up of https://github.com/delta-io/delta/issues/1192, which optimizes COUNT. Add support for MIN and MAX using statistics only.
+
+### Motivation
+
+Collecting MIN/MAX can take dozens of minutes for huge tables. Reading the metadata would give this information in seconds.
+
+### Further details
+
+PR: https://github.com/delta-io/delta/pull/1525
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [X] Yes. I can contribute this feature independently.
+- [ ] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.
+
+
+cc: @scottsand-db, @Tom-Newton, @keen85, @henlue, @moredatapls, @khwj

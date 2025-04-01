@@ -1,0 +1,1 @@
+When Merge command doesn't have a whenNotMatched clause, the Full Outer Join in MergeIntoCommand.writeAllChanges can be changed to Right Outer Join. Since left/source side is usually small, this can enable Broadcast join - closes #342 

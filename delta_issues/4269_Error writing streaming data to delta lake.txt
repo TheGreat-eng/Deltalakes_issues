@@ -1,0 +1,220 @@
+I've created my first delta lake table succesfully but i'm having some trouble writing streaming data to it.  I generated the table using a set of json files and was testing by copying over one of those files into the streaming directory after creating the file but ran into this error: `ERROR:log:An error occurred while calling o326.save.`.  The full logs are below.  I'm running locally on a pseudo-distributed mode with the below setup.  Please let me know if any additional details would be helpful!
+
+**Java**
+```
+(mve) [cglaes@blackened : mny : 19:12] java -version
+openjdk version "1.8.0_191"
+OpenJDK Runtime Environment (build 1.8.0_191-8u191-b12-2ubuntu0.18.04.1-b12)
+OpenJDK 64-Bit Server VM (build 25.191-b12, mixed mode)
+(mve) [cglaes@blackened : mny : 19:13] 
+```
+**Hadoop**
+```
+(mve) [cglaes@blackened : mny : 19:10] hadoop version
+Hadoop 2.7.6
+Subversion https://shv@git-wip-us.apache.org/repos/asf/hadoop.git -r 085099c66cf28be31604560c376fa282e69282b8
+Compiled by kshvachk on 2018-04-18T01:33Z
+Compiled with protoc 2.5.0
+From source with checksum 71e2695531cb3360ab74598755d036
+This command was run using /home/cglaes/bin/hadoop/share/hadoop/common/hadoop-common-2.7.6.jar
+(mve) [cglaes@blackened : mny : 19:10] 
+```
+**Spark**
+```
+(mve) [cglaes@blackened : mny : 19:12] pyspark --version
+Welcome to
+      ____              __
+     / __/__  ___ _____/ /__
+    _\ \/ _ \/ _ `/ __/  '_/
+   /___/ .__/\_,_/_/ /_/\_\   version 2.4.2
+      /_/
+                        
+Using Scala version 2.12.8, OpenJDK 64-Bit Server VM, 1.8.0_191
+Branch 
+Compiled by user  on 2019-04-18T23:18:13Z
+Revision 
+Url 
+Type --help for more information.
+(mve) [cglaes@blackened : mny : 19:12]
+```
+
+Below are the logs from my resource manager
+```
+ERROR:log:received empty C json rdd, skipping
+INFO:log:transforming C json rdd to DataFrame
+INFO:log:writing below streaming forex_quote_log data to delta
++-------+-----------+---------+---------+-------------+----------+
+|   pair|exchange_id|ask_price|bid_price|        epoch|      date|
++-------+-----------+---------+---------+-------------+----------+
+|HUF/EUR|         48|0.0030891|0.0030825|1557290584000|2019-05-08|
+|XAU/JPY|         48| 141550.0| 141449.0|1557290584000|2019-05-08|
+|ZAR/BWP|         48|  0.74758|  0.74714|1557290584000|2019-05-08|
+|NZD/EUR|         48|  0.58779|  0.58759|1557290587000|2019-05-08|
+|HRK/CAD|         48|  0.20356|  0.20353|1557290585000|2019-05-08|
+|USD/EUR|         48| 0.892618| 0.892379|1557290585000|2019-05-08|
+|BWP/ZAR|         48|   1.3384|   1.3376|1557290584000|2019-05-08|
+|TRY/CHF|         48| 0.165202| 0.165084|1557290585000|2019-05-08|
+|USD/SGD|         48|  1.36094|  1.36079|1557290587000|2019-05-08|
+|NGN/ZAR|         48| 0.040118| 0.040034|1557290586000|2019-05-08|
+|NZD/DKK|         48|   4.3885|   4.3868|1557290587000|2019-05-08|
+|DKK/EUR|         48|  0.13395|  0.13393|1557290586000|2019-05-08|
+|XAG/AUD|         48|   21.338|   21.232|1557290584000|2019-05-08|
+|AUD/PLN|         48|  2.68999|  2.68832|1557290586000|2019-05-08|
+|ZAR/PKR|         48|   9.8109|   9.8051|1557290584000|2019-05-08|
+|THB/SGD|         48| 0.042785| 0.042774|1557290587000|2019-05-08|
+|MAD/AUD|         48|  0.14728|  0.14727|1557290585000|2019-05-08|
+|JPY/ZAR|         48|  0.13115|  0.13107|1557290584000|2019-05-08|
+|DKK/THB|         48|   4.7744|   4.7735|1557290585000|2019-05-08|
+|SGD/ZAR|         48|  10.5989|  10.5903|1557290586000|2019-05-08|
++-------+-----------+---------+---------+-------------+----------+
+only showing top 20 rows
+
+ERROR:log:An error occurred while calling o326.save.
+: org.apache.spark.SparkException: Job aborted due to stage failure: Task 17 in stage 13.0 failed 4 times, most recent failure: Lost task 17.3 in stage 13.0 (TID 188, blackened, executor 1): java.lang.AssertionError: File (file:/data/stream/polygon/C/C_20190508044339_155729061998421.json) doesn't belong in the transaction log at hdfs://localhost:9000/data/lake/polygon/forex_quote_log/_delta_log. Please contact Databricks Support.
+	at org.apache.spark.sql.delta.Snapshot$.$anonfun$assertLogBelongsToTable$1(Snapshot.scala:216)
+	at org.apache.spark.sql.catalyst.expressions.GeneratedClass$GeneratedIteratorForCodegenStage2.serializefromobject_doConsume_0$(Unknown Source)
+	at org.apache.spark.sql.catalyst.expressions.GeneratedClass$GeneratedIteratorForCodegenStage2.processNext(Unknown Source)
+	at org.apache.spark.sql.execution.BufferedRowIterator.hasNext(BufferedRowIterator.java:43)
+	at org.apache.spark.sql.execution.WholeStageCodegenExec$$anon$2.hasNext(WholeStageCodegenExec.scala:636)
+	at scala.collection.Iterator$$anon$10.hasNext(Iterator.scala:458)
+	at org.apache.spark.shuffle.sort.BypassMergeSortShuffleWriter.write(BypassMergeSortShuffleWriter.java:125)
+	at org.apache.spark.scheduler.ShuffleMapTask.runTask(ShuffleMapTask.scala:99)
+	at org.apache.spark.scheduler.ShuffleMapTask.runTask(ShuffleMapTask.scala:55)
+	at org.apache.spark.scheduler.Task.run(Task.scala:121)
+	at org.apache.spark.executor.Executor$TaskRunner.$anonfun$run$3(Executor.scala:411)
+	at org.apache.spark.util.Utils$.tryWithSafeFinally(Utils.scala:1360)
+	at org.apache.spark.executor.Executor$TaskRunner.run(Executor.scala:414)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+	at java.lang.Thread.run(Thread.java:748)
+
+Driver stacktrace:
+	at org.apache.spark.scheduler.DAGScheduler.failJobAndIndependentStages(DAGScheduler.scala:1889)
+	at org.apache.spark.scheduler.DAGScheduler.$anonfun$abortStage$2(DAGScheduler.scala:1877)
+	at org.apache.spark.scheduler.DAGScheduler.$anonfun$abortStage$2$adapted(DAGScheduler.scala:1876)
+	at scala.collection.mutable.ResizableArray.foreach(ResizableArray.scala:62)
+	at scala.collection.mutable.ResizableArray.foreach$(ResizableArray.scala:55)
+	at scala.collection.mutable.ArrayBuffer.foreach(ArrayBuffer.scala:49)
+	at org.apache.spark.scheduler.DAGScheduler.abortStage(DAGScheduler.scala:1876)
+	at org.apache.spark.scheduler.DAGScheduler.$anonfun$handleTaskSetFailed$1(DAGScheduler.scala:926)
+	at org.apache.spark.scheduler.DAGScheduler.$anonfun$handleTaskSetFailed$1$adapted(DAGScheduler.scala:926)
+	at scala.Option.foreach(Option.scala:274)
+	at org.apache.spark.scheduler.DAGScheduler.handleTaskSetFailed(DAGScheduler.scala:926)
+	at org.apache.spark.scheduler.DAGSchedulerEventProcessLoop.doOnReceive(DAGScheduler.scala:2110)
+	at org.apache.spark.scheduler.DAGSchedulerEventProcessLoop.onReceive(DAGScheduler.scala:2059)
+	at org.apache.spark.scheduler.DAGSchedulerEventProcessLoop.onReceive(DAGScheduler.scala:2048)
+	at org.apache.spark.util.EventLoop$$anon$1.run(EventLoop.scala:49)
+	at org.apache.spark.scheduler.DAGScheduler.runJob(DAGScheduler.scala:737)
+	at org.apache.spark.SparkContext.runJob(SparkContext.scala:2061)
+	at org.apache.spark.SparkContext.runJob(SparkContext.scala:2082)
+	at org.apache.spark.SparkContext.runJob(SparkContext.scala:2101)
+	at org.apache.spark.sql.execution.SparkPlan.executeTake(SparkPlan.scala:365)
+	at org.apache.spark.sql.execution.CollectLimitExec.executeCollect(limit.scala:38)
+	at org.apache.spark.sql.Dataset.collectFromPlan(Dataset.scala:3383)
+	at org.apache.spark.sql.Dataset.$anonfun$head$1(Dataset.scala:2544)
+	at org.apache.spark.sql.Dataset.$anonfun$withAction$2(Dataset.scala:3364)
+	at org.apache.spark.sql.execution.SQLExecution$.$anonfun$withNewExecutionId$1(SQLExecution.scala:78)
+	at org.apache.spark.sql.execution.SQLExecution$.withSQLConfPropagated(SQLExecution.scala:125)
+	at org.apache.spark.sql.execution.SQLExecution$.withNewExecutionId(SQLExecution.scala:73)
+	at org.apache.spark.sql.Dataset.withAction(Dataset.scala:3364)
+	at org.apache.spark.sql.Dataset.head(Dataset.scala:2544)
+	at org.apache.spark.sql.Dataset.head(Dataset.scala:2551)
+	at org.apache.spark.sql.Dataset.first(Dataset.scala:2558)
+	at org.apache.spark.sql.delta.Snapshot.<init>(Snapshot.scala:141)
+	at org.apache.spark.sql.delta.DeltaLog.$anonfun$updateInternal$2(DeltaLog.scala:318)
+	at org.apache.spark.sql.delta.util.DeltaProgressReporter.withStatusCode(DeltaProgressReporter.scala:30)
+	at org.apache.spark.sql.delta.util.DeltaProgressReporter.withStatusCode$(DeltaProgressReporter.scala:25)
+	at org.apache.spark.sql.delta.DeltaLog.withStatusCode(DeltaLog.scala:59)
+	at org.apache.spark.sql.delta.DeltaLog.$anonfun$updateInternal$1(DeltaLog.scala:251)
+	at com.databricks.spark.util.DatabricksLogging.recordOperation(DatabricksLogging.scala:75)
+	at com.databricks.spark.util.DatabricksLogging.recordOperation$(DatabricksLogging.scala:65)
+	at org.apache.spark.sql.delta.DeltaLog.recordOperation(DeltaLog.scala:59)
+	at org.apache.spark.sql.delta.metering.DeltaLogging.recordDeltaOperation(DeltaLogging.scala:105)
+	at org.apache.spark.sql.delta.metering.DeltaLogging.recordDeltaOperation$(DeltaLogging.scala:91)
+	at org.apache.spark.sql.delta.DeltaLog.recordDeltaOperation(DeltaLog.scala:59)
+	at org.apache.spark.sql.delta.DeltaLog.updateInternal(DeltaLog.scala:251)
+	at org.apache.spark.sql.delta.DeltaLog.$anonfun$update$1(DeltaLog.scala:211)
+	at org.apache.spark.sql.delta.DeltaLog.lockInterruptibly(DeltaLog.scala:181)
+	at org.apache.spark.sql.delta.DeltaLog.update(DeltaLog.scala:211)
+	at org.apache.spark.sql.delta.OptimisticTransactionImpl.$anonfun$doCommit$1(OptimisticTransaction.scala:323)
+	at scala.runtime.java8.JFunction0$mcJ$sp.apply(JFunction0$mcJ$sp.java:23)
+	at org.apache.spark.sql.delta.DeltaLog.lockInterruptibly(DeltaLog.scala:181)
+	at org.apache.spark.sql.delta.OptimisticTransactionImpl.doCommit(OptimisticTransaction.scala:316)
+	at org.apache.spark.sql.delta.OptimisticTransactionImpl.$anonfun$commit$1(OptimisticTransaction.scala:232)
+	at scala.runtime.java8.JFunction0$mcJ$sp.apply(JFunction0$mcJ$sp.java:23)
+	at com.databricks.spark.util.DatabricksLogging.recordOperation(DatabricksLogging.scala:75)
+	at com.databricks.spark.util.DatabricksLogging.recordOperation$(DatabricksLogging.scala:65)
+	at org.apache.spark.sql.delta.OptimisticTransaction.recordOperation(OptimisticTransaction.scala:66)
+	at org.apache.spark.sql.delta.metering.DeltaLogging.recordDeltaOperation(DeltaLogging.scala:105)
+	at org.apache.spark.sql.delta.metering.DeltaLogging.recordDeltaOperation$(DeltaLogging.scala:91)
+	at org.apache.spark.sql.delta.OptimisticTransaction.recordDeltaOperation(OptimisticTransaction.scala:66)
+	at org.apache.spark.sql.delta.OptimisticTransactionImpl.commit(OptimisticTransaction.scala:218)
+	at org.apache.spark.sql.delta.OptimisticTransactionImpl.commit$(OptimisticTransaction.scala:216)
+	at org.apache.spark.sql.delta.OptimisticTransaction.commit(OptimisticTransaction.scala:66)
+	at org.apache.spark.sql.delta.commands.WriteIntoDelta.run(WriteIntoDelta.scala:72)
+	at org.apache.spark.sql.delta.sources.DeltaDataSource.createRelation(DeltaDataSource.scala:146)
+	at org.apache.spark.sql.execution.datasources.SaveIntoDataSourceCommand.run(SaveIntoDataSourceCommand.scala:46)
+	at org.apache.spark.sql.execution.command.ExecutedCommandExec.sideEffectResult$lzycompute(commands.scala:70)
+	at org.apache.spark.sql.execution.command.ExecutedCommandExec.sideEffectResult(commands.scala:68)
+	at org.apache.spark.sql.execution.command.ExecutedCommandExec.doExecute(commands.scala:86)
+	at org.apache.spark.sql.execution.SparkPlan.$anonfun$execute$1(SparkPlan.scala:131)
+	at org.apache.spark.sql.execution.SparkPlan.$anonfun$executeQuery$1(SparkPlan.scala:155)
+	at org.apache.spark.rdd.RDDOperationScope$.withScope(RDDOperationScope.scala:151)
+	at org.apache.spark.sql.execution.SparkPlan.executeQuery(SparkPlan.scala:152)
+	at org.apache.spark.sql.execution.SparkPlan.execute(SparkPlan.scala:127)
+	at org.apache.spark.sql.execution.QueryExecution.toRdd$lzycompute(QueryExecution.scala:80)
+	at org.apache.spark.sql.execution.QueryExecution.toRdd(QueryExecution.scala:80)
+	at org.apache.spark.sql.DataFrameWriter.$anonfun$runCommand$1(DataFrameWriter.scala:676)
+	at org.apache.spark.sql.execution.SQLExecution$.$anonfun$withNewExecutionId$1(SQLExecution.scala:78)
+	at org.apache.spark.sql.execution.SQLExecution$.withSQLConfPropagated(SQLExecution.scala:125)
+	at org.apache.spark.sql.execution.SQLExecution$.withNewExecutionId(SQLExecution.scala:73)
+	at org.apache.spark.sql.DataFrameWriter.runCommand(DataFrameWriter.scala:676)
+	at org.apache.spark.sql.DataFrameWriter.saveToV1Source(DataFrameWriter.scala:290)
+	at org.apache.spark.sql.DataFrameWriter.save(DataFrameWriter.scala:271)
+	at org.apache.spark.sql.DataFrameWriter.save(DataFrameWriter.scala:229)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at py4j.reflection.MethodInvoker.invoke(MethodInvoker.java:244)
+	at py4j.reflection.ReflectionEngine.invoke(ReflectionEngine.java:357)
+	at py4j.Gateway.invoke(Gateway.java:282)
+	at py4j.commands.AbstractCommand.invokeMethod(AbstractCommand.java:132)
+	at py4j.commands.CallCommand.execute(CallCommand.java:79)
+	at py4j.GatewayConnection.run(GatewayConnection.java:238)
+	at java.lang.Thread.run(Thread.java:748)
+Caused by: java.lang.AssertionError: File (file:/data/stream/polygon/C/C_20190508044339_155729061998421.json) doesn't belong in the transaction log at hdfs://localhost:9000/data/lake/polygon/forex_quote_log/_delta_log. Please contact Databricks Support.
+	at org.apache.spark.sql.delta.Snapshot$.$anonfun$assertLogBelongsToTable$1(Snapshot.scala:216)
+	at org.apache.spark.sql.catalyst.expressions.GeneratedClass$GeneratedIteratorForCodegenStage2.serializefromobject_doConsume_0$(Unknown Source)
+	at org.apache.spark.sql.catalyst.expressions.GeneratedClass$GeneratedIteratorForCodegenStage2.processNext(Unknown Source)
+	at org.apache.spark.sql.execution.BufferedRowIterator.hasNext(BufferedRowIterator.java:43)
+	at org.apache.spark.sql.execution.WholeStageCodegenExec$$anon$2.hasNext(WholeStageCodegenExec.scala:636)
+	at scala.collection.Iterator$$anon$10.hasNext(Iterator.scala:458)
+	at org.apache.spark.shuffle.sort.BypassMergeSortShuffleWriter.write(BypassMergeSortShuffleWriter.java:125)
+	at org.apache.spark.scheduler.ShuffleMapTask.runTask(ShuffleMapTask.scala:99)
+	at org.apache.spark.scheduler.ShuffleMapTask.runTask(ShuffleMapTask.scala:55)
+	at org.apache.spark.scheduler.Task.run(Task.scala:121)
+	at org.apache.spark.executor.Executor$TaskRunner.$anonfun$run$3(Executor.scala:411)
+	at org.apache.spark.util.Utils$.tryWithSafeFinally(Utils.scala:1360)
+	at org.apache.spark.executor.Executor$TaskRunner.run(Executor.scala:414)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+	... 1 more
+```
+
+First 10 lines of the file in question
+```
+(mve) [cglaes@blackened : mny : 19:17] head -n 10 /data/stream/polygon/C/C_20190508044339_155729061998421.json
+{"pair": "HUF/EUR", "exchange_id": 48, "ask_price": 0.0030891, "bid_price": 0.0030825, "epoch": 1557290584000}
+{"pair": "XAU/JPY", "exchange_id": 48, "ask_price": 141550, "bid_price": 141449, "epoch": 1557290584000}
+{"pair": "ZAR/BWP", "exchange_id": 48, "ask_price": 0.74758, "bid_price": 0.74714, "epoch": 1557290584000}
+{"pair": "NZD/EUR", "exchange_id": 48, "ask_price": 0.58779, "bid_price": 0.58759, "epoch": 1557290587000}
+{"pair": "HRK/CAD", "exchange_id": 48, "ask_price": 0.20356, "bid_price": 0.20353, "epoch": 1557290585000}
+{"pair": "USD/EUR", "exchange_id": 48, "ask_price": 0.892618, "bid_price": 0.892379, "epoch": 1557290585000}
+{"pair": "BWP/ZAR", "exchange_id": 48, "ask_price": 1.3384, "bid_price": 1.3376, "epoch": 1557290584000}
+{"pair": "TRY/CHF", "exchange_id": 48, "ask_price": 0.165202, "bid_price": 0.165084, "epoch": 1557290585000}
+{"pair": "USD/SGD", "exchange_id": 48, "ask_price": 1.36094, "bid_price": 1.36079, "epoch": 1557290587000}
+{"pair": "NGN/ZAR", "exchange_id": 48, "ask_price": 0.040118, "bid_price": 0.040034, "epoch": 1557290586000}
+(mve) [cglaes@blackened : mny : 19:17] 
+```
+

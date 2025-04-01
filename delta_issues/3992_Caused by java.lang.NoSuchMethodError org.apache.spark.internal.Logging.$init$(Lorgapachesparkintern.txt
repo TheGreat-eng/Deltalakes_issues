@@ -1,0 +1,52 @@
+spark-shell --packages io.delta:delta-core_2.12:0.5.0 --queue root.usera
+
+Setting default log level to "WARN".
+To adjust logging level use sc.setLogLevel(newLevel). For SparkR, use setLogLevel(newLevel).
+20/02/18 11:04:30 WARN lineage.LineageWriter: Lineage directory /var/log/spark/lineage doesn't exist or is not writable. Lineage for this application will be disabled.
+Spark context Web UI available at http://sit-poc3.novalocal:4040
+Spark context available as 'sc' (master = yarn, app id = application_1579230810595_0048).
+Spark session available as 'spark'.
+Welcome to
+      ____              __
+     / __/__  ___ _____/ /__
+    _\ \/ _ \/ _ `/ __/  '_/
+   /___/ .__/\_,_/_/ /_/\_\   version 2.4.0-cdh6.1.1
+      /_/
+         
+Using Scala version 2.11.12 (Java HotSpot(TM) 64-Bit Server VM, Java 1.8.0_231)
+Type in expressions to have them evaluated.
+Type :help for more information.
+
+scala> val read=spark.read.format("delta").load("/user/hive/delta/lake_credit.wf_task_23")
+error：
+20/02/18 11:05:17 WARN lineage.LineageWriter: Lineage directory /var/log/spark/lineage doesn't exist or is not writable. Lineage for this application will be disabled.
+java.util.ServiceConfigurationError: org.apache.spark.sql.sources.DataSourceRegister: Provider org.apache.spark.sql.delta.sources.DeltaDataSource could not be instantiated
+  at java.util.ServiceLoader.fail(ServiceLoader.java:232)
+  at java.util.ServiceLoader.access$100(ServiceLoader.java:185)
+  at java.util.ServiceLoader$LazyIterator.nextService(ServiceLoader.java:384)
+  at java.util.ServiceLoader$LazyIterator.next(ServiceLoader.java:404)
+  at java.util.ServiceLoader$1.next(ServiceLoader.java:480)
+  at scala.collection.convert.Wrappers$JIteratorWrapper.next(Wrappers.scala:43)
+  at scala.collection.Iterator$class.foreach(Iterator.scala:891)
+  at scala.collection.AbstractIterator.foreach(Iterator.scala:1334)
+  at scala.collection.IterableLike$class.foreach(IterableLike.scala:72)
+  at scala.collection.AbstractIterable.foreach(Iterable.scala:54)
+  at scala.collection.TraversableLike$class.filterImpl(TraversableLike.scala:247)
+  at scala.collection.TraversableLike$class.filter(TraversableLike.scala:259)
+  at scala.collection.AbstractTraversable.filter(Traversable.scala:104)
+  at org.apache.spark.sql.execution.datasources.DataSource$.lookupDataSource(DataSource.scala:624)
+  at org.apache.spark.sql.DataFrameReader.load(DataFrameReader.scala:194)
+  at org.apache.spark.sql.DataFrameReader.load(DataFrameReader.scala:178)
+  ... 49 elided
+Caused by: java.lang.NoSuchMethodError: org.apache.spark.internal.Logging.$init$(Lorg/apache/spark/internal/Logging;)V
+  at org.apache.spark.sql.delta.sources.DeltaDataSource.<init>(DeltaDataSource.scala:42)
+  at sun.reflect.NativeConstructorAccessorImpl.newInstance0(Native Method)
+  at sun.reflect.NativeConstructorAccessorImpl.newInstance(NativeConstructorAccessorImpl.java:62)
+  at sun.reflect.DelegatingConstructorAccessorImpl.newInstance(DelegatingConstructorAccessorImpl.java:45)
+  at java.lang.reflect.Constructor.newInstance(Constructor.java:423)
+  at java.lang.Class.newInstance(Class.java:442)
+  at java.util.ServiceLoader$LazyIterator.nextService(ServiceLoader.java:380)
+  ... 62 more
+
+
+

@@ -1,0 +1,5 @@
+## Description
+
+This PR introduces a new table feature called `icebergCompatV1`. The goal of this table feature is to keep Delta tables in valid states (and block certain operations) such that Delta to Iceberg conversion can be applied to them through the Universal Format feature. This table feature has nothing to do with implementing that actual Delta to Iceberg metadata conversion.
+
+See the UniversalFormat PR here: https://github.com/delta-io/delta/pull/1870.

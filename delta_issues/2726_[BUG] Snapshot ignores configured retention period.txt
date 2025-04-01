@@ -1,0 +1,67 @@
+## Bug
+
+**Important:** This issue is resolved in the current master branch code, but I have confirmed the bug exists in versions `1.0.0`, `2.1.0`, and `2.2.0`. However, I have not found a GitHub issue that identifies the bug.
+
+### Describe the problem
+
+I'm encountering a bug with the vacuum command. We have a large delta table and want to preserve 21 days of version history. I've set the `delta.deletedFileRetentionDuration` table property to `interval 21 days`. When we run the vacuum command with a 504 hour retention period (21 days) we end up with corrupted snapshots that were created within the 21 day period. By "corrupted" I mean that when a version that is, say, 10 days old is read there is a `FileNotFoundException` for certain `part-*` files that have now been deleted unexpectedly.
+
+After digging deeper by running vacuum commands in dry-run mode I've concluded that the deleted files were (1) "removed" in a snapshot version greater than 7 days ago and (2) created over 21 days ago. This led me to believe that the default value of `DeltaConfig.TOMBSTONE_RETENTION` is being used somehow.
+
+I believe that the ultimate culprit is a circular dependency between `DeltaLog` and `SnapshotManagement`. `SnapshotManagement.getSnapshotAtInit` depends on `DeltaLog.metadata` via the `minFileRetentionTimestamp` property. However, `DeltaLog.metadata` also depends on the snapshot being populated (`def metadata = if (snapshot == null) Metadata() else snapshot.metadata`).  When `DeltaConfigs.TOMBSTONE_RETENTION.fromMetaData(metadata)` is called on the default metadata (`Metadata()`), it returns the default value of `interval 1 week`, rather than the configured table value, which is `interval 21 days` in my case. 
+
+The dependency chain can be summarized like this:
+```
+SnapshotManagement:getSnapshotAtInit --> 
+DeltaLog:minFileRetentionTimestamp --> 
+DeltaLog:tombstoneRetentionMillis --> 
+DeltaConfigs.getMilliSeconds(DeltaConfigs.TOMBSTONE_RETENTION.fromMetaData(metadata)) --> 
+def metadata = if (snapshot == null) Metadata() else snapshot.metadata -->
+where snapshot is SnapshotManagement::protected var currentSnapshot: CapturedSnapshot = getSnapshotAtInit(lastCheckpoint)
+```
+
+The ultimate result of this is the snapshot that `VacuumCommand.gc` uses to generate [validFiles](https://github.com/delta-io/delta/blob/v2.1.0/core/src/main/scala/org/apache/spark/sql/delta/commands/VacuumCommand.scala#L132-L150) filters out files that were removed over 7 days ago, which allows them to be unexpectedly deleted if your retention period is set to > 7 days.
+
+#### Steps to reproduce
+
+I've confirmed that the snapshot only has 7 days of removed files by doing something like this:
+
+```
+val deltaLog = DeltaLog.forTable(spark, "s3://path-to-table")
+val snapshot = deltaLog.update()
+val removedFiles = snapshot.state
+	.filter(_.remove != null)
+	.collect()
+	.map(_.unwrap.asInstanceOf[RemoveFile])
+	.sortBy(_.delTimestamp)
+val earliestTimestamp = removedFiles(0)
+```
+
+#### Observed results
+
+The `earliestTimestamp` value is 7 days ago.
+
+#### Expected results
+
+It should be ~21 days ago.
+
+**Note:** To double check that the default `TOMBSTONE_RETENTION` value is in fact what is causing this behavior, I cloned the delta project, checked out tag `v2.1.0`, and changed the default value to 21 days, then ran the above steps again. I then had 21 days of removed file history in the snapshot.
+
+#### Further details
+
+I first posted this question in the deltalake-questions Slack channel here and discussed with @scottsand-db: [Vacuum Issue](https://delta-users.slack.com/archives/CJ70UCSHM/p1675736850410599)
+
+### Environment information
+
+* Delta Lake version: `2.1.0`
+* Spark version: `3.3.0`
+* Scala version: `2.12`
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [X] Yes. I can contribute a fix for this bug independently.
+  - I would need approval from my company, which would take some time.
+- [ ] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute a bug fix at this time.

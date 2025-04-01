@@ -1,0 +1,10 @@
+See the project plan at https://github.com/delta-io/delta/issues/1105.
+
+This PR adds CDF to the UPDATE command, during which we generate both preimage and postimage CDF data.
+
+This PR also adds UpdateCDCSuite which adds basic tests for these CDF changes.
+
+As a high-level overview of how this CDF-update operation is performed, when we find a row that satisfies the update condition, we `explode` an array containing the pre-image, post-image, and main-table updated rows.
+
+The pre-image and post-image rows are appropriately typed with the corresponding CDF_TYPE, and the main-table updated row has CDF_TYPE `null`. Thus, the first two rows will be written to the cdf parquet file, with the latter is written to standard main-table data parquet file.
+

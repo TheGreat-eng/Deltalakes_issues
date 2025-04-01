@@ -1,0 +1,17 @@
+## Description
+Fix an issue found while testing the Delta 3.2 RC2:
+Dropping the type widening table feature may fail parsing the table identifier:
+
+```
+ALTER TABLE default.type_widening_int DROP FEATURE 'typeWidening-preview' TRUNCATE HISTORY;
+
+[PARSE_SYNTAX_ERROR] Syntax error at or near '.'.(line 1, pos 21)
+
+== SQL ==
+spark_catalog.default.type_widening_int
+```
+
+Parsing the table identifier isn't needed as it's not used by the REORG operation that rewrite files when dropping the feature. This change skip parsing the table identifier and directly passes the table name to the REORG command
+
+## How was this patch tested?
+Added test covering the issue

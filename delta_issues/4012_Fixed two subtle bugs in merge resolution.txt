@@ -1,0 +1,9 @@
+Here are the two bugs fixed.
+
+1. Insert condition should be resolved only with source and not with source+target. This was because clause conditions were being resolved with the full `merge` plan (i.e., with both source and target output attribs) independent of the clause type. This PR fixes it by using the `planToResolveAction` to resolve the references of the condition, which is customized for each clause type.
+
+2. Fix for bug #252 where incorrect columns were being printed as valid columns names. In the code, `plan.references` were being printed as valid column names. This is wrong because `references` includes invalid column names as well. This PR fixes it by using the output attributes of `plan.children` which are the only valid column names that can be referred to.
+
+Updated unit tests to verify the presence/absence of valid/invalid column names.
+
+Closes #252 

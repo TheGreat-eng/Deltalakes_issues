@@ -1,0 +1,32 @@
+## Bug
+
+#### Which Delta project/connector is this regarding?
+
+- [x] Spark
+
+### Describe the problem
+Operations such as optimize return a `DataFrame` with the operation's metrics; however, vacuum() returns an empty DataFrame.
+
+#### Steps to reproduce
+
+```python
+from delta import DeltaTable
+from pyspark.sql import SparkSession
+
+spark = SparkSession.builder.getOrCreate()
+my_table = DeltaTable.forName(spark, "my_schema.my_table")
+df = my_table.vacuum()
+assert df.isEmpty()
+```
+
+### Environment information
+
+* Delta Lake version: 3.2.0
+* Spark version: 3.5.2
+* Scala version:
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [x] Yes. I can contribute a fix for this bug independently.

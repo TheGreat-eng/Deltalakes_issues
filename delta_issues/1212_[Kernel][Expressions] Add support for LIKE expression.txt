@@ -1,0 +1,14 @@
+#### Which Delta project/connector is this regarding?
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [x] Kernel
+- [ ] Other (fill in here)
+
+## Description
+Add SQL `LIKE` expression support in Kernel list of supported expressions and a default implementation.
+
+Addresses part of https://github.com/delta-io/delta/issues/2539 (where `STARTS_WITH` as `LIKE 'str%'`)
+
+## How was this patch tested?
+added unit tests

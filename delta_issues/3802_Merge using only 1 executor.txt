@@ -1,0 +1,26 @@
+Hi,
+I have been trying to use DeltaTable merge.
+My source table and my update table are using 7 files each and the reading is done in 7 executors as expected.
+However, the merge is only done in 1 executor.
+Is this behavior expected? Is there a way to make it run in parallel?
+
+```
+df = spark.read.format('orc').load(update_path)
+
+delta_table = DeltaTable.forPath(spark, delta_path)
+(
+  delta_table
+  .alias('source')
+  .merge(
+    source = df.alias('update'),
+    condition = 'source.c1 = update.c1 and source.c2 = update.c2'
+  )
+  .whenMatchedUpdate(
+    set = {
+      'c3': 'update.c3'
+    }
+  )
+  .whenNotMatchedInsertAll()
+  .execute()
+)
+```

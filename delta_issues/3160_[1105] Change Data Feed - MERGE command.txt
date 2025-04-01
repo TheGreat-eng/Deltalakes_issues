@@ -1,0 +1,13 @@
+See the project plan at #1105.
+
+This PR adds CDF to the `MERGE` command.
+
+Merge is implemented in two ways.
+
+- Insert-only merges. For these we don't need to do anything special, since we only write `AddFile`s with the new rows.
+    - However, our current implementation of insert-only merges doesn't correctly update the metric `numTargetRowsInserted`, which is used to check for data changes in [CDCReader](https://github.com/delta-io/delta/blob/master/core/src/main/scala/org/apache/spark/sql/delta/commands/cdc/CDCReader.scala#L313). This PR fixes that.
+
+- For all other merges, we generate CDF rows for inserts, updates, and deletions. We do this by generating expression sequences for CDF outputs (i.e. preimage, insert, etc) on a clause-by-clause basis. We apply these to the rows in our joinedDF in addition to our existing main data output sequences.
+    - Changes made to `JoinedRowProcessor` make column `ROW_DELETED_COL` unnecessary, so this PR removes it.
+
+Tests are added in `MergeCDCSuite`.

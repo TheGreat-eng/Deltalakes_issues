@@ -1,0 +1,26 @@
+## Feature request
+
+### Overview
+
+As specified in the documentation, there are scenarios where time travel to a previous version is not possible even tough a version is younger than the threshold specified by `delta.logRetentionDuration` and data files are present ([see "_Note_" box in documentation](https://docs.delta.io/latest/delta-batch.html#-data-retention)).
+I propose making the logic for selecting and deleting log files and checkpoint files smarter, so that versions younger than `delta.logRetentionDuration` will be readable (as long as underlying data files were not deleted by `VACUUM`).
+
+### Motivation
+
+Current configuration of data retention might indicate to inexperienced users that time traveling to versions younger than the minimum of `delta.logRetentionDuration` and `delta.deletedFileRetentionDuration` will _always_ be possible.
+However, there are edge cases where this is not true and where restoring a prior version after accidental operations using time travel will not work.
+
+### Further details
+
+See discussion on Slack: https://delta-users.slack.com/archives/CJ70UCSHM/p1682613236651509
+
+When a new checkpoint is written, deletion of log files and checkpoint files _older_ than `delta.logRetentionDuration` is carried out.
+I propose introducing another condition here, checking if these deletion candidates are required by any version that is _younger_ than `delta.logRetentionDuration`.
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [ ] Yes. I can contribute this feature independently.
+- [ ] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [x] No. I cannot contribute this feature at this time.

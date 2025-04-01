@@ -1,0 +1,19 @@
+#### Which Delta project/connector is this regarding?
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+This PR is a backport of https://github.com/delta-io/delta/pull/2510 to the 3.1 branch.
+
+This PR renames `stringToPath` and `pathToString` methods, this will emphasize the input/output string should/will be escaped.
+
+We also added a third new method `unescapedStringToPath`. which is used by almost all calls from tests.
+
+## How was this patch tested?
+
+Refactoring PR.

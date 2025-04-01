@@ -1,0 +1,89 @@
+#### Which Delta project/connector is this regarding?
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [X] Other (delta-iceberg)
+
+## Description
+
+Resolves delta-io/delta#1903
+
+Previously, the `delta-iceberg` jar was incorrectly including all of the classes from `delta-spark` and `delta-storage`.
+
+You could run
+
+```
+wget https://repo1.maven.org/maven2/io/delta/delta-iceberg_2.13/3.0.0rc1/delta-iceberg_2.13-3.0.0rc1.jar
+jar tvf delta-iceberg_2.13-3.0.0rc1.jar
+```
+
+and see
+
+```
+com/databricks/spark/util/MetricDefinitions.class
+...
+io/delta/storage/internal/ThreadUtils.class
+...
+org/apache/spark/sql/delta/DeltaLog.class
+```
+
+This PR fixes that by updating various SBT assembly configs:
+1) `assemblyExcludedJars`: excluding jars we don't want (but this only works for jars from `libraryDependencies`, not `.dependsOn`)
+2) `assemblyMergeStrategy`: manually discarding other classes using case matching
+
+## How was this patch tested?
+
+### Unit Test
+Added a new test suite and sbt project. The new project depends on the assembled version of the `delta-iceberg` jar. The test suite loads that jar and analyses its classes.
+
+### QA
+Published the jars locally and ran through a simple end-to-end UniForm example.
+
+```
+========== Delta ========== 
+
+build/sbt storage/publishM2
+build/sbt spark/publishM2
+build/sbt iceberg/publishM2
+
+spark-shell --packages io.delta:delta-spark_2.12:3.0.0-SNAPSHOT,io.delta:delta-storage:3.0.0-SNAPSHOT,io.delta:delta-iceberg_2.12:3.0.0-SNAPSHOT --conf "spark.sql.extensions=io.delta.sql.DeltaSparkSessionExtension" --conf "spark.sql.catalog.spark_catalog=org.apache.spark.sql.delta.catalog.DeltaCatalog"
+
+val tablePath = "/Users/scott.sandre/uniform_tables/table_000"
+
+sql(s"CREATE TABLE delta.`$tablePath` (col1 INT, col2 INT) USING DELTA TBLPROPERTIES ('delta.universalFormat.enabledFormats'='iceberg')")
+
+sql(s"INSERT INTO delta.`$tablePath` VALUES (1, 1), (2,2), (3, 3)")
+
+sql(s"SELECT * FROM delta.`$tablePath`").show()
++----+----+
+|col1|col2|
++----+----+
+|   3|   3|
+|   2|   2|
+|   1|   1|
++----+----+
+
+==========  Iceberg ========== 
+
+spark-shell --packages org.apache.iceberg:iceberg-spark-runtime-3.4_2.12:1.3.1 \
+	--conf spark.sql.extensions=org.apache.iceberg.spark.extensions.IcebergSparkSessionExtensions \
+	--conf spark.sql.catalog.spark_catalog=org.apache.iceberg.spark.SparkSessionCatalog \
+	--conf spark.sql.catalog.spark_catalog.type=hive \
+	--conf spark.sql.catalog.local=org.apache.iceberg.spark.SparkCatalog \
+	--conf spark.sql.catalog.local.type=hadoop \
+	--conf spark.sql.catalog.local.warehouse=/Users/scott.sandre/iceberg_warehouse
+
+spark.read.format("iceberg").load("/Users/scott.sandre/uniform_tables/table_000").show()
++----+----+
+|col1|col2|
++----+----+
+|   1|   1|
+|   2|   2|
+|   3|   3|
++----+----+
+```
+
+## Does this PR introduce _any_ user-facing changes?
+
+Fixes a bug where delta-iceberg jar included delta-spark and delta-storage

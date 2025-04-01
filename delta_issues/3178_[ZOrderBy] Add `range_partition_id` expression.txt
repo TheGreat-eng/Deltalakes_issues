@@ -1,0 +1,18 @@
+## Description
+
+This PR is part of https://github.com/delta-io/delta/issues/1134.
+
+It implementis `range_partition_id(col, N) -> int` expression. This expression is used to
+convert each Z-order column values to a range id. The range ids are selected by sampling the input column.
+For sampling and choosing the ranges make use of the existing `RangePartitioner` in Spark.
+
+Detailed design details are [here](https://docs.google.com/document/d/1TYFxAUvhtYqQ6IHAZXjliVuitA5D1u793PMnzsH_3vs/edit?usp=sharing),
+specifically [this](https://docs.google.com/document/d/1TYFxAUvhtYqQ6IHAZXjliVuitA5D1u793PMnzsH_3vs/edit#bookmark=id.5aav37q4qho2) section.
+
+GitOrigin-RevId: ca01bf03a398abd72dc96279dd864294bb00df9b
+
+## How was this patch tested?
+UTs
+
+## Does this PR introduce _any_ user-facing changes?
+No

@@ -1,0 +1,23 @@
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [X] Other (protocol RFC)
+
+## Description
+
+Adds the protocol changes for the Variant shredding (see https://github.com/delta-io/delta/issues/4032) to the RFC folder.
+
+## How was this patch tested?
+
+N/A
+
+## Does this PR introduce _any_ user-facing changes?
+
+N/A

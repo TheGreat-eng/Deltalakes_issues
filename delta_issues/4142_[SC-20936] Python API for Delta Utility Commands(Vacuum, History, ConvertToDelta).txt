@@ -1,0 +1,9 @@
+## What changes were proposed in this pull request?
+Added Python APIs for Vacuum, ConvertToDelta and Describe History
+Added unit tests for the above
+Added fix to not swallow Python tests Exceptions
+## How was this patch tested?
+Unit tests( test_deltatable.py)
+
+
+GitOrigin-RevId: 80a5d76a6ee0f316c0e36eb5565707e946e4a9bb

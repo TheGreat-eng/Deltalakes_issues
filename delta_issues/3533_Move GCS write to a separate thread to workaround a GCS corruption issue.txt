@@ -1,0 +1,27 @@
+We found a potential GCS corruption due to an issue in GCS Hadoop connector: When writing a file on GCS, if the current thread is interrupted, GCS may close the partial write and upload the incomplete file. Here is a stack trace showing this behavior:
+
+```
+	  at java.io.PipedOutputStream.close(PipedOutputStream.java:175)
+	  at java.nio.channels.Channels$WritableByteChannelImpl.implCloseChannel(Channels.java:469)
+	  at java.nio.channels.spi.AbstractInterruptibleChannel$1.interrupt(AbstractInterruptibleChannel.java:165)
+	  - locked <0xc2f> (a java.lang.Object)
+	  at java.nio.channels.spi.AbstractInterruptibleChannel.begin(AbstractInterruptibleChannel.java:173)
+	  at java.nio.channels.Channels$WritableByteChannelImpl.write(Channels.java:457)
+	  - locked <0xc3b> (a java.lang.Object)
+	  at com.google.cloud.hadoop.util.BaseAbstractGoogleAsyncWriteChannel.write(BaseAbstractGoogleAsyncWriteChannel.java:136)
+	  - locked <0xc3c> (a com.google.cloud.hadoop.gcsio.GoogleCloudStorageImpl$2)
+	  at java.nio.channels.Channels.writeFullyImpl(Channels.java:78)
+	  at java.nio.channels.Channels.writeFully(Channels.java:101)
+	  at java.nio.channels.Channels.access$000(Channels.java:61)
+	  at java.nio.channels.Channels$1.write(Channels.java:174)
+	  - locked <0xc3d> (a java.nio.channels.Channels$1)
+	  at java.io.BufferedOutputStream.write(BufferedOutputStream.java:122)
+	  - locked <0xc3e> (a java.io.BufferedOutputStream)
+	  at com.google.cloud.hadoop.fs.gcs.GoogleHadoopOutputStream.write(GoogleHadoopOutputStream.java:118)
+	  at org.apache.hadoop.fs.FSDataOutputStream$PositionCache.write(FSDataOutputStream.java:58)
+	  at java.io.DataOutputStream.write(DataOutputStream.java:107)
+	  - locked <0xc3f> (a org.apache.hadoop.fs.FSDataOutputStream)
+	  at java.io.FilterOutputStream.write(FilterOutputStream.java:97)
+```
+
+This PR moves GCS write in GCSLogStore to a separate new thread to workaround the issue.

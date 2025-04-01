@@ -1,0 +1,29 @@
+#### Which Delta project/connector is this regarding?
+- [X] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+Some classes were using the `org.apache.spark.util.Utils` instead of the `org.apache.spark.sql.delta.util.Utils`
+
+The Spark implementation uses the SPARK_TESTING environment variable, while the Delta implementation uses the DELTA_TESTING key.
+
+Spark:
+https://github.com/apache/spark/blob/51fb84a54982719209c19136b1d72d2ef44726ee/core/src/main/scala/org/apache/spark/util/Utils.scala#L1878
+
+Delta:
+https://github.com/delta-io/delta/blob/221d95cd69fdb9ff3f69cdd842c5c13ed47fd687/spark/src/main/scala/org/apache/spark/sql/delta/util/Utils.scala#L58
+
+It means the unit tests are currently running non test code path, because we only set the DELTA_TESTING:
+
+https://github.com/delta-io/delta/blob/221d95cd69fdb9ff3f69cdd842c5c13ed47fd687/build.sbt#L466
+
+https://github.com/delta-io/delta/blob/221d95cd69fdb9ff3f69cdd842c5c13ed47fd687/run-tests.py#L93
+
+## How was this patch tested?
+Unit tests
+
+## Does this PR introduce _any_ user-facing changes?
+No

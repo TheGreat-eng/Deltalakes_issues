@@ -1,0 +1,25 @@
+## Feature request
+
+### Overview
+
+i had 2 concurrent jobs on same table: one is batch that runs on a certain schedule and reads the table and updates it. the other is structured streaming and appends data to the table. the table uses `WriteSerializable` isolation level. these 2 operations should not conflict. but in reality they both threw `ConcurrentAppendException` errors.
+
+turns out my streaming job was doing a join (streaming-batch join) with the same table as it was writing to. the join simply added some data to the streaming dataframe and it was perfectly fine if that data was somewhat stale. but this is not how delta saw it: it considered this join as files read that should not have been changed or added to by any other transaction while this transaction was in progress (or else there would be a conflict). this was also the reason my streaming job was no longer considered a blind append.
+
+the behavior described is perfect default behavior (and its impressive that delta captures this join as a read dependency for the transaction), but i want an option to turn this off, and basically tell delta it is OK if the table is modified between reading from it and writing to it for my transaction.
+
+### Further details
+
+the current behavior is captured in a unit test:
+https://github.com/delta-io/delta/blob/master/core/src/test/scala/org/apache/spark/sql/delta/DeltaSinkSuite.scala#L489
+
+with the current behavior any transaction that reads from the table will no longer be a blind append and have read dependencies that could lead to conflicts.
+
+when someone does not care about the table being modified between reading from it and writing to there should be in option to indicate so and relax these restrictions, and the result should be that:
+1) the transaction is OK with the files read being modified or added to
+2) the transaction is considered blind append again 
+
+### Willingness to contribute
+
+I have a pullreq ready
+

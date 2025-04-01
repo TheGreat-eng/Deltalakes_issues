@@ -1,0 +1,58 @@
+My pom.xml is as following
+
+
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.spark</groupId>
+            <artifactId>spark-core_2.13</artifactId>
+            <version>3.5.1</version>
+        </dependency>
+
+
+        <dependency>
+            <groupId>org.apache.spark</groupId>
+            <artifactId>spark-sql_2.13</artifactId>
+            <version>3.5.1</version>
+        </dependency>
+
+
+        <dependency>
+            <groupId>io.delta</groupId>
+            <artifactId>delta-spark_2.12</artifactId>
+            <version>3.1.0</version>
+        </dependency>
+
+    </dependencies>
+
+
+
+
+
+My code is as following:
+
+
+package org.example;
+import org.apache.spark.SparkConf;
+import org.apache.spark.sql.SparkSession;
+public class Main {
+    public static void main(String[] args) {      
+    
+        String val_ext="io.delta.sql.DeltaSparkSessionExtension";
+        String val_ctl="org.apache.spark.sql.delta.catalog.DeltaCatalog";
+        SparkConf sparkConf = new SparkConf();
+        sparkConf.setAppName("app");
+        sparkConf.setMaster("local[*]");
+        sparkConf.set("spark.sql.extensions",val_ext);
+        sparkConf.set("spark.sql.catalog.spark_catalog",val_ctl);
+        SparkSession sparkSession = SparkSession.builder()
+                .config(sparkConf)
+                .getOrCreate();
+    }
+}
+
+
+
+I use spark 3.5.1 and java8  and scala 2.13.8 
+When I run above program in Idea I  get  error  "Exception in thread "main" java.lang.BootstrapMethodError: java.lang.NoClassDefFoundError: scala/Serializable"
+
+Can some one help me? Thank you.

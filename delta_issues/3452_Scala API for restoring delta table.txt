@@ -1,0 +1,100 @@
+Add possibility to restore delta table using version or timestamp.
+Examples:
+```scala
+io.delta.tables.DeltaTable.forPath("/some_delta_path").restoreToVersion(1)
+io.delta.tables.DeltaTable.forPath("/some_delta_path").restoreToTimestamp("2021-01-01 00:00:00.000")
+io.delta.tables.DeltaTable.forPath("/some_delta_path").restoreToTimestamp("2021-01-01")
+```
+Fixes https://github.com/delta-io/delta/issues/632
+
+Signed-off-by: Maksym Dovhal <maksym.dovhal@gmail.com>
+
+Tested locally using spark-shell
+```bash
+sbt package
+spark-shell --jars ./core/target/scala-2.12/delta-core_2.12-1.1.0-SNAPSHOT.jar --conf "spark.sql.extensions=io.delta.sql.DeltaSparkSessionExtension" --conf "spark.sql.catalog.spark_catalog=org.apache.spark.sql.delta.catalog.DeltaCatalog"
+```
+
+```scala
+spark.range(2).write.format("delta").mode("overwrite").save("/tmp/delta_restore_test")
+spark.range(2,3).withColumnRenamed("id", "id_new").write.option("mergeSchema", "true").format("delta").mode("overwrite").save("/tmp/delta_restore_test")
+io.delta.tables.DeltaTable.forPath("/tmp/delta_restore_test").restoreToVersion(0)
+io.delta.tables.DeltaTable.forPath("/tmp/delta_restore_test").restoreToTimestamp("2021-12-18 16:40:14.54")
+// At next day
+io.delta.tables.DeltaTable.forPath("/tmp/delta_restore_test").restoreToVersion(0)
+io.delta.tables.DeltaTable.forPath("/tmp/delta_restore_test").restoreToTimestamp("2021-12-19")
+io.delta.tables.DeltaTable.forPath("/tmp/delta_restore_test").history().show(false)
+```
+Output:
+```
++-------+-----------------------+------+--------+---------+------------------------------------------------------+----+--------+---------+-----------+--------------+-------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------+------------+--------------------------------------------+
+|version|timestamp              |userId|userName|operation|operationParameters                                   |job |notebook|clusterId|readVersion|isolationLevel|isBlindAppend|operationMetrics                                                                                                                                             |userMetadata|engineInfo                                  |
++-------+-----------------------+------+--------+---------+------------------------------------------------------+----+--------+---------+-----------+--------------+-------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------+------------+--------------------------------------------+
+|5      |2021-12-19 09:43:41.604|null  |null    |RESTORE  |{version -> null, timestamp -> 2021-12-19}            |null|null    |null     |4          |Serializable  |false        |{numRestoredFiles -> 2, removedFilesSize -> 1252, numRemovedFiles -> 3, restoredFilesSize -> 794, numOfFilesAfterRestore -> 2, tableSizeAfterRestore -> 794} |null        |Apache-Spark/3.2.0 Delta-Lake/1.1.0-SNAPSHOT|
+|4      |2021-12-19 09:43:17.415|null  |null    |RESTORE  |{version -> 0, timestamp -> null}                     |null|null    |null     |3          |Serializable  |false        |{numRestoredFiles -> 3, removedFilesSize -> 794, numRemovedFiles -> 2, restoredFilesSize -> 1252, numOfFilesAfterRestore -> 3, tableSizeAfterRestore -> 1252}|null        |Apache-Spark/3.2.0 Delta-Lake/1.1.0-SNAPSHOT|
+|3      |2021-12-18 16:42:14.083|null  |null    |RESTORE  |{version -> null, timestamp -> 2021-12-18 16:40:14.54}|null|null    |null     |2          |Serializable  |false        |{numRestoredFiles -> 2, removedFilesSize -> 1252, numRemovedFiles -> 3, restoredFilesSize -> 794, numOfFilesAfterRestore -> 2, tableSizeAfterRestore -> 794} |null        |Apache-Spark/3.2.0 Delta-Lake/1.1.0-SNAPSHOT|
+|2      |2021-12-18 16:40:53.861|null  |null    |RESTORE  |{version -> 0, timestamp -> null}                     |null|null    |null     |1          |Serializable  |false        |{numRestoredFiles -> 3, removedFilesSize -> 794, numRemovedFiles -> 2, restoredFilesSize -> 1252, numOfFilesAfterRestore -> 3, tableSizeAfterRestore -> 1252}|null        |Apache-Spark/3.2.0 Delta-Lake/1.1.0-SNAPSHOT|
+|1      |2021-12-18 16:40:14.54 |null  |null    |WRITE    |{mode -> Overwrite, partitionBy -> []}                |null|null    |null     |0          |Serializable  |false        |{numFiles -> 2, numOutputRows -> 1, numOutputBytes -> 794}                                                                                                   |null        |Apache-Spark/3.2.0 Delta-Lake/1.1.0-SNAPSHOT|
+|0      |2021-12-18 16:40:08.045|null  |null    |WRITE    |{mode -> Overwrite, partitionBy -> []}                |null|null    |null     |null       |Serializable  |false        |{numFiles -> 3, numOutputRows -> 2, numOutputBytes -> 1252}                                                                                                  |null        |Apache-Spark/3.2.0 Delta-Lake/1.1.0-SNAPSHOT|
++-------+-----------------------+------+--------+---------+------------------------------------------------------+----+--------+---------+-----------+--------------+-------------+-------------------------------------------------------------------------------------------------------------------------------------------------------------+------------+--------------------------------------------+
+```
+Examples of transactions:
+/tmp/delta_restore_test/_delta_log/00000000000000000000.json
+```json
+{"protocol":{"minReaderVersion":1,"minWriterVersion":2}}
+{"metaData":{"id":"b090f082-f927-4372-9537-9623ae280ad8","format":{"provider":"parquet","options":{}},"schemaString":"{\"type\":\"struct\",\"fields\":[{\"name\":\"id\",\"type\":\"long\",\"nullable\":true,\"metadata\":{}}]}","partitionColumns":[],"configuration":{},"createdTime":1639838404635}}
+{"add":{"path":"part-00000-cb74dd35-ae80-4b3a-b97c-ea492e11ddc3-c000.snappy.parquet","partitionValues":{},"size":296,"modificationTime":1639838406641,"dataChange":true}}
+{"add":{"path":"part-00005-beac50f7-dbe7-40b7-9ce2-5e0e6a1607ad-c000.snappy.parquet","partitionValues":{},"size":478,"modificationTime":1639838406642,"dataChange":true}}
+{"add":{"path":"part-00011-7e35258f-a724-43f3-8622-c7efa51f01a6-c000.snappy.parquet","partitionValues":{},"size":478,"modificationTime":1639838406642,"dataChange":true}}
+{"commitInfo":{"timestamp":1639838407868,"operation":"WRITE","operationParameters":{"mode":"Overwrite","partitionBy":"[]"},"isolationLevel":"Serializable","isBlindAppend":false,"operationMetrics":{"numFiles":"3","numOutputRows":"2","numOutputBytes":"1252"},"engineInfo":"Apache-Spark/3.2.0 Delta-Lake/1.1.0-SNAPSHOT"}}
+```
+/tmp/delta_restore_test/_delta_log/00000000000000000001.json
+```json
+{"metaData":{"id":"b090f082-f927-4372-9537-9623ae280ad8","format":{"provider":"parquet","options":{}},"schemaString":"{\"type\":\"struct\",\"fields\":[{\"name\":\"id\",\"type\":\"long\",\"nullable\":true,\"metadata\":{}},{\"name\":\"id_new\",\"type\":\"long\",\"nullable\":true,\"metadata\":{}}]}","partitionColumns":[],"configuration":{},"createdTime":1639838404635}}
+{"add":{"path":"part-00000-b71c3566-429b-4038-8127-6e480656038c-c000.snappy.parquet","partitionValues":{},"size":304,"modificationTime":1639838414041,"dataChange":true}}
+{"add":{"path":"part-00011-7a5341e6-4876-467a-b33d-56d8dc0bf243-c000.snappy.parquet","partitionValues":{},"size":490,"modificationTime":1639838414041,"dataChange":true}}
+{"remove":{"path":"part-00000-cb74dd35-ae80-4b3a-b97c-ea492e11ddc3-c000.snappy.parquet","deletionTimestamp":1639838414511,"dataChange":true,"extendedFileMetadata":true,"partitionValues":{},"size":296}}
+{"remove":{"path":"part-00011-7e35258f-a724-43f3-8622-c7efa51f01a6-c000.snappy.parquet","deletionTimestamp":1639838414511,"dataChange":true,"extendedFileMetadata":true,"partitionValues":{},"size":478}}
+{"remove":{"path":"part-00005-beac50f7-dbe7-40b7-9ce2-5e0e6a1607ad-c000.snappy.parquet","deletionTimestamp":1639838414511,"dataChange":true,"extendedFileMetadata":true,"partitionValues":{},"size":478}}
+{"commitInfo":{"timestamp":1639838414511,"operation":"WRITE","operationParameters":{"mode":"Overwrite","partitionBy":"[]"},"readVersion":0,"isolationLevel":"Serializable","isBlindAppend":false,"operationMetrics":{"numFiles":"2","numOutputRows":"1","numOutputBytes":"794"},"engineInfo":"Apache-Spark/3.2.0 Delta-Lake/1.1.0-SNAPSHOT"}}
+```
+/tmp/delta_restore_test/_delta_log/00000000000000000002.json
+```json
+{"commitInfo":{"timestamp":1639838436332,"operation":"RESTORE","operationParameters":{"version":0,"timestamp":null},"readVersion":1,"isolationLevel":"Serializable","isBlindAppend":false,"operationMetrics":{"numRestoredFiles":"3","removedFilesSize":"794","numRemovedFiles":"2","restoredFilesSize":"1252","numOfFilesAfterRestore":"3","tableSizeAfterRestore":"1252"},"engineInfo":"Apache-Spark/3.2.0 Delta-Lake/1.1.0-SNAPSHOT"}}
+{"metaData":{"id":"b090f082-f927-4372-9537-9623ae280ad8","format":{"provider":"parquet","options":{}},"schemaString":"{\"type\":\"struct\",\"fields\":[{\"name\":\"id\",\"type\":\"long\",\"nullable\":true,\"metadata\":{}}]}","partitionColumns":[],"configuration":{},"createdTime":1639838404635}}
+{"add":{"path":"part-00005-beac50f7-dbe7-40b7-9ce2-5e0e6a1607ad-c000.snappy.parquet","partitionValues":{},"size":478,"modificationTime":1639838406642,"dataChange":true}}
+{"add":{"path":"part-00011-7e35258f-a724-43f3-8622-c7efa51f01a6-c000.snappy.parquet","partitionValues":{},"size":478,"modificationTime":1639838406642,"dataChange":true}}
+{"add":{"path":"part-00000-cb74dd35-ae80-4b3a-b97c-ea492e11ddc3-c000.snappy.parquet","partitionValues":{},"size":296,"modificationTime":1639838406641,"dataChange":true}}
+{"remove":{"path":"part-00011-7a5341e6-4876-467a-b33d-56d8dc0bf243-c000.snappy.parquet","deletionTimestamp":1639838435578,"dataChange":true,"extendedFileMetadata":true,"partitionValues":{},"size":490}}
+{"remove":{"path":"part-00000-b71c3566-429b-4038-8127-6e480656038c-c000.snappy.parquet","deletionTimestamp":1639838435586,"dataChange":true,"extendedFileMetadata":true,"partitionValues":{},"size":304}}
+```
+/tmp/delta_restore_test/_delta_log/00000000000000000003.json
+```json
+{"commitInfo":{"timestamp":1639838517073,"operation":"RESTORE","operationParameters":{"version":null,"timestamp":"2021-12-18 16:40:14.54"},"readVersion":2,"isolationLevel":"Serializable","isBlindAppend":false,"operationMetrics":{"numRestoredFiles":"2","removedFilesSize":"1252","numRemovedFiles":"3","restoredFilesSize":"794","numOfFilesAfterRestore":"2","tableSizeAfterRestore":"794"},"engineInfo":"Apache-Spark/3.2.0 Delta-Lake/1.1.0-SNAPSHOT"}}
+{"metaData":{"id":"b090f082-f927-4372-9537-9623ae280ad8","format":{"provider":"parquet","options":{}},"schemaString":"{\"type\":\"struct\",\"fields\":[{\"name\":\"id\",\"type\":\"long\",\"nullable\":true,\"metadata\":{}},{\"name\":\"id_new\",\"type\":\"long\",\"nullable\":true,\"metadata\":{}}]}","partitionColumns":[],"configuration":{},"createdTime":1639838404635}}
+{"add":{"path":"part-00011-7a5341e6-4876-467a-b33d-56d8dc0bf243-c000.snappy.parquet","partitionValues":{},"size":490,"modificationTime":1639838414041,"dataChange":true}}
+{"add":{"path":"part-00000-b71c3566-429b-4038-8127-6e480656038c-c000.snappy.parquet","partitionValues":{},"size":304,"modificationTime":1639838414041,"dataChange":true}}
+{"remove":{"path":"part-00005-beac50f7-dbe7-40b7-9ce2-5e0e6a1607ad-c000.snappy.parquet","deletionTimestamp":1639838516199,"dataChange":true,"extendedFileMetadata":true,"partitionValues":{},"size":478}}
+{"remove":{"path":"part-00011-7e35258f-a724-43f3-8622-c7efa51f01a6-c000.snappy.parquet","deletionTimestamp":1639838516199,"dataChange":true,"extendedFileMetadata":true,"partitionValues":{},"size":478}}
+{"remove":{"path":"part-00000-cb74dd35-ae80-4b3a-b97c-ea492e11ddc3-c000.snappy.parquet","deletionTimestamp":1639838516202,"dataChange":true,"extendedFileMetadata":true,"partitionValues":{},"size":296}}
+```
+/tmp/delta_restore_test/_delta_log/00000000000000000004.json
+```json
+{"commitInfo":{"timestamp":1639899780668,"operation":"RESTORE","operationParameters":{"version":0,"timestamp":null},"readVersion":3,"isolationLevel":"Serializable","isBlindAppend":false,"operationMetrics":{"numRestoredFiles":"3","removedFilesSize":"794","numRemovedFiles":"2","restoredFilesSize":"1252","numOfFilesAfterRestore":"3","tableSizeAfterRestore":"1252"},"engineInfo":"Apache-Spark/3.2.0 Delta-Lake/1.1.0-SNAPSHOT"}}
+{"metaData":{"id":"b090f082-f927-4372-9537-9623ae280ad8","format":{"provider":"parquet","options":{}},"schemaString":"{\"type\":\"struct\",\"fields\":[{\"name\":\"id\",\"type\":\"long\",\"nullable\":true,\"metadata\":{}}]}","partitionColumns":[],"configuration":{},"createdTime":1639838404635}}
+{"add":{"path":"part-00005-beac50f7-dbe7-40b7-9ce2-5e0e6a1607ad-c000.snappy.parquet","partitionValues":{},"size":478,"modificationTime":1639838406642,"dataChange":true}}
+{"add":{"path":"part-00011-7e35258f-a724-43f3-8622-c7efa51f01a6-c000.snappy.parquet","partitionValues":{},"size":478,"modificationTime":1639838406642,"dataChange":true}}
+{"add":{"path":"part-00000-cb74dd35-ae80-4b3a-b97c-ea492e11ddc3-c000.snappy.parquet","partitionValues":{},"size":296,"modificationTime":1639838406641,"dataChange":true}}
+{"remove":{"path":"part-00011-7a5341e6-4876-467a-b33d-56d8dc0bf243-c000.snappy.parquet","deletionTimestamp":1639899779981,"dataChange":true,"extendedFileMetadata":true,"partitionValues":{},"size":490}}
+{"remove":{"path":"part-00000-b71c3566-429b-4038-8127-6e480656038c-c000.snappy.parquet","deletionTimestamp":1639899779981,"dataChange":true,"extendedFileMetadata":true,"partitionValues":{},"size":304}}
+```
+/tmp/delta_restore_test/_delta_log/00000000000000000005.json
+```json
+{"commitInfo":{"timestamp":1639899805962,"operation":"RESTORE","operationParameters":{"version":null,"timestamp":"2021-12-19"},"readVersion":4,"isolationLevel":"Serializable","isBlindAppend":false,"operationMetrics":{"numRestoredFiles":"2","removedFilesSize":"1252","numRemovedFiles":"3","restoredFilesSize":"794","numOfFilesAfterRestore":"2","tableSizeAfterRestore":"794"},"engineInfo":"Apache-Spark/3.2.0 Delta-Lake/1.1.0-SNAPSHOT"}}
+{"metaData":{"id":"b090f082-f927-4372-9537-9623ae280ad8","format":{"provider":"parquet","options":{}},"schemaString":"{\"type\":\"struct\",\"fields\":[{\"name\":\"id\",\"type\":\"long\",\"nullable\":true,\"metadata\":{}},{\"name\":\"id_new\",\"type\":\"long\",\"nullable\":true,\"metadata\":{}}]}","partitionColumns":[],"configuration":{},"createdTime":1639838404635}}
+{"add":{"path":"part-00011-7a5341e6-4876-467a-b33d-56d8dc0bf243-c000.snappy.parquet","partitionValues":{},"size":490,"modificationTime":1639838414041,"dataChange":true}}
+{"add":{"path":"part-00000-b71c3566-429b-4038-8127-6e480656038c-c000.snappy.parquet","partitionValues":{},"size":304,"modificationTime":1639838414041,"dataChange":true}}
+{"remove":{"path":"part-00005-beac50f7-dbe7-40b7-9ce2-5e0e6a1607ad-c000.snappy.parquet","deletionTimestamp":1639899805448,"dataChange":true,"extendedFileMetadata":true,"partitionValues":{},"size":478}}
+{"remove":{"path":"part-00011-7e35258f-a724-43f3-8622-c7efa51f01a6-c000.snappy.parquet","deletionTimestamp":1639899805445,"dataChange":true,"extendedFileMetadata":true,"partitionValues":{},"size":478}}
+{"remove":{"path":"part-00000-cb74dd35-ae80-4b3a-b97c-ea492e11ddc3-c000.snappy.parquet","deletionTimestamp":1639899805444,"dataChange":true,"extendedFileMetadata":true,"partitionValues":{},"size":296}}
+```

@@ -1,0 +1,11 @@
+Looking at the roadmap, I noticed there are no plans for porting these specific closed source APIs to delta, so I'm really interested in contributing them myself. Before coding anything, I'd like to start a discussion on how to approach it since you guys have all the experience dealing with it on Databricks' side and we could avoid repeating the same mistakes.
+
+### Collecting file statistics 
+
+Since delta uses `FileFormatWriter`, we could implement a `WriteJobStatsTracker` to collect statistics back to the driver and merge them with the collected `Seq[AddFile]` that's returned from the commiter. I can see this being really inefficient for a high number of columns and we're also doing work already done by the parquet writer.  
+
+Another approach, is to collect the metadata that's already written by the parquet writer. Maybe we could do it on `commitTask`. I'm not sure if this works, but it's very easy to write a quick POC
+
+### Skipping files 
+
+To skip files based on stats, we could do it in a very similar way to partition filtering https://github.com/delta-io/delta/blob/master/src/main/scala/org/apache/spark/sql/delta/DeltaLog.scala#L757

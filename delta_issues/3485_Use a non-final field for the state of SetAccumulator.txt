@@ -1,0 +1,24 @@
+Our production cluster ever encountered NPE caused by SetAccumulator.
+After investigation, we find the issue is similar to [SPARK-20977](https://issues.apache.org/jira/browse/SPARK-20977).
+Inspired by the fix, this PR proposes a similar one.
+```
+21/11/13 05:00:50,856 ERROR [executor-heartbeater] util.Utils:94 : Uncaught exception in thread executor-heartbeater
+java.lang.NullPointerException
+        at org.apache.spark.sql.delta.util.SetAccumulator.isZero(SetAccumulator.scala:29)
+        at org.apache.spark.executor.Executor.$anonfun$reportHeartBeat$2(Executor.scala:1023)
+        at org.apache.spark.executor.Executor.$anonfun$reportHeartBeat$2$adapted(Executor.scala:1023)
+        at scala.collection.TraversableLike.$anonfun$filterImpl$1(TraversableLike.scala:256)
+        at scala.collection.Iterator.foreach(Iterator.scala:941)
+        at scala.collection.Iterator.foreach$(Iterator.scala:941)
+        at scala.collection.AbstractIterator.foreach(Iterator.scala:1429)
+        at scala.collection.IterableLike.foreach(IterableLike.scala:74)
+        at scala.collection.IterableLike.foreach$(IterableLike.scala:73)
+        at scala.collection.AbstractIterable.foreach(Iterable.scala:56)
+        at scala.collection.TraversableLike.filterImpl(TraversableLike.scala:255)
+        at scala.collection.TraversableLike.filterImpl$(TraversableLike.scala:249)
+        at scala.collection.AbstractTraversable.filterImpl(Traversable.scala:108)
+        at scala.collection.TraversableLike.filterNot(TraversableLike.scala:355)
+        at scala.collection.TraversableLike.filterNot$(TraversableLike.scala:355)
+        at scala.collection.AbstractTraversable.filterNot(Traversable.scala:108)
+        at org.apache.spark.executor.Executor.$anonfun$reportHeartBeat$1(Executor.scala:1023)
+```

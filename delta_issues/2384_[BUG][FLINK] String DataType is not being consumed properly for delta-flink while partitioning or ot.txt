@@ -1,0 +1,38 @@
+## Bug
+
+#### Which Delta project/connector is this regarding?
+[BUG][FLINK] String DataType is not being consumed properly for delta-flink while partitioning or otherwise. Only the first char is being picked
+
+### Describe the problem
+Flink Version: 1.16.0
+Dependencies in the client classpath:
+![image](https://github.com/delta-io/delta/assets/115492890/f71dd542-f252-4b10-8086-449281091b0c)
+
+I added following dep in server classpath:
+Flink SQL> ADD JAR '/opt/flink-webssh/lib/delta-flink-3.0.0rc1.jar';
+Flink SQL> ADD JAR '/opt/flink-webssh/lib/delta-standalone_2.12-3.0.0rc1.jar';
+Flink SQL> ADD JAR '/opt/flink-webssh/lib/shapeless_2.12-2.3.4.jar';
+Flink SQL> ADD JAR '/opt/flink-webssh/lib/parquet-hadoop-bundle-1.12.2.jar';
+Flink SQL> ADD JAR '/opt/flink-webssh/lib/flink-parquet-1.16.0.jar';
+
+a. Let's just say I inserted data in delta format to abfs to a table of schema:
+![image](https://github.com/delta-io/delta/assets/115492890/da68b45b-ff49-4aec-a2aa-4df72427d877)
+
+while doing SELECT *, I get this.
+![image](https://github.com/delta-io/delta/assets/115492890/027ceb2b-4043-4bee-bdca-6e1c974c8212)
+
+and in ABFS directory, I get this.
+![image](https://github.com/delta-io/delta/assets/115492890/ff5eb7f4-b4aa-4d19-854e-c16c629524e4)
+
+So, basically from this , I gather that only the first char of string datatype is taken, which is a problem with flink-delta story.
+Is it about flink version mismatch.? 
+
+* Delta Lake version: 3.0.0rc1
+* Scala version: 2.12
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+ 
+- [*] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community. - **I am interested !**
+

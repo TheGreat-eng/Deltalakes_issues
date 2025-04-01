@@ -1,0 +1,8 @@
+Calling `S3SingleDriverLogStore#write`[1] with overwrite = false will cause the underlying fs implementation to issue a HEAD request to s3 that will potentially be cached as 404 and this will break the consistency property of the `LogStore`. Since `S3SingleDriverLogStore` already does a listing based existence check[3], we could simply call `fs.create` with overwrite=true all times to avoid this issue. 
+
+The tricky part is that this also depends on hadoop version. For hadoop 2.7, I believe no HEAD request are made if overwrite=true. The same can't be said on hadoop 3.2 because it issues a status request anyway[4]. So even with overwrite=true, the consistency issue mentioned can't be avoided. 
+
+[1] https://github.com/delta-io/delta/blob/master/src/main/scala/org/apache/spark/sql/delta/storage/S3SingleDriverLogStore.scala#L167
+[2] https://github.com/delta-io/delta/blob/master/src/main/scala/org/apache/spark/sql/delta/storage/S3SingleDriverLogStore.scala#L163
+[3] https://github.com/delta-io/delta/blob/master/src/main/scala/org/apache/spark/sql/delta/storage/S3SingleDriverLogStore.scala#L118
+[4]https://issues.apache.org/jira/browse/HADOOP-16490

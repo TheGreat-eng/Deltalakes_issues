@@ -1,0 +1,8 @@
+environment：  delta 1.0.0  spark-3.1.1-bin-hadoop2.7
+there is a antlr4-runtime-4.8-1.jar in  SPARK_HOME/jars
+I got this error when I executed the sql in spark-shell
+spark-shell yarn --driver-memory 1G --num-executors 2 --executor-memory 1G --executor-cores 4 --deploylient --conf "spark.sql.extensions=io.delta.sql.DeltaSparkSessionExtension" --conf "spark.sql.catalog.spark_catalog=org.apache.spark.sql.delta.catalog.DeltaCatalog" --packages io.delta:delta-core_2.12:1.0.0
+
+spark.sql("CREATE IF NOT EXISTS TABLE events_sql (date DATE,eventId STRING,eventType STRING,data STRING)USING DELTA")
+
+How to deal with it?

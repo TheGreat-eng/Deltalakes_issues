@@ -1,0 +1,11 @@
+This PR takes over the SBT upgrade work from #642 . Thanks Jacek Laskowski for the initial investigation and great work!
+
+All pass:
+- `build/sbt compile`
+- `build/sbt package`
+- `build/sbt test`
+- `build/sbt unidoc`
+
+And (in `examples/scala`
+- `build/sbt package`
+- `build/sbt compile`

@@ -1,0 +1,29 @@
+## Feature request
+
+### Overview
+
+With this feature, we'd be able to split a Delta table into N chunk and ask the reader to only read a specific chunk. The reader would do its best to evenly split the dataset.
+As example, the reader could split the files into N buckets of even size, and only read a given bucket. The reader should do its best to avoid reading unnecessary data.
+Reading the same delta version with the same number of chunk would always return the same result, offering a guarantee that we can query all the data with multiple readers without duplicate nor gaps.
+
+### Motivation
+
+This feature would be used to do distributed compute where each worker need to have access to a subset of the data. This is specifically true for DataScience workload & Deep learning training.
+A typical example would be having a Delta table with text / images being saved, and we want to be able to train a DL model (potentially distributed).
+With this feature, we'd be able to implement native Torch/tensorflow readers that would fetch only a subset of a Delta table in an efficient way.
+
+
+### Further details
+
+Michael is solving this with an implementation leveraging an ID column to split the data against N worker: https://github.com/mshtelma/torchdelta
+Ideally, we'd like to replicate this behaviour natively within the reader, without leveraging extra column.
+
+One naive solution could be listing the parquet files and doing the split manually, however this likely won't support protocol changes and more advanced features like deletion vectors
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [ ] Yes. I can contribute this feature independently.
+- [ ] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [x] No. I cannot contribute this feature at this time.

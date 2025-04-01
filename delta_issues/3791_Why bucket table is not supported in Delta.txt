@@ -1,0 +1,7 @@
+Why bucket table is not supported in Delta? I have implemented bucket table in Delta, includes
+1. create a bucket table using delta
+2. convert a bucket table to delta
+3. read and insert, update/delete/merge on bucket delta table via SQL
+4. bucket join (without shuffle)
+
+Do we need this feature? I can file a PR.

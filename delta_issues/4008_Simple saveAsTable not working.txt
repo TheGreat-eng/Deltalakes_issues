@@ -1,0 +1,57 @@
+Wanted to try this out : https://twitter.com/jaceklaskowski/status/1220780404652826625?s=21
+
+I'm using Spark 2.4.2 (built with Scala 2.12) and Hive 1.x and Delta Lake 0.5.0 OSS
+
+I'm running spark-shell as follows :
+` ./spark-shell   --packages io.delta:delta-core_2.12:0.5.0 --conf spark.sql.extensions=io.delta.sql.DeltaSparkSessionExtension`
+
+I'm just running the following line :
+
+`spark.range(10).write.format("delta").option("path", "/bench/delta").saveAsTable("delta")`
+
+And I get the following error :
+
+> 20/01/30 14:32:46 WARN hive.HiveExternalCatalog: Couldn't find corresponding Hive SerDe for data source provider delta. Persisting data source table `default`.`delta` into Hive metastore in Spark SQL specific format, which is NOT compatible with Hive.
+> java.lang.IllegalArgumentException: java.net.URISyntaxException: Relative path in absolute URI: hdfs://company-server:8020delta-__PLACEHOLDER__
+>   at org.apache.hadoop.fs.Path.initialize(Path.java:205)
+>   at org.apache.hadoop.fs.Path.<init>(Path.java:115)
+>   at org.apache.hadoop.fs.Path.<init>(Path.java:93)
+>   at org.apache.spark.sql.hive.HiveExternalCatalog.saveTableIntoHive(HiveExternalCatalog.scala:488)
+>   at org.apache.spark.sql.hive.HiveExternalCatalog.createDataSourceTable(HiveExternalCatalog.scala:399)
+>   at org.apache.spark.sql.hive.HiveExternalCatalog.$anonfun$createTable$1(HiveExternalCatalog.scala:265)
+>   at scala.runtime.java8.JFunction0$mcV$sp.apply(JFunction0$mcV$sp.java:23)
+>   at org.apache.spark.sql.hive.HiveExternalCatalog.withClient(HiveExternalCatalog.scala:97)
+>   at org.apache.spark.sql.hive.HiveExternalCatalog.createTable(HiveExternalCatalog.scala:236)
+>   at org.apache.spark.sql.catalyst.catalog.ExternalCatalogWithListener.createTable(ExternalCatalogWithListener.scala:94)
+>   at org.apache.spark.sql.catalyst.catalog.SessionCatalog.createTable(SessionCatalog.scala:324)
+>   at org.apache.spark.sql.execution.command.CreateDataSourceTableAsSelectCommand.run(createDataSourceTables.scala:185)
+>   at org.apache.spark.sql.execution.command.DataWritingCommandExec.sideEffectResult$lzycompute(commands.scala:104)
+>   at org.apache.spark.sql.execution.command.DataWritingCommandExec.sideEffectResult(commands.scala:102)
+>   at org.apache.spark.sql.execution.command.DataWritingCommandExec.doExecute(commands.scala:122)
+>   at org.apache.spark.sql.execution.SparkPlan.$anonfun$execute$1(SparkPlan.scala:131)
+>   at org.apache.spark.sql.execution.SparkPlan.$anonfun$executeQuery$1(SparkPlan.scala:155)
+>   at org.apache.spark.rdd.RDDOperationScope$.withScope(RDDOperationScope.scala:151)
+>   at org.apache.spark.sql.execution.SparkPlan.executeQuery(SparkPlan.scala:152)
+>   at org.apache.spark.sql.execution.SparkPlan.execute(SparkPlan.scala:127)
+>   at org.apache.spark.sql.execution.QueryExecution.toRdd$lzycompute(QueryExecution.scala:80)
+>   at org.apache.spark.sql.execution.QueryExecution.toRdd(QueryExecution.scala:80)
+>   at org.apache.spark.sql.DataFrameWriter.$anonfun$runCommand$1(DataFrameWriter.scala:676)
+>   at org.apache.spark.sql.execution.SQLExecution$.$anonfun$withNewExecutionId$1(SQLExecution.scala:78)
+>   at org.apache.spark.sql.execution.SQLExecution$.withSQLConfPropagated(SQLExecution.scala:125)
+>   at org.apache.spark.sql.execution.SQLExecution$.withNewExecutionId(SQLExecution.scala:73)
+>   at org.apache.spark.sql.DataFrameWriter.runCommand(DataFrameWriter.scala:676)
+>   at org.apache.spark.sql.DataFrameWriter.createTable(DataFrameWriter.scala:474)
+>   at org.apache.spark.sql.DataFrameWriter.saveAsTable(DataFrameWriter.scala:453)
+>   at org.apache.spark.sql.DataFrameWriter.saveAsTable(DataFrameWriter.scala:409)
+>   ... 49 elided
+> Caused by: java.net.URISyntaxException: Relative path in absolute URI: hdfs://company-server:8020delta-__PLACEHOLDER__
+>   at java.net.URI.checkPath(URI.java:1823)
+>   at java.net.URI.<init>(URI.java:745)
+>   at org.apache.hadoop.fs.Path.initialize(Path.java:202)
+>   ... 78 more
+
+From the tweet, even with the SerDe warn, it seemed to be working but from my side I get an error because of the path apparently ? 
+
+The exact same line of code works when replacing format("delta") with format("parquet").
+
+Any help appreciated

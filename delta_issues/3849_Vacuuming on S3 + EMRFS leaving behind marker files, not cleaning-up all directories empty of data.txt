@@ -1,0 +1,19 @@
+On a partition lake by year=a/month=b/day=c/hour=d/minute=e ... when using Delta Lake on EMR clusters withe EMRFS enabled (for strong consistency) the vacuuming operation leaves behind the marker files from EMRFS of the form:
+
+- minute=00_$folder$
+- minute=01_$folder$
+- minute=02_$folder$
+- minute=03_$folder$
+- minute=04_$folder$
+- etcetera ...
+
+The "hour" prefixes are not deleted (because of non-empty directories most probably) neither are "day", "month" prefixes as time rolls on and vacuuming continues.
+
+A few questions:
+
+Is this a bug? Intended behavior? 
+Is running Delta Lake directly on S3 without EMRFS safe? (which would avoid these leftovers). 
+
+What could be a safe workaround (eg. implemented by us using Hadoop file-system API) that would solve this issue? For example, is there something wrong if we "delete" using the Delta API to mark the files for deletion/vacuuming, but we never run vacuum, but delete the files ourselves? (eg. using AWS Java SDK).
+
+Info here @ https://aws.amazon.com/premiumsupport/knowledge-center/emr-s3-empty-files/ on these types of files. We run AWS EMR 5.30/Spark jobs (via Livy).

@@ -1,0 +1,51 @@
+## Bug
+
+### Describe the problem
+
+DeltaLakeS3 process failed with error Generic S3 error: Error performing complete multipart request: response error:
+
+EntityTooSmall
+
+Your proposed upload is smaller than the minimum allowed size
+
+Proposed size: 5112949
+
+MinSizeAllowed: 5242880
+
+PartNumber: 1
+
+#### Steps to reproduce
+
+1. Create a data structure that is >= 1.5gbs
+2. Choose S3 as your backend
+3. Write table using the data structure that is 1.5gbs or more
+
+#### Observed results
+
+```
+2023-02-05T13:58:34 DeltaLakeS3 process failed with error Generic S3 error: Error performing complete multipart request: response error “<Error><Code>EntityTooSmall</Code><Message>Your proposed upload is smaller than the minimum allowed size</Message><ProposedSize>5112949</ProposedSize><MinSizeAllowed>5242880</MinSizeAllowed><PartNumber>1</PartNumber><ETag>fdd3a4cad7deb06d2273ee18baed284b</ETag><RequestId>VVXWA5N53JEJNE3R</RequestId><HostId>xTNhBnJhZv0rLpc3LLrSILS6cyzfzM5qr8l8G2F7KtPYoVqqq6kCIj47cvlU6W/sW9GrZZsEckg=</HostId></Error>“, after 0 retries: HTTP status client error (400 Bad Request) for url
+```
+
+#### Expected results
+
+It should have uploaded without any errors.
+
+#### Further details
+
+I looked into the code, and it’s supposedly chunking the data into proper 5 mbs chunks.
+
+### Environment information
+
+* Delta Lake version: 0.6.4
+* Spark version:
+* Scala version:
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [x] Yes. I can contribute a fix for this bug independently.
+    I would fix this if the issue was in Python. But I think the bug is in the Rust code.
+
+- [ ] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute a bug fix at this time.

@@ -1,0 +1,6 @@
+The ability to have a column that is auto incrementing and generates integer values is a highly requested feature. This is a well established feature in existing data warehouses (such as Oracle, Redshift, ...). Not having this basic functionality makes it difficult for users to migrate from their existing DWs to Delta Lake.  
+
+Hence, we propose to support identity columns in Delta Lake. As this change requires to update Delta protocol, this PR updates `PROTOCOL.md` to describe the Identity column support in the transaction log layer. We will work on the user facing feature after the new protocol format is accepted.
+
+
+

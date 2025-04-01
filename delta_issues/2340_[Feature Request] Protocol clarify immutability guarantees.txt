@@ -1,0 +1,37 @@
+Hello there!
+
+## Feature request
+
+#### Which Delta project/connector is this regarding?
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [x] Kernel
+- [ ] Other (fill in here)
+
+### Overview
+
+Delta's [PROTOCOL.md](https://github.com/delta-io/delta/blob/master/PROTOCOL.md) file does not mention file immutability guarantees, which are very important for caching. It would be great to spell these out as part of the protocol.
+
+### Motivation
+
+The [Lakehouse](https://www.cidrdb.org/cidr2021/papers/cidr2021_paper17.pdf) white paper and the [Delta Lake](https://dl.acm.org/doi/10.14778/3415478.3415560) white paper both emphasises Parquet files immutability as an important feature to allow caching of Delta Lake data files on clients, reducing bandwith and network i/o.
+
+Some Delta files are immutable, like Parquet data files, but some aren't, like the `_delta_log/_last_checkpoint` file that gets rewritten to point to the most recent checkpoint.
+
+However, what about other file types, such as [Deletion Vectors](https://github.com/delta-io/delta/blob/master/PROTOCOL.md#deletion-vector-files)? Or [Delta Log entries](https://github.com/delta-io/delta/blob/master/PROTOCOL.md#delta-log-entries)?
+
+It would be great to explicitly spell out in PROTOCOL.md which files are immutable, and can be safely cached forever by clients, and which ones are not immutable, and should be checked for new modifications.
+
+### Further details
+
+n/a
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [ ] Yes. I can contribute this feature independently.
+- [x] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.

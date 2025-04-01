@@ -1,0 +1,24 @@
+
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+This PR implements the `No Redirect Rules` component on table redirect features and integrate this functionality to ReadClone.
+
+## How was this patch tested?
+Test: OSS PathBasedRedirect No Redirect Rules,
+
+
+
+## Does this PR introduce _any_ user-facing changes?
+No

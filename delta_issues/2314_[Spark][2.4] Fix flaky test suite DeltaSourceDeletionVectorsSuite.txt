@@ -1,0 +1,15 @@
+## Description
+
+(Cherrypick of 67c4b983088ae7e2d1d5cac6403792eb9ba35385 to branch-2.4)
+
+- Remove flakiness from a previously flaky test case, by ensuring that the stream is stopped processing before running new DML commands on the source table.
+
+Fixes #1982
+
+## How was this patch tested?
+
+Testing-only PR.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No.

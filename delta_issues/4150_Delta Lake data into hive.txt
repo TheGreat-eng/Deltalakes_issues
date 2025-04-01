@@ -1,0 +1,1 @@
+Can delta Lake enter data into hive? Can update and delete be achieved?

@@ -1,0 +1,42 @@
+<!--
+Thanks for sending a pull request!  Here are some tips for you:
+  1. If this is your first time, please read our contributor guidelines: https://github.com/delta-io/delta/blob/master/CONTRIBUTING.md
+  2. If the PR is unfinished, add '[WIP]' in your PR title, e.g., '[WIP] Your PR title ...'.
+  3. Be sure to keep the PR description updated to reflect all changes.
+  4. Please write your PR title to summarize what this PR proposes.
+  5. If possible, provide a concise example to reproduce the issue for a faster review.
+  6. If applicable, include the corresponding issue number in the PR title and link it in the body.
+-->
+
+## Description
+Resolves https://github.com/delta-io/delta/issues/1144
+
+
+## How was this patch tested?
+
+- Added a new test in `DeltaLogSuite`: 
+``` scala
+test("DeltaLog should not throw exception if SparkSession in initialized with " +
+    ".withExtension api and spark.sql.catalog.spark_catalog conf is set")
+
+test("DeltaLog should not throw exception if SparkSession in initialized with " +
+    ".withExtension api and spark.sql.catalog.spark_catalog conf is set")
+```
+- Refactored other unit tests
+
+## Does this PR introduce _any_ user-facing changes?
+
+Yes. If `spark.sql.extensions` and  `spark.sql.catalog.spark_catalog` configurations are not found in the `SparkSession`, it now throws the following user friendly error.
+
+```
+This Delta operation requires the SparkSession to be configured with the
+DeltaSparkSessionExtension and the DeltaCatalog. Please set the necessary
+configurations when creating the SparkSession as shown below.
+
+  SparkSession.builder()
+    .config("spark.sql.extensions", "io.delta.sql.DeltaSparkSessionExtension")
+    .config("spark.sql.catalog.spark_catalog", "org.apache.spark.sql.delta.catalog.DeltaCatalog")
+    ...
+    .getOrCreate()
+```
+

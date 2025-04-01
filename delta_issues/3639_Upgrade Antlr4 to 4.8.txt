@@ -1,0 +1,21 @@
+
+Upgrade Antlr4 to 4.8 to fix Antlr4 incompatible warning. 
+
+Before:
+```
+yumwang@LM-SHC-16508156 spark-3.1.1-bin-hadoop2.7 % bin/spark-sql --conf spark.sql.extensions=io.delta.sql.DeltaSparkSessionExtension --conf spark.sql.catalog.spark_catalog=org.apache.spark.sql.delta.catalog.DeltaCatalog
+...
+spark-sql> create table test_delta using delta as select id from range(10);
+ANTLR Tool version 4.7 used for code generation does not match the current runtime version 4.8ANTLR Tool version 4.7 used for code generation does not match the current runtime version 4.8
+21/05/21 21:14:53 WARN HiveExternalCatalog: Couldn't find corresponding Hive SerDe for data source provider delta. Persisting data source table `default`.`test_delta` into Hive metastore in Spark SQL specific format, which is NOT compatible with Hive.
+Time taken: 9.841 seconds
+```
+
+After:
+```
+yumwang@LM-SHC-16508156 spark-3.1.1-bin-hadoop2.7 % bin/spark-sql --conf spark.sql.extensions=io.delta.sql.DeltaSparkSessionExtension --conf spark.sql.catalog.spark_catalog=org.apache.spark.sql.delta.catalog.DeltaCatalog
+...
+spark-sql> create table test_delta using delta as select id from range(10);
+21/05/21 21:10:27 WARN HiveExternalCatalog: Couldn't find corresponding Hive SerDe for data source provider delta. Persisting data source table `default`.`test_delta` into Hive metastore in Spark SQL specific format, which is NOT compatible with Hive.
+Time taken: 5.949 seconds
+```

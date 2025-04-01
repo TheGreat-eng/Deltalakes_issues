@@ -1,0 +1,7 @@
+## Description
+Implements interfaces described in #2920. Currently supports inserting into partitioned/unpartitioned tables with protocol version (1, 2). It also has transaction identifier support for idempotent writes.
+
+Conflict resolution is not yet available. It will come as part of the follow up PRs.
+
+## How was this patch tested?
+Integration tests. More are on the way.

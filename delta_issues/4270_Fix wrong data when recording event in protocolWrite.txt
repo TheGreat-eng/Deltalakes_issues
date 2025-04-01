@@ -1,0 +1,3 @@
+In `protocolWrite`, it records event with wrong data `minReaderVersion`, currently. This patch goes to fix that.
+
+This also fixes few other typos and style.

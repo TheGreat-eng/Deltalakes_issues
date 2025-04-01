@@ -1,0 +1,9 @@
+For issue #48 , Added Vacuum implementation in VacuumCommand.
+
+Users can Vacuum a given DeltaTable with a given retention period. Vacuum would Recursively delete files and directories in the table that are not needed by the table for maintaining older versions up to the given retention threshold. 
+Note: Vacuum would disable the ability to timetravel beyond the retention period.
+
+Sample usage : 
+`deltaTable = new DeltaTable(spark.table(tableName))`
+`deltaTable.vacuum(retentionHours = 13)`
+`deltaTable.vacuum()`

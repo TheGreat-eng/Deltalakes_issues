@@ -1,0 +1,21 @@
+#### Which Delta project/connector is this regarding?
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+This PR changes signatures of `vacuum` method of `DeltaTable` class. This is needed to expose `vacuumType` (`FULL` or `LITE`) to public API
+This PR resolves issue #4259 
+
+## How was this patch tested?
+
+No new tests added, not sure if this functionality is testable
+
+## Does this PR introduce _any_ user-facing changes?
+
+Previous behavior: only one overload available for `DeltaTable.vacuum` method - `retentionHours` param
+New behavior: `vacuumType` param added to `DeltaTable.vacuum`

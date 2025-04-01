@@ -1,0 +1,15 @@
+## Feature request
+
+### Overview
+The currently the exceptions thrown by the `kernel-api` or `kernel-defaults` module are arbitary and there is no easy way to distinguish between user (in this case connector) errors vs Delta table reading issues.
+
+
+### Further details
+Goals
+* Want to define an exception where user (connector) errors are clearly distinguishable from the Kernel errors
+* Error codes?
+
+Tasks:
+* Design and discussion - 2days
+* Implementation of exception infra - 3days
+   * We won’t be updating all of the existing code as part of this task.

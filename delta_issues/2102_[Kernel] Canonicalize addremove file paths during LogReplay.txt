@@ -1,0 +1,21 @@
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the issue title
+For example: [BUG][Spark] Title of my issue
+-->
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [X] Kernel
+- [ ] Other (fill in here)
+
+### Describe the problem
+
+We need to canonicalize the file path of file actions during log replay before creating the `UniqueFileActionTuple` in `ActiveAddFilesIterator`.
+
+In Standalone we use this function [canonicalizePath](https://github.com/delta-io/delta/blob/master/connectors/standalone/src/main/scala/io/delta/standalone/internal/SnapshotImpl.scala#L350).
+
+#### Steps to reproduce
+
+[TODO] link to failing test once merged see #2212 

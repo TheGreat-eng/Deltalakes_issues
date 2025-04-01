@@ -1,0 +1,123 @@
+I am performing unit testing in Intellij and having below pyspark environment
+python 3.7.5
+DeltaLake 0.7.0
+Pyspark 3.0.1
+
+I have the below class method in class UpsertForDeltaLake.
+--------------------------------------------------
+    @classmethod
+    def _update_delta_table_with_changes(self, delta_table, updates_df):
+        print('PRINTING PARAMETERS RECEIVED')
+        print('DELTA TABLE')
+        delta_table.toDF().show()
+        print('UPDATE DF')
+        updates_df.show()
+        condition = 'target.id = updates.id and target.status = "Y" and updates.status = "N"'
+        print('PERFORMING MERGE')
+        delta_table.alias('target').merge(source=updates_df.alias('updates'), condition=condition) \
+            .whenMatchedUpdate(set={'status' : 'updates.status',
+                                    'end_date' : 'updates.end_date'}) \
+            .whenNotMatchedInsertAll().execute()
+        print('AFTER MERGE DELTA LAKE')
+        delta_table.toDF().show()
+----------------------------------------------------		
+
+the main logic is as below
+
+def execute(self)
+	delta_table = self.some_method1_called()
+	updates_df = self.some_method2_called_called()
+	self._update_delta_table_with_changes(delta_table, updates_df)
+=========================================================================================================
+for unit testing _update_delta_table_with_changes, when I directly pass the parameter it works as expected
+Below is the output
+PRINTING PARAMETERS RECEIVED
+DELTA TABLE
++---+----------+-------------------+-------------------+------+
+| id|      name|         start_date|           end_date|status|
++---+----------+-------------------+-------------------+------+
+|  1|     james|2020-10-01 00:00:00|2020-10-02 00:00:00|     N|
+|  1|james bond|2020-10-02 00:00:00|               null|     Y|
+|  3|      mark|2020-10-01 00:00:00|               null|     Y|
+|  2|       rob|2020-10-01 00:00:00|               null|     Y|
++---+----------+-------------------+-------------------+------+
+
+UPDATE DF
++---+----------+-------------------+-------------------+------+
+| id|      name|         start_date|           end_date|status|
++---+----------+-------------------+-------------------+------+
+|  1|james bond|               null|2020-10-10 00:00:00|     N|
+|  1|bond james|2020-10-10 00:00:00|               null|     Y|
+|  3|      mark|               null|2020-10-10 00:00:00|     N|
+|  4|      jack|2020-10-10 00:00:00|               null|     Y|
++---+----------+-------------------+-------------------+------+
+
+PERFORMING MERGE
+AFTER MERGE DELTA LAKE
++---+----------+-------------------+-------------------+------+
+| id|      name|         start_date|           end_date|status|
++---+----------+-------------------+-------------------+------+
+|  1|     james|2020-10-01 00:00:00|2020-10-02 00:00:00|     N|
+|  1|james bond|2020-10-02 00:00:00|2020-10-10 00:00:00|     N|
+|  3|      mark|2020-10-01 00:00:00|2020-10-10 00:00:00|     N|
+|  1|bond james|2020-10-10 00:00:00|               null|     Y|
+|  4|      jack|2020-10-10 00:00:00|               null|     Y|
+|  2|       rob|2020-10-01 00:00:00|               null|     Y|
++---+----------+-------------------+-------------------+------+
+==============================================================================================
+However when I am performing testing of execute() and in that _update_delta_table_with_changes() is called
+it is throwing Exception "pyspark.sql.utils.AnalysisException: Resolved attribute(s)" in method _update_delta_table_with_changes
+
+below is the print
+
+PRINTING PARAMETERS RECEIVED
+DELTA TABLE
++---+----------+-------------------+-------------------+------+
+| id|      name|         start_date|           end_date|status|
++---+----------+-------------------+-------------------+------+
+|  1|     james|2020-10-01 00:00:00|2020-10-02 00:00:00|     N|
+|  1|james bond|2020-10-02 00:00:00|               null|     Y|
+|  3|      mark|2020-10-01 00:00:00|               null|     Y|
+|  2|       rob|2020-10-01 00:00:00|               null|     Y|
++---+----------+-------------------+-------------------+------+
+
+UPDATE DF
++---+----------+-------------------+-------------------+------+
+| id|      name|         start_date|           end_date|status|
++---+----------+-------------------+-------------------+------+
+|  1|james bond|               null|2020-10-10 00:00:00|     N|
+|  3|      mark|               null|2020-10-10 00:00:00|     N|
+|  1|bond james|2020-10-10 00:00:00|               null|     Y|
+|  4|      jack|2020-10-10 00:00:00|               null|     Y|
++---+----------+-------------------+-------------------+------+
+
+PERFORMING MERGE
+
+pyspark.sql.utils.AnalysisException: Resolved attribute(s) status#949 missing from status#970,start_date#1310,id#945,end_date#1311,end_date#965,start_date#993,_file_name_#1300,id#1308,status#1312,name#1309,_row_id_#1293L,name#946 in operator !Join Inner, (((id#945 = id#945) AND (status#949 = Y)) AND (status#970 = N)). Attribute(s) with the same name appear in the operation: status. Please check if the right attribute(s) are used.;;
+!Join Inner, (((id#945 = id#945) AND (status#949 = Y)) AND (status#970 = N))
+:- SubqueryAlias updates
+:  +- Union
+:     :- Project [id#945, name#946, cast(start_date#961 as timestamp) AS start_date#993, end_date#965, status#970]
+:     :  +- Project [id#945, name#946, start_date#961, end_date#965, N AS status#970]
+:     :     +- Project [id#945, name#946, start_date#961, to_timestamp(2020-10-10, Some(yyyy-MM-dd)) AS end_date#965]
+:     :        +- Project [id#945, name#946, null AS start_date#961]
+:     :           +- Except false
+:     :              :- Project [id#945, name#946]
+:     :              :  +- Filter (status#949 = Y)
+:     :              :     +- Relation[id#945,name#946,start_date#947,end_date#948,status#949] parquet
+:     :              +- Project [id#921, name#922]
+:     :                 +- LogicalRDD [id#921, name#922], false
+:     +- Project [id#921, name#922, start_date#978, cast(end_date#982 as timestamp) AS end_date#994, status#987]
+:        +- Project [id#921, name#922, start_date#978, end_date#982, Y AS status#987]
+:           +- Project [id#921, name#922, start_date#978, null AS end_date#982]
+:              +- Project [id#921, name#922, to_timestamp(2020-10-10, Some(yyyy-MM-dd)) AS start_date#978]
+:                 +- Except false
+:                    :- Project [id#921, name#922]
+:                    :  +- LogicalRDD [id#921, name#922], false
+:                    +- Project [id#945, name#946]
+:                       +- Filter (status#949 = Y)
+:                          +- Relation[id#945,name#946,start_date#947,end_date#948,status#949] parquet
++- Project [id#1308, name#1309, start_date#1310, end_date#1311, status#1312, _row_id_#1293L, input_file_name() AS _file_name_#1300]
+   +- Project [id#1308, name#1309, start_date#1310, end_date#1311, status#1312, monotonically_increasing_id() AS _row_id_#1293L]
+      +- Project [id#1278 AS id#1308, name#1279 AS name#1309, start_date#1280 AS start_date#1310, end_date#1281 AS end_date#1311, status#1282 AS status#1312]
+         +- Relation[id#1278,name#1279,start_date#1280,end_date#1281,status#1282] parquet

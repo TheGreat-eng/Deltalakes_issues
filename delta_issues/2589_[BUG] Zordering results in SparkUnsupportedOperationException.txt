@@ -1,0 +1,45 @@
+## Bug
+Zordering on String columns does not seem to work. The error does help much either.
+
+### Describe the problem
+In my dataset, I have 2 columns that I use for my predicate for querying data and as join columns for merging. The performance of merge operation from an EMR cluster to s3 is really poor. As a step towards performance improvement, I tried to zorder on the 2 join columns, which both happen to be String type. But Zordering gives me the following error - 
+
+`org.apache.spark.SparkUnsupportedOperationException: Cannot evaluate expression: rangepartitionid(input[14, string, true], 1000)
+`
+
+I tried this from EMR using the main dataset as well as locally with a small sample.
+
+#### Steps to reproduce
+I was easily able to replicate this error locally on 1 super small test df. I am not sure if the problem is same with my prod dataset as with the sample code below, but the steps and error match. 
+
+This was run on spark-shell - 
+```
+
+import io.delta.tables._	
+import org.apache.spark.sql.SparkSession
+
+val values1 = List(List("Tom", "10", "12") ,List("Tim", "10", "13"),List("Harry", "11", "14")).map(x =>(x(0), x(1),x(2)))
+val df1 = values1.toDF("name","age","marks")
+
+val spark = SparkSession.builder().config("spark.sql.extensions", "io.delta.sql.DeltaSparkSessionExtension").config("spark.sql.catalog.spark_catalog", "org.apache.spark.sql.delta.catalog.DeltaCatalog").getOrCreate()	
+df1.write.format("delta").save("/home/some/path")
+
+val dt_test = DeltaTable.forPath(spark,"/home/some/path")
+dt_test.optimize().executeZOrderBy("age")//this is where the error happens
+```
+
+
+
+### Environment information
+
+* Delta Lake version: 2.2.0
+* Spark version: 3.3.0
+* Scala version: 2.12
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ X] Yes. I can contribute a fix for this bug independently.
+- [ ] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute a bug fix at this time.

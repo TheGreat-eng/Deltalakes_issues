@@ -1,0 +1,7 @@
+Hi Delta Lake community, I had asked the Pandas team to investigate adding Delta Lake support since I bounce between Pandas and Spark, and they said they wouldn't support it since it looks like Delta Lake seems tied to Spark for its APIs (see [pandas issue 35017](https://github.com/pandas-dev/pandas/issues/35017)). Is this true?
+
+> The only stable public APIs, currently provided by Delta Lake, are through the DataFrameReader/Writer (i.e. spark.read, df.write, spark.readStream and df.writeStream). Options to these APIs will remain stable within a major release of Delta Lake (e.g., 1.x.x).
+> 
+> All other interfaces in this library are considered internal, and they are subject to change across minor/patch releases.
+
+I personally would love to start using Delta Lake more extensively in my machine learning projects, but I'd be nervous if I had to give up on being able to read it in to my laptop for exploratory data analysis. Thanks for considering!

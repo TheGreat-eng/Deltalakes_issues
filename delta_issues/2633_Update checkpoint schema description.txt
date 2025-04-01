@@ -1,0 +1,11 @@
+## Description
+
+Update checkpoint schema description to explicitly mention that readerFeatures and writerFeatures should only exist in supported versions.
+
+## How was this patch tested?
+
+N/A
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

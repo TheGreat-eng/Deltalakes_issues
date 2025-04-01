@@ -1,0 +1,36 @@
+        spark.sql("SELECT * FROM delta.`/delta/test1` VERSION AS OF 123").show();
+Exception in thread "main" org.apache.spark.sql.catalyst.parser.ParseException:
+mismatched input 'AS' expecting {<EOF>, ';'}(line 1, pos 43)
+
+== SQL ==
+SELECT * FROM delta.`/delta/test1` VERSION AS OF 123
+-------------------------------------------^^^
+  at org.apache.spark.sql.catalyst.parser.ParseException.withCommand(ParseDriver.scala:255)
+        at org.apache.spark.sql.catalyst.parser.AbstractSqlParser.parse(ParseDriver.scala:124)
+        at org.apache.spark.sql.execution.SparkSqlParser.parse(SparkSqlParser.scala:49)
+        at org.apache.spark.sql.catalyst.parser.AbstractSqlParser.parsePlan(ParseDriver.scala:75)
+
+
+spark.sql("SELECT * FROM delta.`/delta/test1` TIMESTAMP AS OF '2021-08-13T15:10:12.013Z'").show();
+ //spark.sql("SELECT * FROM delta.`/delta/test1` TIMESTAMP AS OF '2021-08-13T15:10:12.013Z'").show();
+        /**
+         * SELECT * FROM delta.`/delta/test1` TIMESTAMP AS OF '2021-08-13T15:10:12.013Z'
+         * ---------------------------------------------^^^
+         */
+
+
+ Dataset<Row> df = spark.read().format("delta").option("versionAsOf", 2).table("delta.`/delta/test1`");
+        /**
+         * 
+         *+------+-------+---------+-------------------+
+         * | date1|eventId|eventType|               data|
+         * +------+-------+---------+-------------------+
+         * |impala|    iii|   impala|'foo'#'bar'#'world'|
+         * | spark|    bbb|    spark|'foo'#'bar'#'world'|
+         * |  java|   java|     java|               java|
+         * | flink|    ccc|    flink|'foo'#'bar'#'world'|
+         * |  hive|     ff|     hive|'foo'#'bar'#'world'|
+         * +------+-------+---------+-------------------+
+         */
+        df.show();
+df is right  and sql is error

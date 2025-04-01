@@ -1,0 +1,20 @@
+## Bug
+
+### Describe the problem
+
+When trying to interact with the Databricks produced Delta objects, there is no open source compatible version, and so this project is a de facto advertisement and vendor lock in for the Databricks platform.
+
+#### Steps to reproduce
+#### Observed results
+#### Expected results
+#### Further details
+
+This is all thoroughly and publicly documented in this project's docs and issues.
+
+### Environment information
+
+On vs. off Databricks platform
+
+### Willingness to contribute
+
+I would be willing to test.

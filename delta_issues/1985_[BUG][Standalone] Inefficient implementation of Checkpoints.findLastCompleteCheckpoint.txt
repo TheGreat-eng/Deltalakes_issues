@@ -1,0 +1,48 @@
+## Bug
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the issue title
+For example: [BUG][Spark] Title of my issue
+-->
+
+- [ ] Spark
+- [x] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+### Describe the problem
+If [`Checkpoints.findLastCompleteCheckpoint`](https://github.com/delta-io/delta/blob/0b6ae9233ea34b4337e8b594be772d47980f92d9/connectors/standalone/src/main/scala/io/delta/standalone/internal/Checkpoints.scala#L177-L196) is used with a version number for which there are no existing checkpoints smaller than it, then it does a linear scan from `cur=cv.version` down to `0` in decrements of `1000`. The `checkpoints` array is always empty. For tables with a large table version, this means a lot of list requests to the underlying file system, which can be costly. The number of list requests scale with the version number of the Delta table.
+
+For instance, this can be an issue if one were to use `Checkpoints.findLastCompleteCheckpoint` to clean up expired logs.
+
+The method is a bit risky as is, as one is not guaranteed that callers will call this method with versions for which there exist a smaller checkpoint in the Delta table. To reduce the cost of misuse by callers we should provide a faster implementation.
+
+#### Steps to reproduce
+
+Create a Delta table with a very large number of versions, or just a very high smallest retained version. Then try using the `Checkpoint.findLastCompleteCheckpoint` method on the Delta table with a version smaller than the last complete checkpoint existing in the table.
+
+#### Observed results
+
+A lot of list requests are made to the file system.
+
+#### Expected results
+
+Almost no list requests should be made to the file system.
+
+#### Further details
+
+A possible fix would be to have the method do a binary search in the Delta log for the correct checkpoint version, instead of a linear scan of the Delta log.
+
+### Environment information
+
+This applies to the current master branch.
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [x] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute a bug fix at this time.

@@ -1,0 +1,15 @@
+## Description
+Resolves #1123
+What was done:
+- Added sbt-scoverage plugin and enabled coverage.
+- Modified `run-tests.py` to generate an aggregate report of all Scala-based subprojects (core, contribs, storage, and storageS3DynamoDB). This functionality is disabled by default and can be enabled using the `--coverage` flag.
+
+Todos:
+- [ ] Decide on the [minimum coverage](https://github.com/scoverage/sbt-scoverage#minimum-coverage) needed for the project.
+
+## How was this patch tested?
+Ran `sbt test coverageAggregate` to generate the following coverage report:
+<img width="1792" alt="Screen Shot 2022-08-01 at 4 06 43 PM" src="https://user-images.githubusercontent.com/16105676/182907074-d1850291-b64c-4d91-89c9-7ad0ba6030fa.png">
+
+## Does this PR introduce _any_ user-facing changes?
+No

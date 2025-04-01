@@ -1,0 +1,76 @@
+I'm trying to register a currently existing Delta Table stored in S3 without success. I wonder if it's because Glue isn't supported.
+
+It works ok in EMR with hive metastore, but not when it is. EMR 6.1, Spark 3.0
+
+I get a shell with:
+```
+spark-shell --packages io.delta:delta-core_2.12:0.7.0 --conf "spark.sql.extensions=io.delta.sql.DeltaSparkSessionExtension" --conf "spark.sql.catalog.spark_catalog=org.apache.spark.sql.delta.catalog.DeltaCatalog" --conf "spark.databricks.hive.metastore.glueCatalog.enabled=true"
+```
+and I run:
+
+```
+val path = "s3://qa-data-lake/streaming/delta/activity_table/"
+spark.sql(s"CREATE TABLE database_created_in_glue.activity_table USING DELTA LOCATION '$path'")
+```
+
+And I get this stack trace:
+
+```20/12/08 17:33:31 WARN SharedState: Not allowing to set spark.sql.warehouse.dir or hive.metastore.warehouse.dir in SparkSession's options, it should be set statically for cross-session usages
+20/12/08 17:33:34 WARN HiveConf: HiveConf of name hive.server2.thrift.url does not exist
+20/12/08 17:33:36 WARN CredentialsLegacyConfigLocationProvider: Found the legacy config profiles file at [/home/hadoop/.aws/config]. Please move it to the latest default location [~/.aws/credentials].
+20/12/08 17:34:04 WARN HiveExternalCatalog: Couldn't find corresponding Hive SerDe for data source provider delta. Persisting data source table `database_created_in_glue`.`activity_table` into Hive metastore in Spark SQL specific format, which is NOT compatible with Hive.
+java.lang.IllegalArgumentException: Can not create a Path from an empty string
+  at org.apache.hadoop.fs.Path.checkPathArg(Path.java:172)
+  at org.apache.hadoop.fs.Path.<init>(Path.java:184)
+  at org.apache.spark.sql.catalyst.catalog.CatalogUtils$.stringToURI(ExternalCatalogUtils.scala:220)
+  at org.apache.spark.sql.hive.client.HiveClientImpl.$anonfun$getDatabase$2(HiveClientImpl.scala:383)
+  at scala.Option.map(Option.scala:230)
+  at org.apache.spark.sql.hive.client.HiveClientImpl.$anonfun$getDatabase$1(HiveClientImpl.scala:376)
+  at org.apache.spark.sql.hive.client.HiveClientImpl.$anonfun$withHiveState$1(HiveClientImpl.scala:294)
+  at org.apache.spark.sql.hive.client.HiveClientImpl.liftedTree1$1(HiveClientImpl.scala:227)
+  at org.apache.spark.sql.hive.client.HiveClientImpl.retryLocked(HiveClientImpl.scala:226)
+  at org.apache.spark.sql.hive.client.HiveClientImpl.withHiveState(HiveClientImpl.scala:276)
+  at org.apache.spark.sql.hive.client.HiveClientImpl.getDatabase(HiveClientImpl.scala:385)
+  at org.apache.spark.sql.hive.HiveExternalCatalog.$anonfun$getDatabase$1(HiveExternalCatalog.scala:217)
+  at org.apache.spark.sql.hive.HiveExternalCatalog.withClient(HiveExternalCatalog.scala:99)
+  at org.apache.spark.sql.hive.HiveExternalCatalog.getDatabase(HiveExternalCatalog.scala:217)
+  at org.apache.spark.sql.hive.HiveExternalCatalog.saveTableIntoHive(HiveExternalCatalog.scala:494)
+  at org.apache.spark.sql.hive.HiveExternalCatalog.createDataSourceTable(HiveExternalCatalog.scala:406)
+  at org.apache.spark.sql.hive.HiveExternalCatalog.$anonfun$createTable$1(HiveExternalCatalog.scala:271)
+  at scala.runtime.java8.JFunction0$mcV$sp.apply(JFunction0$mcV$sp.java:23)
+  at org.apache.spark.sql.hive.HiveExternalCatalog.withClient(HiveExternalCatalog.scala:99)
+  at org.apache.spark.sql.hive.HiveExternalCatalog.createTable(HiveExternalCatalog.scala:242)
+  at org.apache.spark.sql.catalyst.catalog.ExternalCatalogWithListener.createTable(ExternalCatalogWithListener.scala:94)
+  at org.apache.spark.sql.catalyst.catalog.SessionCatalog.createTable(SessionCatalog.scala:326)
+  at org.apache.spark.sql.delta.commands.CreateDeltaTableCommand.updateCatalog(CreateDeltaTableCommand.scala:326)
+  at org.apache.spark.sql.delta.commands.CreateDeltaTableCommand.$anonfun$run$2(CreateDeltaTableCommand.scala:194)
+  at com.databricks.spark.util.DatabricksLogging.recordOperation(DatabricksLogging.scala:77)
+  at com.databricks.spark.util.DatabricksLogging.recordOperation$(DatabricksLogging.scala:67)
+  at org.apache.spark.sql.delta.commands.CreateDeltaTableCommand.recordOperation(CreateDeltaTableCommand.scala:45)
+  at org.apache.spark.sql.delta.metering.DeltaLogging.recordDeltaOperation(DeltaLogging.scala:103)
+  at org.apache.spark.sql.delta.metering.DeltaLogging.recordDeltaOperation$(DeltaLogging.scala:89)
+  at org.apache.spark.sql.delta.commands.CreateDeltaTableCommand.recordDeltaOperation(CreateDeltaTableCommand.scala:45)
+  at org.apache.spark.sql.delta.commands.CreateDeltaTableCommand.run(CreateDeltaTableCommand.scala:98)
+  at org.apache.spark.sql.delta.catalog.DeltaCatalog.org$apache$spark$sql$delta$catalog$DeltaCatalog$$createDeltaTable(DeltaCatalog.scala:121)
+  at org.apache.spark.sql.delta.catalog.DeltaCatalog.createTable(DeltaCatalog.scala:156)
+  at org.apache.spark.sql.execution.datasources.v2.CreateTableExec.run(CreateTableExec.scala:41)
+  at org.apache.spark.sql.execution.datasources.v2.V2CommandExec.result$lzycompute(V2CommandExec.scala:39)
+  at org.apache.spark.sql.execution.datasources.v2.V2CommandExec.result(V2CommandExec.scala:39)
+  at org.apache.spark.sql.execution.datasources.v2.V2CommandExec.executeCollect(V2CommandExec.scala:45)
+  at org.apache.spark.sql.Dataset.$anonfun$logicalPlan$1(Dataset.scala:230)
+  at org.apache.spark.sql.Dataset.$anonfun$withAction$1(Dataset.scala:3655)
+  at org.apache.spark.sql.execution.SQLExecution$.$anonfun$withNewExecutionId$5(SQLExecution.scala:106)
+  at org.apache.spark.sql.execution.SQLExecution$.withSQLConfPropagated(SQLExecution.scala:207)
+  at org.apache.spark.sql.execution.SQLExecution$.$anonfun$withNewExecutionId$1(SQLExecution.scala:88)
+  at org.apache.spark.sql.SparkSession.withActive(SparkSession.scala:763)
+  at org.apache.spark.sql.execution.SQLExecution$.withNewExecutionId(SQLExecution.scala:65)
+  at org.apache.spark.sql.Dataset.withAction(Dataset.scala:3653)
+  at org.apache.spark.sql.Dataset.<init>(Dataset.scala:230)
+  at org.apache.spark.sql.Dataset$.$anonfun$ofRows$2(Dataset.scala:101)
+  at org.apache.spark.sql.SparkSession.withActive(SparkSession.scala:763)
+  at org.apache.spark.sql.Dataset$.ofRows(Dataset.scala:98)
+  at org.apache.spark.sql.SparkSession.$anonfun$sql$1(SparkSession.scala:606)
+  at org.apache.spark.sql.SparkSession.withActive(SparkSession.scala:763)
+  at org.apache.spark.sql.SparkSession.sql(SparkSession.scala:601)
+  ... 47 elided
+```

@@ -1,0 +1,32 @@
+## Feature request
+
+### Overview
+
+Currently, schema changes are eligible for schema evolution during table appends or overwrites:
+- Adding new columns
+- Changing of data types from NullType -> any other type, or upcasts from ByteType -> ShortType -> IntegerType
+
+Is it possible to support more data type changes during append operation with enabled schema evolution? 
+
+### Motivation
+
+For the history table updates, we want to keep all changed records as a newly appended record instead of overwriting schema when the data type has been changed from source with enabled schema evolution
+
+For example, when the scale value of the decimal type is changed from 2 to 4 and the precision is kept unchanged
+
+```scala
+//i.e. data type of one column is changed from decimal(38,2) to decimal(38,4)
+df.write.format("delta").option("mergeSchema", "true").mode("append").save(targetPath)
+```
+
+The error is `Failed to merge decimal types with incompatible scale 2 and 4`
+
+Can this decimal scale change be supported in Delta schema evolution during table appends and please review other data types as well?
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [ ] Yes. I can contribute this feature independently.
+- [x] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.

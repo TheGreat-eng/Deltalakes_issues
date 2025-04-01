@@ -1,0 +1,30 @@
+## Description
+Add `WHEN NOT MATCHED BY SOURCE` to MergeIntoCommand
+
+This PR adds support for `WHEN NOT MATCHED BY SOURCE` clauses in merge into command using the Scala/Java Delta table API. Support for `WHEN NOT MATCHED BY SOURCE` using SQL will be available with Spark 3.4 release and python support will follow up in a different PR.
+
+Changes:
+
+- Extend Delta Merge API with support for `NOT MATCHED BY SOURCE` clause.
+- Extend Delta analyzer to support the new type of clause:
+  - Resolve target column references in `NOT MATCHED BY SOURCE` conditions and update actions
+  - Handle schema evolution (same as `MATCHED` clause): generate update expressions to align with the expected target schema
+- Implement support for `NOT MATCHED BY SOURCE` in MergeIntoCommand.
+
+## How was this patch tested?
+New test trait `MergeIntoNotMatchedBySourceSuite` is added and collects all tests covering this feature. It is mixed into the Merge Scala test class to run tests against the Delta API and will be mixed in the Merge base test class to also cover the Spark SQL API once Spark 3.4 is released.
+
+Test coverage:
+- Analysis errors: invalid clauses or conditions, invalid column references.
+- Correctness with various combination of clauses.
+- Schema evolution.
+
+## Does this PR introduce _any_ user-facing changes?
+This change extends the existing Delta Merge API to allow specifying `WHEN NOT MATCHED BY SOURCE` clauses and their corresponding optional condition and actions. The new API follows the existing APIs for `MATCHED` and `NOT MATCHED` clauses.
+Usage - Scala:
+```
+targetDeltaTable.merge(sourceTable, "targetKey = sourceKey")
+    .whenNotMatchedBySource("targetValue > 0").updateExpr(Map("targetValue" -> "targetValue + 1"))
+    .whenNotMatchedBySource().delete()
+    .execute();
+```

@@ -1,0 +1,51 @@
+### Describe the problem
+
+When performing a DELETE operation on a Delta Table, some operational metrics are added to the Delta log / table history that contain information (attribute `operationMetrics`) like number of rows (`numDeletedRows`) and files (`numAddedFiles`, `numRemovedFiles`) deleted/added.
+See: https://docs.delta.io/latest/delta-utility.html#operation-metrics-keys
+
+However, I noticed that when **_a complete partition of a partitioned table is deleted via partitionkey_**, some of those metrics are missing like the very central metric of how many rows were deleted `numDeletedRows`.
+
+#### Steps to reproduce
+
+```
+CREATE or REPLACE TABLE TestDeletePartitioned (
+  id bigint,
+  part string
+)
+USING DELTA
+PARTITIONED BY (part)
+;
+
+INSERT INTO TestDeletePartitioned (id, part) values (1,'a'),(2,'a'),(3,'b'),(4,'b'),(5,'c'),(6,'c'),(7,'d'),(8,'d');
+
+DELETE FROM TestDeletePartitioned WHERE id = 1;                 /* only one row is deleted from partiton part=a, one row remains in part=a */
+DELETE FROM TestDeletePartitioned WHERE id IN (3, 4);           /* two row are deleted from partiton part=b what effectively corresponds to deleting the whole partition part=b */
+DELETE FROM TestDeletePartitioned WHERE part = 'c';             /* complete partition part=c is deleted */
+DELETE FROM TestDeletePartitioned WHERE id = 7 AND part = 'd';  /* only one row is deleted from partiton part=d, one row remains in part=d */
+
+DESC HISTORY TestDeletePartitioned;
+```
+
+#### Observed results
+
+When using the only the partition key for specifying the DELETE condition, the resulting entry in the Delta log does not contain all the operational metrics.
+![image](https://user-images.githubusercontent.com/29750255/194708118-b6780936-6861-4ae2-a4db-3df23c46c6db.png)
+
+
+#### Expected results
+
+I'd like to see the `numDeletedRows` metric in the log also when partitions are deleted.
+
+### Environment information
+
+* Delta Lake version: 1.2.1.4
+* Spark version: 3.2.2.5.0
+* Scala version: 2.12.15
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [ ] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [x] No. I cannot contribute a bug fix at this time.

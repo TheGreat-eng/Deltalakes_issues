@@ -1,0 +1,15 @@
+#### Which Delta project/connector is this regarding?
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [x] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+Implementation for updating BaseTableWriter.java in examples folder of delta kernel. ColumnVector for Int had incorrect implementation of null check.
+
+Fixes #4219 
+
+## Does this PR introduce _any_ user-facing changes?
+NO 

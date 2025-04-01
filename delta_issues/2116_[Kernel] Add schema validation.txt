@@ -1,0 +1,23 @@
+#### Which Delta project/connector is this regarding?
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [x] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+Resolves #2149
+
+Validating that the read schema provided in ScanBuilder is a subset of the snapshot schema.
+
+## How was this patch tested?
+
+- Add new test case here [kernel/kernel-api/src/test/java/io/delta/kernel/internal/types](kernel/kernel-api/src/test/java/io/delta/kernel/internal/types)
+
+-  basic test cases for both `withFilter()` and `withReadSchema()` methods
+
+## Does this PR introduce _any_ user-facing changes?
+
+Yes. Better validation / error message

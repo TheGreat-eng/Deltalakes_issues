@@ -1,0 +1,1 @@
+Hi all, thanks for this terrific project. I was reading through PROTOCOL.md and spotted these two mistakes.

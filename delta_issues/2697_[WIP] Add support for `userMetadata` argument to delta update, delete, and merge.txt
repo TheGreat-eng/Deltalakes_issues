@@ -1,0 +1,25 @@
+Refers to https://github.com/delta-io/delta/issues/857
+
+I used the spark .scalafmt for this code but it made formatting changes that don't seem like they should have happened; what's the right .scalafmt for this project?
+
+Can someone point me in the right direction on this? The `update` and `delete` paths hit spark code pretty much right away, so there isn't a way to set the userMetadata on just that command that I can tell - am I looking in the wrong place? I tried setting and unsetting the userMetadata in config before and after execution, and it works, but it's ugly (and maybe unstable)?
+
+Is there a way to embed the userMetadata into the query plan somehow? Is there a way to get the `userMetadata` set in the `Operation` that gets run?
+
+## Description
+
+This PR adds `userMetadata` as an argument to Delta update, delete, and merge commands.
+
+## How was this patch tested?
+
+Tests were added to Delete, Update, MergeInto, and HadoopOptions suites
+
+## Does this PR introduce _any_ user-facing changes?
+
+Yes, it updates the contracts of the update, delete, and merge methods to these:
+
+```
+DeltaTable.delete(condition, userMetadata)
+DeltaTable.update(condition, set, userMetadata)
+DeltaTable.merge(source, condition, userMetadata)
+```

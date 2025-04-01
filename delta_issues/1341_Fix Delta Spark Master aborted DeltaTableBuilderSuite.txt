@@ -1,0 +1,32 @@
+#### Which Delta project/connector is this regarding?
+- [X] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+
+`DeltaTableBuilderSuite` was being aborted when testing against Delta on Spark Master (JDK 17) due to
+
+```
+[info] io.delta.tables.DeltaTableBuilderSuite *** ABORTED ***
+[info]   java.lang.IllegalAccessError: Update to non-static final field io.delta.tables.DeltaTableBuilderSuite$SetPropertyThroughCreate$1$.preservedCaseConfig$1 attempted from a different method (io$delta$tables$DeltaTableBuilderSuite$CasePreservingTablePropertySetOperation$1$_setter_$preservedCaseConfig$1_$eq) than the initializer method <init>
+[info]   at io.delta.tables.DeltaTableBuilderSuite$SetPropertyThroughCreate$1$.io$delta$tables$DeltaTableBuilderSuite$CasePreservingTablePropertySetOperation$1$_setter_$preservedCaseConfig$1_$eq(DeltaTableBuilderSuite.scala:400)
+[info]   at io.delta.tables.DeltaTableBuilderSuite$CasePreservingTablePropertySetOperation$1.$init$(DeltaTableBuilderSuite.scala:384)
+[info]   at io.delta.tables.DeltaTableBuilderSuite$SetPropertyThroughCreate$1$.<init>(DeltaTableBuilderSuite.scala:400)
+[info]   at io.delta.tables.DeltaTableBuilderSuite.SetPropertyThroughCreate$lzycompute$1(DeltaTableBuilderSuite.scala:400)
+[info]   at io.delta.tables.DeltaTableBuilderSuite.SetPropertyThroughCreate$2(DeltaTableBuilderSuite.scala:400)
+[info]   at io.delta.tables.DeltaTableBuilderSuite.$anonfun$new$42(DeltaTableBuilderSuite.scala:448)
+```
+
+This PR fixes that. TBH I have no idea how or why this fixes it.
+
+## How was this patch tested?
+
+CI tests.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

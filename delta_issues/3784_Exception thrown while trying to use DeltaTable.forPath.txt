@@ -1,0 +1,31 @@
+Hello, 
+
+I am trying to use the DeltaTable.forPath and i get an exception 
+`py4j.protocol.Py4JJavaError: An error occurred while calling z:io.delta.tables.DeltaTable.forPath. : java.lang.UnsupportedOperationException`
+
+Background:
+
+- Databricks-connect 7.1.0 from VS Code
+- Databricks Cluster is using runtime 7.1
+- Python 3.7.5
+- Scala 2.12.10
+- Java 1.8.0_261
+- PySpark 3.0.1-SNAPSHOT
+
+The configuration of the spark session if the one from the Quick Start Guide for delta.io
+`from pyspark.sql import SparkSession`
+`spark = SparkSession.builder.config("spark.jars.packages", "io.delta:delta-core_2.12:0.7.0") \`
+`                            .config("spark.sql.extensions", "io.delta.sql.DeltaSparkSessionExtension") \`
+`                            .config("spark.sql.catalog.spark_catalog", "org.apache.spark.sql.delta.catalog.DeltaCatalog") \`
+`                            .getOrCreate()`
+`from delta.tables import *`
+
+When calling the DeltaTable.forPath method, it throws the exception, but when calling the DeltaTable.isDeltaTable it works. I also tried using the same code in a databricks notebook and from there it works. I already tried using the forName method and the exception pops up.
+
+This is somewhat the same error as in this issue #392 , unfortunately the person who opened it did not reply.
+
+Also i check the cluster logs and this error is in the logs, at the exact time the forPath is executed from VS code
+`ERROR DatabricksCatalogManager: Fail to instantiate the custom v2 session catalog: org.apache.spark.sql.delta.catalog.DeltaCatalog`
+       
+
+

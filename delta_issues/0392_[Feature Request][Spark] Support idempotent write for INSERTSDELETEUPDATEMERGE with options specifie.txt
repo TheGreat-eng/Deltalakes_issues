@@ -1,0 +1,41 @@
+## Feature request
+
+#### Which Delta project/connector is this regarding?
+
+- [X] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+### Overview
+
+With https://github.com/delta-io/delta/pull/1555 the Delta commands can make idempotent writes using the `txnAppId` and `txnVersion` from Spark configuration. The configuration is shared between threads and it is impossible to execute writes concurrently with different values. We should have support for specifying `.option("txnVersion", version).option("txnAppId", app_id)` also in the commands.
+
+### Motivation
+
+When the applications run concurrently, the writes must be serialized. If they are serialized, there is no point in having concurrency.
+
+### Further details
+
+This is how it could look like
+```scala
+deltaTable.as("t")
+  .merge(
+    df.as("s"),
+    "t.col1 = s.col1")
+  .whenMatched.updateExpr(Map("t.col2" -> "t.col2 + s.col2"))
+  .whenNotMatched().insertAll()
+  .option("txnAppId", "mySampleApp")
+  .option("txnVersion", "1")
+  .execute()
+```
+
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [ ] Yes. I can contribute this feature independently.
+- [X] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.

@@ -1,0 +1,105 @@
+I have a DataFrame with a schema containing userCtx, a nested field:
+```
+ |-- userCtx: struct (nullable = true)
+ |    |-- userId: string (nullable = true)
+ |    |-- brand: string (nullable = true)
+ |    |-- experience: string (nullable = true)
+ |    |-- experienceBrand: string (nullable = true)
+ |    |-- locale: string (nullable = true)
+ |    |-- experiments: map (nullable = true)
+ |    |    |-- key: string
+ |    |    |-- value: string (valueContainsNull = true)
+ |    |-- country: string (nullable = true)
+ |    |-- tier: string (nullable = true)
+ |    |-- featureBundles: array (nullable = true)
+ |    |    |-- element: string (containsNull = true)
+```
+
+And a Delta Lake table with the schema:
+``` 
+ |-- userCtx: struct (nullable = true)
+ |    |-- userId: string (nullable = true)
+ |    |-- brand: string (nullable = true)
+ |    |-- experience: string (nullable = true)
+ |    |-- locale: string (nullable = true)
+ |    |-- experiments: map (nullable = true)
+ |    |    |-- key: string
+ |    |    |-- value: string (valueContainsNull = true)
+ |    |-- country: string (nullable = true)
+ |    |-- tier: string (nullable = true)
+ |    |-- featureBundles: array (nullable = true)
+ |    |    |-- element: string (containsNull = true)
+ |    |-- experienceBrand: string (nullable = true)
+```
+
+These two schemas only differ in the order of the fields, namely `experienceBrand`. I am trying to upsert into the table, code fragment:
+
+```
+DeltaTable.forPath(datasetTablePath)
+          .as("lake")
+          .merge(
+            lakeLanding.toDF().as("lake_landing"),
+            "lake.date = lake_landing.date and lake.eventId = lake_landing.eventId")
+          .whenMatched
+          .updateAll()
+          .whenNotMatched
+          .insertAll()
+          .execute()
+```
+
+I get this exception:
+```
+org.apache.spark.sql.AnalysisException: cannot resolve 'lake_landing.`userCtx`' due to data type mismatch: cannot cast struct<userId:string,brand:string,experience:string,experienceBrand:string,locale:string,experiments:map<string,string>,country:string,tier:string,featureBundles:array<string>> to struct<userId:string,brand:string,experience:string,locale:string,experiments:map<string,string>,country:string,tier:string,featureBundles:array<string>,experienceBrand:string>;
+  at org.apache.spark.sql.catalyst.analysis.package$AnalysisErrorAt.failAnalysis(package.scala:42)
+  at org.apache.spark.sql.catalyst.analysis.CheckAnalysis$$anonfun$checkAnalysis$1$$anonfun$apply$3.applyOrElse(CheckAnalysis.scala:115)
+  at org.apache.spark.sql.catalyst.analysis.CheckAnalysis$$anonfun$checkAnalysis$1$$anonfun$apply$3.applyOrElse(CheckAnalysis.scala:107)
+  at org.apache.spark.sql.catalyst.trees.TreeNode$$anonfun$transformUp$1.apply(TreeNode.scala:278)
+  at org.apache.spark.sql.catalyst.trees.TreeNode$$anonfun$transformUp$1.apply(TreeNode.scala:278)
+  at org.apache.spark.sql.catalyst.trees.CurrentOrigin$.withOrigin(TreeNode.scala:70)
+  at org.apache.spark.sql.catalyst.trees.TreeNode.transformUp(TreeNode.scala:277)
+  at org.apache.spark.sql.catalyst.trees.TreeNode$$anonfun$3.apply(TreeNode.scala:275)
+  at org.apache.spark.sql.catalyst.trees.TreeNode$$anonfun$3.apply(TreeNode.scala:275)
+  at org.apache.spark.sql.catalyst.trees.TreeNode$$anonfun$4.apply(TreeNode.scala:326)
+  at org.apache.spark.sql.catalyst.trees.TreeNode.mapProductIterator(TreeNode.scala:187)
+  at org.apache.spark.sql.catalyst.trees.TreeNode.mapChildren(TreeNode.scala:324)
+  at org.apache.spark.sql.catalyst.trees.TreeNode.transformUp(TreeNode.scala:275)
+  at org.apache.spark.sql.catalyst.trees.TreeNode$$anonfun$3.apply(TreeNode.scala:275)
+  at org.apache.spark.sql.catalyst.trees.TreeNode$$anonfun$3.apply(TreeNode.scala:275)
+  at org.apache.spark.sql.catalyst.trees.TreeNode.org$apache$spark$sql$catalyst$trees$TreeNode$$mapChild$2(TreeNode.scala:295)
+  at org.apache.spark.sql.catalyst.trees.TreeNode$$anonfun$4$$anonfun$apply$13.apply(TreeNode.scala:354)
+  at scala.collection.TraversableLike$$anonfun$map$1.apply(TraversableLike.scala:234)
+  at scala.collection.TraversableLike$$anonfun$map$1.apply(TraversableLike.scala:234)
+  at scala.collection.immutable.List.foreach(List.scala:392)
+  at scala.collection.TraversableLike$class.map(TraversableLike.scala:234)
+  at scala.collection.immutable.List.map(List.scala:296)
+  at org.apache.spark.sql.catalyst.trees.TreeNode$$anonfun$4.apply(TreeNode.scala:354)
+  at org.apache.spark.sql.catalyst.trees.TreeNode.mapProductIterator(TreeNode.scala:187)
+  at org.apache.spark.sql.catalyst.trees.TreeNode.mapChildren(TreeNode.scala:324)
+  at org.apache.spark.sql.catalyst.trees.TreeNode.transformUp(TreeNode.scala:275)
+  at org.apache.spark.sql.catalyst.plans.QueryPlan$$anonfun$transformExpressionsUp$1.apply(QueryPlan.scala:93)
+  at org.apache.spark.sql.catalyst.plans.QueryPlan$$anonfun$transformExpressionsUp$1.apply(QueryPlan.scala:93)
+  at org.apache.spark.sql.catalyst.plans.QueryPlan$$anonfun$1.apply(QueryPlan.scala:105)
+  at org.apache.spark.sql.catalyst.plans.QueryPlan$$anonfun$1.apply(QueryPlan.scala:105)
+  at org.apache.spark.sql.catalyst.trees.CurrentOrigin$.withOrigin(TreeNode.scala:70)
+  at org.apache.spark.sql.catalyst.plans.QueryPlan.transformExpression$1(QueryPlan.scala:104)
+  at org.apache.spark.sql.catalyst.plans.QueryPlan.org$apache$spark$sql$catalyst$plans$QueryPlan$$recursiveTransform$1(QueryPlan.scala:116)
+  at org.apache.spark.sql.catalyst.plans.QueryPlan$$anonfun$org$apache$spark$sql$catalyst$plans$QueryPlan$$recursiveTransform$1$2.apply(QueryPlan.scala:121)
+  at scala.collection.TraversableLike$$anonfun$map$1.apply(TraversableLike.scala:234)
+  at scala.collection.TraversableLike$$anonfun$map$1.apply(TraversableLike.scala:234)
+  at scala.collection.immutable.List.foreach(List.scala:392)
+  at scala.collection.TraversableLike$class.map(TraversableLike.scala:234)
+  at scala.collection.immutable.List.map(List.scala:296)
+  at org.apache.spark.sql.catalyst.plans.QueryPlan.org$apache$spark$sql$catalyst$plans$QueryPlan$$recursiveTransform$1(QueryPlan.scala:121)
+  at org.apache.spark.sql.catalyst.plans.QueryPlan$$anonfun$2.apply(QueryPlan.scala:126)
+  at org.apache.spark.sql.catalyst.trees.TreeNode.mapProductIterator(TreeNode.scala:187)
+  at org.apache.spark.sql.catalyst.plans.QueryPlan.mapExpressions(QueryPlan.scala:126)
+  at org.apache.spark.sql.catalyst.plans.QueryPlan.transformExpressionsUp(QueryPlan.scala:93)
+  at org.apache.spark.sql.catalyst.analysis.CheckAnalysis$$anonfun$checkAnalysis$1.apply(CheckAnalysis.scala:107)
+  at org.apache.spark.sql.catalyst.analysis.CheckAnalysis$$anonfun$checkAnalysis$1.apply(CheckAnalysis.scala:85)
+  at org.apache.spark.sql.catalyst.trees.TreeNode.foreachUp(TreeNode.scala:127)
+  at org.apache.spark.sql.catalyst.analysis.CheckAnalysis$class.checkAnalysis(CheckAnalysis.scala:85)
+  at org.apache.spark.sql.catalyst.analysis.Analyzer.checkAnalysis(Analyzer.scala:95)
+  at io.delta.tables.DeltaMergeBuilder.execute(DeltaMergeBuilder.scala:232)
+```
+
+Is it possible that the merge builder is not handling nested fields in a different order?

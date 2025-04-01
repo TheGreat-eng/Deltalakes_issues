@@ -1,0 +1,38 @@
+## Feature request
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the issue title
+For example: [Feature Request][Spark] Title of my issue
+-->
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [X] Kernel
+- [ ] Other (fill in here)
+
+### Overview & Motivation
+Collations are a set of rules that define how string comparison and sorting should be handled, particularly in terms of character sequence and case sensitivity. They are vital in managing string-based operations, ensuring that data is compared and ordered consistently across different languages, regions, and character sets.
+
+In many databases and data processing systems, collations play a crucial role in enabling case-insensitive comparisons or language-specific sorting rules, which are essential for improving both query performance and result accuracy.
+
+The upcoming Spark 4.0 release introduces collation support, allowing users to define and apply collation rules during string comparisons and data sorting operations. This enhancement will enable more accurate data processing in multi-language datasets and offer better control over how string data is managed. Furthermore, with collation-aware expressions and predicates.
+
+In the context of Delta Lake, this feature will be integrated to ensure that schema handling and predicate pushdowns are collation-aware, leading to more consistent data access and better performance for case-insensitive or locale-specific queries. This feature request focuses on extending Delta’s capabilities to support these new collation rules, starting with updates to the StringType schema and adding collation-aware data skipping for enhanced query optimization.
+
+### Project plan
+| ID    | Task description | PR | Status | Author |
+| -------- | ------- | -------- | ------- | -------- |
+| 1  | Update kernel's `StringType` to have a collation information | TODO | NOT STARTED | @ilicmarkodb  |
+| 2  | Support schema read/write for collations as per the delta protocol | TODO | NOT STARTED | @ilicmarkodb  |
+| 3  | Add collation aware expressions/predicates | TODO | NOT STARTED | @ilicmarkodb  |
+| 4  | Add ability to do data skipping for predicates with collations | TODO | NOT STARTED | @ilicmarkodb  |
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [ ] Yes. I can contribute this feature independently.
+- [X] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.

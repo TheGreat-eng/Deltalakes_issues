@@ -1,0 +1,35 @@
+## Feature request
+
+### Overview
+
+<!-- Provide a high-level description of the feature request. -->
+
+This feature request is about changing Delta commit timestamps to improve time travel.
+
+### Motivation
+
+<!-- How will this feature be used? Why is it important? Which users will benefit from it? -->
+
+Delta currently relies on the file modification time to identify the timestamp of a commit. This timestamp is used for time travel queries, log cleanup, and staleness checks. However, file modification time is not a very reliable way of getting a timestamp — this can easily change when the files are copied/moved to another directory (e.g. for disaster recovery purposes) or when any manual fixes are performed to the Delta log. In such cases, time travel on the delta table breaks as of today. The possibility of non-monotonic file timestamps also adds lots of code complexity in Delta as we try to handle it heuristically in the best possible way.
+
+### Further details
+
+<!--
+Use this section to include any additional information about the feature. If you have a proposal for how to implement this feature, please include it here. For implementation guidelines, please read our contributor guidelines: https://github.com/delta-io/delta/blob/master/CONTRIBUTING.md
+If there are any specific requirements for this feature that are not immediately obvious please outline them here.
+-->
+
+We propose a new Writer feature that will require clients to generate a timestamp just before performing a commit and store it in the commit itself.
+
+Compliant writers will ensure that the timestamp stored in Commit X+1 is always greater than Commit X. To be able to ensure this, the client will need to perform conflict detection for these timestamps.
+1. The writer will write this timestamp in the CommitInfo action. Furthermore, the writer will always write CommitInfo as the first action in a commit.
+2. Clients that understand these new timestamps will now read the commit file to get the actual timestamp. These timestamps will now be used for time travel queries and by other operations that use timestamps.
+
+The detail proposal and the required protocol changes are sketched out [in this doc](https://docs.google.com/document/d/1SqMcvrt5eeWsKH5Y4hzR1r1VeuDSrft5zoBmPuIbuv8/edit?usp=sharing).
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [X] Yes. I can contribute this feature independently.
+- [ ] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.

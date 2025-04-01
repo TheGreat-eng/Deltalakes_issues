@@ -1,0 +1,5 @@
+Resolves #999 
+
+Adds a config to set the storage level for snapshot caching. Current behavior remains the same, but offers the ability to choose the storage level for a session. This benefits streaming workloads that don't benefit from the snapshot being cached, and offers ways to improve dynamic allocation:
+- Set the storage level to disk only, and then you can use the serve cache from shuffle service mechanism to still have the data cached but be able to deallocate the executors
+- Set the storage level to none to just disable caching of the snapshot

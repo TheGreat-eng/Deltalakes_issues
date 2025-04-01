@@ -1,0 +1,15 @@
+## Feature request
+
+### Overview
+
+This [commit](https://github.com/delta-io/delta/commit/d90f90b6656648e170835f92152b69f77346dfcf) added 3 new TahoeFileIndex's for the Change Data Feed feature currently being developed for Delta Lake. These are: `CdcAddFileIndex`, `TahoeChangeFileIndex`, and `TahoeRemoveFileIndex`.
+
+These three classes have lots of similar code paths + logic, and can be consolidated to a simpler abstract base class + children to reduce duplicate code.
+
+Feel free to give them better class names, too.
+
+### Motivation
+
+Clean up the code. Less code duplication. Better file and class names. Easier to maintain and debug in the future.
+
+For more info on the Change Data Feed project for Delta Lake, see #1105.

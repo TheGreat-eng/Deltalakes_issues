@@ -1,0 +1,7 @@
+## Bug
+
+This is a bug for Power BI connector using fn_ReadDeltaTable. I have been using this connector for almost 2 years, however, lately the dataflow using this connector was showing data duplication issue meanwhile the delta table in azure data lake is completely normal. The issue seems to exist for delta tables that have existed for a long time with delta logs. If I delete the delta table folder and recreate the table from scratch, the issue goes away, but I don't know how long it would last normally. Now I have to resort to the native databricks connector to refresh the delta table.
+
+Due to the nature of the issue, it's hard to recreate the issue as a new delta table won't have the duplication issue. I was wondering if anyone else has similar issue related to the power BI connector to access delta tables in the azure data lake gen 2.
+
+Thanks.

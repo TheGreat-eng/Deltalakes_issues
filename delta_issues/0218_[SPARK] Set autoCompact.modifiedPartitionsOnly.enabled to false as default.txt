@@ -1,0 +1,21 @@
+When True is the default, the behavior of AC doesn't align with the DBR implementation and results in too frequent compactions being run as minNumFiles isn't respected.
+
+Example of odd result of AC in this issue: https://github.com/delta-io/delta/issues/4045
+and resolves the odd behavior noted here: https://github.com/delta-io/delta/issues/4043
+
+#### Which Delta project/connector is this regarding?
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+Aligns behavior of AC with Databricks DBR implementation where it appears this is not enabled (also not exposed as a config option).
+
+## How was this patch tested?
+Ran 200 iterations of merging data into a table to confirm the expected behavior of AC in managing small files while respecting the minNumFiles threshold.
+
+## Does this PR introduce _any_ user-facing changes?
+No as this session config isn't documented in the Delta.io docs

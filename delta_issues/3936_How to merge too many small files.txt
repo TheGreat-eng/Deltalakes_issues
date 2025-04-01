@@ -1,0 +1,1 @@
+If the setting partition is set, the write speed will be very slow, if the partition is not set. A lot of small files will be generated. How to solve this problem

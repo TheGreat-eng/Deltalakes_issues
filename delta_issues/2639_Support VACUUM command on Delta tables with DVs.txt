@@ -1,0 +1,5 @@
+This is part of [support reading Delta tables with deletion vectors](https://github.com/delta-io/delta/issues/1485)
+
+It adds support for running VACUUM command on Delta tables with deletion vectors. Main change is to include the DV file of the GC survived FileAction in the list of GC survived files, so that the valid DV files are not considered for deletion.
+
+Added tests.

@@ -1,0 +1,77 @@
+## Bug
+
+### Describe the problem
+
+When joining two different versions from the same table, produced result is incorrect.
+
+#### Steps to reproduce
+
+Given the following table:
+
+```
+-- create version 0
+create table dev_george_t.bug_table using delta as
+select 1L as colA, 'abc' as colB
+
+-- insert version 1
+insert into dev_george_t.bug_table
+select 2L as colA, 'cde' as colB
+```
+
+Running `describe history dev_george_t.bug_table` outputs 2 rows (version 0 and version 1) as expected. Now let's create two views:
+
+```
+create or replace temporary view a as select * from dev_george_t.bug_table version as of 0;
+create or replace temporary view b as select * from dev_george_t.bug_table version as of 1;
+```
+
+Finally, let's join them:
+
+```
+select b.* from b left join a as a on a.colA = b.colA where a.colA is null
+```
+
+Now let's materialize view `a` and run the query against it instead:
+
+```
+create table dev_george_t.bug_a using delta as select * from a
+select b.* from b left join dev_george_t.bug_a as a on a.colA = b.colA where a.colA is null
+```
+
+#### Observed results
+
+Both views:
+
+| colA  | colB  |
+|---|---|
+
+View and a table:
+
+| colA  | colB  |
+|---|---|
+| 2  | cde  |
+
+#### Expected results
+Both cases:
+
+| colA  | colB  |
+|---|---|
+| 2  | cde  |
+
+#### Further details
+
+This has been confirmed on OSS delta, haven't tried on databricks one.
+
+Same issue occurs if CTEs are used instead of temporary views. If either/both versions are materialized in a separate table, then join returns correct result.
+
+### Environment information
+
+* Delta Lake version: 2.1.1
+* Spark version: 3.3.1
+* Scala version: N/A
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [x] No. I cannot contribute a bug fix at this time.

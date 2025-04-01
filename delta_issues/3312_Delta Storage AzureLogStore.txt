@@ -1,0 +1,2 @@
+- adds AzureLogStore.java
+- updates LogStoreSuite

@@ -1,0 +1,21 @@
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [X] Other (fill in here)
+
+## Description
+
+This removes compiling unidoc from the spark CI tests since we've seen a flaky failure on #2727.
+
+We will follow up and create a separate job just for unidoc (which makes more sense anyways as it should run for changes in any of the projects.)
+
+## How was this patch tested?
+
+CI runs.

@@ -1,0 +1,13 @@
+Support for Manifest Generation
+
+This is still a work in progress but i'm using something similar to generate manifest for redshift and athena
+I'd like to get some feed back on the general approach before i continue going down this path
+
+- [x] Generate SymlinkTextInputFormat
+- [x] Generate Manifest for unpartitioned tables
+- [x] Generate Manifest for partitioned tables
+- [ ] Remove partition from manifest when a partition is removed
+- [ ] Improve test coverage
+- [ ] ??
+ 
+See : https://github.com/delta-io/delta/issues/76

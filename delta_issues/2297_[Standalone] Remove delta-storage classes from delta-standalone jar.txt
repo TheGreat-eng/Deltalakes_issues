@@ -1,0 +1,50 @@
+#### Which Delta project/connector is this regarding?
+- [ ] Spark
+- [X] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+When the delta-connectors repo was migrated to delta-io/delta, and when delta-standalone's build.sbt configuration was updated to depend on the local delta-storage project (instead of the maven dependency), we were accidentally including the delta-storage classes inside the delta-storage JAR. This is not what we want.
+
+This PR fixes that, so that delta-storage classes are correctly excluded from the delta-standalone JAR.
+
+Resolves delta-io/delta#1892
+
+## How was this patch tested?
+```
+build/sbt standaloneCosmetic/publishM2
+
+jar tvf /Users/scott.sandre/.m2/repository/io/delta/delta-standalone_2.12/3.0.0-SNAPSHOT/delta-standalone_2.12-3.0.0-SNAPSHOT.jar
+```
+
+Before this PR:
+```
+     0 Fri Jan 01 00:00:00 PST 2010 io/delta/storage/
+   905 Fri Jan 01 00:00:00 PST 2010 io/delta/storage/AzureLogStore.class
+   290 Fri Jan 01 00:00:00 PST 2010 io/delta/storage/CloseableIterator.class
+  4945 Fri Jan 01 00:00:00 PST 2010 io/delta/storage/GCSLogStore.class
+  6103 Fri Jan 01 00:00:00 PST 2010 io/delta/storage/HDFSLogStore.class
+  6153 Fri Jan 01 00:00:00 PST 2010 io/delta/storage/HadoopFileSystemLogStore.class
+  1645 Fri Jan 01 00:00:00 PST 2010 io/delta/storage/LineCloseableIterator.class
+  1157 Fri Jan 01 00:00:00 PST 2010 io/delta/storage/LocalLogStore.class
+  1544 Fri Jan 01 00:00:00 PST 2010 io/delta/storage/LogStore.class
+   727 Fri Jan 01 00:00:00 PST 2010 io/delta/storage/S3SingleDriverLogStore$FileMetadata.class
+ 11387 Fri Jan 01 00:00:00 PST 2010 io/delta/storage/S3SingleDriverLogStore.class
+     0 Fri Jan 01 00:00:00 PST 2010 io/delta/storage/internal/
+  1355 Fri Jan 01 00:00:00 PST 2010 io/delta/storage/internal/FileNameUtils.class
+  1319 Fri Jan 01 00:00:00 PST 2010 io/delta/storage/internal/LogStoreErrors.class
+  1151 Fri Jan 01 00:00:00 PST 2010 io/delta/storage/internal/PathLock.class
+   547 Fri Jan 01 00:00:00 PST 2010 io/delta/storage/internal/S3LogStoreUtil$1.class
+  3761 Fri Jan 01 00:00:00 PST 2010 io/delta/storage/internal/S3LogStoreUtil.class
+  1000 Fri Jan 01 00:00:00 PST 2010 io/delta/storage/internal/ThreadUtils$1.class
+  2316 Fri Jan 01 00:00:00 PST 2010 io/delta/storage/internal/ThreadUtils.class
+```
+
+
+After this PR: excludes any `io/delta/storage` classes.
+
+## Does this PR introduce _any_ user-facing changes?
+
+Yes, but an intended one; we remove delta-storage classes from the delta-standalone jar.

@@ -1,0 +1,17 @@
+## Description
+
+This PR registers the start and end of VACUUM operations in the delta log. This means that we commit a commit with no Add/Remove files, and only a `CommitInfo` file which contains the delta operation info.
+
+`VacuumStart` operation contains metrics: `numFilesToDelete` and `sizeOfDataToDelete`
+
+`VacuumEnd` operation contains metrics: `numDeletedFiles` and `numVacuumedDirectories`
+
+Closes delta-io/delta#868.
+
+## How was this patch tested?
+
+New UTs.
+
+## Does this PR introduce _any_ user-facing changes?
+
+Expose additional metrics and history in the _delta_log for the start and end of VACUUM operations.

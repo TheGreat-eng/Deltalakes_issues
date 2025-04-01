@@ -1,0 +1,17 @@
+#### Which Delta project/connector is this regarding?
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+Add a new VacuumProtocolCheck ReaderWriter Table Feature so that Vacuum command on older DBR client and OSS clients fail.
+This is in follow-up to https://github.com/delta-io/delta/pull/2557 where protocol-check was added during the vacuum-write flow.
+
+## How was this patch tested?
+UTs
+
+## Does this PR introduce _any_ user-facing changes?
+No

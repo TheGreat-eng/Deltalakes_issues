@@ -1,0 +1,19 @@
+#### Which Delta project/connector is this regarding?
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+When performing time travel operations that trigger parallel search in DeltaHistoryManager (when searching through >2000 commits), a NoSuchElementException can occur if some partitions return empty commit lists. This happens because the code attempts to call .head on potentially empty collections without proper checks.
+
+## How was this patch tested?
+
+UTs
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

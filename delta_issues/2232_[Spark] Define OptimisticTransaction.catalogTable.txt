@@ -1,0 +1,21 @@
+#### Which Delta project/connector is this regarding?
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+As part of implementing https://github.com/delta-io/delta/issues/2052, `OptimisticTransaction` needs the ability to track a `CatalogTable` for the table it updates. That way, post-commit hooks can reliably identify catalog-based tables and make appropriate catalog calls in response to table changes.
+
+For now, we just define the new field, and add a new catalog-aware overload of `DeltaLog.startTransaction` that leverages it. Future work will start updating call sites to actually pass catalog information when starting a transaction.
+
+## How was this patch tested?
+
+The new field is currently not used, so nothing really to test. 
+Existing unit tests verify the existing overloads are not broken by the change. 
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

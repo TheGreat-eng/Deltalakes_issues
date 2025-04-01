@@ -1,0 +1,41 @@
+<!--
+Thanks for sending a pull request!  Here are some tips for you:
+  1. If this is your first time, please read our contributor guidelines: https://github.com/delta-io/delta/blob/master/CONTRIBUTING.md
+  2. If the PR is unfinished, add '[WIP]' in your PR title, e.g., '[WIP] Your PR title ...'.
+  3. Be sure to keep the PR description updated to reflect all changes.
+  4. Please write your PR title to summarize what this PR proposes.
+  5. If possible, provide a concise example to reproduce the issue for a faster review.
+  6. If applicable, include the corresponding issue number in the PR title and link it in the body.
+-->
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+context: Delta and Iceberg traverse schema and assigns field id in different way. Delta uniform currently use a extra Iceberg txn to overwrite the schema in iceberg table with wrong field ids reassigned by Iceberg.
+
+However, if the source field id for partition columns is different in that schema overwrite txn, Iceberg always expect field id for partition columns to be the same and does not have logic to reconcile that, and then Iceberg will fail the overwrite txn. This PR adds the logic to adopt new source column field id to Iceberg PartitionField if changed, so the overwrite txn can go through and set the correct source column field id for PartitionFields.
+
+parent PR https://github.com/delta-io/delta/pull/2676
+
+## How was this patch tested?
+
+manual test; unit test will come soon. 
+
+## Does this PR introduce _any_ user-facing changes?
+
+<!--
+If yes, please clarify the previous behavior and the change this PR proposes - provide the console output, description and/or an example to show the behavior difference if possible.
+If possible, please also clarify if this is a user-facing change compared to the released Delta Lake versions or within the unreleased branches such as master.
+If no, write 'No'.
+-->

@@ -1,0 +1,10 @@
+## Description
+- Fix to scala version check in examples
+- Fix to allow iceberg integration tests to use staged sonatype repo
+
+## How was this patch tested?
+Locally ran integration tests
+
+```
+python3 run-integration-tests.py --run-iceberg-integration-tests --version 3.0.0rc2 --maven-repo https://oss.sonatype.org/content/repositories/iodelta-1120
+```

@@ -1,0 +1,16 @@
+#### Which Delta project/connector is this regarding?
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+In this PR, we expand the test coverage for identity columns. Specifically, we add more assertions for the high watermarks and cover more test scenarios with replacing tables.
+
+## How was this patch tested?
+
+Test-only PR. We expand test coverage.
+
+## Does this PR introduce _any_ user-facing changes?
+No.

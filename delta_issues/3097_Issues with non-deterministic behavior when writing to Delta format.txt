@@ -1,0 +1,43 @@
+When doing a regular partition overwrite over large datasets, we are encountering non-deterministic behavior from Delta. 
+
+We have a fairly complex ETL job which extracts, transforms and then loads data from Snowflake to an Azure storage container in Delta format. When executing the job multiple times, we get different results, even though we are loading the same data from Snowflake. We get strange duplicated values which are not supposed to occur:
+
+| version | number of duplicated records |
+| ------- | ------- |
+| 297 | 18663736 |
+| 298 | 1491160 |
+| 299 | 7369654 |
+| 300 | 36846189 |
+| 301 | 8647811 |
+| 302 | 0 |
+
+At each iteration we execute the same code and load the same data, yet we get different results and a varying number of duplicated records (desired number is 0).
+
+After each transformation we do .cache().count() of the resulting data frame and no duplicates appear at those stages. It is only after we do the partition overwrite that the duplicated records materialize.
+
+The way we overwrite the partitions is as follows:
+
+```python
+def overwrite_delta(updates_df, *, delta_target=None, partition_fields=None, **kwargs):
+    """Overwrite Delta table partitions with new data"""
+    partition_to_overwrite = get_partition_values(
+        updates_df=updates_df, partition_fields=partition_fields, prefix=""
+    )
+    print(f"Overwriting partition: {partition_to_overwrite}")
+    (
+        updates_df.write.format("delta")
+        .mode("overwrite")
+        .option("replaceWhere", partition_to_overwrite)
+        .partitionBy(*partition_fields)
+        .save(delta_target)
+    )
+```
+
+I have not yet found a way to reproduce the issue with a small dataframe requiring simple transformations. It seems to be happening when we are loading a very large data frame and performing multiple Spark transformations on top of it, then writing it in Delta format to a specific location. 
+
+### Environment information
+
+* Delta Lake version: 1.0.0
+* Spark version: 3.1.2
+
+Running on Databricks Runtime 9.1 LTS.

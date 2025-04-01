@@ -1,0 +1,19 @@
+## Feature request
+
+### Overview
+
+Delta Lake has very nice design for lakehouse, but it needs some extension mechanism, such as extension for building index.
+
+### Motivation
+
+There are a lot of unstructure data like image, text, audio and video. In general, user store them in vector with embedding. So we  to build Faiss or Annoy index on vector column to accelerate the queries.  
+
+### Further details
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [ ] Yes. I can contribute this feature independently.
+- [x] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.

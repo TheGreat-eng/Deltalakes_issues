@@ -1,0 +1,23 @@
+#### Which Delta project/connector is this regarding?
+
+- [X] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+https://github.com/delta-io/delta/pull/1938 changed the casting behavior in MERGE and UPDATE to follow the value of the `storeAssignmentPolicy` config instead of the `ansiEnabled` one, making the behavior consistent with INSERT.
+
+This change breaks MERGE and UPDATE operations that contain a cast when `storeAssignmentPolicy` is set to `STRICT`, throwing an internal error during analysis.
+
+The cause is the `UpCast` expression added by `PreprocessTableMerge` and `PreprocessTableUpdate`  when processing assignments. `UpCast` is meant to be replaced by a regular cast after performing checks by the `ResolveUpCast` rule that runs during the resolution phase **before** `PreprocessTableMerge` and `PreprocessTableUpdate` introduce the expression, leaving the cast unresolved.
+
+The fix is to run the `ResolveUpCast` rule once more after `PreprocessTableMerge` and `PreprocessTableUpdate`  have run.
+
+## How was this patch tested?
+Missing tests covering cast behavior for the different values of`storeAssignmentPolicy` for UPDATE and MERGE are added, covering:
+- Invalid implicit cast (string -> boolean), valid implicit cast (string -> int), upcast (int -> long)
+- UPDATE, MERGE
+- storeAssignmentPolicy = LEGACY, ANSI, STRICT

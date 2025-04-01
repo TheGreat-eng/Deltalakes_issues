@@ -1,0 +1,29 @@
+## Bug
+
+### Describe the problem
+Running
+```
+CREATE TABLE default.void_table (y STRING, x VOID) USING DELTA
+```
+will create a table with a column of type `VOID`. However `VOID` is not among the primitive types listed in [the protocol specification](https://github.com/delta-io/delta/blob/master/PROTOCOL.md#primitive-types). Not all readers of Delta tables understands the VOID type, since it is not part of the specification, and will be unable to read such tables.
+
+#### Steps to reproduce
+```
+CREATE TABLE default.void_table (y STRING, x VOID) USING DELTA
+```
+
+#### Observed results
+
+Table is created.
+
+#### Expected results
+
+Table is not created, or VOID is among the primitive types of the protocol specification.
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [ ] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute a bug fix at this time.

@@ -1,0 +1,31 @@
+Hello!
+
+Coming from the [Delta-RS](https://github.com/delta-io/delta-rs) community, I have several questions regarding the timestamp type in the DeltaTable schema serialization saved in the transaction log.
+
+**Context**
+The transaction protocol [schema serialization format](https://github.com/delta-io/delta/blob/master/PROTOCOL.md#schema-serialization-format) specifies the schema serialization format for the timestamp type with the following precision:
+
+> timestamp: Microsecond precision timestamp without a timezone.
+
+It means that Spark uses a timestamp with microsecond precision [here](https://databricks.com/fr/blog/2020/07/22/a-comprehensive-look-at-dates-and-timestamps-in-apache-spark-3-0.html) given a local or given timezone. But when Spark writes timestamp values out to non-text data sources like Parquet using Delta, the values are just instants (like timestamp in UTC) that have no time zone information.
+
+Taking that into account, if we look at the configuration "spark.sql.parquet.outputTimestampType" [here](https://github.com/apache/spark/blob/v3.1.1/sql/catalyst/src/main/scala/org/apache/spark/sql/internal/SQLConf.scala#L660), we see that the default output timestamp used is "ParquetOutputTimestampType.INT96.toString". This timestamp used by this default is with a nanosecond precision when writing `.parquet` files. But it also could be changed to `ParquetOutputTimestampType.INT64` with `TIMESTAMP_MICROS` or `ParquetOutputTimestampType.INT64` with `TIMESTAMP_MILLIS`.
+
+
+**Use-case**
+When I am applying a transaction log schema on a DeltaTable (using timestamp with the microsecond precision [here](https://github.com/delta-io/delta-rs/blob/main/rust/src/delta_arrow.rs#L96)), I have a mismatched between the precision of the timestamp given by the schema of the protocol and the real one:
+1. The precision of the timestamp type referenced by the transaction log is with a microsecond precision
+2. The precision of the timestamp type written in the `.parquet` files is with a nanosecond precision because it uses the default outputTimestampType (but could be microseconds or milliseconds depending on the configuration)
+3. The schema couldn't be applied on the .parquet files because I have a mismatched precision error on a timestamp column
+
+**Questions**
+1. Why the precision of the timestamp is not written with the timestamp type inside the schema of the transaction log?
+It will be used if we want to get the DeltaTable schema timestamp precision if we read the DeltaTable without the Spark dependency.
+
+2. Does it means that the precision of the timestamp with microsecond precision for internal Spark/Delta is for internal processing only?
+In other words, the schema of parquet files must only be directly read from the `.parquet` files and not from the DeltaTable transaction protocol.
+
+3. If we change the default timestamp precision to nanoseconds [here](https://github.com/delta-io/delta-rs/blob/main/rust/src/delta_arrow.rs#L96) for applying the schema on .parquet files, it will work only for the default spark.sql.parquet.outputTimestampType configuration, but not for the TIMESTAMP_MICROS and TIMESTAMP_MILLIS ones, right?
+
+
+Thank you for your help!

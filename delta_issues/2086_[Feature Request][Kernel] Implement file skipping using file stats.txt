@@ -1,0 +1,18 @@
+## Feature request
+
+### Overview
+Currently Kernel only supports partition pruning for given predicate when reading Delta tables. This issue is to add support for file skipping using the file statistics stored in Delta Log.
+
+### Motivation
+File skipping helps improve the performance of read queries by not reading files that can not possibly have the records that satisfy the given query predicate.
+
+### Further details
+Design doc here (including project plan/task list) https://docs.google.com/document/d/1cgB002DQcxio4nGOrUIQwA11A5Uve6ryZc2p6sw4y9Q/edit?usp=sharing
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [x] Yes. I can contribute this feature independently.
+- [ ] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.

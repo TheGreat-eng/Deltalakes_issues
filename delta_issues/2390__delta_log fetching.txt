@@ -1,0 +1,10 @@
+Hello
+
+Probably github is not the right place to ask this question, because it's open source delta.
+So, is there any way to monitor/fetch _delta_log (which will be written into _delta_log) before/after recording? without using delta history api
+Env: databricks. and the last one has its own private implementation for LogStore classes, so it's a little bit risky to change it on my implementations.
+
+I hope you know the code better then me and will be able to remenber smth or point to some place
+
+(don't hate<3)
+Thanks

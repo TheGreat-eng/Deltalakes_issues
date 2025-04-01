@@ -1,0 +1,55 @@
+## Bug
+
+#### Which Delta project/connector is this regarding?
+
+- [ ] Spark
+- [x] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+### Describe the problem
+
+`postCommit` action to create a new snapshot for checkpointing is invoked even if checkpointing is disabled via the new config `io.delta.standalone.checkpointing.enabled` available in 3.0.0rc1 version. This leads to high commit latency as the table size (number of rows/files) increases
+
+#### Steps to reproduce
+
+* Enable multi-threaded writes to Delta Table using a singleton `DeltaLogImpl`
+* Configure the DeltaLog to not checkpoint ` conf.set("io.delta.standalone.checkpointing.enabled", "true");`
+* Set any checkpoint interval in Delta Table (I used 10 and 50)
+
+Note: This involves some bit of race-condition where thread-1 commits the version (`versionN`) which is eligible for checkpoint according to checkpointing interval. Meanwhile thread-2 has committed a new version (`versionN+1`) before thread-1 finishes the post-commit phase of (`versionN`)
+
+#### Observed results
+* When checkpoint interval is hit [shouldCheckpoint](https://github.com/delta-io/delta/blob/c7a39da509434d6864ffc73c753af7f414fec657/connectors/standalone/src/main/scala/io/delta/standalone/internal/OptimisticTransactionImpl.scala#L396) returns true
+* If commit version is different from latest snapshot version [new snapshot is created](https://github.com/delta-io/delta/blob/c7a39da509434d6864ffc73c753af7f414fec657/connectors/standalone/src/main/scala/io/delta/standalone/internal/SnapshotManagement.scala#L249-L259)
+
+
+#### Expected results
+ When configured to disable checkpointing, `postCommit` snapshot recalculation from previous checkpoint should not be triggered.
+ 
+
+
+#### Further details
+
+Proposal
+
+By moving the [hadoop conf check](https://github.com/delta-io/delta/blob/c7a39da509434d6864ffc73c753af7f414fec657/connectors/standalone/src/main/scala/io/delta/standalone/internal/Checkpoints.scala#L123) for `"io.delta.standalone.checkpointing.enabled"` to [shouldCheckpoint](https://github.com/delta-io/delta/blob/c7a39da509434d6864ffc73c753af7f414fec657/connectors/standalone/src/main/scala/io/delta/standalone/internal/OptimisticTransactionImpl.scala#L396) method all work in postCommit related to checkpoint can be skipped. 
+
+
+
+
+### Environment information
+
+* Delta Lake version: 3.0.0rc1
+* Spark version: N/A
+* Scala version: 2.12
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [x] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+    * I have run into issues setting up the project locally. Creating the issue to get feedback on the approach proposed, while I figure out how to send a PR
+- [ ] No. I cannot contribute a bug fix at this time.

@@ -1,0 +1,9 @@
+## What changes were proposed in this pull request?
+
+- Allow multiple benchmarks to be run in a sequence, just give the names in a comma-separated sequence
+- Allow the Spark UI to work in EMR while benchmark is running
+- Allow benchmarking arbitrary function, not just SQL query
+- Locally download the full log as well, even if there is a failure
+
+## How was this patch tested?
+Manual testing

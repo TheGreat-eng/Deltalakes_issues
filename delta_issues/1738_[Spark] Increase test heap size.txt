@@ -1,0 +1,7 @@
+## Description
+
+Increase spark test heap size from 4GB to 6GB to prevent `java.lang.OutOfMemoryError: GC overhead limit exceeded`
+
+## How was this patch tested?
+
+Trivial. Existing CI tests.

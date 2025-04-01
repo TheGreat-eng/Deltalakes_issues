@@ -1,0 +1,17 @@
+#### Which Delta project/connector is this regarding?
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [x] Other - general process
+
+## Description
+This PR add the necessary template files to formalize the new proposed RFC process to make protocol changes. See #2594 for more details.
+
+## How was this patch tested?
+N/A
+
+## Does this PR introduce _any_ user-facing changes?
+No
+

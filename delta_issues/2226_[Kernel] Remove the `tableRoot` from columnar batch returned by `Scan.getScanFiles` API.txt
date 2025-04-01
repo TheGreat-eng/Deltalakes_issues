@@ -1,0 +1,29 @@
+#### Which Delta project/connector is this regarding?
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [x] Kernel
+- [ ] Other (fill in here)
+
+### Description
+This is a [leftover](https://github.com/delta-io/delta/pull/2069/files#r1333808531) TODO from this log replay PR. The schema of the columnar batch returned by `Scan.getScanFiles` is as follows:
+
+```
+ - root
+    - add: struct
+       - path: String (this is absolute or relative path)
+       - ..
+       - deletionVector: struct
+       - ...
+    - tableRoot: Absolute path of the table location.
+```
+
+The consumers of the API need to stitch together the `tableRoot` and `add.path` in order to create an absolute path for the scan file. This issue is to remove such need for path construction by directly outputting the `add.path` as an absolute path.
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [x] Yes. I can contribute a fix for this bug independently.
+- [ ] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute a bug fix at this time.

@@ -1,0 +1,7 @@
+According to the [doc](https://docs.delta.io/latest/delta-storage.html#amazon-s3), it is required to set `spark.delta.logStore.class=org.apache.spark.sql.delta.storage.S3SingleDriverLogStore`. 
+
+However, when I try read and write on S3 without this config, it also succeeds. So I wonder if setting S3 log store config is no longer required? Or the read or write on S3 will have some hidden issues if I don't set that log store config?
+
+PS: I'm using delta 0.5.0 (delta-core_2.11-0.5.0.jar)
+
+Thanks.

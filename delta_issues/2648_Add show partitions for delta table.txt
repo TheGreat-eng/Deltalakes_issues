@@ -1,0 +1,128 @@
+<!--
+Thanks for sending a pull request!  Here are some tips for you:
+  1. If this is your first time, please read our contributor guidelines: https://github.com/delta-io/delta/blob/master/CONTRIBUTING.md
+  2. If the PR is unfinished, add '[WIP]' in your PR title, e.g., '[WIP] Your PR title ...'.
+  3. Be sure to keep the PR description updated to reflect all changes.
+  4. Please write your PR title to summarize what this PR proposes.
+  5. If possible, provide a concise example to reproduce the issue for a faster review.
+  6. If applicable, include the corresponding issue number in the PR title and link it in the body.
+-->
+
+## Description
+This PR introduces `SHOW PARTITIONS` command for delta table.
+The output of the command is different from Apache Spark. In the delta, the output contains all partition columns and their values instead of one `partition` column with partition paths.
+
+Syntax:
+```SQL 
+SHOW PARTITIONS [DETAIL] (db.table|'/path/to/dir'|delta.`/path/to/dir`) [PARTITION(clause)]; 
+```
+ `DETAIL` an optional parameter adds `partition_detail` which contains additional information about the partition like a list of files, last modification time, and size in bytes.
+ `PARTITION` an optional parameter that specifies a partition. If not specified then returns all partitions
+
+The schema of output (partition_detail included only with `DETAIL` option): 
+```bash
+ root
+ |-- c1: long (nullable = true)
+ |-- c2: date (nullable = true)
+ |-- partition_detail: struct (nullable = false)
+ |    |-- files: array (nullable = false)
+ |    |    |-- element: string (containsNull = false)
+ |    |-- size: long (nullable = false)
+ |    |-- modificationTime: long (nullable = false) 
+```
+ where  `c1`, `c2` - name of partition column,
+`partition_detail` - synthetic column with partition detail (`files` - list of files in partition, `size` - total size of all files in the partition, `modificationTime` - last modification time of files in the partition).
+
+Resolves #996
+
+<!--
+- Describe what this PR changes.
+- Describe why we need the change.
+ 
+If this PR resolves an issue be sure to include "Resolves #XXX" to correctly link and close the issue upon merge.
+-->
+
+## How was this patch tested?
+Tested by unit tests `ShowTablePartitionsSuite` and using spark-shell command: 
+```bash 
+spark-shell --packages io.delta:delta-core_2.12:2.3.1-SNAPSHOT --conf "spark.sql.extensions=io.delta.sql.DeltaSparkSessionExtension" --conf "spark.sql.catalog.spark_catalog=org.apache.spark.sql.delta.catalog.DeltaCatalog" 
+```
+spark-shell commands:
+```bash
+scala> spark.range(1, 4).selectExpr("id as c1", "current_date() as c2", "id as c3").write.mode("overwrite").format("delta").partitionBy("c1", "c2").save("/tmp/showpartitions")                                                                         
+scala> spark.sql("CREATE TABLE showpartitions_tbl USING DELTA LOCATION '/tmp/showpartitions'")
+scala> spark.sql("SHOW PARTITIONS '/tmp/showpartitions'").show(false)
++---+----------+
+|c1 |c2        |
++---+----------+
+|2  |2023-03-27|
+|1  |2023-03-27|
+|3  |2023-03-27|
++---+----------+
+scala> spark.sql("SHOW PARTITIONS delta.`/tmp/showpartitions`").show(false)
++---+----------+
+|c1 |c2        |
++---+----------+
+|2  |2023-03-27|
+|1  |2023-03-27|
+|3  |2023-03-27|
++---+----------+
+scala> spark.sql("SHOW PARTITIONS showpartitions_tbl").show(false)
++---+----------+
+|c1 |c2        |
++---+----------+
+|2  |2023-03-27|
+|1  |2023-03-27|
+|3  |2023-03-27|
++---+----------+
+scala> spark.sql("SHOW PARTITIONS delta.`/tmp/showpartitions` PARTITION(c2='2023-03-27')").show(false)
++---+----------+
+|c1 |c2        |
++---+----------+
+|2  |2023-03-27|
+|1  |2023-03-27|
+|3  |2023-03-27|
++---+----------+
+scala> spark.sql("SHOW PARTITIONS delta.`/tmp/showpartitions` PARTITION(c1=1)").show(false)
++---+----------+
+|c1 |c2        |
++---+----------+
+|1  |2023-03-27|
++---+----------+
+scala> spark.sql("SHOW PARTITIONS DETAIL delta.`/tmp/showpartitions`").show(false)
++---+----------+--------------------------------------------------------------------------------------------------------------+
+|c1 |c2        |partition_detail                                                                                              |
++---+----------+--------------------------------------------------------------------------------------------------------------+
+|2  |2023-03-27|{[c1=2/c2=2023-03-27/part-00007-08e9ea97-aead-4b48-8461-8b8672343500.c000.snappy.parquet], 478, 1679921947875}|
+|1  |2023-03-27|{[c1=1/c2=2023-03-27/part-00003-6143c246-6ca3-4e60-870c-4e76da276aeb.c000.snappy.parquet], 478, 1679921947875}|
+|3  |2023-03-27|{[c1=3/c2=2023-03-27/part-00011-084a999a-8fbe-44e9-8116-7c552255f26f.c000.snappy.parquet], 478, 1679921947875}|
++---+----------+--------------------------------------------------------------------------------------------------------------+
+scala> spark.sql("SHOW PARTITIONS DETAIL delta.`/tmp/showpartitions` PARTITION(c1=1)").show(false)
++---+----------+--------------------------------------------------------------------------------------------------------------+
+|c1 |c2        |partition_detail                                                                                              |
++---+----------+--------------------------------------------------------------------------------------------------------------+
+|1  |2023-03-27|{[c1=1/c2=2023-03-27/part-00003-6143c246-6ca3-4e60-870c-4e76da276aeb.c000.snappy.parquet], 478, 1679921947875}|
++---+----------+--------------------------------------------------------------------------------------------------------------+
+scala> spark.sql("SHOW PARTITIONS DETAIL delta.`/tmp/showpartitions` PARTITION(c1=1)").printSchema
+root
+ |-- c1: long (nullable = true)
+ |-- c2: date (nullable = true)
+ |-- partition_detail: struct (nullable = false)
+ |    |-- files: array (nullable = false)
+ |    |    |-- element: string (containsNull = false)
+ |    |-- size: long (nullable = false)
+ |    |-- modificationTime: long (nullable = false)
+```
+<!--
+If tests were added, say they were added here. Please make sure to test the changes thoroughly including negative and positive cases if possible.
+If the changes were tested in any way other than unit tests, please clarify how you tested step by step (ideally copy and paste-able, so that other reviewers can test and check, and descendants can verify in the future).
+If the changes were not tested, please explain why.
+-->
+
+## Does this PR introduce _any_ user-facing changes?
+
+<!--
+If yes, please clarify the previous behavior and the change this PR proposes - provide the console output, description and/or an example to show the behavior difference if possible.
+If possible, please also clarify if this is a user-facing change compared to the released Delta Lake versions or within the unreleased branches such as master.
+If no, write 'No'.
+-->

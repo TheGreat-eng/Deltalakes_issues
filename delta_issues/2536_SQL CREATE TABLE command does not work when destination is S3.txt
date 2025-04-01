@@ -1,0 +1,68 @@
+## Bug
+SQL CREATE TABLE command fails when destination is S3
+
+### Describe the problem
+When simply defining a table without populating it, spark throws an error when attempting to write to an s3 bucket.  The same command works fine when writing to the local filesystem.  Also, I am able to write to s3 without trouble when doing a `CREATE TABLE AS...` command.  I am not sure if this is the intended behavior or a bug.  I searched both open and closed issues and wasn't able to find one that matched the error I encountered, so I am creating a bug report.
+
+#### Steps to reproduce
+
+A command such as this one:
+
+```
+CREATE OR REPLACE TABLE delta.`s3a://<bucket_name>/people10m' (
+      id INT,
+      firstName STRING,
+      middleName STRING,
+      lastName STRING,
+      gender STRING,
+      birthDate TIMESTAMP,
+      ssn STRING,
+      salary INT
+    ) USING DELTA;
+```
+fails, whereas the following command does work:
+
+```
+CREATE OR REPLACE TABLE default.people10m (
+      id INT,
+      firstName STRING,
+      middleName STRING,
+      lastName STRING,
+      gender STRING,
+      birthDate TIMESTAMP,
+      ssn STRING,
+      salary INT
+    ) USING DELTA;
+```
+
+As does this one:
+
+```CREATE TABLE delta.`s3a://<bucket_name>/delta-table` USING DELTA AS SELECT col1 as id FROM VALUES 0,1,2,3,4;"```
+
+#### Observed results
+
+```ParseException: 
+Syntax error at or near '`': extra input '`'(line 2, pos 36)
+
+== SQL ==
+
+    CREATE OR REPLACE TABLE delta.`s3a://<bucket_name>/people10m' (...
+```
+
+#### Expected results
+
+No Error
+
+### Environment information
+
+* Delta Lake version: 2.3
+* Spark version: 3.3.2
+* Scala version: using PySpark (Python 3.10.11)
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [ ] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [x] No. I cannot contribute a bug fix at this time.

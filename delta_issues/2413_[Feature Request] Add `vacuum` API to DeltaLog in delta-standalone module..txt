@@ -1,0 +1,4 @@
+## Feature request
+In response to this issue https://github.com/delta-io/delta/issues/1456 we should add a vacuum API to the DeltaLog class.
+
+This would enable users to clean up old and un-referenced parquet files using delta-standalone.

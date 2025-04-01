@@ -1,0 +1,16 @@
+## Description
+
+Adds one line to the Python module: `delta.tables` to explicitly export the defined classes.
+
+This is required to resolve the `mypy` errors as outlined in the referenced issue.
+
+Resolves:
+- #1777
+
+## How was this patch tested?
+
+No tests were added.
+
+## Does this PR introduce _any_ user-facing changes?
+
+Yes. Resolves any `mypy` errors experienced by the user.

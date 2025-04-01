@@ -1,0 +1,23 @@
+#### Which Delta project/connector is this regarding?
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+Currently, PrepareDeltaScan does not exclude non-deterministic filters (e.g. rand() < 0.25). So, it ends up creating a file index with these non-deterministic filters applied.
+
+The same filters are reapplied downstream which causes them to be applied twice and the final result being unexpected.
+
+In general, PrepareDeltaScan should not skip entire files/partitions because of non-deterministic filters.
+
+## How was this patch tested?
+
+Build
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

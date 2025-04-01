@@ -1,0 +1,20 @@
+Hi, guys. We use spark 2.4.4, delta-core 0.6.0, hadoop-aws 2.7.7, jets3t 0.9.6(build by https://github.com/mondain/jets3t), and then find some problems in my demo. There is an exception thrown while running: 
+
+```
+Exception in thread "main" java.util.concurrent.ExecutionException: org.apache.hadoop.fs.s3.S3Exception: org.jets3t.service.S3ServiceException: Service Error Message. -- ResponseCode: 403, ResponseStatus: Forbidden, XML Error Message: <?xml version="1.0" encoding="UTF-8"?><Error><Code>SignatureDoesNotMatch</Code><Message>The request signature we calculated does not match the signature you provided. Check your key and signing method.</Message>
+```
+
+And then i find the problem is in `delta-core/DeltaTable.findDeltaTableRoot`, the method use `fs.exists`. At last, i find `hadoop-aws/Jets3tFileSystemStore.get` function, the function use `s3Service.getObject`.
+
+I made an experiment:
+
+```java
+        String awsAccessKey = "aws_access_key";
+        String awsSecretKey = "aws_secret_key";
+
+        AWSCredentials awsCredentials = new AWSCredentials(awsAccessKey, awsSecretKey);
+        RestS3Service restS3Service = new RestS3Service(awsCredentials);
+        S3Object s3Object = restS3Service.getObject("my_bucket", "/path/_delta_log");
+```
+
+It throws the same exception too, I think the root cause is that the second parameter in `getObject` is the directory. 

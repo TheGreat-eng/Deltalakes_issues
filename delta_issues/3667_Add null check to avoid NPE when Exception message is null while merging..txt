@@ -1,0 +1,6 @@
+Hi,
+
+When we interrupt a stream that updates a Delta table using _merge_ mode, the JVM runtime throws a plain `InterruptedException` with no description and the `AnalysisHelper` expects that all exceptions have a message and this causes a `NullPointerException` on such cases. This PR adds a null check to avoid that. Also added a unit test for this scenario.
+
+Thank you,
+Bruno

@@ -1,0 +1,49 @@
+## Bug
+
+### Describe the problem
+
+Based on [this comment](https://github.com/delta-io/delta-rs/issues/1017#issuecomment-1354479597) from delta-io/delta-rs#1017 it would appear that the delta-spark implementation does not adhere to the [protocol document](https://github.com/delta-io/delta/blob/master/PROTOCOL.md#commit-provenance-information) with regards to the `commitInfo` field:
+
+> Implementations are free to store any valid JSON-formatted data via the `commitInfo` action.
+
+
+#### Steps to reproduce
+
+See linked comment above
+
+<!--
+Please include copy-pastable code snippets if possible.
+1. _____
+2. _____
+3. _____
+-->
+
+#### Observed results
+
+<!-- What happened?  This could be a description, log output, etc. -->
+
+#### Expected results
+
+I would expect that the `commitInfo` with any value JSON data to be read correctly.
+
+<!-- What did you expect to happen? -->
+
+#### Further details
+
+<!--
+Include any additional details that may be useful for diagnosing the problem here. If including tracebacks, please include the full traceback. Large logs and files should be attached.
+-->
+
+### Environment information
+
+* Delta Lake version:
+* Spark version:
+* Scala version:
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [ ] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [x] No. I cannot contribute a bug fix at this time.

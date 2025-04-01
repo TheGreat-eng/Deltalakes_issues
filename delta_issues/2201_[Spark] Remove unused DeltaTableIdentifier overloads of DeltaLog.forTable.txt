@@ -1,0 +1,19 @@
+#### Which Delta project/connector is this regarding?
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+The `DeltaTableIdentifier` overloads of `DeltaLog.forTable` involve an internal catalog lookup, which interferes with https://github.com/delta-io/delta/issues/2052 because the resulting `CatalogTable` is lost. Fortunately, the overloads are not actually used, so we can simply delete them to prevent any future problems.
+
+## How was this patch tested?
+
+Dead code removal. Compilation suffices.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No.

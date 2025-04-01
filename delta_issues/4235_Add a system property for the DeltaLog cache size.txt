@@ -1,0 +1,1 @@
+Add "delta.log.cacheSize" system property for the DeltaLog cache size, and set it to 10 in tests to reduce the memory footprint.

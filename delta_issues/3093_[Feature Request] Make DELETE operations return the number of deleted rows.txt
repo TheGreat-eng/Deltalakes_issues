@@ -1,0 +1,15 @@
+## Feature request
+
+### Overview
+
+Currently, the `DELETE` operation returns an empty result. It would be more useful if it returned the number of deleted rows.
+
+### Motivation
+
+The number of deleted rows is an obvious metric that users would want from a delete operation.
+
+### Further details
+
+Currently, `DeleteCommand.scala` is explicitly returning an empty `DataFrame` [here](https://github.com/delta-io/delta/blob/master/core/src/main/scala/org/apache/spark/sql/delta/commands/DeleteCommand.scala#L98). Instead, we could use the `metrics` member field to return the `numDeletedRows`.
+
+Make sure to add tests, too :) 

@@ -1,0 +1,5 @@
+There are a couple of pieces missing from fully supporting these features
+- Data path PR is not yet merged (delta-io/delta#3475), waiting on the expression fixup which is going to affect how column mapping is done.
+- Auto enabling of the protocol version based on the current table version and column mapping/iceberg compat v2 enabled.
+
+Disable these in 3.3 to avoid writing a partial column mapping data.

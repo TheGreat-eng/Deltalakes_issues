@@ -1,0 +1,8 @@
+Using, 
+io.delta:delta-core_2.12:0.8.0
+Getting following exception intermittently when using DeltaTableUtils.isDeltaTable
+`java.lang.NullPointerException
+at shaded.databricks.org.apache.hadoop.fs.azure.metrics.AzureFileSystemMetricsSystem.registerSource(AzureFileSystemMetricsSystem.java:59) at shaded.databricks.org.apache.hadoop.fs.azure.NativeAzureFileSystem.initialize(NativeAzureFileSystem.java:1347) at org.apache.hadoop.fs.FileSystem.createFileSystem(FileSystem.java:2669) at org.apache.hadoop.fs.FileSystem.get(FileSystem.java:370) at org.apache.hadoop.fs.Path.getFileSystem(Path.java:295) at com.databricks.sql.transaction.tahoe.DeltaTableUtils$.findDeltaTableRoot(DeltaTable.scala:174) at com.databricks.sql.transaction.tahoe.DeltaTableUtils$.isDeltaTable(DeltaTable.scala:102) at io.delta.tables.DeltaTable$.isDeltaTable(DeltaTable.scala:1092) at`
+
+This is running on Azure databricks with following runtime version,
+7.3 LTS (includes Apache Spark 3.0.1, Scala 2.12)

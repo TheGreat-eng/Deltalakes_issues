@@ -1,0 +1,130 @@
+## Bug
+
+#### Which Delta project/connector is this regarding?
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+### Describe the problem
+Lots of operations on Delta tables allow specifying a `WHERE` condition / predicate:
+- `DELETE WHERE`
+- `UPDATE WHERE`
+- `OPTIMIZE WHERE`
+- `INSERT REPLACE WHERE`
+- ...
+
+During writing up Details for #2405 I found that for different operations and for different data types of the referenced column the logged predicate in Delta log looks very different. Sometimes it includes numbers after the column name (e.g. `id#2329L` instead of `id`) and sometimes the values are missing single quotes (e.g. `some_date = 2023-01-01` instead of `some_date = '2023-01-01'`).
+**My expectation would be that the predicated corresponds to a valid Spark SQL `WHERE` condition. And also important: the predicates should follow the same consistent syntax.**
+
+#### Steps to reproduce
+
+```sql
+DROP TABLE IF EXISTS test_delta_log_predicate;
+CREATE TABLE test_delta_log_predicate (
+  id LONG,
+  city STRING,
+  some_date DATE,
+  some_timestamp TIMESTAMP
+)
+USING DELTA
+PARTITIONED BY (city, some_date, some_timestamp)
+;
+
+DELETE FROM test_delta_log_predicate;
+INSERT INTO test_delta_log_predicate VALUES (1, 'New York', '2023-01-01', '2023-01-01 12:00');
+INSERT INTO test_delta_log_predicate VALUES (2, 'New York', '2023-01-01', '2023-01-01 12:00');
+INSERT INTO test_delta_log_predicate VALUES (3, 'Redmond', '2023-06-15', '2023-06-15 12:00');
+
+--OPTIMIZE test_delta_log_predicate WHERE id = 1;
+UPDATE test_delta_log_predicate SET id = id + 10 WHERE id = 1;
+DELETE FROM test_delta_log_predicate WHERE id = 1;
+INSERT INTO TABLE test_delta_log_predicate REPLACE WHERE id = 3 VALUES (3, 'Redmond', '2023-06-15', '2023-06-15 12:00');
+
+
+DELETE FROM test_delta_log_predicate;
+INSERT INTO test_delta_log_predicate VALUES (1, 'New York', '2023-01-01', '2023-01-01 12:00');
+INSERT INTO test_delta_log_predicate VALUES (2, 'New York', '2023-01-01', '2023-01-01 12:00');
+INSERT INTO test_delta_log_predicate VALUES (3, 'Redmond', '2023-06-15', '2023-06-15 12:00');
+
+OPTIMIZE test_delta_log_predicate WHERE city = 'New York';
+UPDATE test_delta_log_predicate SET id = id + 10 WHERE city = 'New York';
+DELETE FROM test_delta_log_predicate WHERE city = 'New York';
+INSERT INTO TABLE test_delta_log_predicate REPLACE WHERE city = 'Redmond' VALUES (3, 'Redmond', '2023-06-15', '2023-06-15 12:00');
+
+
+DELETE FROM test_delta_log_predicate;
+INSERT INTO test_delta_log_predicate VALUES (4, 'New York', '2023-01-01', '2023-01-01 12:00');
+INSERT INTO test_delta_log_predicate VALUES (5, 'New York', '2023-01-01', '2023-01-01 12:00');
+INSERT INTO test_delta_log_predicate VALUES (6, 'Redmond', '2023-06-15', '2023-06-15 12:00');
+
+OPTIMIZE test_delta_log_predicate WHERE some_date = '2023-01-01';
+UPDATE test_delta_log_predicate SET id = id + 10 WHERE some_date = '2023-01-01';
+DELETE FROM test_delta_log_predicate WHERE some_date = '2023-01-01';
+INSERT INTO TABLE test_delta_log_predicate REPLACE WHERE some_date = '2023-06-15' VALUES (3, 'Redmond', '2023-06-15', '2023-06-15 12:00');
+
+
+DELETE FROM test_delta_log_predicate;
+INSERT INTO test_delta_log_predicate VALUES (7, 'New York', '2023-01-01', '2023-01-01 12:00');
+INSERT INTO test_delta_log_predicate VALUES (8, 'New York', '2023-01-01', '2023-01-01 12:00');
+INSERT INTO test_delta_log_predicate VALUES (9, 'Redmond', '2023-06-15', '2023-06-15 12:00');
+
+OPTIMIZE test_delta_log_predicate WHERE some_timestamp =  '2023-01-01 12:00';
+UPDATE test_delta_log_predicate SET id = id + 10 WHERE some_timestamp =  '2023-01-01 12:00';
+DELETE FROM test_delta_log_predicate WHERE some_timestamp =  '2023-01-01 12:00';
+INSERT INTO TABLE test_delta_log_predicate REPLACE WHERE some_timestamp = '2023-06-15 12:00' VALUES (3, 'Redmond', '2023-06-15', '2023-06-15 12:00');
+
+DESCRIBE HISTORY test_delta_log_predicate;
+```
+
+```python
+(
+  spark.sql("DESCRIBE HISTORY test_delta_log_predicate")
+  .where("operationParameters.predicate is not NULL")
+  .select("version", "operation", "operationParameters.predicate")
+  .orderBy(F.col("version").asc())
+  .show(truncate=False)
+)
+```
+
+#### Observed/expected results
+| Version 	| Operation 	| Predicated (_observed_)                              	| Predicated (_expected_)                                      	|
+|---------	|-----------	|------------------------------------------------------	|--------------------------------------------------------------	|
+| 1       	| DELETE    	| `["true"]`                                           	| `["true"]`                                                   	|
+| 5       	| UPDATE    	| `["(id#2329L = 1)"]`                                 	| `["(id = 1)"]`                                               	|
+| 6       	| DELETE    	| `["(id#2936L = 1)"]`                                 	| `["(id = 1)"]`                                               	|
+| 7       	| WRITE     	| `(id = 3L)`                                          	| `["(id = 3)"]`                                               	|
+| 8       	| DELETE    	| `["true"]`                                           	| `["true"]`                                                   	|
+| 12      	| OPTIMIZE  	| `["('city = New York)"]`                             	| `["(city = 'New York')"]`                                    	|
+| 13      	| UPDATE    	| `["(city#6852 = New York)"]`                         	| `["(city = 'New York')"]`                                    	|
+| 14      	| DELETE    	| `["(city#7440 = New York)"]`                         	| `["(city = 'New York')"]`                                    	|
+| 15      	| WRITE     	| `(city = 'Redmond')`                                 	| `["(city = 'Redmond')"]`                                     	|
+| 16      	| DELETE    	| `["true"]`                                           	| `["true"]`                                                   	|
+| 20      	| OPTIMIZE  	| `["('some_date = 2023-01-01)"]`                      	| `["(some_date = to_date('2023-01-01'))"]`                    	|
+| 21      	| UPDATE    	| `["(some_date#11246 = 2023-01-01)"]`                 	| `["(some_date = to_date('2023-01-01'))"]`                    	|
+| 22      	| DELETE    	| `["(some_date#11834 = 2023-01-01)"]`                 	| `["(some_date = to_date('2023-01-01'))"]`                    	|
+| 23      	| WRITE     	| `(some_date = DATE '2023-06-15')`                    	| `["(some_date = to_date('2023-06-15'))"]`                    	|
+| 24      	| DELETE    	| `["true"]`                                           	| `["true"]`                                                   	|
+| 28      	| OPTIMIZE  	| `["('some_timestamp = 2023-01-01 12:00)"]`           	| `["(some_timestamp = to_timestamp('2023-01-01 12:00:00'))"]` 	|
+| 29      	| UPDATE    	| `["(some_timestamp#15649 = 2023-01-01 12:00:00)"]`   	| `["(some_timestamp = to_timestamp('2023-01-01 12:00:00'))"]` 	|
+| 30      	| DELETE    	| `["(some_timestamp#16237 = 2023-01-01 12:00:00)"]`   	| `["(some_timestamp = to_timestamp('2023-01-01 12:00:00'))"]` 	|
+| 31      	| WRITE     	| `(some_timestamp = TIMESTAMP '2023-06-15 12:00:00')` 	| `["(some_timestamp = to_timestamp('2023-06-15 12:00:00'))"]` 	|
+
+### Environment information
+
+* Delta Lake version: 2.2.0, 2.4.0, 3.0.0
+* Spark version: 3.3.2, 3.4.1, 3.5.0
+* Scala version: 2.12
+* Databricks runtimes:
+  * [12.2 LTS (includes Apache Spark 3.3.2, Scala 2.12, Delta 2.2.0)](https://docs.databricks.com/en/release-notes/runtime/12.2lts.html#system-environment)
+  * [13.3 LTS (includes Apache Spark 3.4.1, Scala 2.12, Delta 2.4.0)](https://docs.databricks.com/en/release-notes/runtime/13.3lts.html#system-environment)
+  * [14.2 (includes Apache Spark 3.5.0, Scala 2.12, Delta 3.0.0)](https://docs.databricks.com/en/release-notes/runtime/14.2.html#system-environment)
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [ ] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [x] No. I cannot contribute a bug fix at this time.

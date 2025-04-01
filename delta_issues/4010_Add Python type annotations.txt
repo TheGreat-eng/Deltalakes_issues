@@ -1,0 +1,7 @@
+This PR adds type annotations for Python module, provided as stub files.
+
+This should:
+
+- Improve auto-completion performance in editors which support type hints.
+- Optionally enable static checking through mypy or built-in tools (for example Pycharm tools).
+- Provide additional way to document usage of certain methods, where arguments are required, despite providing default values.

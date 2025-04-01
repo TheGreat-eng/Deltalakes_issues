@@ -1,0 +1,33 @@
+## Bug
+
+### Describe the problem
+Link for `TODO` in the definition for [Struct Field](https://github.com/delta-io/delta/blob/master/PROTOCOL.md#struct-field) is broken in specification.
+There are few instances of `delta.` throughout the spec (Example: `delta.columnMapping.id`) but an exhaustive list is not available. Looks like this TODO in the struct field was intended to be updated later, but is missed.
+
+#### Steps to reproduce
+Not Applicable.
+
+#### Observed results
+Specification does not contain details about keys prefixed with Delta.
+
+#### Expected results
+
+Specification should provide an exhaustive list of reserved columns and how they should be handled.
+
+#### Further details
+
+Not applicable.
+
+### Environment information
+
+* Delta Lake version: Issue is with the spec.
+* Spark version: Not Applicable
+* Scala version: Not Applicable.
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [x] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute a bug fix at this time.

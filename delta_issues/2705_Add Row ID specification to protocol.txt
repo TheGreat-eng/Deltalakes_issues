@@ -1,0 +1,6 @@
+## Description
+
+This change updates the Delta protocol to add the specification for the Row ID feature.
+Row IDs are integers that are used to uniquely identify rows within a table.
+
+See [Row ID design document](https://docs.google.com/document/d/1ji3zIWURSz_qugpRHjIV_2BUZPVKxYMiEFaDORt_ULA/edit?usp=sharing) for additional context: 

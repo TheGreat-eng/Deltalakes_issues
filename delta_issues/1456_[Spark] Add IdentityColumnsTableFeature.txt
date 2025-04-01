@@ -1,0 +1,20 @@
+#### Which Delta project/connector is this regarding?
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+This PR is part of https://github.com/delta-io/delta/issues/1959
+
+In this PR, we introduce the IdentityColumnsTableFeature to test-only so that we can start developing with it.
+
+Note, we do not add support to minWriterVersion 6 yet to properties.defaults.minWriterVersion because that will enable the table feature outside of testing.
+
+## How was this patch tested?
+Existing tests pass. 
+
+## Does this PR introduce _any_ user-facing changes?
+No, this is a test-only change. 

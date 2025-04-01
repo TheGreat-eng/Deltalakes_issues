@@ -1,0 +1,19 @@
+#### Which Delta project/connector is this regarding?
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+This PR makes a small improvement to the recently introduced CommitOwnerClientImplSuiteBase (a base trait that can be extended by CommitOwnerClient implementation tests). The change improves how the result of a getCommits call is validated. Instead of passing in a list of versions to validateGetCommitsResult, it now accepts the entire GetCommitsResponse. This allows to do more filtering on the result and also compare the latestTableVersion that is returned as part of the response (which is now implemented in the InMemoryCommitOwnerSuite).
+
+## How was this patch tested?
+
+Ensure that InMemoryCommitOwnerSuite still passes
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

@@ -1,0 +1,3 @@
+Actually, I have to update one of the column of existing parquet file , is there any way like without creating delta-table we can able to update that column. Because I have all ready existing parquet file .
+
+Please suggest if possible.

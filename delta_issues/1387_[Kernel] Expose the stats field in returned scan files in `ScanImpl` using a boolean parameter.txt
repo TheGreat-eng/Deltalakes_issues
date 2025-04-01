@@ -1,0 +1,7 @@
+## Description
+Add a private API `ScanImpl.getScanFiles(TableClient tableClient, boolean includeStats)` to enable connectors to fetch the `stats` as part of the returned scan file rows. By default `stats` are not read unless there is a predicate on data columns.
+
+The main reason why we are not making this a public API yet is that currently, the `ColumnarBatch` interface has no way to remove a nested column vector before returning it to the connector. It requires major work on the expression interfaces. Until we have that, this is a workaround for connectors that are interested in the `stats` field in scan files.
+
+## How was this patch tested?
+UTs

@@ -1,0 +1,41 @@
+**io.delta.delta-core:** 1.0.0
+**spark version:** 3.1.1
+**scala version:** 2.12.12
+
+Switching on `spark.sql.datetime.java8API.enabled` throws this exception when reading the history of a delta table: `java.lang.ClassCastException: java.sql.Timestamp cannot be cast to java.time.Instant`.
+
+Problem can be reproduced with this code:
+
+```scala
+      case class Test(a: String)
+
+      val conf = new SparkConf().setMaster("local").setAppName("local test")
+
+      val spark = SparkSession.builder
+        .config(conf)
+        .config("spark.sql.datetime.java8API.enabled", true)
+        .config("spark.sql.extensions", "io.delta.sql.DeltaSparkSessionExtension")
+        .config("spark.sql.catalog.spark_catalog", "org.apache.spark.sql.delta.catalog.DeltaCatalog")
+        .getOrCreate()
+
+      val df = spark.createDataFrame(Seq(Test("d"))).withColumn("_delta_uuid", col("a"))
+      df.write.format("delta").mode("append").save(path)
+
+      DeltaTable.forPath(spark, path).history.show(false)
+```
+
+Showing the history causes the exception:
+
+```scala
+  java.lang.ClassCastException: java.sql.Timestamp cannot be cast to java.time.Instant
+  at org.apache.spark.sql.catalyst.CatalystTypeConverters$InstantConverter$.toCatalystImpl(CatalystTypeConverters.scala:335)
+  at org.apache.spark.sql.catalyst.CatalystTypeConverters$CatalystTypeConverter.toCatalyst(CatalystTypeConverters.scala:107)
+  at org.apache.spark.sql.catalyst.CatalystTypeConverters$StructConverter.toCatalystImpl(CatalystTypeConverters.scala:262)
+  at org.apache.spark.sql.catalyst.CatalystTypeConverters$StructConverter.toCatalystImpl(CatalystTypeConverters.scala:242)
+  at org.apache.spark.sql.catalyst.CatalystTypeConverters$CatalystTypeConverter.toCatalyst(CatalystTypeConverters.scala:107)
+  at org.apache.spark.sql.catalyst.CatalystTypeConverters$.$anonfun$createToCatalystConverter$2(CatalystTypeConverters.scala:426)
+  at org.apache.spark.sql.catalyst.plans.logical.LocalRelation$.$anonfun$fromProduct$1(LocalRelation.scala:43)
+  at scala.collection.TraversableLike.$anonfun$map$1(TraversableLike.scala:285)
+  at scala.collection.IndexedSeqOptimized.foreach(IndexedSeqOptimized.scala:36)
+  at scala.collection.IndexedSeqOptimized.foreach$(IndexedSeqOptimized.scala:33)
+```

@@ -1,0 +1,1 @@
+If a directory is written by Apache Spark file stream sink, there will be a sub-folder called `_spark_metadata`. `Convert to Delta` should read the metadata inside it to avoid reading duplicated data.

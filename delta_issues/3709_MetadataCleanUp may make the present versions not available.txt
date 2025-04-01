@@ -1,0 +1,4 @@
+MetadataCleanup will delete the expired delta logs(json and checkpoint.parquet). But if the present version depends on these which will be cleaned up, it cannot replay to the whole commits. For example: we have delta logs from version 0 to version 10 as following: 000.json ~ 009.json, 010.json, 010.checkpoint.parquet.
+
+When Commit 10 is operated, MetadataCleanup works. If we assume the logs before 9 (not contained) should be cleaned up, then the rest files are: 009.json, 010.json, 010.checkpoint.parquet.
+In fact, Version 9 is not  available, and only Version 10 is shown by `desc history`.

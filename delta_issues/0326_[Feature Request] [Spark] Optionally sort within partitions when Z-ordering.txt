@@ -1,0 +1,81 @@
+## Feature request
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the issue title
+For example: [Feature Request][Spark] Title of my issue
+-->
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+### Overview
+
+Z-ordering tables doesn’t sort data within partitions (files) and consequently data skipping on the Parquet level, based on row group metadata, is inefficient.
+
+### Motivation
+
+To increase read efficiency by leveraging mdc on the row group level. Global sort is considered in the [design details](https://docs.google.com/document/d/1TYFxAUvhtYqQ6IHAZXjliVuitA5D1u793PMnzsH_3vs/edit?usp=sharing), but deemed too slow. Sorting within partitions, on the other hand, is relatively fast because it does not introduce a shuffle. It can be optionally applied after the current `repartitionByRange` step. To the best of my knowledge, this approach has not been considered.
+
+### Further details
+
+<!--
+Use this section to include any additional information about the feature. If you have a proposal for how to implement this feature, please include it here. For implementation guidelines, please read our contributor guidelines: https://github.com/delta-io/delta/blob/master/CONTRIBUTING.md
+If there are any specific requirements for this feature that are not immediately obvious please outline them here.
+-->
+
+I originally discussed this problem in the Slack channel with @Kimahriman, who suggested I raise an issue here.
+
+I've implemented the feature by adding configuration property `spark.databricks.io.skipping.mdc.sortWithinPartitions` defaulting to `false`. When the property is enabled, the partitions are sorted on `repartitionKeyColName` after `repartitionByRange`.
+
+I ran a comparison based on the [Delta Lake Z Order](https://delta.io/blog/2023-06-03-delta-lake-z-order/) blog post and [notebook](https://github.com/delta-io/delta-examples/blob/master/notebooks/pyspark/delta-z-order.ipynb) by @MrPowers. I don't have local disk for the large data set (`G1_1e9_1e2_0_0.csv`), so I used a medium-sized one instead (`G1_1e8_1e8_100_0.csv`) and timed `query_c` on four table versions:
+
+- **version 0**: unoptimized
+- **version 1**: compacted
+- **version 2**: z-ordered on `id1` and `id2`
+- **version 3**: z-ordered on `id1` and `id2`, and sorted within partitions
+
+On a 2021 MBP with 16 GB RAM. The results were
+```
+version 0
+[id052,id45689,1.0]
+Time taken: 4524 ms
+version 1
+[id052,id45689,1.0]
+Time taken: 3137 ms
+version 2
+[id052,id45689,1.0]
+Time taken: 1280 ms
+version 3
+[id052,id45689,1.0]
+Time taken: 112 ms
+```
+The `id` column values queried are different because the original combination did not exist in my data set.
+**Update**:  I ran the experiment on the larger data set (`G1_1e9_1e9_100_0.csv`) using cloud storage and the results are
+```
+version 0
+[id038,id8508161,4.0]
+Time taken: 667717 ms
+version 1
+[id038,id8508161,4.0]
+Time taken: 589716 ms
+version 2
+[id038,id8508161,4.0]
+Time taken: 48994 ms
+version 3
+[id038,id8508161,4.0]
+Time taken: 6386 ms
+```
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [x] Yes. I can contribute this feature independently.
+- [ ] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.
+
+I have opened PR #4006.

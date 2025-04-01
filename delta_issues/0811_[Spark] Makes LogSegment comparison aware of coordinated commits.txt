@@ -1,0 +1,25 @@
+#### Which Delta project/connector is this regarding?
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+This PR updates the comparison (equals) method of LogSegments to consider coordinated commits. The reason for this change is as follows: The current comparison logic determines whether a LogSegment is equal to another LogSegment, if the deltas match and the modification time of the last delta is equal for both LogSegments. However, on a coordinated commits table, this may not be true anymore. This is because after a commit, we update the LogSegment by appending the last commit to it to create the post commit snapshot. In a coordinated commits table, this will be a UUID commit. However, by the next time DeltaLog.update is called, that UUID commit could have already been backfilled and so the LogSegment determined as part of the update call will contain the backfilled commit, which will have a different modification time compared to its UUID counterpart. As a result, even though the LogSegments represent identical table states, they would be identified as different.
+
+The problem is that if we determine that the LogSegment from the previous snapshot is different to the LogSegment created by update, we will swap the old snapshot with the new snapshot. However, if these are indeed identical, then the swapping is not necessary and leads to Delta losing any cached state on the swapped out snapshot. This can lead to unnecessary slowdowns.
+
+This PR fixes this issue by updating the LogSegment comparison logic. Instead of comparing the last file in the segment, we compare the minimum last backfilled file across both segments. For example, if segment 1 contains files 0.json, 1.json, 2.uuid.json, and 3.uuid.json and segment 2 contains 0.json, 1.json, 2.json, and 3.json, we compare 1.json and if that matches in both segments, we assume that the segments are equal (they also need to match in length of their deltas).
+
+In addition to the LogSegment comparison fix, we also introduce a new member on Snapshot, that captures the correct last known backfilled version. In the example above, segment 1 would report 1.json as the last known backfilled version but segment 2 already contains 3.json as the last known backfilled version. To correctly determine, whether all commits for a specific table version (snapshot) have been backfilled, we update this state on the snapshot whenever we detect a stale LogSegment.
+
+## How was this patch tested?
+
+Updated existing and added new unit tests.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

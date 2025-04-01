@@ -1,0 +1,13 @@
+i have delta table , parquet format, the df.printSchema() detail as below
+
+root
+ |-- part: string (nullable = true)
+ |-- day: date (nullable = true)
+ |-- object_type: string (nullable = true)
+ |-- object_id: string (nullable = true)
+ |-- sys: map (nullable = true)
+ |    |-- key: string
+ |    |-- value: string (valueContainsNull = true)
+
+how can i update sys.one_of_key field value?
+

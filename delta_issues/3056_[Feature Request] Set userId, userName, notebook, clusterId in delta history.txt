@@ -1,0 +1,48 @@
+## Feature request
+
+### Overview
+
+[Delta History schema](https://docs.delta.io/latest/delta-utility.html#history-schema) features some attributes that are always NULL for me (Delta Lake 1.1 Spark 3.1):
+- userId
+- userName
+- notebook
+- clusterId
+
+Id like to set these attributes manually for write operations.
+
+### Motivation
+
+This information would help technically keeping track of the changes. It would promote a **_better data lineage_**.
+
+### Further details
+
+I could imagine two ways to implement my feature request:
+
+1.  Implement additional _options_ ("userId", "userName", "notebook", "clusterId") for the Spark writer just like the "**[userMetadata](https://docs.databricks.com/delta/delta-batch.html#set-user-defined-commit-metadata)**" option
+```
+df.write.format("delta") \
+  .mode("overwrite") \
+  .option("userMetadata", "custom metadate") \
+  .option("userId", "1337") \
+  .option("userName", "Adam") \
+  .option("notebook", "adams_notebook.ipynb") \
+  .option("clusterId", "application_1234") \
+  .save("/tmp/delta/people10m")
+```
+2. Introduce some new **spark configurations** that are used for setting the attributes in the history schema. So users could set those configs to desired values just before invoking some write action.
+   - `spark.delta.userId`
+   - `spark.delta.userName`
+   - `spark.delta.notebook`
+   - `spark.delta.clusterId`
+
+
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [ ] Yes. I can contribute this feature independently.
+- [ ] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [x] No. I cannot contribute this feature at this time.
+
+Unfortunately I know nothing about Scala :(

@@ -1,0 +1,11 @@
+This is a feature request. I wish I can record additional metadata as part of DataFrameWriter / MERGE transaction. 
+
+For example, I have a spark job that runs a deterministic transformation periodically on some source delta table and write to output delta table. I want to track data lineage (source table version) and runtime parameters in each commit, such that I can understand how new versions of data propagate through a pipeline and replay the exact transformation for debugging. 
+
+Maybe the API is like:
+```
+df.write.format("delta").option("metadata", r'{"source_table_version": "...", "runtime_params": ...}').save(...)
+```
+
+Maybe `metadata` gets put into `commitInfo` and we expose it in `describe history`?
+

@@ -1,0 +1,34 @@
+## Feature request
+
+### Overview
+
+Set property "delta.enableChangeDataFeed" as an option of `DataStreamWriter[T]`. 
+
+### Motivation
+
+Currently, to activate the feature "Change Data Feed" (CDF), a table must be created via a SQL statement or via the utility `DeltaTable.create...()`, and the above property set as a table property set to `true`. The aim of this request is to allow to programmatically activate the feature CDF as an option of a `DataStreamWriter`, without having to create a table. For example, the following should be allowed:
+
+```scala
+val df = ...
+df.writeStream
+  .option("delta.enableChangeDataFeed", true)
+  ...
+  .start(location)
+```
+
+As far as I can tell, this is not possible today, or it is not documented.
+
+### Further details
+
+There are three cases to consider when setting this option:
+1) the `location` does not exist. Then the `location` is created as expected and CDF is activated at creation.
+2) the `location` already exists, all applicable checks pass (ex: schema compatibility), but CDF is not yet activated. If the property `"delta.enableChangeDataFeed"` is set to `true`, then CDF is activated at this time only.
+3) the `location` already exists and CDF is already activated. In this case, any value set for option `""delta.enableChangeDataFeed"` is ignored and CDF continues to be activated.
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [X] Yes. I can contribute this feature independently.
+- [X] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.

@@ -1,0 +1,8 @@
+Add a `describe history` SQL command to query a table's history. Here are some examples of this command.
+
+```
+DESCRIBE HISTORY '/foo/bar'
+DESCRIBE HISTORY delta.`/foo/bar` limit 3
+```
+
+Resolves https://github.com/delta-io/delta/issues/168

@@ -1,0 +1,71 @@
+## Bug
+If we try to write a dataframe with delta partitioned by a Boolean type and setting the`"spark.sql.sources.partitionOverwriteMode"` set to `"dynamic"`we get a type conversion error
+### Describe the problem
+
+#### Steps to reproduce
+Just execute this code with Spark 3.3 and Delta 2.2:
+```
+import io.delta.tables.DeltaTable
+val data = Seq((true, "Yes"), (false, "No"), (true, "Yes")).toDF("Bool", "YesNo")
+DeltaTable.createIfNotExists(spark).location("/tmp/delta").addColumns(data.schema).partitionedBy("Bool").execute()
+spark.sqlContext.setConf("spark.sql.sources.partitionOverwriteMode", "dynamic")
+data.write.format("delta").partitionBy("Bool").mode("overwrite").save("/tmp/delta")
+```
+
+#### Observed results
+
+``` [info] - must be able to overwrite only partitions that have data with multiple partition levels *** FAILED ***
+[info]   org.apache.spark.sql.AnalysisException: cannot resolve '(array(CAST(partitionValues['Bool'] AS BOOLEAN)) IN ([true], [false]))' due to data type mismatch: Arguments must be same type but were: array<boolean> != array<string>;
+[info] 'Filter array(cast(partitionValues#594[Bool] as boolean)) IN ([true],[false])
+[info] +- SerializeFromObject [staticinvoke(class org.apache.spark.unsafe.types.UTF8String, StringType, fromString, knownnotnull(assertnotnull(input[0, org.apache.spark.sql.delta.actions.AddFile, true])).path, true, false, true) AS path#593, externalmaptocatalyst(lambdavariable(ExternalMapToCatalyst_key, ObjectType(class java.lang.String), true, 546), staticinvoke(class org.apache.spark.unsafe.types.UTF8String, StringType, fromString, lambdavariable(ExternalMapToCatalyst_key, ObjectType(class java.lang.String), true, 546), true, false, true), lambdavariable(ExternalMapToCatalyst_value, ObjectType(class java.lang.String), true, 547), staticinvoke(class org.apache.spark.unsafe.types.UTF8String, StringType, fromString, lambdavariable(ExternalMapToCatalyst_value, ObjectType(class java.lang.String), true, 547), true, false, true), knownnotnull(assertnotnull(input[0, org.apache.spark.sql.delta.actions.AddFile, true])).partitionValues) AS partitionValues#594, knownnotnull(assertnotnull(input[0, org.apache.spark.sql.delta.actions.AddFile, true])).size AS size#595L, knownnotnull(assertnotnull(input[0, org.apache.spark.sql.delta.actions.AddFile, true])).modificationTime AS modificationTime#596L, knownnotnull(assertnotnull(input[0, org.apache.spark.sql.delta.actions.AddFile, true])).dataChange AS dataChange#597, staticinvoke(class org.apache.spark.unsafe.types.UTF8String, StringType, fromString, knownnotnull(assertnotnull(input[0, org.apache.spark.sql.delta.actions.AddFile, true])).stats, true, false, true) AS stats#598, externalmaptocatalyst(lambdavariable(ExternalMapToCatalyst_key, ObjectType(class java.lang.String), true, 548), staticinvoke(class org.apache.spark.unsafe.types.UTF8String, StringType, fromString, lambdavariable(ExternalMapToCatalyst_key, ObjectType(class java.lang.String), true, 548), true, false, true), lambdavariable(ExternalMapToCatalyst_value, ObjectType(class java.lang.String), true, 549), staticinvoke(class org.apache.spark.unsafe.types.UTF8String, StringType, fromString, lambdavariable(ExternalMapToCatalyst_value, ObjectType(class java.lang.String), true, 549), true, false, true), knownnotnull(assertnotnull(input[0, org.apache.spark.sql.delta.actions.AddFile, true])).tags) AS tags#599]
+[info]    +- MapElements org.apache.spark.sql.Dataset$$Lambda$4864/998604230@1584b55e, class scala.Tuple1, [StructField(_1,StructType(StructField(path,StringType,true),StructField(partitionValues,MapType(StringType,StringType,true),true),StructField(size,LongType,false),StructField(modificationTime,LongType,false),StructField(dataChange,BooleanType,false),StructField(stats,StringType,true),StructField(tags,MapType(StringType,StringType,true),true)),true)], obj#592: org.apache.spark.sql.delta.actions.AddFile
+[info]       +- DeserializeToObject newInstance(class scala.Tuple1), obj#591: scala.Tuple1
+[info]          +- Project [add#180]
+[info]             +- Filter isnotnull(add#180)
+[info]                +- LogicalRDD [txn#179, add#180, remove#181, metaData#182, protocol#183, cdc#184, commitInfo#185], false
+[info]   at org.apache.spark.sql.catalyst.analysis.package$AnalysisErrorAt.failAnalysis(package.scala:42)
+[info]   at org.apache.spark.sql.catalyst.analysis.CheckAnalysis.$anonfun$checkAnalysis$5(CheckAnalysis.scala:187)
+[info]   at org.apache.spark.sql.catalyst.analysis.CheckAnalysis.$anonfun$checkAnalysis$5$adapted(CheckAnalysis.scala:182)
+[info]   at org.apache.spark.sql.catalyst.trees.TreeNode.foreachUp(TreeNode.scala:367)
+[info]   at org.apache.spark.sql.catalyst.analysis.CheckAnalysis.$anonfun$checkAnalysis$4(CheckAnalysis.scala:182)
+[info]   at org.apache.spark.sql.catalyst.analysis.CheckAnalysis.$anonfun$checkAnalysis$4$adapted(CheckAnalysis.scala:182)
+[info]   at scala.collection.immutable.Stream.foreach(Stream.scala:533)
+[info]   at org.apache.spark.sql.catalyst.analysis.CheckAnalysis.$anonfun$checkAnalysis$1(CheckAnalysis.scala:182)
+[info]   at org.apache.spark.sql.catalyst.analysis.CheckAnalysis.$anonfun$checkAnalysis$1$adapted(CheckAnalysis.scala:102)
+[info]   at org.apache.spark.sql.catalyst.trees.TreeNode.foreachUp(TreeNode.scala:367)
+[info]   ... 
+```
+
+#### Expected results
+
+No error. It only fails with Booleans.
+
+#### Further details
+
+I think the bug might be in the method `inferPartitionColumnValue` in class `PartitionUtils.scala`:
+
+It changes the type to StringType and it should be BooleanType:
+
+```
+...
+    } else {
+      if (raw == DEFAULT_PARTITION_NAME) {
+        Literal.default(NullType)
+      } else {
+        Literal.create(unescapePathName(raw), StringType) <--- it goes here and set its to StringType
+      }
+
+```
+### Environment information
+
+* Delta Lake version: 2.2.0
+* Spark version: 3.3.1
+* Scala version: 2.12.13
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [x] Yes. I can contribute a fix for this bug independently.
+- [x] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute a bug fix at this time.

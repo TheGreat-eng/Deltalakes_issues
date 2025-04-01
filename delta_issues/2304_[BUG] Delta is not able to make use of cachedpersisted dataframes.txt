@@ -1,0 +1,158 @@
+## Bug
+
+#### Which Delta project/connector is this regarding?
+
+- [X] Spark 3.4.0 (Delta 2.4.0)
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+### Describe the problem
+
+We're persisting a rather large dataframe, resulting from reads of historical data from a few Delta tables coupled with some math done in pandas. We end up reading this dataframe a few times, and would expect subsequent usages of the dataframe by Delta to use the `InMemoryRelation` available. What we're seeing is that Delta does not make use of the `InMemoryRelation` and the work just gets executed again (a lot of work).
+
+#### Steps to reproduce
+
+```python
+import pandas as pd
+from pyspark.sql.functions import col, current_timestamp, lit
+from delta import DeltaTable
+
+count = 1000 # try: 1000000
+half = str(int(count/2))
+data_root = "/path/for/temp/data"
+
+df0 = spark.createDataFrame(sc.parallelize([ (str(i), i + 0.0) for i in range(0, count) ]), schema=("id", "value"))
+df1 = spark.createDataFrame(sc.parallelize([ (str(i), i * 0.1) for i in range(0, count) ]), schema=("id", "value"))
+df2 = df0.union(df1).withColumn("t", current_timestamp())
+
+def normalize(pdf):
+    value = pdf.value
+    return pdf.assign(value=(value - value.mean()) / value.std())
+
+df3 = df2.groupby("id").applyInPandas(normalize, schema="id string, value double, t timestamp")
+df3.persist().count() # force df3 into our cache
+
+# Setup our two delta tables
+DeltaTable.createIfNotExists(spark).addColumns(df3.schema).location(f"{data_root}/delta_lt").execute()
+DeltaTable.createIfNotExists(spark).addColumns(df3.schema).location(f"{data_root}/delta_gt").execute()
+
+# Setup our filters for the two tables
+conds = [ (col("id") < lit(half)), (col("id") >= lit(half)) ]
+
+# Slow every iteration, logical plan notes that it is redoing all the work
+for (i, cond) in enumerate(conds):
+    print(cond)
+    table = "lt" if i == 0 else "gt"
+    dt = DeltaTable.forPath(spark, f"{data_root}/delta_{table}")
+    dt.alias("existing").merge(df3.filter(cond).alias("new"), "existing.id = new.id").whenNotMatchedInsertAll().execute()
+
+# Slow every iteration, logical plan notes that it is redoing all the work
+for (i, cond) in enumerate(conds):
+    print(cond)
+    table = "lt" if i == 0 else "gt"
+    df3.write.format("delta").mode("append").save(f"{data_root}/delta_{table}")
+
+# Uses InMemoryRelation
+for (i, cond) in enumerate(conds):
+    print(cond)
+    table = "lt" if i == 0 else "gt"
+    df3.write.format("json").mode("append").save(f"{data_root}/json_{table}")
+```
+
+#### Observed results
+
+Example plan from Delta's Merge:
+```
+== Physical Plan ==
+AdaptiveSparkPlan (25)
++- == Final Plan ==
+   * Filter (13)
+   +- * Filter (12)
+      +- * Filter (11)
+         +- FlatMapGroupsInPandas (10)
+            +- * Sort (9)
+               +- AQEShuffleRead (8)
+                  +- ShuffleQueryStage (7), Statistics(sizeInBytes=109.4 KiB, rowCount=2.00E+3)
+                     +- Exchange (6)
+                        +- Union (5)
+                           :- * Project (2)
+                           :  +- * Scan ExistingRDD (1)
+                           +- * Project (4)
+                              +- * Scan ExistingRDD (3)
++- == Initial Plan ==
+   Filter (24)
+   +- BroadcastHashJoin LeftAnti BuildRight (23)
+      :- Filter (19)
+      :  +- Filter (18)
+      :     +- FlatMapGroupsInPandas (17)
+      :        +- Sort (16)
+      :           +- Exchange (15)
+      :              +- Union (14)
+      :                 :- Project (2)
+      :                 :  +- Scan ExistingRDD (1)
+      :                 +- Project (4)
+      :                    +- Scan ExistingRDD (3)
+      +- BroadcastExchange (22)
+         +- Filter (21)
+            +- Scan parquet  (20)
+...
+```
+
+Example plan from Delta's append:
+```
+== Physical Plan ==
+Execute SaveIntoDataSourceCommand (1)
+   +- SaveIntoDataSourceCommand (2)
+         +- FlatMapGroupsInPandas (8)
+            +- Project (7)
+               +- Project (6)
+                  +- Union (5)
+                     :- LogicalRDD (3)
+                     +- LogicalRDD (4)
+...
+```
+
+Example plan from JSON append:
+```
+== Physical Plan ==
+Execute InsertIntoHadoopFsRelationCommand (12)
++- WriteFiles (11)
+   +- InMemoryTableScan (1)
+         +- InMemoryRelation (2)
+               +- FlatMapGroupsInPandas (10)
+                  +- * Sort (9)
+                     +- Exchange (8)
+                        +- Union (7)
+                           :- * Project (4)
+                           :  +- * Scan ExistingRDD (3)
+                           +- * Project (6)
+                              +- * Scan ExistingRDD (5)
+...
+```
+
+#### Expected results
+
+I would expect the cached dataframe to be used as much as possible.
+
+#### Further details
+
+This is as contrived of an example I can make without it getting out of hand, but it definitely illustrates the problem. The actual pyspark is fairly involved and may also contribute to the problem.
+
+### Environment information
+
+* Delta Lake version: 2.4.0
+* Spark version: 3.4.0
+* Scala version: n/a
+* Python version: 3.10.11
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [ ] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [X] No. I cannot contribute a bug fix at this time.
+
+_(I would normally extend an offer to help, but my last day at KCF is 2023-09-13)_

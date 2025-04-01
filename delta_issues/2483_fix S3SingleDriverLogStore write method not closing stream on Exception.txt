@@ -1,0 +1,12 @@
+## Description
+
+Method write in S3SingleDriverLogStore does not close stream on Exception. Added finally block
+to handle closing stream. Used the same pattern as in HadoopFileSystemLogStore.
+
+## How was this patch tested?
+
+Only tested by running existing unit tests. 
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

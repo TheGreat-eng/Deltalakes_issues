@@ -1,0 +1,19 @@
+## Bug
+
+### Describe the problem
+Source code at `$delta/examples/scala/src/main/scala/example/Utilities.scala` is out of date.
+```
+// not exist at v2.0.1, should remove
+deltaTable.details().show()
+```
+
+### Environment information
+* Delta Lake version: 2.0.1
+* Spark version: 3.2.1
+* Scala version: 2.13.8
+
+#### Steps to reproduce
+* 1, `cd examples/scala` 
+* 2, run `./build/sbt`
+
+

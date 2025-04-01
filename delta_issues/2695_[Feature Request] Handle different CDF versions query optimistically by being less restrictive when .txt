@@ -1,0 +1,91 @@
+## Feature request
+
+### Overview
+
+<!-- Provide a high-level description of the feature request. -->
+```scala
+spark.read.format("delta").option("readChangeFeed", "true")
+.option("startingVersion", 24).option("endingVersion", 30)
+.load("gs://gcs-XXXXX-zt/XXXXX/delta-table/").show()
+org.apache.spark.sql.delta.DeltaFileNotFoundException: gs://gcs-XXXXX-zt/XXXXX//delta-table/_delta_log/00000000000000000000.json: 
+Unable to reconstruct state at version 24 as the transaction log has been 
+truncated due to manual deletion or the log retention policy 
+(delta.logRetentionDuration=60 days) and checkpoint 
+retention policy (delta.checkpointRetentionDuration=2 days)
+  at org.apache.spark.sql.delta.DeltaErrorsBase.logFileNotFoundException(DeltaErrors.scala:714)
+  at org.apache.spark.sql.delta.DeltaErrorsBase.logFileNotFoundException$(DeltaErrors.scala:700)
+  at org.apache.spark.sql.delta.DeltaErrors$.logFileNotFoundException(DeltaErrors.scala:2293)
+  at org.apache.spark.sql.delta.SnapshotManagement.$anonfun$getLogSegmentForVersion$2(SnapshotManagement.scala:216)
+  at org.apache.spark.sql.delta.metering.DeltaLogging.recordFrameProfile(DeltaLogging.scala:139)
+  at org.apache.spark.sql.delta.metering.DeltaLogging.recordFrameProfile$(DeltaLogging.scala:137)
+  at org.apache.spark.sql.delta.DeltaLog.recordFrameProfile(DeltaLog.scala:63)
+  at org.apache.spark.sql.delta.SnapshotManagement.getLogSegmentForVersion(SnapshotManagement.scala:152)
+  at org.apache.spark.sql.delta.SnapshotManagement.getLogSegmentForVersion$(SnapshotManagement.scala:148)
+  at org.apache.spark.sql.delta.DeltaLog.getLogSegmentForVersion(DeltaLog.scala:63)
+  at org.apache.spark.sql.delta.SnapshotManagement.getLogSegmentForVersion(SnapshotManagement.scala:141)
+  at org.apache.spark.sql.delta.SnapshotManagement.getLogSegmentForVersion$(SnapshotManagement.scala:135)
+  at org.apache.spark.sql.delta.DeltaLog.getLogSegmentForVersion(DeltaLog.scala:63)
+  at org.apache.spark.sql.delta.SnapshotManagement.getSnapshotAt(SnapshotManagement.scala:630)
+  at org.apache.spark.sql.delta.SnapshotManagement.getSnapshotAt$(SnapshotManagement.scala:618)
+  at org.apache.spark.sql.delta.DeltaLog.getSnapshotAt(DeltaLog.scala:63)
+  at org.apache.spark.sql.delta.commands.cdc.CDCReader$.changesToDF(CDCReader.scala:281)
+  at org.apache.spark.sql.delta.commands.cdc.CDCReader$.changesToBatchDF(CDCReader.scala:470)
+  at org.apache.spark.sql.delta.commands.cdc.CDCReader$DeltaCDFRelation.buildScan(CDCReader.scala:220)
+```
+Using : Delta 2.1.1
+CDF Query fails with the above exception. I checked the `_delta_log` folder which did not have the 20.checkpoint.parquet and all version JSONs up to 23 were deleted. 
+
+Furthermore, I checked with the above method invocation at 
+[CDCReader.changesToDF](https://github.com/delta-io/delta/blob/branch-02.1/core/src/main/scala/org/apache/spark/sql/delta/commands/cdc/CDCReader.scala#L251) and it gives a call to SnapshotManagement.getSnapshotAt which tries to find the last available checkpoint or start from 000.json. This is cool but it doesn't use much of the data retrieved after that:
+```scala
+    val startVersionSnapshot = deltaLog.getSnapshotAt(start)
+    if (!isCDCEnabledOnTable(deltaLog.getSnapshotAt(start).metadata)) {
+      throw DeltaErrors.changeDataNotRecordedException(start, start, end)
+    }
+
+
+    /**
+     * TODO: Unblock this when we figure out the correct semantics.
+     *  Currently batch CDC read on column mapping tables with Rename/Drop is blocked due to
+     *  unclear semantics.
+     *  Streaming CDF read is blocked on a separate code path in DeltaSource.
+     */
+    val shouldCheckToBlockBatchReadOnColumnMappingTable =
+      !isStreaming &&
+      snapshot.metadata.columnMappingMode != NoMapping &&
+      !spark.sessionState.conf.getConf(
+        DeltaSQLConf.DELTA_CDF_UNSAFE_BATCH_READ_ON_INCOMPATIBLE_SCHEMA_CHANGES)
+
+    // Compare with start snapshot's metadata schema to fail fast
+    if (shouldCheckToBlockBatchReadOnColumnMappingTable &&
+        !DeltaColumnMapping.isColumnMappingReadCompatible(
+          snapshot.metadata, startVersionSnapshot.metadata)) {
+      throw DeltaErrors.blockCdfAndColumnMappingReads(
+        isStreaming,
+        Some(snapshot.metadata.schema),
+        Some(startVersionSnapshot.metadata.schema)
+      )
+    }
+```
+1. First of all it can reuse the `startVersionSnapshot` in the next line and save a `listFrom` call
+2. It verifies if the metadata has CDF enabled, which can be done even without the checkpoint
+3. Next important section is when it verifies the `snapshot` schema vs `startVersion` schema. I saw the changes were part of this PR => https://github.com/delta-io/delta/pull/1350/files
+
+While I do agree with the need to verify column mapping changes, it is unnecessarily penalizing the ones who don't have any such changes.
+
+### Motivation
+
+<!-- How will this feature be used? Why is it important? Which users will benefit from it? -->
+
+### Further details
+Ideally, the CDC column in Delta Log stores all information about serving the CDF. Since we already have all the data under the `_change_data` folder, it is a bit harsh to not be able to serve it, especially for users who did not have a change in schema or did not turn off the CDF in between, or did not change metadata. I removed this above piece of code and ran it in my local and it works just fine. If we can manage this state in a different manner, then it might as well serve the CDFs for these kinds of queries even without the earliest checkpoint file or reconstruct state from 0.json. Definitely, there are cases when we need the ADD and REMOVE columns to rebuild the state, but this should be handled more elegantly. We should optimistically try to serve as many CDF requests as possible and give each case equal importance and not pessimistically kill requests if we could have served them.
+
+Please let me know if this use case makes sense or if there is some conceptual point I am missing. 
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute the implementation of this feature?
+
+- [ ] Yes. I can contribute this feature independently.
+- [x] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.

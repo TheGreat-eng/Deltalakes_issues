@@ -1,0 +1,3 @@
+Checkpoint write doesn't pass the correct Hadoop configuration. It may fail when users specify their storage credentials using Spark session configs.
+
+This PR fixes it and adds a test for it.

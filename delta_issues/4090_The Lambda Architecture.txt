@@ -1,0 +1,9 @@
+Hi,
+I have seen some videos about Delta.
+Many of them are talking about the Lambda Architecture (The need of both batch processing and streaming processing of the same data).
+
+After explaining the problems with this architecture, there is a proposal to use only spark streaming, and streaming it to a Delta table.
+
+Why can't I do it without Delta?
+ 
+I mean that Delta does not solve the problem of loosing data in stream and therefore using batch to fill up missing data.

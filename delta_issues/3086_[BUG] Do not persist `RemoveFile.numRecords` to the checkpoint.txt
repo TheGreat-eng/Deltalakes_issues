@@ -1,0 +1,19 @@
+## Bug
+
+### Describe the problem
+
+As mentioned in this issue https://github.com/delta-io/delta-rs/pull/651 and again in this issue https://github.com/delta-io/delta/pull/1216, currently `RemoveFile.numRecords` is being written out to the delta checkpoint. This is a bug, as the field is clearly marked as `JsonIgnoreProperty` in the `RemoveFile` class declaration [here](https://github.com/delta-io/delta/blob/v1.2.1/core/src/main/scala/org/apache/spark/sql/delta/actions/actions.scala#L351).
+
+We should explicitly block this field from being written to the delta log checkpoint.
+
+#### Steps to reproduce
+
+Write out any `RemoveFile` to a delta log checkpoint (i.e. commit 10 times) and, when reading that checkpoint parquet file, you will see that `numRecords` field has been written out.
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [x] Yes. I can contribute a fix for this bug independently.
+- [ ] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute a bug fix at this time.

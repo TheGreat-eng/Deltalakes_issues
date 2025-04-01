@@ -1,0 +1,3 @@
+Clarify the API documentation of https://github.com/delta-io/delta/blob/master/kernel/kernel-api/src/main/java/io/delta/kernel/ScanBuilder.java#L33.
+
+It should mention about the remaining filter and how the client should get it from `Scan.getRemainingFilter`.

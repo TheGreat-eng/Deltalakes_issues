@@ -1,0 +1,22 @@
+#### Which Delta project/connector is this regarding?
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+This is a follow-up to the previous attempt to handle double-filtering of non-deterministic conditions (e.g. rand() < 0.25) in https://github.com/delta-io/delta/pull/4095.
+
+It prevented non-deterministic filters from appearing in `unusedFilters` in the `ScanReport` unless we added special pipelining for them from `PrepareDeltaScan` to `filesForScan`.
+
+This is also inconsistent with how we skip `subqueryFilters`. We now treat `filesForScan` as the narrow waist to skip any filters.
+
+## How was this patch tested?
+
+UTs
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

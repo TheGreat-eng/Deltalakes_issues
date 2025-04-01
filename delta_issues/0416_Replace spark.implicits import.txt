@@ -1,0 +1,21 @@
+
+#### Which Delta project/connector is this regarding?
+
+- [X ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+This PR replaces the import of `spark.implicits._` with that from `org.apache.spark.sql.delta.implicits._`
+This change is to confirm with best practice.
+
+## How was this patch tested?
+
+Existing tests should suffice.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No.

@@ -1,0 +1,5 @@
+## Description
+Adds Jackson as a general purpose JSON parsing library into the Kernel-Api jar. The library is shaded to avoid version dependency conflicts downstream for connector developers. 
+
+## How was this patch tested?
+Ran existing tests.

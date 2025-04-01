@@ -1,0 +1,1 @@
+This tracks the ongoing work and discussions for building the Scala/Java APIs for optimizing the data layout of Delta tables by coalescing small files into larger files.

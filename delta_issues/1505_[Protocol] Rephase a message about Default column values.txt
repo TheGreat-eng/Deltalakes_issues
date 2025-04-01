@@ -1,0 +1,19 @@
+#### Which Delta project/connector is this regarding?
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [x] Other (Delta Protocol)
+
+## Description
+
+This PR follows https://github.com/delta-io/delta/pull/2794 to re-phase a message regarding table protocol upgrades.
+
+## How was this patch tested?
+
+Not needed.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No.

@@ -1,0 +1,21 @@
+#### Which Delta project/connector is this regarding?
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+Small fixes for determinism determination for Merge Materialize Source.
+* since we consider joins as potentially non-deterministic, we should also consider correlated subqueries as such, because they essentially are also joins.
+* non Delta source will not be found in subqueries in `findFirstNonDeltaScan`, but found in `findFirstNonDeterministicNode`. This will make merge source materialization give wrong reason for materialization.
+
+## How was this patch tested?
+
+Added tests with subqueries and nested subqueries in Project and Filters and correlated subqueries.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No.

@@ -1,0 +1,22 @@
+#### Which Delta project/connector is this regarding?
+- [X] Spark
+- [X] Standalone
+- [X] Flink
+- [X] Kernel
+- [ ] Other (fill in here)
+
+## Description
+We haven't updated some dependencies for a while, exposing us to security risks.
+
+This PR updates:
+- Scala 2.12 to 2.12.18 (the same used by Spark 3.5 branch)
+- Scala 2.13 to 2.13.13 (the same in Spark master branch). [CVE-2022-36944](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-36944)
+- Update SBT to 1.9.9. [CVE-2023-46122](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2023-46122)
+- Update JUnit. Fix #1518 - [CVE-2020-15250](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-15250)
+- Update plugins: sbt-mima-plugin and sbt-scoverage
+
+## How was this patch tested?
+CI
+
+## Does this PR introduce _any_ user-facing changes?
+No

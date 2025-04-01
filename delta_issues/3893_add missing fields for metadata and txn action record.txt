@@ -1,0 +1,1 @@
+Add missing fields for metadata and txn actions in delta spec.

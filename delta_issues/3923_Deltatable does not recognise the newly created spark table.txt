@@ -1,0 +1,24 @@
+I created a table like this and inserted some data
+
+spark.sql(s"create table if not exists test " +
+"(key String," +
+"name String," +
+"address String," +
+"inserted_at TIMESTAMP) " +
+s"  using delta  LOCATION 's3://test/user/'")
+I can view the table via
+
+spark.table("test").show()
+But when I do
+
+DeltaTable.forPath(spark,"s3://test/user/" ).toDF.show(false)
+I cannot see the data. But when i try this method
+
+DeltaTable.isDeltaTable("s3://test/user/")
+it is true. Can anyone please explain what I am missing?
+
+Further, when I want to do a merge operation, I am getting this error.
+
+[error] ! 
+[error]  java.lang.UnsupportedOperationException: null (DeltaTable.scala:639)
+[error] io.delta.tables.DeltaTable$.forPath(DeltaTable.scala:639)

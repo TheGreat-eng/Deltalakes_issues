@@ -1,0 +1,18 @@
+## Which Delta project/connector is this regarding?
+- [ ] Spark
+- [x] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+ 
+## Description
+
+While analyzing how does the commit work I found the `checkForConflicts` name a bit misleading. It does verify the conflicts but from my understanding, its main purpose is to return the next commit version if there are no conflicts with the last written transaction. Hence the renaming. I also added the `@throws` annotation to expose the possible errors returned. There is no inherent issue with the code itself. 
+
+## How was this patch tested?
+Compilation and existing tests should pass. It's just a renaming, no new features added.
+
+## Does this PR introduce _any_ user-facing changes?
+No
+
+Signed-off-by: Bartosz Konieczny <[work@waitingforcode.com](mailto:work@waitingforcode.com)> 

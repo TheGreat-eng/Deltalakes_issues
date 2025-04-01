@@ -1,0 +1,35 @@
+#### Which Delta project/connector is this regarding?
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [X] Other (Infra)
+
+## Description
+
+This PR reduces delta-spark CI test runtime by 33 mins. Previously the max shard duration was 1h 46 mins, and now it is 1h 13 mins.
+
+This PR does so by the following
+
+0. We add an extra shard
+1. I used https://github.com/delta-io/delta/pull/3694 to collect some metrics about delta-spark test runtime execution.
+2. I specifically identified (a) the 50 slowest test suites and (b) the average suite duration excluding those top 50 (it was 0.71 minutes)
+3. I used this information to update `TestParallelization` to do smarter test suite assignment. The logic is as follows:
+    - For the top 50 slowest test suites, we assign them deterministically by, in sorted descending order, assigning the suites to the shard + group (group means thread) with the lowest duration so far.
+    - For the remaining tests that are not in the top 50, we assign them to a random shard, and within that shard we assign it to the group with the lowest duration so far, too
+4. We also update the hash function used to me MurmurHash3 which is known to create balanced assignments in scenarios where the input strings (test names) might have similar prefixes or patterns
+
+Note that purely adding another shard and using a better hash function does NOT yield any better results. That was attempted here: https://github.com/delta-io/delta/pull/3715.
+
+## How was this patch tested?
+
+GitHub Ci tests.
+
+https://github.com/delta-io/delta/actions/runs/11004181545?pr=3712
+
+<img width="338" alt="image" src="https://github.com/user-attachments/assets/70711c2e-e8a2-4568-99d3-db7267d7c887">
+
+## Does this PR introduce _any_ user-facing changes?
+
+No.

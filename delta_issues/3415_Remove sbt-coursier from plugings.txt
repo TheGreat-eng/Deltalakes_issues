@@ -1,0 +1,7 @@
+Resolves #800 
+
+Remove `sbt-coursier` from build.
+
+sbt 1.3.x includes `sbt-coursier` so it's no longer needed after version upgrade, version shipped with sbt 1.5.5 resolves this issue.
+
+Verified by running `build/sbt package`

@@ -1,0 +1,25 @@
+#### Which Delta project/connector is this regarding?
+
+- [X] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+Transactions might try to create or update the schema of a Delta table with columns that contain column mapping metadata, even when column mapping is not enabled. For example, this can happen when transactions copy the schema from another table without stripping metadata.
+
+To avoid such issues, we automatically strip column mapping metadata when column mapping is disabled. We are doing this only for new tables or for transactions that add column mapping metadata for the first time. If column metadata already exist, we cannot strip them because this would break the table. A usage log is emitted so we can understand the impact on existing tables.
+
+Note that this change covers the cases where txn.updateMetadata is called (the "proper API") and not the cases where a Metadata action is directly committed to the table.
+
+Finally, this commit changes drop column mapping command to check that all column mapping metadata do not exist, and not only physical column name and ID.
+
+## How was this patch tested?
+
+Added new UT.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No.

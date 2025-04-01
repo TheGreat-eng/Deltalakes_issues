@@ -1,0 +1,4 @@
+Removed the PinnedTahoeFileIndex class to fix this issue:
+
+
+Closes #1386

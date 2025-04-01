@@ -1,0 +1,11 @@
+## Description
+
+This PR changes Delta Log replay to compute the file version only once per delta file, instead of once per every action in the delta files. It does this by exposing the commit version as a "virtual" partition column in `DeltaLogFileIndex`.
+
+## How was this patch tested?
+
+Existing tests to make sure nothing breaks.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

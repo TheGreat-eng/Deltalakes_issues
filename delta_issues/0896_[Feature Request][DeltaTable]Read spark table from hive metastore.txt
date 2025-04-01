@@ -1,0 +1,33 @@
+## Feature request
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the issue title
+For example: [Feature Request][Spark] Title of my issue
+-->
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+### Overview
+
+It's not possible to read dataframes save with .saveAsTable spark method.
+
+### Motivation
+
+It's more suitable to read spark tables not from storage like HDFS or S3 directry.
+
+### Further details
+
+Delta table declaration method from here supports only path table registration https://docs.delta.io/0.4.0/api/python/index.html. It's not suitable for delta tables saved with .saveAsTable spark method which registers table in hive metastore and allows to read delta table with spark.table method.
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [ ] Yes. I can contribute this feature independently.
+- [x] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.

@@ -1,0 +1,37 @@
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [x] Kernel
+- [ ] Other (fill in here)
+
+## Description
+Part of delta-io/delta#2071 (Partition Pruning in Kernel).
+
+Delta `kernel-api` module creates a selection vector (a `ColumnVector` boolean data type) that goes along with `ColumnarBatch` of scan files read from the Delta checkpoint or commit files. It uses the `selection vector` to select only a subset of rows from the scan file `ColumnarBatch`. Also at the same time `kernel-api` module shouldn't be creating `ColumnVector`s. Instead should rely on the `TableClient` APIs to create the vectors.
+
+It adds the below API on `ExpressionHandler`
+```
+    /**
+     * Create a selection vector, a boolean type {@link ColumnVector}, on top of the range of values
+     * given in <i>values</i> array.
+     *
+     * @param values Array of initial boolean values for the selection vector. The ownership of
+     *               this array is with the caller and this method shouldn't depend on it after the
+     *               call is complete.
+     * @param from   start index of the range, inclusive.
+     * @param to     end index of the range, exclusive.
+     * @return A {@link ColumnVector} of {@code boolean} type values.
+     */
+    ColumnVector createSelectionVector(boolean[] values, int from, int to);
+```
+
+This also handles [this](https://github.com/delta-io/delta/pull/1939#discussion_r1293764014) code review comment.
+
+## How was this patch tested?
+Added tests.

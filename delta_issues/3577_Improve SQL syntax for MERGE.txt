@@ -1,0 +1,28 @@
+Existing SQL syntax (see [here](https://docs.delta.io/latest/delta-update.html#upsert-into-a-table-using-merge) and [here](https://docs.microsoft.com/en-us/azure/databricks/spark/latest/spark-sql/language-manual/delta-merge-into)) for **MEGRE** could be improved by adding an alternative for  `ON <merge_condition>`
+
+**Main assumption**
+In common cases target and source tables have the same column names used in `<merge_condition>` as keys.
+For example `ON target.id = source.id` or `ON target.name = source.name AND target.surname = source.surname`
+It would be more convenient to use `ON COLUMNS (id)` and `ON COLUMNS (name, surname)` or similar instead.
+The same approach is used for [JOIN](https://spark.apache.org/docs/latest/sql-ref-syntax-qry-select-join.html) where `join_criteria` syntax is `ON boolean_expression | USING ( column_name [ , ... ] )`
+
+**Improvement proposal**
+Syntax
+```sql
+MERGE INTO target_table_identifier [AS target_alias]
+USING source_table_identifier [<time_travel_version>] [AS source_alias]
+ON { <merge_condition> | COLUMNS ( column_name [ , ... ] ) }
+[ WHEN MATCHED [ AND <condition> ] THEN <matched_action> ]
+[ WHEN MATCHED [ AND <condition> ] THEN <matched_action> ]
+[ WHEN NOT MATCHED [ AND <condition> ]  THEN <not_matched_action> ]
+```
+Example
+```sql
+MERGE INTO target
+USING source
+ON COLUMNS (name, surname)
+WHEN MATCHED THEN
+    UPDATE SET *
+WHEN NOT MATCHED THEN
+    INSERT *
+```

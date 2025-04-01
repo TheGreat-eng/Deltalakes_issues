@@ -1,0 +1,12 @@
+Structured streaming read from kafka,how can I join Delta table and just insert into Delta table?
+One way that I think is :
+
+val source = spark.readStream.format("kafka")
+val table = DeltaTable.forPath(path)
+source.join(table.toDF()).writeStream.format("delta").start()
+
+There have another update/insert/delete after JOIN func.
+So I prefer use foreachBatch to do this.But another problem appears.
+How can I insert datas into Delta table?
+
+Could you please help to provide me an idea?

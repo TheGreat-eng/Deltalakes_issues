@@ -1,0 +1,28 @@
+Hi everyone, I am new for spark, probably I am doing something wrong, but I haven't found a way to use `foreachBatch` without explicitly writing the Map:
+
+```scala
+// Function to upsert `microBatchOutputDF` into Delta table using MERGE
+def upsertToDelta(microBatchOutputDF: DataFrame, batchId: Long) {
+  
+  /* 
+  microBatchOutputDF = {
+    key: { id },
+    value: { ... } ,
+    op: 'u' || 'c' | 'd' 
+  }
+  */
+  
+  deltaTable.as("t")
+    .merge(microBatchOutputDF.as("s"), "s.key.id = t.id")
+    .whenMatched("s.op == 'd'").delete()
+    .whenMatched("s.op == 'u'").updateAll()
+    .whenNotMatched().insert(Map("t.id" -> col("s.object.id"), "t.name" -> col("s.object.name"), "t.stateId" -> col("s.object.stateId"), "t.coordinate" -> col("s.object.coordinate")))
+    .execute()
+} 
+```
+
+`updateAll` will not work in this example, because my object is nested inside `microBatchOutputDF`.
+
+I really want to use, `insertAll` and `updateAll` methods, due to schema evolution.
+
+@tdas Would be great to have your opinion here, Thanks

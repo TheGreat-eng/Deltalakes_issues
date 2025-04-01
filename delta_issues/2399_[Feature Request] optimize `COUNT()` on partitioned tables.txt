@@ -1,0 +1,26 @@
+## Feature request
+Running the query `SELECT COUNT(*) FROM table WHERE partition_column = 1` should only read Delta log statistics.
+
+@felipepessoto https://github.com/delta-io/delta/issues/1192 / https://github.com/delta-io/delta/commit/0c349da8 already introduced this feature for `SELECT COUNT(*) FROM table` in Delta 2.2.0.
+I suggest further improving this feature so it also works for **partitioned tables when filtering only on partition columns**.
+
+#### Which Delta project/connector is this regarding?
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+### Overview
+Running the query `SELECT COUNT(*) FROM table WHERE partition_column = 1` takes a lot of time for big tables, Spark scans the parquet files just to return the number of rows. But the row count is already available from Delta Logs.
+
+### Motivation
+Significant performance improvement.
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [ ] Yes. I can contribute this feature independently.
+- [ ] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [x] No. I cannot contribute this feature at this time.

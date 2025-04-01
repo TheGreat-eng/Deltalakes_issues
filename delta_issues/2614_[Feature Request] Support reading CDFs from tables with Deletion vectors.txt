@@ -1,0 +1,32 @@
+## Feature request
+
+### Overview & motivation
+
+https://github.com/delta-io/delta/issues/1591 brought deletion vectors to Delta Lake, and changed the way DELETE works from "removing an old file & add a new file" to "removing a file and adding it back with a DV attached". This change breaks the assumption of CDF generation, which assumes all rows in the removed file are `delete` and all rows in the added file are `insert`. We must make the CDC reader handle DVs.
+
+
+### High-level implementation details
+
+This FR proposes to make the CDC reader look at DVs in FileAction and compute a new, in-memory DV to mark deleted rows. Assuming we have two DVs, then there can be four cases:
+
+1. Remove without DV, add without DV: not possible. The protocol does not allow this.
+2. Remove without DV, add with DV1: rows masked by DV1 are deleted.
+3. Remove with DV1, add without DV: rows masked by DV1 are added. This may happen when restoring a table.
+4.  Remove with DV1, add with DV2:
+    1. Rows masked by DV2 but not DV1 are deleted.
+    2. Rows masked by DV1 but not DV2 are re-added. This may happen when restoring a table.
+
+Looking at the above cases, we could do a diff on DVs and attach the result to a file scan, to obtain desired rows. For cases 3 and 4.2, we must invert the DV so it keeps marked rows rather than removes them.
+
+The implementation will be in two phases. The first one will do some preparations and the second one will change the CDC reader.
+
+First phase: https://github.com/delta-io/delta/pull/1680
+Second phase: TBD.
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [X] Yes. I can contribute this feature independently.
+- [ ] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.

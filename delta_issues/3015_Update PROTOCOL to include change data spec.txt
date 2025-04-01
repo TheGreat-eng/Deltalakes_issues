@@ -1,0 +1,13 @@
+## Description
+
+Update PROTOCOL.md to include change data file spec.
+
+I think it's possible to consider these new change files as "data files", but I've documented them as their own file type to start because they do not represent the actual table data the same way `add` and `remove` files do.
+
+## How was this patch tested?
+
+N/A
+
+## Does this PR introduce _any_ user-facing changes?
+
+Yes. This PR introduces changes to the documentation of the Delta Lake protocol

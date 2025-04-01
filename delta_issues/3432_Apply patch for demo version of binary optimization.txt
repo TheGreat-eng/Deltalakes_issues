@@ -1,0 +1,1 @@
+Demo of optimization, adding optimize() hook which does 'insert  overwrite' inside

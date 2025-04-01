@@ -1,0 +1,19 @@
+## What changes were proposed in this pull request?
+The initial approach to identify files that contain a type that differs from the table schema and that must be rewritten before dropping the type widening table feature is convoluted and turns out to be more brittle than intended.
+
+This change switches instead to directly reading the file schema from the Parquet footer and rewriting all files that have a mismatching type.
+
+### Additional Context
+Files are identified using their default row commit version (a part of the row tracking feature) and matched against type changes previously applied to the table and recorded in the table metadata: any file written before the latest type change should use a different type and must be rewritten.
+
+This requires multiple pieces of information to be accurately tracked:
+- Default row commit versions must be correctly assigned to all files. E.p. files that are copied over without modification must never be assigned a new default row commit version. On the other hand, default row commit versions are preserved across CLONE but these versions don't match anything in the new cloned table.
+- Type change history must be reliably recorded and preserved across schema changes, e.g. column mapping.
+
+Any bug will likely lead to files not being correctly rewritten before removing the table feature, potentially leaving the table in an unreadable state.
+
+
+
+## How was this patch tested?
+Tests added in previous PR to cover CLONE and RESTORE: https://github.com/delta-io/delta/pull/3053
+Tests added and updated in this PR to cover rewriting files with different column types when removing the table feature.

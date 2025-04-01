@@ -1,0 +1,40 @@
+<!--
+Thanks for sending a pull request!  Here are some tips for you:
+  1. If this is your first time, please read our contributor guidelines: https://github.com/delta-io/delta/blob/master/CONTRIBUTING.md
+  2. If the PR is unfinished, add '[WIP]' in your PR title, e.g., '[WIP] Your PR title ...'.
+  3. Be sure to keep the PR description updated to reflect all changes.
+  4. Please write your PR title to summarize what this PR proposes.
+  5. If possible, provide a concise example to reproduce the issue for a faster review.
+  6. If applicable, include the corresponding issue number in the PR title and link it in the body.
+-->
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [X ] Spark (Uniform)
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [] Other 
+
+## Description
+
+This change fixes support for timestamp partition values in Uniform specifically when timestamp partition values which are not UTC instants are stored in the Delta log (Delta protocol supports both TS partition values where there is no timezone and  ISO-8601 instant timestamps).
+
+In the fix these partition values will be interpreted in the system time of the system doing the metadata conversion and then UTC adjusted for the Iceberg metadata translation. Previously the fix assumed UTC instants but for compatibility reasons, we do want to be able to support the older form of the metadata for Iceberg conversion. 
+
+Example:
+
+Prior to this fix, the code would fail with a parsing exception for the non-instant case since a string like "2021-01-01 10:00:00.123" would fail to be parsed by Instant.parse(str) since it's not a valid instant.
+
+After this fix: "2021-01-01 10:00:00.123", when conversion is run on a Spark cluster with UTC-8 session timezone, will be interpreted as ""2021-01-01 10:00:00.123UTC-08" and then converted to "2021-01-01 16:00:00.123UTC", which will be stored as microseconds since epoch in Iceberg metadata.
+
+## How was this patch tested?
+Added unit tests
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

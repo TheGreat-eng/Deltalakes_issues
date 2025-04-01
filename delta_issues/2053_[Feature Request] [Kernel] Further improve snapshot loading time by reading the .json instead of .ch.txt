@@ -1,0 +1,37 @@
+## Feature request
+
+#### Which Delta project/connector is this regarding?
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [X] Kernel
+- [ ] Other (fill in here)
+
+### Overview
+
+https://github.com/delta-io/delta/pull/2260 implemented a feature which, to summarize, does the following: when loading the latest protocol and metadata (P & M) for a table, pass in hint which stores the P & M for the table at a particular version. When reading the log backwards, don't read past that version! Just take the P & M from the hint if you haven't found a newer P & M yet. This bounds the total amount of computation.
+
+The feature request here is as follows: Suppose
+- we are loading v100
+- there is hint at version 99
+- there is a `100.checkpoint.parquet`
+- there is a `100.json`
+
+Then, when we are loading the latest P & M, don't read `100.checkpoint.parquet`! Reading 100.json should be MUCH faster (much less data), and if we don't find the P & M there then we should just take it from the hint at v99.
+
+Should we instead have some threshold of # of JSONs we would rather read than an entire parquet file?
+
+i.e. suppose we are loading v100, we have a hint at v95. should we load v100 checkpoint? or read 100, 99, 98, 97, 96 JSONs and then just use the hint?
+
+### Motivation
+
+Speed and memory boost.
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [X] Yes. I can contribute this feature independently.
+- [ ] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.

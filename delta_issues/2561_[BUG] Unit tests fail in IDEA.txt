@@ -1,0 +1,62 @@
+## Bug
+
+### Describe the problem
+Many unit tests fail to run in IDEA due to the resource file path, e.g.,
+
+```
+object DeletionVectorsSuite {
+  val table1Path = "src/test/resources/delta/table-with-dv-large"
+  ...
+}
+```
+
+_No such file or directory: file:xxxxx/delta/src/test/resources/delta/table-with-dv-large/_delta_log_
+
+
+<!--
+Please include copy-pastable code snippets if possible.
+1. _____
+2. _____
+3. _____
+-->
+
+#### Observed results
+
+<!-- What happened?  This could be a description, log output, etc. -->
+
+#### Expected results
+
+It is better to call the helper functions in SparkFunSuite
+```
+  // helper function
+  protected final def getTestResourceFile(file: String): File = {
+    new File(getClass.getClassLoader.getResource(file).getFile)
+  }
+
+  protected final def getTestResourcePath(file: String): String = {
+    getTestResourceFile(file).getCanonicalPath
+  }
+```
+Such as 
+`val table1Path = getTestResourcePath(delta/table-with-dv-large)`
+#### Steps to reproduce
+
+#### Further details
+
+<!--
+Include any additional details that may be useful for diagnosing the problem here. If including tracebacks, please include the full traceback. Large logs and files should be attached.
+-->
+
+### Environment information
+
+* Delta Lake version: master
+* Spark version: 3.4
+* Scala version: 2.12
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [ ] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute a bug fix at this time.

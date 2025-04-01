@@ -1,0 +1,6 @@
+Currently we don't GitHub issue and pull request templates. It would be great to add them to help Delta users report issues and contribute code.
+
+Template examples:
+- https://github.com/apache/spark/blob/master/.github/PULL_REQUEST_TEMPLATE
+- https://github.com/netty/netty/tree/4.1/.github
+- https://github.com/line/armeria/blob/master/.github/PULL_REQUEST_TEMPLATE.md

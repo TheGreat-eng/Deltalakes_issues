@@ -1,0 +1,25 @@
+@marmbrus @tdas 
+let's say i have bunch of records and i want to update multiple row , how do i do that , could u please guide me.
+
+example
+ ``` 
+id,name,email,city
+san-100,sanjiv,sanji@gmail.com,patna
+aar-101,aarush,aarush@gmail.com,Ranchi
+kal-103,kalindi,kalindi@gmail.com,Bangalore
+kun-104,kunal,kunal@gmail.com,kolkata
+kun-105,kundan,kundan@gmail.com,Delhi
+```
+i want to update the ids like san-100--->san-1000,kun-104 ----->kun-1004
+
+
+
+note : I can update single row by below syntax
+```
+DeltaTable deltaTable = DeltaTable.forPath("delta-table");
+Map<String,String> updateRecords = new HashMap<String, String>();	
+updateRecords.put("id", "'Hello-world'");
+deltaTable.updateExpr("id == \"san-100\"", updateRecords );
+```
+
+thanks 

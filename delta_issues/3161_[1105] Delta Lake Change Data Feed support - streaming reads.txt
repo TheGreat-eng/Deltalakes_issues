@@ -1,0 +1,15 @@
+## Description
+
+This PR adds CDF + Streaming functionality, as part of the ongoing CDF project #1105.
+
+The bulk of this PR is
+a) adding `DeltaSourceCDCSuppor`t. This PR adds on the necessary CDF functionality to DeltaSource.
+b) updating `DeltaSource` to use the various `DeltaSourceCDCSupport` APIs when CDF is enabled
+c) adding a new test suite
+
+## How was this patch tested?
+
+New UTs.
+
+## Does this PR introduce _any_ user-facing changes?
+No.

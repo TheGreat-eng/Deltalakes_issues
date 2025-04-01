@@ -1,0 +1,74 @@
+## Bug
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the issue title
+For example: [BUG][Spark] Title of my issue
+-->
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+### Describe the problem
+
+I am trying to query the hidden table `_metadata` column on a Delta table, as described [here](https://docs.databricks.com/en/ingestion/file-metadata-column.html). This works just fine in a batch query (`spark.read.format("delta")...`, but it fails in a streaming query (`spark.readStream.format("delta")...`), on the same table.
+
+The same thing works on a Parquet table, however. Streaming and batch Parquet jobs can resolve the `_metadata` column, which lead me to believe that it is a bug in Delta.
+
+#### Steps to reproduce
+
+```scala
+import org.apache.spark.sql.functions._
+
+// Delta Batch: works! ✅
+val deltaBatch = spark.read.format("delta").load("dbfs:/...").select("_metadata")
+
+// Delta Stream: breaks! ❌ "A column or function parameter with name `_metadata` cannot be resolved"
+val deltaStream = spark.readStream.format("delta").load("dbfs:/...").select("_metadata")
+
+// Parquet Batch: works! ✅
+val parquetBatch = spark.read.format("parquet").load("dbfs:/...").select("_metadata")
+
+// Parquet Stream: works! ✅
+val parquetSchema = spark.read.format("parquet").load("dbfs:/...").schema
+val parquetStream = spark.readStream.schema(schema).format("parquet").load("dbfs:/...").select("_metadata")
+```
+
+#### Observed results
+
+The Spark streaming job failed with the following exception:
+
+```
+AnalysisException: [UNRESOLVED_COLUMN.WITH_SUGGESTION] A column or function parameter with name `_metadata` cannot be resolved. Did you mean one of the following? [`Timestamp`, `DeviceID`, `...`].;
+'Project ['_metadata]
++- StreamingRelation DataSource(org.apache.spark.sql.SparkSession@3f4cff4d,delta,List(),None,List(),None,Map(path -> dbfs:/mnt/...),None), tahoe, [DeviceID#116L, Timestamp#117, ...]
+```
+
+#### Expected results
+
+I expect the streaming job to return the `_metadata` column, just like it does for Parquet or Delta batch jobs.
+
+#### Further details
+
+<!--
+Include any additional details that may be useful for diagnosing the problem here. If including tracebacks, please include the full traceback. Large logs and files should be attached.
+-->
+
+### Environment information
+
+I tried the latest Databricks runtimes (13.3 LTS and 14.0 beta)
+
+* Delta Lake version: 2.4.0
+* Spark version: 3.4.1
+* Scala version: 2.12
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [x] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute a bug fix at this time.

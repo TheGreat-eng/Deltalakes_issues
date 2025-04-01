@@ -1,0 +1,15 @@
+I noticed that new `DeltaTableBuilder` API for scala is not as user-friendly as itself for Python when I tried to use generated columns as users need to explicitly write `DeltaTable.columnBuilder` inside `addColumn`.
+I would like to have `expr` and `comment` augments and make them (and `nullable`) have default parameters as below so that `DeltaTableBuilder` API for Scala can be used as easily as Python one.
+```
+addColumn(colName: String, dataType: DataType, nullable: Boolean = True,
+expr: Option[String] = None, comment: Option[String] = None): DeltaTableBuilder = {
+    addColumn(
+        DeltaTable.columnBuilder(spark, colName).dataType(dataType)
+        .nullable(nullable).generatedAlwaysAs(expr).comment(comment).build
+    )
+    this
+}
+```
+We also need to change other functions such as `generatedAlwaysAs` a bit to adapt them for this change.
+
+I believe this change will also reduce the lines of code by combining `addColumn(colName: String, dataType: DataType)` and `addColumn(colName: String, dataType: DataType, nullable Boolean)` together.

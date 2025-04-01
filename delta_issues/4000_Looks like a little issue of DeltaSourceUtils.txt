@@ -1,0 +1,2 @@
+I read the code of `DeltaSourceUtils` and find a little issue. Maybe I lost some context.
+`ALT_NAME` used for other side ?

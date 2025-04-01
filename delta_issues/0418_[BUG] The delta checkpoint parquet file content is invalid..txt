@@ -1,0 +1,91 @@
+[test-table.zip](https://github.com/user-attachments/files/17951216/test-table.zip)
+
+When load the table, it throw the exception as followings
+```
+shadedelta.org.apache.parquet.io.ParquetDecodingException: Can not read value at 0 in block -1 in file file:/Users/horizon/Downloads/test-table/_delta_log/00000000000000000030.checkpoint.parquet
+
+	at shadedelta.org.apache.parquet.hadoop.InternalParquetRecordReader.nextKeyValue(InternalParquetRecordReader.java:254)
+	at shadedelta.org.apache.parquet.hadoop.ParquetReader.read(ParquetReader.java:132)
+	at shadedelta.org.apache.parquet.hadoop.ParquetReader.read(ParquetReader.java:136)
+	at shadedelta.com.github.mjakubowski84.parquet4s.ParquetIterableImpl$$anon$3.hasNext(ParquetReader.scala:144)
+	at io.delta.standalone.internal.actions.CustomParquetIterator.hasNext(MemoryOptimizedLogReplay.scala:136)
+	at io.delta.standalone.internal.actions.MemoryOptimizedLogReplay$$anon$1.$anonfun$ensureNextIterIsReady$3(MemoryOptimizedLogReplay.scala:83)
+	at io.delta.standalone.internal.actions.MemoryOptimizedLogReplay$$anon$1.$anonfun$ensureNextIterIsReady$3$adapted(MemoryOptimizedLogReplay.scala:83)
+	at scala.Option.exists(Option.scala:376)
+	at io.delta.standalone.internal.actions.MemoryOptimizedLogReplay$$anon$1.ensureNextIterIsReady(MemoryOptimizedLogReplay.scala:83)
+	at io.delta.standalone.internal.actions.MemoryOptimizedLogReplay$$anon$1.hasNext(MemoryOptimizedLogReplay.scala:92)
+	at scala.collection.convert.Wrappers$JIteratorWrapper.hasNext(Wrappers.scala:45)
+	at scala.collection.Iterator.foreach(Iterator.scala:943)
+	at scala.collection.Iterator.foreach$(Iterator.scala:943)
+	at scala.collection.AbstractIterator.foreach(Iterator.scala:1431)
+	at io.delta.standalone.internal.SnapshotImpl.loadTableProtocolAndMetadata(SnapshotImpl.scala:183)
+	at io.delta.standalone.internal.SnapshotImpl.x$1$lzycompute(SnapshotImpl.scala:162)
+	at io.delta.standalone.internal.SnapshotImpl.x$1(SnapshotImpl.scala:161)
+	at io.delta.standalone.internal.SnapshotImpl.protocolScala$lzycompute(SnapshotImpl.scala:161)
+	at io.delta.standalone.internal.SnapshotImpl.protocolScala(SnapshotImpl.scala:161)
+	at io.delta.standalone.internal.SnapshotImpl.<init>(SnapshotImpl.scala:345)
+	at io.delta.standalone.internal.SnapshotManagement.createSnapshot(SnapshotManagement.scala:287)
+	at io.delta.standalone.internal.SnapshotManagement.getSnapshotAtInit(SnapshotManagement.scala:232)
+	at io.delta.standalone.internal.SnapshotManagement.$init$(SnapshotManagement.scala:37)
+	at io.delta.standalone.internal.DeltaLogImpl.<init>(DeltaLogImpl.scala:47)
+	at io.delta.standalone.internal.DeltaLogImpl$.apply(DeltaLogImpl.scala:263)
+	at io.delta.standalone.internal.DeltaLogImpl$.forTable(DeltaLogImpl.scala:241)
+	at io.delta.standalone.internal.DeltaLogImpl.forTable(DeltaLogImpl.scala)
+	at io.delta.standalone.DeltaLog.forTable(DeltaLog.java:164)
+	at io.streamnative.tieredstorage.delta.DeltaAvroFormatTest.testWriteAndRead(DeltaAvroFormatTest.java:84)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:568)
+	at org.testng.internal.MethodInvocationHelper.invokeMethod(MethodInvocationHelper.java:124)
+	at org.testng.internal.Invoker.invokeMethod(Invoker.java:571)
+	at org.testng.internal.Invoker.invokeTestMethod(Invoker.java:707)
+	at org.testng.internal.Invoker.invokeTestMethods(Invoker.java:979)
+	at org.testng.internal.TestMethodWorker.invokeTestMethods(TestMethodWorker.java:125)
+	at org.testng.internal.TestMethodWorker.run(TestMethodWorker.java:109)
+	at org.testng.TestRunner.privateRun(TestRunner.java:648)
+	at org.testng.TestRunner.run(TestRunner.java:505)
+	at org.testng.SuiteRunner.runTest(SuiteRunner.java:455)
+	at org.testng.SuiteRunner.runSequentially(SuiteRunner.java:450)
+	at org.testng.SuiteRunner.privateRun(SuiteRunner.java:415)
+	at org.testng.SuiteRunner.run(SuiteRunner.java:364)
+	at org.testng.SuiteRunnerWorker.runSuite(SuiteRunnerWorker.java:52)
+	at org.testng.SuiteRunnerWorker.run(SuiteRunnerWorker.java:84)
+	at org.testng.TestNG.runSuitesSequentially(TestNG.java:1187)
+	at org.testng.TestNG.runSuitesLocally(TestNG.java:1116)
+	at org.testng.TestNG.runSuites(TestNG.java:1028)
+	at org.testng.TestNG.run(TestNG.java:996)
+	at com.intellij.rt.testng.IDEARemoteTestNG.run(IDEARemoteTestNG.java:65)
+	at com.intellij.rt.testng.RemoteTestNGStarter.main(RemoteTestNGStarter.java:105)
+Caused by: shadedelta.org.apache.parquet.io.ParquetDecodingException: totalValueCount '0' <= 0
+	at shadedelta.org.apache.parquet.column.impl.ColumnReaderBase.<init>(ColumnReaderBase.java:425)
+	at shadedelta.org.apache.parquet.column.impl.ColumnReaderImpl.<init>(ColumnReaderImpl.java:46)
+	at shadedelta.org.apache.parquet.column.impl.ColumnReadStoreImpl.getColumnReader(ColumnReadStoreImpl.java:82)
+	at shadedelta.org.apache.parquet.io.RecordReaderImplementation.<init>(RecordReaderImplementation.java:271)
+	at shadedelta.org.apache.parquet.io.MessageColumnIO$1.visit(MessageColumnIO.java:147)
+	at shadedelta.org.apache.parquet.io.MessageColumnIO$1.visit(MessageColumnIO.java:109)
+	at shadedelta.org.apache.parquet.filter2.compat.FilterCompat$NoOpFilter.accept(FilterCompat.java:177)
+	at shadedelta.org.apache.parquet.io.MessageColumnIO.getRecordReader(MessageColumnIO.java:109)
+	at shadedelta.org.apache.parquet.hadoop.InternalParquetRecordReader.checkRead(InternalParquetRecordReader.java:136)
+	at shadedelta.org.apache.parquet.hadoop.InternalParquetRecordReader.nextKeyValue(InternalParquetRecordReader.java:225)
+	... 52 more
+```
+
+
+Then I debug the issue, I found that the the column `add, stats` column totalValueCount is 0, so it throw the exception, I'm not sure why it happened, any idea?
+
+
+<img width="1512" alt="image" src="https://github.com/user-attachments/assets/36bbf6c1-909e-46e4-96e4-a9973af639bc">
+
+
+
+
+
+### SDK: 
+```
+      <dependency>
+        <groupId>io.delta</groupId>
+        <artifactId>delta-standalone_2.13</artifactId>
+        <version>3.0.0</version>
+      </dependency>
+```

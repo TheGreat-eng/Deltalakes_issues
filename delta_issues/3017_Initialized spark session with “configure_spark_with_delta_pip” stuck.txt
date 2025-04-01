@@ -1,0 +1,53 @@
+## Bug
+I am working on testing new features for deltalake 2.0 and facing below issue while trying to initialized spark session with  “configure_spark_with_delta_pip”. Any advice on what might be missing would be greatly help and appreciated.
+Spark : 3.2
+slack:  https://delta-users.slack.com/archives/CJ70UCSHM/p1658850509055239.
+
+#### Steps to reproduce
+import pyspark
+from delta import *
+
+builder = (
+    pyspark.sql.SparkSession.builder.appName("MyApp")
+    .config('spark.master','local[*]')
+    .config("spark.sql.extensions", "io.delta.sql.DeltaSparkSessionExtension")
+    .config("spark.sql.catalog.spark_catalog","org.apache.spark.sql.delta.catalog.DeltaCatalog")
+    .config("spark.jars","gs://xxxxx/g1/jars/delta-core_2.12-2.0.0.jar")
+    )
+
+spark = configure_spark_with_delta_pip(builder).getOrCreate()
+<!--
+Please include copy-pastable code snippets if possible.
+1. _____
+2. _____
+3. _____
+-->
+
+#### Observed results
+
+<!-- What happened?  This could be a description, log output, etc. -->
+
+#### Expected results
+
+<!-- What did you expect to happen? -->
+
+#### Further details
+
+<!--
+Include any additional details that may be useful for diagnosing the problem here. If including tracebacks, please include the full traceback. Large logs and files should be attached.
+-->
+
+### Environment information
+
+* Delta Lake version: 2.0
+* Spark version: 3.2
+* Scala version: 2.12
+* Python Version : 3.8
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [ ] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute a bug fix at this time.

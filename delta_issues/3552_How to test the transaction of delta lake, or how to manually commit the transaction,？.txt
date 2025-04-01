@@ -1,0 +1,3 @@
+How to test the transaction of delta lake, or how to manually commit the transaction,？
+I cant visit the discuss 。
+有没有qq群，微信群，钉钉群，或者可以访问的邮件列表？

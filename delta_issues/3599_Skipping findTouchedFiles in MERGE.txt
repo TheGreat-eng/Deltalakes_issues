@@ -1,0 +1,12 @@
+Hi, based on Spark UI logs of our jobs and reading the code https://github.com/delta-io/delta/blob/e36dc6b9ca8ea8e893080dcea847978d5835125b/core/src/main/scala/org/apache/spark/sql/delta/commands/MergeIntoCommand.scala#L184-L191 I believe MERGE operations are effectively two joins. This is relevant because the updates we are merging in can be expensive to calculate. For example, we often deduplicate the updates first. We added caching to avoid evaluating updates twice. I wish this behavior is documented somewhere, but this is not the main issue. 
+
+I believe findTouchedFiles is an optimization for when updates only overlap with a subset of the target table. I imagine if findTouchedFiles returns the majority of existing files, we end up doing an additional join for not much benefit. 
+
+One primary use case for MERGE is applying database CDCs to partitioned delta tables. Our code runs continuously and roughly does the following
+(a) deduplicate incoming data by primary keys first to find the last update for each row,
+(b) identify affected partitions by selecting distinct values in the partition field,
+(c) merging in deduplicated rows with explicit partition pruning.
+
+The deduplication in step (a) means the updates are hash distributed based on their primary keys. As we constantly write to target tables, I suspect they are not optimized well for findTouchedFiles pruning. With moderate churn in our databases, I suspect it's likely that we touch most files in affected partitions. I know we could look at our transaction logs to see what portion of files are rewritten, but I haven't done this yet. I've been wondering if we could potentially save money by replacing our MERGE with a JOIN + partition overwrite, but we would lose functionalities provided by MERGE. We would end up writing out more data to S3 sometimes, but maybe that's worth of cost savings on compute?
+
+I'm curious if findTouchedFiles is required for MERGE to work correctly. Did I miss something here? If it's not required for correctness and functionalities, have we considered its effectiveness in common use cases and the possibility of adding an option to disable it? 

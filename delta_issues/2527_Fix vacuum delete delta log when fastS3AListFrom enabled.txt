@@ -1,0 +1,43 @@
+<!--
+Thanks for sending a pull request!  Here are some tips for you:
+  1. If this is your first time, please read our contributor guidelines: https://github.com/delta-io/delta/blob/master/CONTRIBUTING.md
+  2. If the PR is unfinished, add '[WIP]' in your PR title, e.g., '[WIP] Your PR title ...'.
+  3. Be sure to keep the PR description updated to reflect all changes.
+  4. Please write your PR title to summarize what this PR proposes.
+  5. If possible, provide a concise example to reproduce the issue for a faster review.
+  6. If applicable, include the corresponding issue number in the PR title and link it in the body.
+-->
+
+## Description
+
+when delta.enableFastS3AListFrom=true, We change the implementation to use the [startAfter](https://sdk.amazonaws.com/java/api/latest/software/amazon/awssdk/services/s3/model/ListObjectsV2Request.html#startAfter--) parameter such that we only get keys lexicographically greater or equal than the resolved path in the S3 list response.[PR1210](https://github.com/delta-io/delta/pull/1210)
+But S3ListRequest.v2 is recursive, and S3AFileSystem.listStatus is non-recursive. When vacuum gets allFilesAndDirs, it will not only get parquet data files, but also get delta log files, causing the delta log to be deleted.
+
+This resolves [#1797](https://github.com/delta-io/delta/issues/1797)
+## How was this patch tested?
+First set SparkSession config spark.hadoop.delta.enableFastS3AListFrom=true，and set s3 related connection information.
+```
+    spark.sparkContext.hadoopConfiguration.set("fs.s3a.impl", "org.apache.hadoop.fs.s3a.S3AFileSystem")
+    spark.sparkContext.hadoopConfiguration.set("delta.enableFastS3AListFrom","true")
+    spark.sparkContext.hadoopConfiguration.set("fs.s3a.endpoint","***")
+    spark.sparkContext.hadoopConfiguration.set("fs.s3a.access.key","***")
+    spark.sparkContext.hadoopConfiguration.set("fs.s3a.secret.key","***")
+    withSQLConf(DeltaSQLConf.DELTA_VACUUM_RETENTION_CHECK_ENABLED.key -> "false") {
+      val tempDir = "s3a://bucket/***"
+      spark.range(10)
+        .toDF()
+        .write
+        .format("delta")
+        .mode("overwrite")
+        .save(tempDir)
+      val deltaLog = DeltaLog.forTable(spark, tempDir)
+      val fs = new Path(tempDir).getFileSystem(deltaLog.newDeltaHadoopConf())
+      val log = fs.listStatus(fs.makeQualified(deltaLog.logPath)).head
+      io.delta.tables.DeltaTable.forPath(tempDir).vacuum(0)
+      val logs = fs.listStatus(fs.makeQualified(deltaLog.logPath))
+      fs.delete(deltaLog.logPath.getParent, true)
+      assert(logs.contains(log))
+    }
+```
+## Does this PR introduce _any_ user-facing changes?
+No

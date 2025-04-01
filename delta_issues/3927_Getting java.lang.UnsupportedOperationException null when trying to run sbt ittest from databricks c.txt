@@ -1,0 +1,27 @@
+Can anyone please tell me what it is missing?
+
+
+[error] ! 
+[error]  java.lang.UnsupportedOperationException: null (DeltaTable.scala:626)
+[error] io.delta.tables.DeltaTable$.forPath(DeltaTable.scala:626)
+[error] com.activision.etl.allspark.DimUserMergeWriterTest.testSetup(DimUserMergeWriterTest.scala:85)
+[error] com.activision.etl.allspark.DimUserMergeWriterTest.beforeAll(DimUserMergeWriterTest.scala:29)
+
+
+Here is my code
+
+DeltaTable.forPath(spark,
+      tablePath )
+      .as("dim_user")
+      .merge(
+        df_with_timestamp.as("updates"),
+        "dim_user.key == updates.key")
+      .whenMatched("updates.last_activity_date > dim_user.last_activity_date")
+      .updateAll()
+      .whenNotMatched
+      .insertAll()
+      .execute()
+
+I am using 
+
+"com.databricks" %% "dbutils-api" % "0.0.4" % "provided" version databricks

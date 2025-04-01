@@ -1,0 +1,57 @@
+<!--
+Thanks for sending a pull request!  Here are some tips for you:
+  1. If this is your first time, please read our contributor guidelines: https://github.com/delta-io/delta/blob/master/CONTRIBUTING.md
+  2. If the PR is unfinished, add '[WIP]' in your PR title, e.g., '[WIP] Your PR title ...'.
+  3. Be sure to keep the PR description updated to reflect all changes.
+  4. Please write your PR title to summarize what this PR proposes.
+  5. If possible, provide a concise example to reproduce the issue for a faster review.
+  6. If applicable, include the corresponding issue number in the PR title and link it in the body.
+-->
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+<!--
+- Describe what this PR changes.
+- Describe why we need the change.
+ 
+If this PR resolves an issue be sure to include "Resolves #XXX" to correctly link and close the issue upon merge.
+-->
+
+This PR adds support for protocol versions downgrade when table features exist in the protocol. The downgraded protocol versions should be the minimum required to support all available table features. For example, `Protocol(3, 7, DeletionVectors, RowTracking)` can be downgraded to `Protocol(1, 7, RowTracking)` after removing the DV feature.
+
+## How was this patch tested?
+Added new UTs in DeltaProtocolVersionSuite. Furthermore, existing UTs cover a significant part of the functionality. These these are the following:
+
+- Downgrade protocol version on table created with (3, 7).
+- Downgrade protocol version on table created with (1, 7).
+- Protocol version downgrade on a table with table features and added legacy feature.
+- Protocol version is not downgraded when writer features exist.
+- Protocol version is not downgraded when reader+writer features exist.
+- Protocol version is not downgraded when multiple reader+writer features exist.
+
+<!--
+If tests were added, say they were added here. Please make sure to test the changes thoroughly including negative and positive cases if possible.
+If the changes were tested in any way other than unit tests, please clarify how you tested step by step (ideally copy and paste-able, so that other reviewers can test and check, and descendants can verify in the future).
+If the changes were not tested, please explain why.
+-->
+
+## Does this PR introduce _any_ user-facing changes?
+
+<!--
+If yes, please clarify the previous behavior and the change this PR proposes - provide the console output, description and/or an example to show the behavior difference if possible.
+If possible, please also clarify if this is a user-facing change compared to the released Delta Lake versions or within the unreleased branches such as master.
+If no, write 'No'.
+-->
+Yes. Dropping a table feature from a table with multiple features may now result to a Protocol versions downgrade. For example, `Protocol(3, 7, DeletionVectors, RowTracking)` can now be downgraded to `Protocol(1, 7, RowTracking)`.

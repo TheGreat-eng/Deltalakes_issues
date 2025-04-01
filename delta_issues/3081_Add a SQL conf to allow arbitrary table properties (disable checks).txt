@@ -1,0 +1,3 @@
+Adds SQL conf `ALLOW_ARBITRARY_TABLE_PROPERTIES` that disables our enforcement of valid table properties. This added as a solution to https://github.com/delta-io/delta/issues/1129.
+    
+Adds tests to `DeltaConfigSuite`

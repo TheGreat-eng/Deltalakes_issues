@@ -1,0 +1,13 @@
+## Feature request
+
+### Overview
+
+Enable shallow cloning parquet-backed Iceberg tables following the Delta protocols without the need to copy all of the data.
+
+### Motivation
+
+We want to make it easier for users to read parquet-backed Iceberg tables within the context of Delta pipelines.  While #1462 enables users to convert parquet-backed Iceberg tables to Delta in place, this may interfere with existing pipeline processes.  Propose to use a `SHALLOW CLONE` to create a Delta log that points to the original files. 
+
+### Further details
+
+We will have to think about what this API / module / JAR / artifact, etc. will look like. Would love to hear feedback and thoughts from the community!

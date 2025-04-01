@@ -1,0 +1,3 @@
+This dependency package cannot be downloaded online because we are a private cloud environment
+
+Can this dependency package be downloaded in advance and put in the docker image? We are Spark on K8S

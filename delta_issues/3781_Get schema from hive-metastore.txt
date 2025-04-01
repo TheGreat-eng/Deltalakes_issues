@@ -1,0 +1,34 @@
+Hi, gays. We use delta 0.7.0, spark 3.0.0. I found that delta don't get the schema from hive-metastore, there is an example: 
+
+```java
+    def main(args: Array[String]): Unit = {
+        val spark = SparkSession.builder
+            .appName("sqlAnalyzer")
+            .master("local")
+            .config("spark.files", "src/main/resources/hive-site.xml")
+            .enableHiveSupport
+            .getOrCreate
+
+        spark.catalog.setCurrentDatabase("my_project")
+        val df = spark.sql(s"select * from my_table limit 10")
+        println(df.schema.prettyJson)
+    }
+```
+
+There is some detail meta information in hive-metastore:
+```json
+  "parameters": {
+    "owner": "livy",
+    "transient_lastDdlTime": "1602505952",
+    "spark.sql.create.version": "3.0.0-amzn-0",
+    "EXTERNAL": "TRUE",
+    "provider": "delta",
+    "spark.sql.sources.schema.part.0": "{\"type\":\"struct\",\"fields\":[{\"name\":\"dt\",\"type\":\"string\",\"nullable\":true,\"metadata\":{}},{\"name\":\"event\",\"type\":\"string\",\"nullable\":true,\"metadata\":{}},{\"name\":\"$app_version\",\"type\":\"string\",\"nullable\":true,\"metadata\":{}},{\"name\":\"$carrier\",\"type\":\"string\",\"nullable\":true,\"metadata\":{}},{\"name\":\"$device_id\",\"type\":\"string\",\"nullable\":true,\"metadata\":{}},{\"name\":\"$ip\",\"type\":\"string\",\"nullable\":true,\"metadata\":{}},{\"name\":\"$is_first_day\",\"type\":\"boolean\",\"nullable\":true,\"metadata\":{}},{\"name\":\"$manufacturer\",\"type\":\"string\",\"nullable\":true,\"metadata\":{}},{\"name\":\"$model\",\"type\":\"string\",\"nullable\":true,\"metadata\":{}},{\"name\":\"$network_type\",\"type\":\"string\",\"nullable\":true,\"metadata\":{}},{\"name\":\"$os\",\"type\":\"string\",\"nullable\":true,\"metadata\":{}},{\"name\":\"$os_version\",\"type\":\"string\",\"nullable\":true,\"metadata\":{}},{\"name\":\"abtest_info\",\"type\":{\"type\":\"map\",\"keyType\":\"string\",\"valueType\":\"string\",\"valueContainsNull\":true},\"nullable\":true,\"metadata\":{}},{\"name\":\"event_duration\",\"type\":\"double\",\"nullable\":true,\"metadata\":{}},{\"name\":\"event_info\",\"type\":{\"type\":\"struct\",\"fields\":[{\"name\":\"action\",\"type\":\"string\",\"nullable\":true,\"metadata\":{}},{\"name\":\"event\",\"type\":\"string\",\"nullable\":true,\"metadata\":{}},{\"name\":\"page_name\",\"type\":\"string\",\"nullable\":true,\"metadata\":{}}]},\"nullable\":true,\"metadata\":{}},{\"name\":\"page_info\",\"type\":{\"type\":\"struct\",\"fields\":[{\"name\":\"id\",\"type\":\"string\",\"nullable\":true,\"metadata\":{}}]},\"nullable\":true,\"metadata\":{}},{\"name\":\"content_info\",\"type\":{\"type\":\"struct\",\"fields\":[{\"name\":\"content\",\"type\":\"string\",\"nullable\":true,\"metadata\":{}},{\"name\":\"id\",\"type\":\"string\",\"nullable\":true,\"metadata\":{}},{\"name\":\"ref\",\"type\":\"string\",\"nullable\":true,\"metadata\":{}},{\"name\":\"title\",\"type\":\"string\",\"nullable\":true,\"metadata\":{}},{\"name\":\"type\",\"type\":\"string\",\"nullable\":true,\"metadata\":{}}]},\"nullable\":true,\"metadata\":{}},{\"name\":\"project\",\"type\":\"string\",\"nullable\":true,\"metadata\":{}},{\"name\":\"distinct_id\",\"type\":\"string\",\"nullable\":true,\"metadata\":{}},{\"name\":\"time\",\"type\":\"long\",\"nullable\":true,\"metadata\":{}},{\"name\":\"arya_id\",\"type\":\"string\",\"nullable\":true,\"metadata\":{}},{\"name\":\"$is_first_day_previous\",\"type\":\"boolean\",\"nullable\":true,\"metadata\":{}},{\"name\":\"original_log\",\"type\":\"string\",\"nullable\":true,\"metadata\":{}}]}",
+    "location": "s3://path",
+    "spark.sql.partitionProvider": "catalog",
+    "spark.sql.sources.schema.numParts": "1",
+    "spark.sql.sources.provider": "delta"
+  },
+```
+
+Why delta don't get meta from hive-metastore, but from `_delta_log`?

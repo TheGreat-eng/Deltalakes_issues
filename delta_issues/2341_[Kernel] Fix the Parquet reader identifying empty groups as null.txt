@@ -1,0 +1,34 @@
+## Description
+Currently the default parquet reader `ParquetBatchReader` can't distinguish between empty `array` or `null` `array` values (similarly between empty `map` or `null` `map` value). It always returns `null` when it is possible that the value could be an empty `array` or `map`.
+
+Example: 
+Expected output:
+```
+|   tag|      ids|
++------+---------+
+|normal|[1, 2, 3]|
+| empty|       []|
+|normal|[4, 5, 6]|
+|  null|     null|
++------+---------+
+```
+
+Actual output:
+```
+|   tag|      ids|
++------+---------+
+|normal|[1, 2, 3]|
+| empty|     null| <-- notice the difference here
+|normal|[4, 5, 6]|
+|  null|     null|
++------+---------+
+```
+
+The `ParquetBatchReader` uses `parquet-mr`'s [`ReadSupport`](https://github.com/apache/parquet-mr/blob/master/parquet-hadoop/src/main/java/org/apache/parquet/hadoop/api/ReadSupport.java) framework to get the values for each column. This Parquet [framework ](https://github.com/apache/parquet-mr/blob/master/parquet-column/src/main/java/org/apache/parquet/io/RecordReaderImplementation.java#L400)parses each leaf level value, its definition level and repetition level, and calls methods on `Converter`s returned by the Kernel's `ParquetBatchReader` to pass the null-ness, end-of-array-element, end-of-map-element signals and the column values. If the column is a nested column, based on the definition level, it calls the intermediate converter's (which is basically a `GroupConverter`) `start` method which signals that the value at that level is not null. For example for column: a.b.c, it is possible the a=null or a.b=null or a.b.c=null. The definition level tells (0-3) at what level the value is null. If the definition level 1, that means it calls `GroupConverter(a).start`, but not `GroupConverter(a.b).start` or `GroupConverter(a.b.c).start`.
+
+However the current implementation of `ParquetBatchReader`'s `GroupConverter`s for `map`, `struct` and `array` types, whenever `GroupConverter.start()` is called, they call the `GroupConverter.start()` on its children's converters. This results in assuming that a `null` value a `non-null` value.
+
+This PR also refactors the common code in `MapConverter` and `ArrayConverter` into a new `RepeatedValueConverter` abstract class.
+
+## How was this patch tested?
+Enable commented existing tests and also add new tests for testing `null` top-level structs.

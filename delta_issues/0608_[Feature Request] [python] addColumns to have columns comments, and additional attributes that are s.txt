@@ -1,0 +1,34 @@
+## Feature request
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+- [x] Python
+
+#### Which Delta project/connector is this regarding?
+This is for the python DeltaTableAPI, where we do not see provision to add columns comments for multiple columns
+
+![image](https://github.com/user-attachments/assets/b01620cf-b598-4f3e-baa6-be07d7be3db7)
+
+### Overview
+
+The method is missing feasibility to add multiple columns, same way we add individual columns.
+
+### Motivation
+
+The feature will be used to create external tables to add multiple columns with all the fields supported by individual column method,
+This would not differentiate between the 2 add methods.
+
+### Further details
+
+I believe we need to have a column dictionary that would be supported by the delta table, and use this dictionary as an input for both methods.
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [ ] Yes. I can contribute this feature independently.
+- [x ] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.

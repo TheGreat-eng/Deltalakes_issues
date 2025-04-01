@@ -1,0 +1,18 @@
+## Feature request
+
+### Overview
+Add support for  [pyspark 3.3.0](https://pypi.org/project/pyspark/3.3.0/), at the moment is not possible to install `delta-spark` due to the [version boundaries here](https://github.com/delta-io/delta/blob/master/setup.py#L68) 
+### Motivation
+
+We use `delta-spark` in various of our internal projects. Testing them with the right version of pyspark if we want to run them in the latest databricks run time versions (>11) is difficult as we can make sure that everything works with spark 3.3.0 features 
+
+### Further details
+
+
+### Willingness to contribute
+
+I could just make a pr changing the boundaries but I guess there tons of implications that I'm not aware of ....
+
+- [ ] Yes. I can contribute this feature independently.
+- [ ] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [x ] No. I cannot contribute this feature at this time.

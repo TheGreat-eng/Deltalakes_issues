@@ -1,0 +1,57 @@
+## Protocol Change Request
+
+### Description of the protocol change
+
+In https://github.com/delta-io/delta/issues/1347#issuecomment-1246214693 it is suggested that Bloom filters can be supported through Apache Parquet Bloom filters. Given that we want to support Bloom filters through Apache Parquet bloom filters, we would want to have persistent Bloom filter configuration on the Delta table through some table properties on the Delta table. What would be the table properties to set to instruct Delta writers to write Parquet files with Bloom filters for certain columns?
+
+
+For inspiration, Iceberg has the table properties to configure writing of Bloom filters using
+```
+write.parquet.bloom-filter-enabled.column.<a-column-name>
+write.parquet.bloom-filter-max-bytes
+```
+https://github.com/apache/iceberg/blob/732fbfd516a3dfb2028fd6795f8f564f70e44742/core/src/main/java/org/apache/iceberg/TableProperties.java#L166-L171
+while using
+```
+write.orc.bloom.filter.columns
+write.orc.bloom.filter.fpp
+```
+for configuring Bloom filters on ORC files.
+
+Parquet-mr uses the per column configuration:
+```
+parquet.bloom.filter.enabled
+parquet.bloom.filter.expected.ndv
+parquet.bloom.filter.max.bytes
+parquet.bloom.filter.fpp
+```
+which are used as
+```
+parquet.bloom.filter.enabled#column=true
+parquet.bloom.filter.expected.ndv#column=100000
+parquet.bloom.filter.max.bytes#column=1024000
+parquet.bloom.filter.fpp#column=0.99
+```
+https://github.com/apache/parquet-mr/blob/20d43639b5a380335953742ad6c9b3dd98e09f29/parquet-hadoop/src/main/java/org/apache/parquet/hadoop/ParquetOutputFormat.java#L152-L155
+
+These can be enabled on Apache Spark when writing using parquet-mr with
+```
+df.write.mode("overwrite")
+  .option("parquet.bloom.filter.enabled#column", "true")
+  .option("parquet.bloom.filter.expected.ndv#column", "1000000")
+  .parquet("output")
+```
+
+Adopting either the approach of Iceberg or parquet-mr would both be good approaches. Using the same properties as Iceberg might enable further compatibility between the formats.
+
+When a column mapping mode is set, we require that the the column names of the table property are resolved using algorithm described in https://github.com/delta-io/delta/blob/c046547b5721ee096e5c0beb04bd9b2059021630/PROTOCOL.md#reader-requirements-for-column-mapping .
+
+### Willingness to contribute
+
+The Delta Lake Community encourages protocol innovations. Would you or another member of your organization be willing to contribute this feature to the Delta Lake code base?
+
+- [ ] Yes. I can contribute.
+- [ ] Yes. I would be willing to contribute with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute at this time.
+
+

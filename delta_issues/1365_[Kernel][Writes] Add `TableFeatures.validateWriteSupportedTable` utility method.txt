@@ -1,0 +1,7 @@
+## Description
+(Split from #2941)
+
+Add a utility method to check if the table is of protocol/features that current insert APIs being planned support writing into. The current plan is to give a write support similar to that Standalone, which is at (minReaderVersion = 1 and minWriterVersion = 2 with `appendOnly` support).
+
+## How was this patch tested?
+Unittests

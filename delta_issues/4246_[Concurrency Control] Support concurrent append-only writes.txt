@@ -1,0 +1,3 @@
+This is the official issue to track the support of concurrent _append-only writes_, or _appends_. 
+
+A common workload patten is to have multiple writers concurrently _appending_ data to the table. A writer is considered _append-only_ or an _append_ if they only add data without reading or modifying existing data of the Delta Lake table in any way. Concurrent reads and appends should be allowed to operate on the table partitions and get snapshot isolation. 

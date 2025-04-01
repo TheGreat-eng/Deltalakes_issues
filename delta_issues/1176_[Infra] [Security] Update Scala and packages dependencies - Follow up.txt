@@ -1,0 +1,16 @@
+#### Which Delta project/connector is this regarding?
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [X] Kernel
+- [X] Other (connector, examples, benchmark)
+
+## Description
+#2828 updated SBT version to Spark Delta. This is a follow up to update other projects.
+- Update SBT to 1.9.9. [CVE-2023-46122](https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2023-46122)
+
+## How was this patch tested?
+CI
+
+## Does this PR introduce _any_ user-facing changes?
+No

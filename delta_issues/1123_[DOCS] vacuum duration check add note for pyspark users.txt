@@ -1,0 +1,5 @@
+The suggested action didn't work for me as a PySpark user. I'm wondering if it would be helpful to include this note so users don't have to Google like I did :)
+
+`For PySpark users, set as follows: spark.sql("SET spark.databricks.delta.retentionDurationCheck.enabled=false") `
+
+I'm quite new to PySpark so happy to be corrected if this is not the recommended approach here!

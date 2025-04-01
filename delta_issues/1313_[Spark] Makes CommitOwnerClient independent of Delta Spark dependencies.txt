@@ -1,0 +1,19 @@
+#### Which Delta project/connector is this regarding?
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+This PR is the first in a series of PRs that refactors the current CommitOwnerClient interface to become its own module. This is similar to `storage` module that currently exists and contains the LogStore interface and its implementations. In this PR, we remove any Delta Spark dependencies from the CommitOwnerClient in preparation for it to be moved outside of Delta Spark.
+
+## How was this patch tested?
+
+Added tests to check equivalence of newly introduced AbstractProtocol/AbstractMetadata with Protocol/Metadata.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

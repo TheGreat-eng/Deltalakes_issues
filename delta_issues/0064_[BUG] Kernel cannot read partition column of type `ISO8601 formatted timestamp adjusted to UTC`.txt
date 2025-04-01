@@ -1,0 +1,187 @@
+## Bug
+
+#### Which Delta project/connector is this regarding?
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [X] Kernel
+- [ ] Other (fill in here)
+
+### Describe the problem
+
+The Delta protocol [states](https://github.com/delta-io/delta/blob/master/PROTOCOL.md#partition-value-serialization) that Timestamp-typed partition columns must be serialized like so:
+
+```
+Encoded as {year}-{month}-{day} {hour}:{minute}:{second} or {year}-{month}-{day} {hour}:{minute}:{second}.{microsecond}. For example: 1970-01-01 00:00:00, or 1970-01-01 00:00:00.123456. Timestamps may also be encoded as an ISO8601 formatted timestamp adjusted to UTC timestamp such as 1970-01-01T00:00:00.123456Z
+```
+
+Delta-Kernel is unable to handle the case of: `Timestamps may also be encoded as an ISO8601 formatted timestamp adjusted to UTC timestamp such as 1970-01-01T00:00:00.123456Z`.
+
+#### Steps to reproduce
+
+Create a Detla table usign `delta-spark` 3.3:
+
+```sql
+CREATE TABLE delta.`<path>` (part1 TIMESTAMP, col1 INT) USING DELTA PARTITIONED BY (part1)
+
+INSERT INTO delta.`<path>` VALUES ('2024-03-10 10:00:00', 1), ('2024-03-11 11:00:00', 2)
+```
+
+Try and read the table using Kernel
+
+```scala
+val table = Table.forPath(defaultEngine, path)
+val snapshot = // get the latest snapshot
+// try and read the data
+```
+
+#### Observed results (short)
+
+See the full results below.
+
+```
+[info]   io.delta.kernel.exceptions.KernelEngineException: Encountered an error from the underlying engine implementation while trying to Get the expression evaluator for partition column part1 with datatype=timestamp and value=2024-03-10T17:00:00.000000Z: Timestamp format must be yyyy-mm-dd hh:mm:ss[.fffffffff]
+[info]   at io.delta.kernel.internal.DeltaErrors.wrapEngineException(DeltaErrors.java:381)
+...
+...
+[info]   Cause: java.lang.IllegalArgumentException: Timestamp format must be yyyy-mm-dd hh:mm:ss[.fffffffff]
+[info]   at java.sql.Timestamp.valueOf(Timestamp.java:204)
+[info]   at io.delta.kernel.internal.util.PartitionUtils.literalForPartitionValue(PartitionUtils.java:473)
+[info]   at io.delta.kernel.internal.util.PartitionUtils.lambda$withPartitionColumns$1(PartitionUtils.java:103)
+...
+...
+```
+
+We can also look at the `00001.json` file:
+
+```json
+{"commitInfo":{"timestamp":1741899929916,"operation":"WRITE","operationParameters":{"mode":"Append","partitionBy":"[]"},"readVersion":0,"isolationLevel":"Serializable","isBlindAppend":true,"operationMetrics":{"numFiles":"5","numOutputRows":"5","numOutputBytes":"2290"},"engineInfo":"Apache-Spark/3.5.4 Delta-Lake/3.3.0","txnId":"0211147b-cd37-4d53-8bd2-b6a973073836"}}
+{"add":{"path":"part1=2024-03-10%2010%253A00%253A00/part-00000-c1829bfd-81a7-4a4e-894b-f0b42243324b.c000.snappy.parquet","partitionValues":{"part1":"2024-03-10T17:00:00.000000Z"},"size":458,"modificationTime":1741899929818,"dataChange":true,"stats":"{\"numRecords\":1,\"minValues\":{\"col1\":1},\"maxValues\":{\"col1\":1},\"nullCount\":{\"col1\":0}}"}}
+```
+
+And note that he partition values are serialization like so: `"partitionValues":{"part1":"2024-03-10T17:00:00.000000Z"}`
+
+#### Expected results
+
+Kernel should be able to read a table with such timestamp partition serialization.
+
+#### Observed results (full)
+
+```
+[info]   io.delta.kernel.exceptions.KernelEngineException: Encountered an error from the underlying engine implementation while trying to Get the expression evaluator for partition column part1 with datatype=timestamp and value=2024-03-10T17:00:00.000000Z: Timestamp format must be yyyy-mm-dd hh:mm:ss[.fffffffff]
+[info]   at io.delta.kernel.internal.DeltaErrors.wrapEngineException(DeltaErrors.java:381)
+[info]   at io.delta.kernel.internal.util.PartitionUtils.withPartitionColumns(PartitionUtils.java:99)
+[info]   at io.delta.kernel.Scan$1.next(Scan.java:206)
+[info]   at io.delta.kernel.Scan$1.next(Scan.java:138)
+[info]   at io.delta.kernel.defaults.utils.TestUtils$CloseableIteratorOps.forEach(TestUtils.scala:67)
+[info]   at io.delta.kernel.defaults.utils.TestUtils.$anonfun$readSnapshot$2(TestUtils.scala:242)
+[info]   at io.delta.kernel.defaults.utils.TestUtils.$anonfun$readSnapshot$2$adapted(TestUtils.scala:228)
+[info]   at io.delta.kernel.defaults.utils.TestUtils$CloseableIteratorOps.forEach(TestUtils.scala:67)
+[info]   at io.delta.kernel.defaults.utils.TestUtils.$anonfun$readSnapshot$1(TestUtils.scala:228)
+[info]   at io.delta.kernel.defaults.utils.TestUtils.$anonfun$readSnapshot$1$adapted(TestUtils.scala:227)
+[info]   at io.delta.kernel.defaults.utils.TestUtils$CloseableIteratorOps.forEach(TestUtils.scala:67)
+[info]   at io.delta.kernel.defaults.utils.TestUtils.readSnapshot(TestUtils.scala:227)
+[info]   at io.delta.kernel.defaults.utils.TestUtils.readSnapshot$(TestUtils.scala:196)
+[info]   at io.delta.kernel.defaults.DeltaTableReadsSuite.readSnapshot(DeltaTableReadsSuite.scala:42)
+[info]   at io.delta.kernel.defaults.DeltaTableReadsSuite.$anonfun$new$1(DeltaTableReadsSuite.scala:46)
+[info]   at scala.runtime.java8.JFunction0$mcV$sp.apply(JFunction0$mcV$sp.java:23)
+[info]   at org.scalatest.OutcomeOf.outcomeOf(OutcomeOf.scala:85)
+[info]   at org.scalatest.OutcomeOf.outcomeOf$(OutcomeOf.scala:83)
+[info]   at org.scalatest.OutcomeOf$.outcomeOf(OutcomeOf.scala:104)
+[info]   at org.scalatest.Transformer.apply(Transformer.scala:22)
+[info]   at org.scalatest.Transformer.apply(Transformer.scala:20)
+[info]   at org.scalatest.funsuite.AnyFunSuiteLike$$anon$1.apply(AnyFunSuiteLike.scala:226)
+[info]   at org.scalatest.TestSuite.withFixture(TestSuite.scala:196)
+[info]   at org.scalatest.TestSuite.withFixture$(TestSuite.scala:195)
+[info]   at org.scalatest.funsuite.AnyFunSuite.withFixture(AnyFunSuite.scala:1564)
+[info]   at org.scalatest.funsuite.AnyFunSuiteLike.invokeWithFixture$1(AnyFunSuiteLike.scala:224)
+[info]   at org.scalatest.funsuite.AnyFunSuiteLike.$anonfun$runTest$1(AnyFunSuiteLike.scala:236)
+[info]   at org.scalatest.SuperEngine.runTestImpl(Engine.scala:306)
+[info]   at org.scalatest.funsuite.AnyFunSuiteLike.runTest(AnyFunSuiteLike.scala:236)
+[info]   at org.scalatest.funsuite.AnyFunSuiteLike.runTest$(AnyFunSuiteLike.scala:218)
+[info]   at org.scalatest.funsuite.AnyFunSuite.runTest(AnyFunSuite.scala:1564)
+[info]   at org.scalatest.funsuite.AnyFunSuiteLike.$anonfun$runTests$1(AnyFunSuiteLike.scala:269)
+[info]   at org.scalatest.SuperEngine.$anonfun$runTestsInBranch$1(Engine.scala:413)
+[info]   at scala.collection.immutable.List.foreach(List.scala:431)
+[info]   at org.scalatest.SuperEngine.traverseSubNodes$1(Engine.scala:401)
+[info]   at org.scalatest.SuperEngine.runTestsInBranch(Engine.scala:396)
+[info]   at org.scalatest.SuperEngine.runTestsImpl(Engine.scala:475)
+[info]   at org.scalatest.funsuite.AnyFunSuiteLike.runTests(AnyFunSuiteLike.scala:269)
+[info]   at org.scalatest.funsuite.AnyFunSuiteLike.runTests$(AnyFunSuiteLike.scala:268)
+[info]   at org.scalatest.funsuite.AnyFunSuite.runTests(AnyFunSuite.scala:1564)
+[info]   at org.scalatest.Suite.run(Suite.scala:1114)
+[info]   at org.scalatest.Suite.run$(Suite.scala:1096)
+[info]   at org.scalatest.funsuite.AnyFunSuite.org$scalatest$funsuite$AnyFunSuiteLike$$super$run(AnyFunSuite.scala:1564)
+[info]   at org.scalatest.funsuite.AnyFunSuiteLike.$anonfun$run$1(AnyFunSuiteLike.scala:273)
+[info]   at org.scalatest.SuperEngine.runImpl(Engine.scala:535)
+[info]   at org.scalatest.funsuite.AnyFunSuiteLike.run(AnyFunSuiteLike.scala:273)
+[info]   at org.scalatest.funsuite.AnyFunSuiteLike.run$(AnyFunSuiteLike.scala:272)
+[info]   at org.scalatest.funsuite.AnyFunSuite.run(AnyFunSuite.scala:1564)
+[info]   at org.scalatest.tools.Framework.org$scalatest$tools$Framework$$runSuite(Framework.scala:321)
+[info]   at org.scalatest.tools.Framework$ScalaTestTask.execute(Framework.scala:517)
+[info]   at sbt.ForkMain$Run.lambda$runTest$1(ForkMain.java:414)
+[info]   at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+[info]   at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
+[info]   at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+[info]   at java.lang.Thread.run(Thread.java:750)
+[info]   Cause: java.lang.IllegalArgumentException: Timestamp format must be yyyy-mm-dd hh:mm:ss[.fffffffff]
+[info]   at java.sql.Timestamp.valueOf(Timestamp.java:204)
+[info]   at io.delta.kernel.internal.util.PartitionUtils.literalForPartitionValue(PartitionUtils.java:473)
+[info]   at io.delta.kernel.internal.util.PartitionUtils.lambda$withPartitionColumns$1(PartitionUtils.java:103)
+[info]   at io.delta.kernel.internal.DeltaErrors.wrapEngineException(DeltaErrors.java:374)
+[info]   at io.delta.kernel.internal.util.PartitionUtils.withPartitionColumns(PartitionUtils.java:99)
+[info]   at io.delta.kernel.Scan$1.next(Scan.java:206)
+[info]   at io.delta.kernel.Scan$1.next(Scan.java:138)
+[info]   at io.delta.kernel.defaults.utils.TestUtils$CloseableIteratorOps.forEach(TestUtils.scala:67)
+[info]   at io.delta.kernel.defaults.utils.TestUtils.$anonfun$readSnapshot$2(TestUtils.scala:242)
+[info]   at io.delta.kernel.defaults.utils.TestUtils.$anonfun$readSnapshot$2$adapted(TestUtils.scala:228)
+[info]   at io.delta.kernel.defaults.utils.TestUtils$CloseableIteratorOps.forEach(TestUtils.scala:67)
+[info]   at io.delta.kernel.defaults.utils.TestUtils.$anonfun$readSnapshot$1(TestUtils.scala:228)
+[info]   at io.delta.kernel.defaults.utils.TestUtils.$anonfun$readSnapshot$1$adapted(TestUtils.scala:227)
+[info]   at io.delta.kernel.defaults.utils.TestUtils$CloseableIteratorOps.forEach(TestUtils.scala:67)
+[info]   at io.delta.kernel.defaults.utils.TestUtils.readSnapshot(TestUtils.scala:227)
+[info]   at io.delta.kernel.defaults.utils.TestUtils.readSnapshot$(TestUtils.scala:196)
+[info]   at io.delta.kernel.defaults.DeltaTableReadsSuite.readSnapshot(DeltaTableReadsSuite.scala:42)
+[info]   at io.delta.kernel.defaults.DeltaTableReadsSuite.$anonfun$new$1(DeltaTableReadsSuite.scala:46)
+[info]   at scala.runtime.java8.JFunction0$mcV$sp.apply(JFunction0$mcV$sp.java:23)
+[info]   at org.scalatest.OutcomeOf.outcomeOf(OutcomeOf.scala:85)
+[info]   at org.scalatest.OutcomeOf.outcomeOf$(OutcomeOf.scala:83)
+[info]   at org.scalatest.OutcomeOf$.outcomeOf(OutcomeOf.scala:104)
+[info]   at org.scalatest.Transformer.apply(Transformer.scala:22)
+[info]   at org.scalatest.Transformer.apply(Transformer.scala:20)
+[info]   at org.scalatest.funsuite.AnyFunSuiteLike$$anon$1.apply(AnyFunSuiteLike.scala:226)
+[info]   at org.scalatest.TestSuite.withFixture(TestSuite.scala:196)
+[info]   at org.scalatest.TestSuite.withFixture$(TestSuite.scala:195)
+[info]   at org.scalatest.funsuite.AnyFunSuite.withFixture(AnyFunSuite.scala:1564)
+[info]   at org.scalatest.funsuite.AnyFunSuiteLike.invokeWithFixture$1(AnyFunSuiteLike.scala:224)
+[info]   at org.scalatest.funsuite.AnyFunSuiteLike.$anonfun$runTest$1(AnyFunSuiteLike.scala:236)
+[info]   at org.scalatest.SuperEngine.runTestImpl(Engine.scala:306)
+[info]   at org.scalatest.funsuite.AnyFunSuiteLike.runTest(AnyFunSuiteLike.scala:236)
+[info]   at org.scalatest.funsuite.AnyFunSuiteLike.runTest$(AnyFunSuiteLike.scala:218)
+[info]   at org.scalatest.funsuite.AnyFunSuite.runTest(AnyFunSuite.scala:1564)
+[info]   at org.scalatest.funsuite.AnyFunSuiteLike.$anonfun$runTests$1(AnyFunSuiteLike.scala:269)
+[info]   at org.scalatest.SuperEngine.$anonfun$runTestsInBranch$1(Engine.scala:413)
+[info]   at scala.collection.immutable.List.foreach(List.scala:431)
+[info]   at org.scalatest.SuperEngine.traverseSubNodes$1(Engine.scala:401)
+[info]   at org.scalatest.SuperEngine.runTestsInBranch(Engine.scala:396)
+[info]   at org.scalatest.SuperEngine.runTestsImpl(Engine.scala:475)
+[info]   at org.scalatest.funsuite.AnyFunSuiteLike.runTests(AnyFunSuiteLike.scala:269)
+[info]   at org.scalatest.funsuite.AnyFunSuiteLike.runTests$(AnyFunSuiteLike.scala:268)
+[info]   at org.scalatest.funsuite.AnyFunSuite.runTests(AnyFunSuite.scala:1564)
+[info]   at org.scalatest.Suite.run(Suite.scala:1114)
+[info]   at org.scalatest.Suite.run$(Suite.scala:1096)
+[info]   at org.scalatest.funsuite.AnyFunSuite.org$scalatest$funsuite$AnyFunSuiteLike$$super$run(AnyFunSuite.scala:1564)
+[info]   at org.scalatest.funsuite.AnyFunSuiteLike.$anonfun$run$1(AnyFunSuiteLike.scala:273)
+[info]   at org.scalatest.SuperEngine.runImpl(Engine.scala:535)
+[info]   at org.scalatest.funsuite.AnyFunSuiteLike.run(AnyFunSuiteLike.scala:273)
+[info]   at org.scalatest.funsuite.AnyFunSuiteLike.run$(AnyFunSuiteLike.scala:272)
+[info]   at org.scalatest.funsuite.AnyFunSuite.run(AnyFunSuite.scala:1564)
+[info]   at org.scalatest.tools.Framework.org$scalatest$tools$Framework$$runSuite(Framework.scala:321)
+[info]   at org.scalatest.tools.Framework$ScalaTestTask.execute(Framework.scala:517)
+[info]   at sbt.ForkMain$Run.lambda$runTest$1(ForkMain.java:414)
+[info]   at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+[info]   at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
+[info]   at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+[info]   at java.lang.Thread.run(Thread.java:750)
+```

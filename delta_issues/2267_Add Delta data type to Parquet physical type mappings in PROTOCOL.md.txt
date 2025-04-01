@@ -1,0 +1,20 @@
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [x] Other (Delta PROTOCOL.md updates/clarifications)
+
+## Description
+Currently, Delta protocol doesn't specify how a Delta data type is stored physically in Parquet files. This PR is attempting to document the Delta data type to Parquet physical/logical type mappings.
+
+## How was this patch tested?
+NA
+
+## Does this PR introduce _any_ user-facing changes?
+No

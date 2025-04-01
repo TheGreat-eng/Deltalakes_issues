@@ -1,0 +1,13 @@
+## Description
+
+This PR introduces a `REORG TABLE ... APPLY (PURGE)` SQL command that can materialize soft-delete operations by DVs.
+
+The command works by rewriting and bin-packing (if applicable) only files that have DVs attached, which is different from the `OPTIMIZE` command where all files (with and without) DV will be bin-packed. To achieve this, we hack the `OPTIMIZE` logic so files of any size with DVs will be rewritten.
+
+Follow-up:
+- Set the correct commit info. Now the resulting version is marked as `optimize` rather than `purge`.
+- Clean up DVs from the filesystem.
+
+## How was this patch tested?
+
+New tests.

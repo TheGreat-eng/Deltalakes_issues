@@ -1,0 +1,15 @@
+## Question
+
+Hi,
+We have a table, with a ```ts``` column (timestamp Long) as a partition, and stored on Azure Blob Storage.
+The directory structure has .../ts=<long value milliseconds>/ 
+
+I try to find the max value of `ts`, and it seems that this type of query causes Spark to read all files, instead of relying on metadata, and is VERY costly in time & resources.
+
+I know databricks has some optimization for that - our code used to run there, and performance of this query was good.
+However - could not find any implementation which works.
+Will appreciate any input on how to do this right!
+
+Thanks.
+
+

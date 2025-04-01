@@ -1,0 +1,3 @@
+This resolves #233 and #208.
+
+This PR add a test to track the issue and also proposes a fix by quoting with backticks the columns coming from the target plan.

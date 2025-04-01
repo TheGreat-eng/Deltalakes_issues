@@ -1,0 +1,11 @@
+## Description
+
+Extend the conflict checker rules to allow conflict resolution with concurrent AddFiles when Row Tracking is enabled
+
+## How was this patch tested?
+
+Added a new test suite
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

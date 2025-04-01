@@ -1,0 +1,31 @@
+spark 3.2.1
+scala 2.12.12
+hadoop 3.3.0
+delta 1.2.1
+
+I am running two spark (with scala) streaming jobs in kubernetes which continously read Delta table 1, process it and continously write to Delta table 2. I use spark streaming with mode "append" for write operations, and option "ignoreDeletes" false for read operations. I also use readStream and writeStream and **do not** use foreachRDD, foreachBatch methods.
+
+- job1 reads from kafka and writes to Delta table1 >> job2 reads from Delta table1 and writes to Delta table2.
+- job1 writes data partitioned by date, hour, minute, some_col_name
+- job2 writes data partitioned by date, hour, some_col_name
+
+job2 Storage cached RDDs:
+
+ID | RDD Name | Storage Level | Cached Partitions | Fraction Cached | Size in Memory | Size on Disk
+-- | -- | -- | -- | -- | -- | --
+15 | Delta Table State #116320 - wasbs://CONTAINER@SA1.blob.core.windows.net/TABLE1/_delta_log | Disk Memory Serialized 1x Replicated | 50 | 100% | 3.4 GiB | 0.0 B
+113 | Delta Table State #60069 - abfss://CONTAINER@SA2.dfs.core.windows.net/TABLE2/_delta_log | Disk Memory Serialized 1x Replicated | 50 | 100% | 55.8 GiB | 0.0 B
+
+#### QUESTION:
+Why does Spark caches DeltaTable in spark memory?
+Is it needed when all the data is in DeltaTable and all read/written data rows are handled by DeltaTable? 
+Can this Spark cache be removed so I could avoid updating the cache in spark memory?
+Can I simply not use any spark cached delta table state as RDD and purely tell spark to read/write data?
+
+... or is this cache needed so it loads it so it holds DataFrame in memory so it can process it?
+
+I wonder how it works when e.g. input DeltaTable during job1 start is 55GB then how can I reduce it size by removing old data so the Spark cached RDD gets refreshed and the DeltaTable size gets reduced accordingly? I think this large cache growing over time slows down the whole job.
+
+How to fix it?
+
+

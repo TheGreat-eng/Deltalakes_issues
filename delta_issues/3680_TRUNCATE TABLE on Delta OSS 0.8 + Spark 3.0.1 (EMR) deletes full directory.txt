@@ -1,0 +1,38 @@
+Using Spark 3.0.1 on AWS EMR 6.2 with Glue Catalog metadata.
+Create any Delta table, e.g.:
+```
+create table foo.bar (
+    i int,
+    s string
+)
+using delta
+tblproperties ( delta.compatibility.symlinkFormatManifest.enabled = true )
+```
+Add rows. E.g. via SQL:
+```
+insert into foo.bar
+select 111 as i, 'first' as j
+union all select 222 as i, 'second' as j
+```
+Use `TRUNCATE TABLE foo.bar`
+Perform a `select *` against the table:
+```
+An error was encountered:
+`foo`.`bar` is not a Delta table.;
+Traceback (most recent call last):
+  File "/usr/lib/spark/python/lib/pyspark.zip/pyspark/sql/session.py", line 649, in sql
+    return DataFrame(self._jsparkSession.sql(sqlQuery), self._wrapped)
+  File "/usr/lib/spark/python/lib/py4j-0.10.9-src.zip/py4j/java_gateway.py", line 1305, in __call__
+    answer, self.gateway_client, self.target_id, self.name)
+  File "/usr/lib/spark/python/lib/pyspark.zip/pyspark/sql/utils.py", line 134, in deco
+    raise_from(converted)
+  File "<string>", line 3, in raise_from
+pyspark.sql.utils.AnalysisException: `foo`.`bar` is not a Delta table.;
+```
+`DELETE FROM foo.bar` does not have that problem (but does not reclaim any storage).
+Observed:
+- Table listing still in Glue/Hive metadata catalog
+- S3 directory completely deleted (including `_delta_log` subdir)
+
+Expected:  Either behave like `DELETE FROM` (maintaining Time Travel support) or else do a full cleanup and revert to an empty Delta directory with no data files and only a single `_delta_log` JSON entry, as if the table were newly created.
+(I'm not sure what the right semantics are on Spark, but an RDMS like MySQL would typically treat TRUNCATE as a more brutal and non-recoverable operation.)

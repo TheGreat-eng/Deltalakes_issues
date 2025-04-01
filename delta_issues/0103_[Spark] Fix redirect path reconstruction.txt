@@ -1,0 +1,18 @@
+
+
+#### Which Delta project/connector is this regarding?
+
+- [X] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+This PR contains a tiny fix of the redirect path reconstruction. The original getPath method would erase cloud vendor prefix: s3, abfs, etc.
+
+## How was this patch tested?
+Existing test case
+
+## Does this PR introduce _any_ user-facing changes?
+No.

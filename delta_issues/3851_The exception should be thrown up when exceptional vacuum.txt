@@ -1,0 +1,4 @@
+e.g.  
+		DeltaTable deltaTable = DeltaTable.forPath(sparkSession, tablePath);
+		deltaTable.vacuum();
+If it don't has permission of hdfs, that  it's hard to see that it's a failure.

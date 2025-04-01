@@ -1,0 +1,17 @@
+Ever since the recent release, one of our CI pipeline fails with this error:
+
+```
+ImportError while importing test module '/Users/runner/work/polars/polars/py-polars/tests/unit/io/test_delta.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+tests/unit/io/test_delta.py:10: in <module>
+    from deltalake import DeltaTable
+../.venv/lib/python3.12/site-packages/deltalake/__init__.py:1: in <module>
+    from ._internal import __version__ as __version__
+E   ImportError: dlopen(/Users/runner/work/polars/polars/.venv/lib/python3.12/site-packages/deltalake/_internal.abi3.so, 0x0002): symbol not found in flat namespace '_PyPyBaseObject_Type'
+```
+
+Link to the job:
+https://github.com/pola-rs/polars/actions/runs/9407528634/job/25914397270
+
+I cannot reproduce this locally, but perhaps you know what's going on?

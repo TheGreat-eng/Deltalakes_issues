@@ -1,0 +1,11 @@
+## Feature request
+
+#### Liquid Clustering Connection to Power Query in Power BI
+I know this may not be the most appropriate place to post but not sure where else I could get the right help. I've noticed Power BI can't read the Detla Files where liquid clustering has been applied. I'm accessing files from Blob Storage Containers in Azure Data Lake Storage Gen2. 
+
+I know Liquid Clustering is pretty new, can't find much on this anywhere so I thought I'd post here. 
+
+
+
+
+

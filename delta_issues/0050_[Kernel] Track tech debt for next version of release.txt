@@ -1,0 +1,38 @@
+We have been adding a lot of features to Kernel (CRC read/write support, table feature infra, column mapping, icebergCompatV2, stats writing, etc.). At the same time, we are also accumulating some tech debt and rough edges to fix. This is an umbrella issue to capture all of them and make sure to address them or block them appropriately before the next Delta release.
+
+### Table Features Infra
+#### Owner: @vkorukanti 
+
+- [ ] Tests: Add more integration tests with table supported/active combo for various features in [`DeltaTableFeaturesSuite.scala`](https://github.com/delta-io/delta/blob/master/kernel/kernel-defaults/src/test/scala/io/delta/kernel/defaults/DeltaTableFeaturesSuite.scala). Current coverage is through unittests on protocol check methods in `TableFeaturesSuite.scala`
+- [ ] Review debt: address post-merge review feedback in #4154 
+- [ ] Review debt: address post-merge review feedback in #4157
+- [ ] Refactor/Cleanup: Check if we can get rid of [`CaseInsensitiveMap.java`](https://github.com/delta-io/delta/blob/master/kernel/kernel-api/src/main/java/io/delta/kernel/internal/util/CaseInsensitiveMap.java).
+
+### Column mapping (write)
+#### Owner: @vkorukanti 
+The remaining work items are on the data path. The metadata path is complete with unit and integration tests.
+- [ ] Data path: Make changes to [`Transaction.transformLogicalData`](https://github.com/delta-io/delta/blob/master/kernel/kernel-api/src/main/java/io/delta/kernel/Transaction.java#L147) to apply column mapping schema to transform the logical data to physical data
+- [ ] Data path: Convert partition logical names in partition map to column mapping specific physical names ([code pointer](https://github.com/delta-io/delta/blob/master/kernel/kernel-api/src/main/java/io/delta/kernel/Transaction.java#L209)).
+- [ ] Data path: integration tests. Basically re-run `DeltaTableWriteSuite` with column mapping mode `id` and `name` enabled. Add addition verification specific to column mapping.
+
+### IcebergCompatV2 (write)
+#### Owner: @vkorukanti 
+
+- [ ] Tests: Add integration tests with data appends (dependency on column mapping tasks above).
+
+### Stats writing
+#### Owner: @raveeram-db 
+
+- [ ] Ensure stats are written with physical names on a table with column mapping enabled (dependency on column mapping tasks above).
+- [ ] Cleanup/Refactor: Remove [`SchemaUtils.collectLeafColumns`](https://github.com/delta-io/delta/blob/master/kernel/kernel-api/src/main/java/io/delta/kernel/internal/util/SchemaUtils.java#L209) and instead use [`SchemaUtils.filterRecursilvey`](https://github.com/delta-io/delta/blob/master/kernel/kernel-api/src/main/java/io/delta/kernel/internal/util/SchemaUtils.java#L209) to achieve the same.
+
+### CRC read/write
+#### Owner: @huan233usc 
+
+- [ ] https://github.com/delta-io/delta/issues/4177
+
+
+### DomainMetadata support APIs
+#### Owner: @allisonport-db / @vkorukanti 
+
+- [ ] Add tests to make sure the domain metadata doesn't trigger extra delta log reads (basically tests for #4298 )

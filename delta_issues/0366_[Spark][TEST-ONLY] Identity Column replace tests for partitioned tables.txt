@@ -1,0 +1,17 @@
+#### Which Delta project/connector is this regarding?
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+Quick follow up for https://github.com/delta-io/delta/pull/3937
+Expand test to cover partitioned tables too.
+
+## How was this patch tested?
+Test only change. New tests and existing tests pass.
+
+## Does this PR introduce _any_ user-facing changes?
+No.

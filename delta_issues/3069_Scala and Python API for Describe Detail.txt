@@ -1,0 +1,31 @@
+## Description
+Resolves #1188
+
+### PR changes 
+Added a `details()` function to the Python and Scala APIs of `DeltaTable` similar to running `DESCRIBE DETAIL` to get information about a table (name, format, size, etc.) 
+
+### Why we need the changes
+Just like we have `DeltaTable.history()`, there should be a `DeltaTable.details()`
+
+## How was this patch tested?
+- Scala unit tests were added to [DescribeDeltaDetailSuite.scala](https://github.com/hedibejaoui/delta/blob/70cf2656b44798136edf39a46678fa1de2b67f0b/core/src/test/scala/org/apache/spark/sql/delta/DescribeDeltaDetailSuite.scala#L61) 
+- Python unit tests were added to [tables.py](https://github.com/hedibejaoui/delta/blob/70cf2656b44798136edf39a46678fa1de2b67f0b/python/delta/tables.py#L281)
+- Extended Scala and Python utilities examples and checked output of `python3 run-integration-tests.py --use-local`:
+```bash
+[info] Describe Details for the table
+[info] +------+--------------------+----+-----------+--------------------+--------------------+--------------------+----------------+--------+-----------+----------+----------------+----------------+
+[info] |format|                  id|name|description|            location|           createdAt|        lastModified|partitionColumns|numFiles|sizeInBytes|properties|minReaderVersion|minWriterVersion|
+[info] +------+--------------------+----+-----------+--------------------+--------------------+--------------------+----------------+--------+-----------+----------+----------------+----------------+
+[info] | delta|13a60c59-2527-4cc...|null|       null|file:/tmp/parquet...|2022-07-02 15:13:...|2022-07-02 15:13:...|              []|       6|       2656|        {}|               1|               2|
+[info] +------+--------------------+----+-----------+--------------------+--------------------+--------------------+----------------+--------+-----------+----------+----------------+----------------+
+..
+######## Describe details for the table ######
++------+--------------------+----+-----------+--------------------+--------------------+--------------------+----------------+--------+-----------+----------+----------------+----------------+
+|format|                  id|name|description|            location|           createdAt|        lastModified|partitionColumns|numFiles|sizeInBytes|properties|minReaderVersion|minWriterVersion|
++------+--------------------+----+-----------+--------------------+--------------------+--------------------+----------------+--------+-----------+----------+----------------+----------------+
+| delta|46d665c3-b2bd-4de...|null|       null|file:/tmp/delta-t...|2022-07-02 15:27:...|2022-07-02 15:27:...|              []|       6|       2656|        {}|               1|               2|
++------+--------------------+----+-----------+--------------------+--------------------+--------------------+----------------+--------+-----------+----------+----------------+----------------+
+``` 
+
+## Does this PR introduce _any_ user-facing changes?
+No

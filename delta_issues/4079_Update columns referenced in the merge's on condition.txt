@@ -1,0 +1,2 @@
+Hi,
+I was wondering what is delta's behavior if I try to update a column that is referenced in the merge on condition.

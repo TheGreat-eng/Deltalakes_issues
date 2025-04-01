@@ -1,0 +1,18 @@
+#### Which Delta project/connector is this regarding?
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [X] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+Adds new `ConfigurationProvider` and `AbstractCommitCoordinatorBuilder` APIs
+
+## How was this patch tested?
+
+Tests are added in CC Refactor PR 5: https://github.com/delta-io/delta/pull/3821
+
+## Does this PR introduce _any_ user-facing changes?
+
+Yes see the above

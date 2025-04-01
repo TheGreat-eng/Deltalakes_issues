@@ -1,0 +1,73 @@
+Tested this on `DBR 9.1 LTS` and `DBR 10.3`.
+
+Hello, I am currently facing an issue that is for me making the `mergeSchema` option unusable.
+My goal is to append new columns to an existing table, but sometimes a new column can come with only null values and then afterwards contain non-null values. That's what I've tried to reproduce, but I am getting this error when trying to merge a new record with the non-null value :
+
+```
+AnalysisException: The schema of your Delta table has changed in an incompatible way since your DataFrame or
+DeltaTable object was created. Please redefine your DataFrame or DeltaTable object.
+Changes:
+Latest schema has additional field(s): X
+```
+
+Here's what you can do to reproduce the bug : 
+
+1. Create a base table : 
+
+```
+import spark.implicits._
+
+val path = "dbfs:/tmp/merge_new_column_with_null_value_test"
+val df = Seq((1, 1, 1)).toDF("a", "b", "c")
+
+display(df)
+
+df.write
+  .partitionBy("c")
+  .format("delta")
+  .mode("overwrite")
+  .save(path)
+```
+
+2. Merge with a record containing a new column `X` that has only a `null` value : 
+```
+import io.delta.tables._
+spark.conf.set("spark.databricks.delta.schema.autoMerge.enabled", true)
+
+val newEvents = Seq((5, null)).toDF("a", "X")
+
+DeltaTable
+        .forPath(path)
+        .as("delta_table")
+        .merge(newEvents.as("event"), "delta_table.a = event.a")
+        .whenMatched
+        .updateAll
+        .whenNotMatched
+        .insertAll
+        .execute
+```
+
+Note that at this point, if you `display(spark.read.format("delta").load(path))` column `X` won't even exist on this table.
+
+3. Merge again, but this time column `X` contain a non-null value: 
+```
+import io.delta.tables._
+spark.conf.set("spark.databricks.delta.schema.autoMerge.enabled", true)
+
+val newEvents = Seq((5, "NON_NULL_VALUE")).toDF("a", "X")
+
+DeltaTable
+        .forPath(path)
+        .as("delta_table")
+        .merge(newEvents.as("event"), "delta_table.a = event.a")
+        .whenMatched
+        .updateAll
+        .whenNotMatched
+        .insertAll
+        .execute
+```
+
+After running command 3, you should get the error above.
+
+
+Thank you for your time and consideration, have a great day ! 

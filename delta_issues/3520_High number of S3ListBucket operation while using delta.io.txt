@@ -1,0 +1,16 @@
+Hi team,
+
+We need help understanding the purpose of S3:ListBucket operation in delta.io and how we can reduce the calls or avoid them.
+
+We currently run spark streaming jobs  + delta with below details:
+
+Spark: 3.0.2
+Hadoop: 3.2.1
+Delta: 0.8.0 
+
+While analysing our S3 usage we noticed large number of S3:ListBucket operation which we would like to reduce. It will be helpful if you can guide us, at how to reduce them or some best practises around the same.
+
+Let me know if you need additional details. 
+
+Regards,
+Nimesh.

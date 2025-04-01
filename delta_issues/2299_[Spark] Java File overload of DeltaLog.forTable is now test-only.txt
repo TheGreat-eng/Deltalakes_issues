@@ -1,0 +1,33 @@
+<!--
+Thanks for sending a pull request!  Here are some tips for you:
+  1. If this is your first time, please read our contributor guidelines: https://github.com/delta-io/delta/blob/master/CONTRIBUTING.md
+  2. If the PR is unfinished, add '[WIP]' in your PR title, e.g., '[WIP] Your PR title ...'.
+  3. Be sure to keep the PR description updated to reflect all changes.
+  4. Please write your PR title to summarize what this PR proposes.
+  5. If possible, provide a concise example to reproduce the issue for a faster review.
+  6. If applicable, include the corresponding issue number in the PR title and link it in the body.
+-->
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+Production Delta code doesn't use Java files -- it uses Hadoop paths -- so we can remove all references to `java.io.File` from DeltaLog.scala. Because unit tests make heavy use of Java files, we add suitable replacements in DeltaTestImplicits.scala as a convenience (and to avoid churning test code so much in this PR).
+
+## How was this patch tested?
+
+This change only affects unit tests, because the removed methods were not used in production code.
+
+## Does this PR introduce _any_ user-facing changes?
+
+Methods like `DeltaLog.forTable` are internal APIs, but are not specifically marked `private` in the code. So there is a possibility that some user somewhere relies on the removed methods. But we don't guarantee backward compatibility for internal APIs so this should be acceptable.

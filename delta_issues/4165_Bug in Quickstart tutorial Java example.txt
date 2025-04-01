@@ -1,0 +1,14 @@
+In [this section](https://docs.delta.io/latest/quick-start.html#conditional-update-without-overwrite) of the Quickstart tutorial, there is a mismatch between the Scala and Java code examples.
+
+The Java example reads:
+
+```
+deltaTable.as("events")
+  .merge(
+    newData,
+    "oldData.id = newData.id")
+  .whenMatched()
+...
+```
+
+but `"events"` should be `"oldData"`.

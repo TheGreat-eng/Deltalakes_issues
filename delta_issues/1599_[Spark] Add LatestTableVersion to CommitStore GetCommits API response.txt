@@ -1,0 +1,17 @@
+#### Which Delta project/connector is this regarding?
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+With this change, we require CommitStores to maintain and return the latestTableVersion in the getCommits API. The motivation here is for readers to get more context from CommitStore when all commits are backfilled and the Commit Response is empty.
+
+Clients can use latestTableVersion to determine the version the table is when all commits are backfilled and the commits list is empty in the getCommits response.
+
+## How was this patch tested?
+Unit tests
+
+## Does this PR introduce _any_ user-facing changes?
+No

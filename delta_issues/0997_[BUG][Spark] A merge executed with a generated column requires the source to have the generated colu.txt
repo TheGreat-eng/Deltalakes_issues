@@ -1,0 +1,70 @@
+Consider this code merging data with a generated column:
+
+```python
+# Databricks notebook source
+tableName = "TARGET_SCHEMA.generatedTableTest"
+
+# COMMAND ----------
+
+spark.sql(f"DROP TABLE IF EXISTS {tableName}")
+
+# COMMAND ----------
+
+import warnings
+from pyspark import pandas as ps
+from pyspark.pandas.utils import PandasAPIOnSparkAdviceWarning
+warnings.simplefilter("ignore", category= PandasAPIOnSparkAdviceWarning)
+
+# COMMAND ----------
+
+df = ps.DataFrame({"foo": [1,2,3,4,5], "bar":[6,7,8,9,0]})
+df.display()
+
+# COMMAND ----------
+
+from delta.tables import DeltaTable
+from pyspark.sql.types import LongType
+deltaSession = DeltaTable.create(spark)
+dTableBuilder = deltaSession.tableName(tableName)
+dTableBuilder.addColumns(df.to_spark().schema)
+dTableBuilder.addColumn("baz", LongType(), generatedAlwaysAs= "foo + bar")
+dTable = dTableBuilder.execute()
+
+
+# COMMAND ----------
+
+mergeBuilder = dTable.merge(df.to_spark(), condition= "1 = 1").whenMatchedUpdateAll().whenNotMatchedInsertAll()
+
+# COMMAND ----------
+
+try:
+    mergeBuilder.execute()
+except Exception as e:
+    print("***We raised an error! As of 20240627 this will say 'baz' is missing***\n\n")
+    print(e)
+```
+
+
+#### Observed results
+
+The merge fails, unable to resolve the generated column. The error will be (or close to)
+
+`[DELTA_MERGE_UNRESOLVED_EXPRESSION] Cannot resolve baz in UPDATE clause given columns foo, bar.`
+
+#### Expected results
+
+The generated column is, well, generated from the inputs and as such is unnecessary to specify.
+
+### Environment information
+
+* Delta Lake version: DBR 14.3LTS
+* Spark version: 3.5.0
+* Scala version: 2.12
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [ ] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [x] No. I cannot contribute a bug fix at this time.

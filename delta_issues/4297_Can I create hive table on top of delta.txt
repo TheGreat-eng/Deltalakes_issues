@@ -1,0 +1,3 @@
+We have a datalake based on lambda architecture to solve real time and batch data sink problem. For which we are using hive as a datastore.
+
+So my question is that, if I use delta, is it possible to create a hive table on top of that?

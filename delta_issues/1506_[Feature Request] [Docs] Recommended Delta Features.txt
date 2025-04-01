@@ -1,0 +1,35 @@
+## Feature request
+
+#### Which Delta project/connector is this regarding?
+- [X] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+### Overview
+Document what are the recommended features for Spark Delta to use the best Delta can offer.
+
+### Motivation
+In the last months many new features has been introduced, and now that we don't have new protocol versions it could be hard to folks that doesn't follow Delta repo closely to know all the new features and they will likely be stuck with basics ones, even if they don't need to mantain compatibility with old readers/writers.
+
+### Further details
+As we have many new optional features in Spark Delta, I believe it is important to create a document, probably in https://docs.delta.io/latest/best-practices.html, to summarize what features are recommended to get maximum performance, and best defaults if user doesn't need to keep compatibility with older versions.
+
+In summary, try to describe what would be the default if Delta was created today and doesn't need to think about existing tables/libraries.
+
+For example (they aren't necessarily correct):
+
+- Enable: v2Checkpoint, clustering, deletionVectors because of improved perf
+- Enable Optimized Write
+- Enable In-Commit Timestamps to maintain timestamps when table is copied
+- Enable Enforce Vacuum Protocol Check
+- Enable log compaction
+
+
+
+
+### Willingness to contribute
+- [ ] Yes. I can contribute this feature independently.
+- [ ] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [X] No. I cannot contribute this feature at this time.- [ ] 

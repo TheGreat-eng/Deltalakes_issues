@@ -1,0 +1,31 @@
+#### Which Delta project/connector is this regarding?
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+- Iceberg states in the spec that Timestamps should be written with INT64 physical types. There were already flags to enable this, but this PR makes this behavior the default.
+- `INT96` is discouraged: https://github.com/apache/parquet-format/blob/master/src/main/thrift/parquet.thrift#L981
+
+## How was this patch tested?
+
+- Added new unit-tests to validate the correct behavior
+
+<!--
+If tests were added, say they were added here. Please make sure to test the changes thoroughly including negative and positive cases if possible.
+If the changes were tested in any way other than unit tests, please clarify how you tested step by step (ideally copy and paste-able, so that other reviewers can test and check, and descendants can verify in the future).
+If the changes were not tested, please explain why.
+-->
+
+## Does this PR introduce _any_ user-facing changes?
+
+<!--
+If yes, please clarify the previous behavior and the change this PR proposes - provide the console output, description and/or an example to show the behavior difference if possible.
+If possible, please also clarify if this is a user-facing change compared to the released Delta Lake versions or within the unreleased branches such as master.
+If no, write 'No'.
+-->
+Yes, it will default to INT64 if nothing has been set. 

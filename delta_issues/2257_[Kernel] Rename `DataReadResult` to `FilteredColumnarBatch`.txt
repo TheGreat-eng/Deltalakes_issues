@@ -1,0 +1,25 @@
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [x] Kernel
+- [ ] Other (fill in here)
+
+## Description
+This is a preparatory change for supporting partition pruning in Delta Kernel.
+
+Currently `DataReadResult` is used in representing a `ColumnarBatch` with a selection vector. It is used when reading the data from the scan files. The `ColumnarBatch` is the data read from Parquet data files and the selection vector is populated based on the deletion vector associated with the scan file. Having selection vector avoids the cost of rewriting the `ColumnarBatch`. We want to use the similar `DataReadResult` in metadata. Currently `Scan.getScanFiles` returns an iterator of `ColumnarBatch`. Instead, the plan is to return `DataReadResult` (which contains the `ColumnarBatch` of scan files, and a selection vector that tells whether a scan file is pruned or not based on the partition filter.).
+
+Renaming `DataReadResult` to `FilteredColumnarBatch` to make it generic so that it is used both in the data and metadata path.
+
+I am open to any other better names.
+
+Also:
+* Remove the API `public ColumnarBatch rewriteWithoutSelectionVector()` as `FilteredColumnarBatch` is `kernel-api` class and `kernel-api` shouldn't rewrite `ColumnarBatch`es.
+* Add `getRows()` API on `FilteredColumnarBatch` to iterate through the rows that survived the selection vector. This API helps when the connectors have an easy way to access the survived rows (for example to iterate over the scan file rows that survived the selection vector).
+* Fix a bug in `ColumnarBatch.getRows().hasNext()`

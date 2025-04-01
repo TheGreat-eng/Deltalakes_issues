@@ -1,0 +1,9 @@
+## Description
+
+Rename `timestampNTZ` feature to `timestampNtz` in PROTOCOL.md. 
+Ref https://github.com/delta-io/delta/blob/d74cc6897730f4effb5d7272c21bd2554bdfacdb/core/src/main/scala/org/apache/spark/sql/delta/TableFeature.scala#LL310C35-L310C35
+
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

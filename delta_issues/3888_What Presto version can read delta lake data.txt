@@ -1,0 +1,6 @@
+I see
+https://docs.delta.io/0.5.0/presto-integration.html
+https://databricks.com/blog/2020/01/29/query-delta-lake-tables-presto-athena-improved-operations-concurrency-merge-performance.html
+
+But Prestosql 332 has a commit that explicitly disallows reading Delta data, they mention it never worked anyway:
+https://github.com/prestosql/presto/pull/3366#issuecomment-610540663

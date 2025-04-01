@@ -1,0 +1,8 @@
+ The Delta Kernel sub project is currently disconnected from the main build. This PR updates the main build to compile the kernel project as well. Specifically, it does the following changes
+
+1. Add the kernel subprojects in the main build.sbt
+2. Define groups of the subprojects, "spark" and "kernel" in build.sbt such that each group can be easily tested while disabling tests for all other groups.
+3. Update the run-tests.py with support for specifying test groups, so that different test build (Github actions) can test each group just by calling run-tests.py with different groups.
+4. Updated github actions for kernel to use this.
+
+In addition, to the kernel related changes, this PR also updates the delta on spark build to be named more appropriately; instead of delta-core, it should be delta-spark (similar to delta-flink and delta-hive in the connectors repo). The `core` directory has been updated to `spark` as well. 

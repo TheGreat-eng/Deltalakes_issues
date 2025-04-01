@@ -1,0 +1,54 @@
+<!--
+Thanks for sending a pull request!  Here are some tips for you:
+  1. If this is your first time, please read our contributor guidelines: https://github.com/delta-io/delta/blob/master/CONTRIBUTING.md
+  2. If the PR is unfinished, add '[WIP]' in your PR title, e.g., '[WIP] Your PR title ...'.
+  3. Be sure to keep the PR description updated to reflect all changes.
+  4. Please write your PR title to summarize what this PR proposes.
+  5. If possible, provide a concise example to reproduce the issue for a faster review.
+  6. If applicable, include the corresponding issue number in the PR title and link it in the body.
+-->
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [X] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+Currently, in order to test Delta Connect Client with Spark Connect, we always fetch the [Spark 4.0 First Preview jars](https://github.com/delta-io/delta/commit/455dbacaf456158644bcbe8b0b13bd4eae65c974#diff-5634c415cd8c8504fdb973a3ed092300b43c4b8fc1e184f7249eb29a55511f91R308), which were created in May 2024.
+
+Since then, lots of things have changed in [Spark](https://github.com/apache/spark), so the jars are outdated and the testing no longer works due to binary incompatibility between the latest version of Delta and Spark 4.0 First Preview version.
+
+Therefore, **we are updating the `sbt` testing task of the Delta Connect Client project to automatically fetch and use the latest jars from [Spark nightly releases](https://repository.apache.org/content/groups/snapshots/org/apache/spark/)**.
+
+<!--
+- Describe what this PR changes.
+- Describe why we need the change.
+ 
+If this PR resolves an issue be sure to include "Resolves #XXX" to correctly link and close the issue upon merge.
+-->
+
+## How was this patch tested?
+
+<!--
+If tests were added, say they were added here. Please make sure to test the changes thoroughly including negative and positive cases if possible.
+If the changes were tested in any way other than unit tests, please clarify how you tested step by step (ideally copy and paste-able, so that other reviewers can test and check, and descendants can verify in the future).
+If the changes were not tested, please explain why.
+-->
+Ran `build/sbt -DsparkVersion=master clean connectServer/assembly connectClient/test`.
+
+Observed that the [latest jar releases](https://repository.apache.org/content/groups/snapshots/org/apache/spark/) of Spark are downloaded and the Delta Connect Client test suite's (`DeltaTableSuite`) ran successfully.
+
+## Does this PR introduce _any_ user-facing changes?
+No.
+<!--
+If yes, please clarify the previous behavior and the change this PR proposes - provide the console output, description and/or an example to show the behavior difference if possible.
+If possible, please also clarify if this is a user-facing change compared to the released Delta Lake versions or within the unreleased branches such as master.
+If no, write 'No'.
+-->

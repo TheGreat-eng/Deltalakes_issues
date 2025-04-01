@@ -1,0 +1,19 @@
+#### Which Delta project/connector is this regarding?
+
+- [ ] Spark
+- [X] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+Minor refactor to use GoldenTableUtils in ShadedJarSuite.
+
+## How was this patch tested?
+
+Trivial.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No.

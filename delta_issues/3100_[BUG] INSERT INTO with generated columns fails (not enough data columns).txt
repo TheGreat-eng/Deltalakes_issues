@@ -1,0 +1,57 @@
+When executing `sql("INSERT INTO delta_gencols VALUES 1")` Delta Lake 1.2.1 fails with the following `AnalysisException`:
+
+```text
+org.apache.spark.sql.AnalysisException: Cannot write to 'default.delta_gencols', not enough data columns; target table has 2 column(s) but the inserted data has 1 column(s)
+  at org.apache.spark.sql.delta.DeltaErrors$.notEnoughColumnsInInsert(DeltaErrors.scala:356)
+  at org.apache.spark.sql.delta.DeltaAnalysis.org$apache$spark$sql$delta$DeltaAnalysis$$needsSchemaAdjustment(DeltaAnalysis.scala:322)
+  at org.apache.spark.sql.delta.DeltaAnalysis$$anonfun$apply$1.applyOrElse(DeltaAnalysis.scala:67)
+  at org.apache.spark.sql.delta.DeltaAnalysis$$anonfun$apply$1.applyOrElse(DeltaAnalysis.scala:64)
+```
+
+The table was created as follows:
+
+```
+import io.delta.tables.DeltaTable
+import org.apache.spark.sql.types.DataTypes
+
+val tableName = "delta_gencols"
+sql(s"DROP TABLE IF EXISTS $tableName")
+DeltaTable.create
+  .addColumn("id", DataTypes.LongType, nullable = false)
+  .addColumn(
+    DeltaTable.columnBuilder("value")
+      .dataType(DataTypes.BooleanType)
+      .generatedAlwaysAs("true")
+      .build)
+  .tableName(tableName)
+  .execute
+```
+
+I found [this conversation](https://groups.google.com/g/delta-users/c/x2xnHkysIZw) with @zsxwing in delta-users group, but that does not seem to apply (unless I'm mistaken):
+
+```
+The INSERT INTO issue and CREATE TABLE syntax for generated columns are not available in OSS Delta Lake right now because Apache Spark SQL parser doesn't support them.
+```
+
+Spark SQL API works just fine:
+
+```
+spark.range(5).writeTo(tableName).append()
+```
+
+### Environment information
+
+* Delta Lake version: 1.2.1
+* Spark version: 3.2.1
+* Scala version: 2.12.15
+
+```
+Welcome to
+      ____              __
+     / __/__  ___ _____/ /__
+    _\ \/ _ \/ _ `/ __/  '_/
+   /___/ .__/\_,_/_/ /_/\_\   version 3.2.1
+      /_/
+
+Using Scala version 2.12.15 (OpenJDK 64-Bit Server VM, Java 11.0.14)
+```

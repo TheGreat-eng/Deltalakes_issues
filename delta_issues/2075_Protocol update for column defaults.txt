@@ -1,0 +1,18 @@
+## Description
+
+Update Delta log protocol to support column default values.
+
+This will support column default values for Delta Lake tables.
+Users should be able to associate default values with Delta Lake columns at table creation time or thereafter.
+
+Support for column defaults is a key requirement to facilitate updating the  table schema over time and performing  DML operations on wide tables with sparse data.
+
+Please refer to an open design doc [here](https://docs.google.com/document/d/e/2PACX-1vTyozwH8A4lemW_wNq7YC7GpuTzNn19NUZQ_pw9dDJNYBuhmdqDunauqmLr0qIuD8kQRNI7a4x72c55/pub).
+
+## How was this patch tested?
+
+N/A
+
+## Does this PR introduce _any_ user-facing changes?
+
+No, this is just a protocol change.

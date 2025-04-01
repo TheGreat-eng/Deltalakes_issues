@@ -1,0 +1,38 @@
+## Feature request
+
+### Overview
+
+The `operation` and `operationMetrics` fields of `commitInfo` have special meanings across implementations and should be defined in the spec.
+
+### Motivation
+
+According to [the protocol specification](https://github.com/delta-io/delta/blob/master/PROTOCOL.md#commit-provenance-information), the `commitInfo` action allows to store any valid JSON-formatted data. Yet the `operation` and `operationMetrics` fields have a special meaning. Implementations use the fields for storing the name of the operation, and metrics on operations, for instance the number of files added or removed, or the number of bytes added or removed. In some implementations the `DESCRIBE HISTORY` command will crash if they encounter unusual values in these fields.
+
+Current support is:
+* Databricks and delta-io includes `operation` and `operationMetrics` for all commits, but might not populate the exact same fields(?).
+* [delta-rs includes it for the optimize operations only](https://github.com/search?q=repo%3Adelta-io%2Fdelta-rs+operationMetrics+language%3ARust&type=code&l=Rust)
+* [Delta Standalone has a suggested list of metrics to use](https://github.com/delta-io/delta/blob/0b6ae9233ea34b4337e8b594be772d47980f92d9/connectors/standalone/src/main/java/io/delta/standalone/Operation.java#L115-L249), and for instance the Flink connectors uses these.
+* [Trino currently does not include any operation metrics](https://github.com/trinodb/trino/issues/12005)
+
+The implementations already assume that the fields are not arbitrary JSON. For instance, the Databricks runtime will crash on `DESCRIBE HISTORY` if the `operation` field is not a string, and I believe delta-io would do the same.
+```
+create table some_table as select 1234 as a
+# edit delta log to have commitInfo.operation be an array.
+describe history some_table
+Cannot deserialize value of type `java.lang.String` from Array value (token `JsonToken.START_ARRAY`)
+ at [Source: UNKNOWN; line: 1, column: 54] (through reference chain: com.databricks.sql.transaction.tahoe.actions.SingleAction["commitInfo"]->com.databricks.sql.transaction.tahoe.actions.CommitInfo["operation"])
+```
+
+It would be good to define the meaning of the `operation` field, and of the most common fields included in `operationMetrics`, such that we get consistency across implementations.
+
+The comments in the [DeltaOperationMetrics](https://github.com/delta-io/delta/blob/3694ddc138317855dbfff4f9c011f16b26c20b5f/core/src/main/scala/org/apache/spark/sql/delta/DeltaOperations.scala#L504-L711) would be a good starting point for defining `operation` and `operationMetrics` in the spec.
+
+I'd be happy to help out writing a draft of this.
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [ ] Yes. I can contribute this feature independently.
+- [x] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.

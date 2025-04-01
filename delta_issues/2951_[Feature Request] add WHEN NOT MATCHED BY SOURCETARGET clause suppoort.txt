@@ -1,0 +1,76 @@
+## Feature request
+
+https://delta-users.slack.com/archives/CJ70UCSHM/p1661955032288519
+
+### Overview
+
+WHEN NOT MATCHED BY SOURCE/TARGET clause support
+
+### Motivation
+
+feature parity with popular other SQL databases, ease of use
+
+### Further details
+
+Each day I get a full dump of a table. However, this data needs to be cleaned and in particular, compressed using the SCD2 style approach to be easily consumable downstream.
+Unfortunately, I do not get changesets or a NULL value for a key in case of deletions. I only receive NO LONGER a row (including the key).
+The links:
+- https://docs.databricks.com/_static/notebooks/merge-in-scd-type-2.html
+- https://docs.delta.io/latest/delta-update.html#write-change-data-into-a-delta-table
+- https://docs.databricks.com/spark/latest/spark-sql/language-manual/delta-merge-into.html
+show me that something along these lines (https://www.mssqltips.com/sqlservertip/1704/using-merge-in-sql-server-to-insert-update-and-delete-at-the-same-time):
+
+
+```
+MERGE <target_table> [AS TARGET]
+USING <table_source> [AS SOURCE]
+ON <search_condition>
+[WHEN MATCHED 
+   THEN <merge_matched> ]
+[WHEN NOT MATCHED [BY TARGET]
+   THEN <merge_not_matched> ]
+[WHEN NOT MATCHED BY SOURCE
+   THEN <merge_matched> ];
+
+```
+will not work with Delta/Spark as the WHEN NOT MATCHED clause does not seem to support the BY SOURCE | TARGET extension.
+How can I still calculate the SCD2 representation?
+
+1. If the table is empty simply take all the data (for the initial load)
+2. When a new day/full copy of the data arrives:
+  - INSERT any new keys into the table
+  - For EXISTING keys perform an update (set the OLD value to be no longer valid (set end-date) and produce a new row in SCD2 with the contents of the new row and validity until infinity (end-date null))
+  - In case a previously present key Is no longer present close the SCD2 valid_from/valid_to interval by setting end-date
+  	- In case a new record arrives for this key in the future start a new fresh SCD2 row valid until infinity for this new row/values.
+
+An example case/dataset:
+
+```
+import pandas as pd
+import numpy as np
+# assumes a running spark session including support for deltalake to be available
+
+d1 = spark.createDataFrame(pd.DataFrame({'key':[1,2,3], 'value':[4,5,6],'value2':["a", "b", "c"], 'date':[1,1,1]}))
+#d1.show()
+
+# notice one entry is MISSING (it should be deleted) or rather SCD2 invalidated
+d2 = spark.createDataFrame(pd.DataFrame({'key':[1,2], 'value':[4,5], 'date':[2,2],'value2':["a", "b"]}))
+
+# d2 had (3) as missing - this entry is back now (and should start a new SCD2 row
+d3 = spark.createDataFrame(pd.DataFrame({'key':[1,2,3], 'value':[4,5, 66], 'date':[3,3,3], 'value2':["a", "b", "c"]}))
+
+# a new record is added
+d4 = spark.createDataFrame(pd.DataFrame({'key':[1,2,3, 4], 'value':[4,5, 66, 44], 'date':[4,4,4,4], 'value2':["a", "b", "c", "d"]}))
+
+# a new record is added, one removed and one updated
+d5 = spark.createDataFrame(pd.DataFrame({'key':[2,3, 4, 5], 'value':[5, 67, 44, 55], 'date':[5,5,5,5], 'value2':["b", "c", "d", "e"]}))
+
+```
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [ ] Yes. I can contribute this feature independently.
+- [ ] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [x] No. I cannot contribute this feature at this time.

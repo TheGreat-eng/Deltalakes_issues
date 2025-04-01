@@ -1,0 +1,21 @@
+## Description
+The protocol specification for type widening dropped the requirement to populate a `tableVersion` field as part of type change history to track in which version of the table a given change was applied.
+See protocol update: https://github.com/delta-io/delta/pull/3297
+This field was used at some point during the preview but isn't needed anymore.
+
+It is now deprecated:
+- The field is preserved in table metadata that already contains it.
+- The field isn't set anymore when the stable table feature is active on the table.
+- The field is still set when only the preview table feature is active on the table.
+
+The last point is necessary to avoid breaking preview clients (Delta 3.2 & Delta 4.0 preview) that require the field to be set.
+
+## How was this patch tested?
+- Updated existing metadata tests to cover `tableVersion` not being set by default.
+- Added metadata tests to explicitly cover `tableVersion` being set.
+- Added tests covering `tableVersion` when using the preview and stable table features.
+
+## Does this PR introduce _any_ user-facing changes?
+Yes. As of this change, a table that supports the stable table feature `typeWidening` won't have a `tableVersion` field in the type change history stored in the table metadata.
+
+Tables that only support the preview table feature `typeWidening-preview` don't see any change.

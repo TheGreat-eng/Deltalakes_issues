@@ -1,0 +1,21 @@
+#### Which Delta project/connector is this regarding?
+
+- [X] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+During commit we validate that `AddFile` actions cannot contain Deletion Vectors when DVs are not enabled for a table (table property). This restriction is incorrect for actions that update metadata of existing files, e.g. `ComputeStatistics` or `RowTrackingBackfill`. The current code skips the check for `ComputeStatistics` operation but not for other operations that perform in-place-metadata updates. The new `isInPlaceFileMetadataUpdate` method is added to Delta operations so that we can easily distinguish such operations. 
+
+The `getAssertDeletionVectorWellFormedFunc` function is slightly refactor to be more readable.
+
+## How was this patch tested?
+
+Existing tests provide coverage.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

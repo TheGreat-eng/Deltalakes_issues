@@ -1,0 +1,5 @@
+## Feature request
+Currently the `JsonHandler.parseJson` parses the stats values. Some of these values are for columns of type TIMESTAMP, DATE which are not native types in Json. Exactly how the string format of the `TIMESTAMP`, `DATE` can be interpreted depends on the Delta protocol details. We want to change it as follows:
+
+1) `JsonHandler.parseJson` just parses as native json types
+2) `Kernel-API` module applies expressions on the parsed JSON values to convert them to appropriate types.

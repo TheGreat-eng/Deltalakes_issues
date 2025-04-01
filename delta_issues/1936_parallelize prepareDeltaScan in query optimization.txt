@@ -1,0 +1,36 @@
+## Feature request
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the issue title
+For example: [Feature Request][Spark] Title of my issue
+-->
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+### Overview
+
+Hi team, I'm wondering what's the reason we do the prepare delta scan sequentially [here](https://github.com/delta-io/delta/blob/0a0366400f8b2eab71065401d48edbecf6ba890e/spark/src/main/scala/org/apache/spark/sql/delta/stats/PrepareDeltaScan.scala#L135-L152)? If the query plan has multiple DeltaTableScan Operator, then we should parallelize this to improve the performance?
+
+### Motivation
+
+When in a query plan, lots of Delta tables are scanned (in our case, it's 720 tables), parallelize deltaScans can speed up substantially and fully utilize the cluster resources.
+
+### Further details
+
+<!--
+Use this section to include any additional information about the feature. If you have a proposal for how to implement this feature, please include it here. For implementation guidelines, please read our contributor guidelines: https://github.com/delta-io/delta/blob/master/CONTRIBUTING.md
+If there are any specific requirements for this feature that are not immediately obvious please outline them here.
+-->
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [ ] Yes. I can contribute this feature independently.
+- [x] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.

@@ -1,0 +1,29 @@
+<!--
+Thanks for sending a pull request!  Here are some tips for you:
+  1. If this is your first time, please read our contributor guidelines: https://github.com/delta-io/delta/blob/master/CONTRIBUTING.md
+  2. If the PR is unfinished, add '[WIP]' in your PR title, e.g., '[WIP] Your PR title ...'.
+  3. Be sure to keep the PR description updated to reflect all changes.
+  4. Please write your PR title to summarize what this PR proposes.
+  5. If possible, provide a concise example to reproduce the issue for a faster review.
+  6. If applicable, include the corresponding issue number in the PR title and link it in the body.
+-->
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [X] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+This Spark commit https://github.com/apache/spark/commit/67d2888c476b6c472722f9cfebfb2e99302aff1c breaks Spark master compilation (specifically [this diff](https://github.com/apache/spark/commit/67d2888c476b6c472722f9cfebfb2e99302aff1c#diff-7852549cf1376f95414d804c8a9382a236179582cb4f03f836c284b0c1a81191L93-R99)).
+
+## How was this patch tested?
+
+Existing tests suffice.

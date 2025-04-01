@@ -1,0 +1,38 @@
+## Feature request
+
+### Overview
+
+When using `DeltaTableBuilder`, users provide specifications (e.g. `location`) to build a Delta table and finally `execute()` to create it. After successful execution, the table will be empty - no data, just metadata. Users must execute a separate command to insert data into the table.
+
+This feature is to allow users to provide data to `DeltaTableBuilder` so as to create a table and insert data into this table using one command and transaction (referred to as "atomic" from now on).
+
+This feature would serve as the equivalent of SQL's `CREATE [OR REPLACE] TABLE AS SELECT` statement [[see Spark docs](https://spark.apache.org/docs/latest/sql-ref-syntax-ddl-create-table-datasource.html#create-datasource-table)] in Scala and Python.
+
+### Motivation
+
+The biggest motivation for this request is for atomic replacement, which **presently**¹ causes total table outage - between the time of table replacement and the insertion of data, users that query the table will receive incomplete or blank results.
+
+Here are some examples where (atomic) replacement can be helpful:
+
+- Re-partitioning a Delta table. For example, a table is over-partitioned and needs to have a level of partitioning removed.
+- Changing the types of a Delta table's fields. For example, a field is a Long and it needs to be a String.
+
+¹ This **can** be done with SQL today via `REPLACE TABLE AS SELECT`, but is overly cumbersome due to the full schema definition in the DDL.
+
+### Further details
+
+<!--
+Use this section to include any additional information about the feature. If you have a proposal for how to implement this feature, please include it here. For implementation guidelines, please read our contributor guidelines: https://github.com/delta-io/delta/blob/master/CONTRIBUTING.md
+If there are any specific requirements for this feature that are not immediately obvious please outline them here.
+-->
+
+- Provide a method that lets users specify a `DataFrame` to `DeltaTableBuilder`, something like: `DeltaTableBuilder.data(df)`, 
+- Because the feature has already been implemented in SQL, it is likely that a similar code path would be followed.
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [x] Yes. I can contribute this feature independently.
+- [ ] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.

@@ -1,0 +1,113 @@
+## Bug
+
+### Describe the problem
+
+#### Steps to reproduce
+
+<!--
+Please include copy-pastable code snippets if possible.
+1. _____
+2. _____
+3. _____
+-->
+
+```
+    spark.range(10)
+      .withColumn("v1", col("id"))
+      .withColumn("pid", current_date().cast("string"))
+      .write
+      .format("delta")
+      .partitionBy("pid")
+      .save("/tmp/delta/t1")
+    spark.read.format("delta").load("/tmp/delta/t1").show
+    
+    // q1
+    spark.sql("optimize '/tmp/delta/t1' where pid = current_date() zorder by (id, v1)")
+    // q2
+    spark.sql("optimize '/tmp/delta/t1' where pid = '2022-06-14' zorder by (id, v1)")
+
+    // q3
+    spark.sql("optimize '/tmp/delta/t1' where pid = '2022-06-14'")
+    // q4
+    spark.sql("optimize '/tmp/delta/t1' zorder by (id, v1)")
+    spark.read.format("delta").load("/tmp/delta/t1").show
+```
+
+`q1` and `q2` throw a `ParseException`.
+
+```
+[info]   org.apache.spark.sql.catalyst.parser.ParseException: mismatched input '=' expecting {<EOF>, ';'}(line 1, pos 35)
+[info]
+[info] == SQL ==
+[info] optimize '/tmp/delta/t1' where pid = '2022-06-14' zorder by (id, v1)
+[info] -----------------------------------^^^
+[info]   at org.apache.spark.sql.catalyst.parser.ParseException.withCommand(ParseDriver.scala:265)
+[info]   at io.delta.sql.parser.DeltaSqlParser.parse(DeltaSqlParser.scala:118)
+[info]   at io.delta.sql.parser.DeltaSqlParser.parsePlan(DeltaSqlParser.scala:73)
+[info]   at org.apache.spark.sql.SparkSession.$anonfun$sql$2(SparkSession.scala:616)
+[info]   at org.apache.spark.sql.catalyst.QueryPlanningTracker.measurePhase(QueryPlanningTracker.scala:111)
+[info]   at org.apache.spark.sql.SparkSession.$anonfun$sql$1(SparkSession.scala:616)
+[info]   at org.apache.spark.sql.SparkSession.withActive(SparkSession.scala:775)
+[info]   at org.apache.spark.sql.SparkSession.sql(SparkSession.scala:613)
+[info]   at org.apache.spark.sql.delta.optimize.OptimizeZOrderSuiteBase.$anonfun$$init$$38(OptimizeZOrderSuite.scala:251)
+[info]   at scala.runtime.java8.JFunction0$mcV$sp.apply(JFunction0$mcV$sp.java:23)
+[info]   at org.scalatest.OutcomeOf.outcomeOf(OutcomeOf.scala:85)
+[info]   at org.scalatest.OutcomeOf.outcomeOf$(OutcomeOf.scala:83)
+[info]   at org.scalatest.OutcomeOf$.outcomeOf(OutcomeOf.scala:104)
+[info]   at org.scalatest.Transformer.apply(Transformer.scala:22)
+[info]   at org.scalatest.Transformer.apply(Transformer.scala:20)
+[info]   at org.scalatest.funsuite.AnyFunSuiteLike$$anon$1.apply(AnyFunSuiteLike.scala:226)
+[info]   at org.apache.spark.SparkFunSuite.withFixture(SparkFunSuite.scala:190)
+[info]   at org.scalatest.funsuite.AnyFunSuiteLike.invokeWithFixture$1(AnyFunSuiteLike.scala:224)
+[info]   at org.scalatest.funsuite.AnyFunSuiteLike.$anonfun$runTest$1(AnyFunSuiteLike.scala:236)
+[info]   at org.scalatest.SuperEngine.runTestImpl(Engine.scala:306)
+[info]   at org.scalatest.funsuite.AnyFunSuiteLike.runTest(AnyFunSuiteLike.scala:236)
+[info]   at org.scalatest.funsuite.AnyFunSuiteLike.runTest$(AnyFunSuiteLike.scala:218)
+[info]   at org.apache.spark.SparkFunSuite.org$scalatest$BeforeAndAfterEach$$super$runTest(SparkFunSuite.scala:62)
+[info]   at org.scalatest.BeforeAndAfterEach.runTest(BeforeAndAfterEach.scala:234)
+[info]   at org.scalatest.BeforeAndAfterEach.runTest$(BeforeAndAfterEach.scala:227)
+[info]   at org.apache.spark.SparkFunSuite.runTest(SparkFunSuite.scala:62)
+[info]   at org.scalatest.funsuite.AnyFunSuiteLike.$anonfun$runTests$1(AnyFunSuiteLike.scala:269)
+[info]   at org.scalatest.SuperEngine.$anonfun$runTestsInBranch$1(Engine.scala:413)
+[info]   at scala.collection.immutable.List.foreach(List.scala:431)
+[info]   at org.scalatest.SuperEngine.traverseSubNodes$1(Engine.scala:401)
+[info]   at org.scalatest.SuperEngine.runTestsInBranch(Engine.scala:396)
+[info]   at org.scalatest.SuperEngine.runTestsImpl(Engine.scala:475)
+[info]   at org.scalatest.funsuite.AnyFunSuiteLike.runTests(AnyFunSuiteLike.scala:269)
+[info]   at org.scalatest.funsuite.AnyFunSuiteLike.runTests$(AnyFunSuiteLike.scala:268)
+[info]   at org.scalatest.funsuite.AnyFunSuite.runTests(AnyFunSuite.scala:1563)
+[info]   at org.scalatest.Suite.run(Suite.scala:1112)
+[info]   at org.scalatest.Suite.run$(Suite.scala:1094)
+[info]   at org.scalatest.funsuite.AnyFunSuite.org$scalatest$funsuite$AnyFunSuiteLike$$super$run(AnyFunSuite.scala:1563)
+[info]   at org.scalatest.funsuite.AnyFunSuiteLike.$anonfun$run$1(AnyFunSuiteLike.scala:273)
+[info]   at org.scalatest.SuperEngine.runImpl(Engine.scala:535)
+[info]   at org.scalatest.funsuite.AnyFunSuiteLike.run(AnyFunSuiteLike.scala:273)
+[info]   at org.scalatest.funsuite.AnyFunSuiteLike.run$(AnyFunSuiteLike.scala:272)
+[info]   at org.apache.spark.SparkFunSuite.org$scalatest$BeforeAndAfterAll$$super$run(SparkFunSuite.scala:62)
+[info]   at org.scalatest.BeforeAndAfterAll.liftedTree1$1(BeforeAndAfterAll.scala:213)
+[info]   at org.scalatest.BeforeAndAfterAll.run(BeforeAndAfterAll.scala:210)
+[info]   at org.scalatest.BeforeAndAfterAll.run$(BeforeAndAfterAll.scala:208)
+[info]   at org.apache.spark.SparkFunSuite.run(SparkFunSuite.scala:62)
+[info]   at org.scalatest.tools.Framework.org$scalatest$tools$Framework$$runSuite(Framework.scala:318)
+[info]   at org.scalatest.tools.Framework$ScalaTestTask.execute(Framework.scala:513)
+[info]   at sbt.ForkMain$Run.lambda$runTest$1(ForkMain.java:413)
+[info]   at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+[info]   at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
+[info]   at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+[info]   at java.lang.Thread.run(Thread.java:748)
+```
+
+
+### Environment information
+
+* Delta Lake version: 1.3.0-SNAPSHOT
+* Spark version: 3.2.0
+* Scala version: 2.12
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [ ] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute a bug fix at this time.

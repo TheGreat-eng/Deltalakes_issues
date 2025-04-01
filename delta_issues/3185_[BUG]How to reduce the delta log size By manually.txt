@@ -1,0 +1,17 @@
+My delta lake has been running for more than half a year. I found that the size of the delta lake log is getting bigger and bigger. I have set delta.logRetentionDuration to 1 month to clean up the log regularly, but the size of the log is still increasing
+
+![image](https://user-images.githubusercontent.com/28140815/168234904-fd920a99-7253-44cb-baf7-6c66f15b28f0.png)
+
+Where did the log of more than 800 M come from? I don’t see that many checkpoint logs. Does delta lake read the entire checkpoint and several json files under the current version?
+
+![image](https://user-images.githubusercontent.com/28140815/168240070-3e53cdce-7181-4ebd-8e18-1695bee4ac92.png)
+
+I see that all the operation records of ADD and REMOVE are stored in the delta log. Is there no way to delete this operation record? Our data are basically append operations, can I reduce the size of the delta log with some manual operations?
+
+Because I found that with the increase of logs, the operation time of Compute snapshot for version is also increasing, and even the time of this operation has exceeded the time of our business operation, and this operation is very frequent
+![image](https://user-images.githubusercontent.com/28140815/168235619-b8308cc8-fcc1-4574-b0e5-31b8d2214623.png)
+
+
+* Delta Lake version: 1.0.1
+* Spark version: 3.1.1
+* Scala version: 2.12.2

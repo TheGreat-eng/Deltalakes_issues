@@ -1,0 +1,26 @@
+I am using Azure, Databricks 8.2, Spark 3.1.1, Scala 2.12 and delta version 1.0.0.
+
+The commands
+
+    import pyspark
+    from delta import *
+
+    builder = pyspark.sql.SparkSession.builder.appName("MyApp") \
+        .config("spark.sql.extensions", "io.delta.sql.DeltaSparkSessionExtension") \
+        .config("spark.sql.catalog.spark_catalog", "org.apache.spark.sql.delta.catalog.DeltaCatalog") 
+ 
+    spark = configure_spark_with_delta_pip(builder).getOrCreate() 
+
+results in
+
+    NameError: name 'configure_spark_with_delta_pip' is not defined
+    ---------------------------------------------------------------------------
+    NameError                                 Traceback (most recent call last)
+    <command-536103054541724> in <module>
+          6     .config("spark.sql.catalog.spark_catalog", "org.apache.spark.sql.delta.catalog.DeltaCatalog")
+          7 
+    ----> 8 spark = configure_spark_with_delta_pip(builder).getOrCreate()
+
+    NameError: name 'configure_spark_with_delta_pip' is not defined
+
+What can I do about this?

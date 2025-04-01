@@ -1,0 +1,9 @@
+This PR refactors GCSLogStore from scala to java
+Resolves https://github.com/delta-io/delta/issues/956
+
+- adds GCSLogStore.java (in delta-storage artifact)
+- adds ThreadUtils.java (in delta-storage artifact)
+- adds ThreadUtilsSuite.scala (in delta-storage artifact)
+- updates LogStoreSuite.scala (in delta-core artifact)
+- deletes GCSLogStore.scala (from delta-contribs artifact)
+- deletes GCSLogStoreSuite.scala (from delta-contribs artifact)

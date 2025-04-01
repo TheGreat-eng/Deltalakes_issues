@@ -1,0 +1,13 @@
+When trying to run `setup.py` on the tarball fetched from PyPi (e.g. [https://files.pythonhosted.org/packages/8d/9f/281e4796e96335fbdabcff0fdb9b64e982b442c24c756a7041d64c88caf3/delta-spark-1.1.0.tar.gz)](https://files.pythonhosted.org/packages/8d/9f/281e4796e96335fbdabcff0fdb9b64e982b442c24c756a7041d64c88caf3/delta-spark-1.1.0.tar.gz),), I hit an issue because `version.sbt` is missing.
+
+```
+  Traceback (most recent call last):
+    File "<string>", line 1, in <module>
+    File "/build/delta-spark-1.1.0/setup.py", line 17, in <module>
+      VERSION = get_version_from_sbt()
+    File "/build/delta-spark-1.1.0/setup.py", line 12, in get_version_from_sbt
+      with open("version.sbt") as fp:
+  FileNotFoundError: [Errno 2] No such file or directory: 'version.sbt'
+```
+
+Indeed, the tarball does not contain `version.sbt`. Same goes for `python/README.md`.

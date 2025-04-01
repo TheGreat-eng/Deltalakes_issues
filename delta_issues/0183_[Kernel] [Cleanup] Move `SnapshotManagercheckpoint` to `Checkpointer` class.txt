@@ -1,0 +1,21 @@
+#### Which Delta project/connector is this regarding?
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [X] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+This PR moves `SnapshotManager::checkpoint` to `Checkpointer` class. This reduces coupling and increases cohesion.
+
+I also tidy up some code and logger statements along the way.
+
+## How was this patch tested?
+
+Just a refactor. Existing UTs.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No.

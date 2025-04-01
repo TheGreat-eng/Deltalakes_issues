@@ -1,0 +1,18 @@
+#### Which Delta project/connector is this regarding?
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+We add limited retries (default = 10) for retryable CommitFailedExceptions which are non-conflict. The number of default retries for retryable conflict CommitFailedExceptions is set to 10M right now.
+
+## How was this patch tested?
+
+UT to make sure the change is working as intended
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

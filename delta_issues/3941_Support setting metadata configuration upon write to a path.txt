@@ -1,0 +1,5 @@
+This PR makes the change to save `delta.` prefix options set by `DataFrameWriter.option` as table properties when writing to a new path (In other words, create a new table).
+
+This makes Delta consistent with other APIs when creating a table:
+- DataFrameWriterV2 (either table or path)
+- DataFrameWriter.option(...).saveAsTable

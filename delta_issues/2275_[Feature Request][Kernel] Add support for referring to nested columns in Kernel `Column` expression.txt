@@ -1,0 +1,27 @@
+## Feature request
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the issue title
+For example: [Feature Request][Spark] Title of my issue
+-->
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [x] Kernel
+- [ ] Other (fill in here)
+
+### Overview
+Currently, the `Column` expression refers to the column by name, but there is no way to refer to nested columns. There arefew ways to handle this:
+* Introduce a `subfield` expression. `subfield(column(a),b)` refers to `a.b`
+* Make the `String name` to `String[] names` in the `Column` to refer to a column as a path. To refer to `a.b`, `Column` will have `names=["a", "b"]. This is similar to Spark DSv2 expressions.
+* Concatenate the nested column path entries with `.` and specify in the `Column.name`. It is the responsibility of the expression evaluator to handle the parsing. This needs to take care of escaping the `.` in the field name.
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [x] Yes. I can contribute this feature independently.
+- [ ] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.

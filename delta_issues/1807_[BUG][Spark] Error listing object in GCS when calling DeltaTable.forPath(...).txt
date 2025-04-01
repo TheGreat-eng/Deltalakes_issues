@@ -1,0 +1,84 @@
+## Bug
+
+#### Which Delta project/connector is this regarding?
+- [x] Spark
+
+### Describe the problem
+Occasionally, when calling DeltaTable.forPath(...) in order to merge data into table we get the a connection exception (included further down):
+
+#### Steps to reproduce
+It happens to us about once every 10 minutes or so, and with all of our tables, not just a specific one. 
+It is important to stress that most of the time it works
+
+#### Observed results
+
+An exception is thrown, causing our write process to fail
+
+#### Expected results
+
+for a DeltaTable object to be returned for the merge process
+
+#### Further details
+Caused by: java.io.IOException: Error listing gs://path/to/delta/table/_delta_log/
+	at com.google.cloud.hadoop.repackaged.gcs.com.google.cloud.hadoop.gcsio.GoogleCloudStorageImpl.listStorageObjectsAndPrefixesPage(GoogleCloudStorageImpl.java:1551)
+	at com.google.cloud.hadoop.repackaged.gcs.com.google.cloud.hadoop.gcsio.GoogleCloudStorageImpl.listStorageObjectsAndPrefixes(GoogleCloudStorageImpl.java:1521)
+	at com.google.cloud.hadoop.repackaged.gcs.com.google.cloud.hadoop.gcsio.GoogleCloudStorageImpl.listObjectInfo(GoogleCloudStorageImpl.java:1674)
+	at com.google.cloud.hadoop.repackaged.gcs.com.google.cloud.hadoop.gcsio.GoogleCloudStorageFileSystem.lambda$listFileInfo$7(GoogleCloudStorageFileSystem.java:1017)
+	at java.base/java.util.concurrent.FutureTask.run(Unknown Source)
+	at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(Unknown Source)
+	at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(Unknown Source)
+	at java.base/java.lang.Thread.run(Unknown Source)
+Caused by: java.net.SocketException: Connection reset
+	at java.base/java.net.SocketInputStream.read(Unknown Source)
+	at java.base/java.net.SocketInputStream.read(Unknown Source)
+	at java.base/sun.security.ssl.SSLSocketInputRecord.read(Unknown Source)
+	at java.base/sun.security.ssl.SSLSocketInputRecord.readFully(Unknown Source)
+	at java.base/sun.security.ssl.SSLSocketInputRecord.decodeInputRecord(Unknown Source)
+	at java.base/sun.security.ssl.SSLSocketInputRecord.decode(Unknown Source)
+	at java.base/sun.security.ssl.SSLTransport.decode(Unknown Source)
+	at java.base/sun.security.ssl.SSLSocketImpl.decode(Unknown Source)
+	at java.base/sun.security.ssl.SSLSocketImpl.readApplicationRecord(Unknown Source)
+	at java.base/sun.security.ssl.SSLSocketImpl$AppInputStream.read(Unknown Source)
+	at java.base/java.io.BufferedInputStream.read1(Unknown Source)
+	at java.base/java.io.BufferedInputStream.read(Unknown Source)
+	at java.base/sun.net.www.MeteredStream.read(Unknown Source)
+	at java.base/java.io.FilterInputStream.read(Unknown Source)
+	at java.base/sun.net.www.protocol.http.HttpURLConnection$HttpInputStream.read(Unknown Source)
+	at com.google.cloud.hadoop.repackaged.gcs.com.google.api.client.http.javanet.NetHttpResponse$SizeValidatingInputStream.read(NetHttpResponse.java:164)
+	at java.base/java.io.BufferedInputStream.fill(Unknown Source)
+	at java.base/java.io.BufferedInputStream.read1(Unknown Source)
+	at java.base/java.io.BufferedInputStream.read(Unknown Source)
+	at com.google.cloud.hadoop.repackaged.gcs.com.fasterxml.jackson.core.json.UTF8StreamJsonParser._loadMore(UTF8StreamJsonParser.java:257)
+	at com.google.cloud.hadoop.repackaged.gcs.com.fasterxml.jackson.core.json.UTF8StreamJsonParser._skipColon2(UTF8StreamJsonParser.java:3170)
+	at com.google.cloud.hadoop.repackaged.gcs.com.fasterxml.jackson.core.json.UTF8StreamJsonParser._skipColon(UTF8StreamJsonParser.java:3116)
+	at com.google.cloud.hadoop.repackaged.gcs.com.fasterxml.jackson.core.json.UTF8StreamJsonParser.nextToken(UTF8StreamJsonParser.java:802)
+	at com.google.cloud.hadoop.repackaged.gcs.com.google.api.client.json.jackson2.JacksonParser.nextToken(JacksonParser.java:53)
+	at com.google.cloud.hadoop.repackaged.gcs.com.google.api.client.json.JsonParser.startParsingObjectOrArray(JsonParser.java:233)
+	at com.google.cloud.hadoop.repackaged.gcs.com.google.api.client.json.JsonParser.parse(JsonParser.java:416)
+	at com.google.cloud.hadoop.repackaged.gcs.com.google.api.client.json.JsonParser.parseValue(JsonParser.java:787)
+	at com.google.cloud.hadoop.repackaged.gcs.com.google.api.client.json.JsonParser.parseArray(JsonParser.java:641)
+	at com.google.cloud.hadoop.repackaged.gcs.com.google.api.client.json.JsonParser.parseValue(JsonParser.java:744)
+	at com.google.cloud.hadoop.repackaged.gcs.com.google.api.client.json.JsonParser.parse(JsonParser.java:451)
+	at com.google.cloud.hadoop.repackaged.gcs.com.google.api.client.json.JsonParser.parseValue(JsonParser.java:787)
+	at com.google.cloud.hadoop.repackaged.gcs.com.google.api.client.json.JsonParser.parse(JsonParser.java:360)
+	at com.google.cloud.hadoop.repackaged.gcs.com.google.api.client.json.JsonParser.parse(JsonParser.java:335)
+	at com.google.cloud.hadoop.repackaged.gcs.com.google.api.client.json.JsonObjectParser.parseAndClose(JsonObjectParser.java:79)
+	at com.google.cloud.hadoop.repackaged.gcs.com.google.api.client.json.JsonObjectParser.parseAndClose(JsonObjectParser.java:73)
+	at com.google.cloud.hadoop.repackaged.gcs.com.google.api.client.http.HttpResponse.parseAs(HttpResponse.java:461)
+	at com.google.cloud.hadoop.repackaged.gcs.com.google.api.client.googleapis.services.AbstractGoogleClientRequest.execute(AbstractGoogleClientRequest.java:565)
+	at com.google.cloud.hadoop.repackaged.gcs.com.google.cloud.hadoop.gcsio.GoogleCloudStorageImpl.listStorageObjectsAndPrefixesPage(GoogleCloudStorageImpl.java:1543)
+	... 7 common frames omitted
+
+### Environment information
+
+* Delta Lake version: 2.12:2.4.0
+* Spark version: 3.4.1
+* Scala version: 2.12
+* gcs-hadoop-connector version: latest
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [x] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+

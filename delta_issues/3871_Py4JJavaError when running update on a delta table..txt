@@ -1,0 +1,22 @@
+In 0.6.0 the following code works without error:
+
+deltaTable = DeltaTable.forPath(spark,dataPath)
+deltaTable.update(
+    condition=("InvoiceNo = 537612"),
+    set={"Quantity": expr("Quantity + 1000")}
+)
+
+However, using 0.6.1 produces an error (see attached file)
+[delta lake update error.txt](https://github.com/delta-io/delta/files/4702374/delta.lake.update.error.txt)
+
+The same error occurs when I try to delete from  a delta table:
+deltaTable.delete(
+    condition=("InvoiceNo = 537612")
+)
+
+I am running:
+Spark 2.4.3
+Hadoop 3.2.1 (using only hdfs)
+Scala 2.11
+Python 3.6.3
+Jupyterlab 2.1.3

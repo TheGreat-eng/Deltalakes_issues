@@ -1,0 +1,21 @@
+The example here is incorrect. https://docs.delta.io/latest/delta-batch.html#create-a-table
+
+```
+CREATE IF NOT EXISTS TABLE events (
+  date DATE,
+  eventId STRING,
+  eventType STRING,
+  data STRING)
+USING DELTA
+```
+
+It should be
+
+```
+CREATE TABLE IF NOT EXISTS events (
+  date DATE,
+  eventId STRING,
+  eventType STRING,
+  data STRING)
+USING DELTA
+```

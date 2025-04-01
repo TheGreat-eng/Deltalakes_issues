@@ -1,0 +1,3 @@
+After this PR, Delta Lake will have the ability to run JUnit tests in SBT.
+
+This PR passed tests by `JavaDeltaTableSuite.java`, `DeleteJavaSuite.java` and `UpdateJavaSuite.java`

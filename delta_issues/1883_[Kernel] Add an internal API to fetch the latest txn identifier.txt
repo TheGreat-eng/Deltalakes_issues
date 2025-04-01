@@ -1,0 +1,17 @@
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [x] Kernel
+- [ ] Other (fill in here)
+
+## Description
+This PR adds an internal API on `SnapshotImpl` to fetch the latest version of the transaction identifier for a given app id. For now, this API is internal to unblock the Flink upgrade to use Kernel.
+
+## How was this patch tested?
+Unittest

@@ -1,0 +1,18 @@
+#### Which Delta project/connector is this regarding?
+- [X] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+Refactor shim package `org.apache.spark.sql.delta.shims`. When shimming `$package.$class`, use shim package `$package`
+
+## How was this patch tested?
+
+Trivial refactor only.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

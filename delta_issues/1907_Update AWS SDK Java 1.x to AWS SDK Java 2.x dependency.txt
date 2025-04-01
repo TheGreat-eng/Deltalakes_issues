@@ -1,0 +1,156 @@
+<!--
+Thanks for sending a pull request!  Here are some tips for you:
+  1. If this is your first time, please read our contributor guidelines: https://github.com/delta-io/delta/blob/master/CONTRIBUTING.md
+  2. If the PR is unfinished, add '[WIP]' in your PR title, e.g., '[WIP] Your PR title ...'.
+  3. Be sure to keep the PR description updated to reflect all changes.
+  4. Please write your PR title to summarize what this PR proposes.
+  5. If possible, provide a concise example to reproduce the issue for a faster review.
+  6. If applicable, include the corresponding issue number in the PR title and link it in the body.
+-->
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [x] Storage-s3-dynamodb
+- [ ] Other (fill in here)
+
+## Description
+
+<!--
+- Describe what this PR changes.
+- Describe why we need the change.
+ 
+If this PR resolves an issue be sure to include "Resolves #XXX" to correctly link and close the issue upon merge.
+-->
+The AWS SDK for Java 1.x is being deprecated will enter maintenance mode. To address the package deprecation, we’ll need to upgrade AWS SDK Java 1.x in delta to AWS SDK Java 2.x.
+
+Delta is undergoing an upgrade from AWS SDK Java version 1.x to version 2.x, aiming to leverage the enhanced features and improvements introduced in the latest SDK. The transition involves significant changes in the codebase, including the adoption of a builder pattern for constructing requests, a more functional programming approach utilizing lambda expressions, adjustments in response handling, and a new exception handling hierarchy (SdkServiceException). These changes contribute to improved code readability, flexibility, and compatibility with the latest AWS SDK practices.
+
+## How was this patch tested?
+
+<!--
+If tests were added, say they were added here. Please make sure to test the changes thoroughly including negative and positive cases if possible.
+If the changes were tested in any way other than unit tests, please clarify how you tested step by step (ideally copy and paste-able, so that other reviewers can test and check, and descendants can verify in the future).
+If the changes were not tested, please explain why.
+-->
+Testing:
+1. Unit test - SUCCEEDED
+2. Manual test :
+
+#### Step 1: Download the Required JAR file and Execute Spark SQL
+```
+aws s3 cp s3://jainaakz-emr-blr-dev/storage-s3-dynamodb/delta-storage-s3-dynamodb-3.1.0-SNAPSHOT.jar .
+
+spark-sql --packages io.delta:delta-spark_2.12:3.0.0 --conf spark.delta.logStore.s3a.impl=io.delta.storage.S3DynamoDBLogStore --conf spark.io.delta.storage.S3DynamoDBLogStore.ddb.tableName=delta_log1 --conf spark.io.delta.storage.S3DynamoDBLogStore.ddb.region=us-east-1 --conf spark.sql.extensions=io.delta.sql.DeltaSparkSessionExtension --conf spark.sql.catalog.spark_catalog=org.apache.spark.sql.delta.catalog.DeltaCatalog --jars /home/hadoop/delta-storage-s3-dynamodb-3.1.0-SNAPSHOT.jar
+```
+
+#### Step-2: Create a Delta Table and Insert Initial Data
+
+```
+
+spark-sql (default)> CREATE TABLE oss_delta_test_db.my_delta_table11 (
+                   >   id INT,
+                   >   value INT
+                   > ) USING delta;
+
+spark-sql (default)> INSERT INTO oss_delta_test_db.my_delta_table11
+                   > VALUES
+                   >   (1, 100),
+                   >   (2, 200),
+                   >   (3, 300),
+                   >   (4, 400),
+                   >   (5, 500),
+                   >   (6, 600),
+                   >   (7, 700),
+                   >   (8, 800),
+                   >   (9, 900),
+                   >   (10, 1000);
+```
+
+#### Step-3: Verify Initial data
+
+```
+
+spark-sql (default)> SELECT * FROM oss_delta_test_db.my_delta_table11;
+6	600
+7	700
+3	300
+4	400
+5	500
+6	600
+7	700
+8	800
+9	900
+10	1000
+3	300
+4	400
+5	500
+8	800
+9	900
+10	1000
+1	100
+2	200
+1	100
+2	200
+Time taken: 1.175 seconds, Fetched 20 row(s)
+```
+
+#### Step-4: Insert a Large Number of Rows. Entered such 335544320 rows in the table
+```
+spark-sql (default)> 
+                   > SELECT COUNT(*) FROM oss_delta_test_db.my_delta_table11;
+335544320
+```
+
+#### Step-5: Simultaneous Concurrent Inserts. 
+Executed the following INSERT query simultaneously from 2 sessions for the concurrent insert
+```
+spark-sql (default)> 
+                   > INSERT INTO oss_delta_test_db.my_delta_table11
+                   > SELECT * FROM oss_delta_test_db.my_delta_table11;
+```
+
+Result:
+
+* The query in Session 1 completed successfully.
+* The query in Session 2 failed with the io.delta.exceptions.ConcurrentAppendException.
+
+spark-sql (default)> INSERT INTO oss_delta_test_db.my_delta_table11
+                   > SELECT * FROM oss_delta_test_db.my_delta_table11;
+
+Error Message:
+```
+23/12/26 06:51:40 ERROR NonFateSharingFuture: Failed to get result from future
+scala.runtime.NonLocalReturnControl: null
+23/12/26 06:51:41 WARN SparkStringUtils: Truncated the string representation of a plan since it was too large. This behavior can be adjusted by setting 'spark.sql.debug.maxToStringFields'.
+23/12/26 06:51:53 ERROR SparkSQLDriver: Failed in [INSERT INTO oss_delta_test_db.my_delta_table11
+SELECT * FROM oss_delta_test_db.my_delta_table11]
+io.delta.exceptions.ConcurrentAppendException: Files were added to the root of the table by a concurrent update. Please try the operation again.
+Conflicting commit: {"timestamp":1703573511485,"operation":"WRITE","operationParameters":{"mode":Append,"partitionBy":[]},"readVersion":17,"isolationLevel":"Serializable","isBlindAppend":false,"operationMetrics":{"numFiles":"9","numOutputRows":"655360","numOutputBytes":"124686"},"engineInfo":"Apache-Spark/3.5.0-amzn-0 Delta-Lake/3.0.0","txnId":"1ff88499-fb5b-4ab1-ac48-50e213adfd50"}
+Refer to https://docs.delta.io/latest/concurrency-control.html for more details.
+	at org.apache.spark.sql.delta.DeltaErrorsBase.concurrentAppendException(DeltaErrors.scala:2293) ~[io.delta_delta-spark_2.12-3.0.0.jar:3.0.0]
+	at org.apache.spark.sql.delta.DeltaErrorsBase.concurrentAppendException$(DeltaErrors.scala:2284) ~[io.delta_delta-spark_2.12-3.0.0.jar:3.0.0]
+	at org.apache.spark.sql.delta.DeltaErrors$.concurrentAppendException(DeltaErrors.scala:3039) ~[io.delta_delta-spark_2.12-3.0.0.jar:3.0.0]
+	at org.apache.spark.sql.delta.ConflictChecker.$anonfun$checkForAddedFilesThatShouldHaveBeenReadByCurrentTxn$1(ConflictChecker.scala:291) ~[io.delta_delta-spark_2.12-3.0.0.jar:3.0.0]
+	at scala.runtime.java8.JFunction0$mcV$sp.apply(JFunction0$mcV$sp.java:23) ~[scala-library-2.12.17.jar:?]
+	at org.apache.spark.sql.delta.ConflictChecker.recordTime(ConflictChecker.scala:485) ~[io.delta_delta-spark_2.12-3.0.0.jar:3.0.0]
+	at org.apache.spark.sql.delta.ConflictChecker.checkForAddedFilesThatShouldHaveBeenReadByCurrentTxn(ConflictChecker.scala:262) ~[io.delta_delta-spark_2.12-3.0.0.jar:3.0.0]
+	at org.apache.spark.sql.delta.ConflictChecker.checkConflicts(ConflictChecker.scala:140) ~[io.delta_delta-spark_2.12-3.0.0.jar:3.0.0]
+	at org.apache.spark.sql.delta.OptimisticTransactionImpl.checkForConflictsAgainstVersion(OptimisticTransaction.scala:1784) ~[io.delta_delta-spark_2.12-3.0.0.jar:3.0.0]
+	at org.apache.spark.sql.delta.OptimisticTransactionImpl.checkForConflictsAgainstVersion$(OptimisticTransaction.scala:1774) ~[io.delta_delta-spark_2.12-3.0.0.jar:3.0.0]
+	at org.apache.spark.sql.delta.OptimisticTransaction.checkForConflictsAgainstVersion(OptimisticTransaction.scala:141) ~[io.delta_delta-spark_2.12-3.0.0.jar:3.0.0]
+	at org.apache.spark.sql.delta.OptimisticTransactionImpl.$anonfun$checkForConflicts$4(OptimisticTransaction.scala:1763) ~[io.delta_delta-spark_2.12-3.0.0.jar:3.0.0]
+	at scala.runtime.java8.JFunction1$mcVJ$sp.apply(JFunction1$mcVJ$sp.java:23) ~[scala-library-2.12.17.jar:?]
+	at scala.collection.immutable.NumericRange.foreach(NumericRange.scala:75) ~[scala-library-2.12.17.jar:?]
+	at org.apache.spark.sql.delta.OptimisticTransactionImpl.$anonfun$checkForConflicts$1(OptimisticTransaction.scala:1759) ~[io.delta_delta-spark_2.12-3.0.0.jar:3.0.0]
+	at org.apache.spark.sql.delta.metering.DeltaLogging.recordFrameProfile(DeltaLogging.scala:140) ~[io.delta_delta-spark_2.12-3.0.0.jar:3.0.0]
+```
+
+The error message is the expected behaviour as per the doc: https://docs.delta.io/latest/concurrency-control.html#concurrentappendexception

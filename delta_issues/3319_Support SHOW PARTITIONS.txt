@@ -1,0 +1,40 @@
+It would be great to support `SHOW PARTITIONS` in Delta so that people can check the partition values in a table. Output example,
+
+```
+spark.range(1, 10).selectExpr("id as c1", "current_date() as c2", "id as c3")
+  .write.mode("overwrite").format("delta").partitionBy("c1", "c2").save("/tmp/showpartitions")
+spark.sql("show partitions delta.`/tmp/showpartitions`").show(false)
+
++---+----------+
+|c1 |c2        |
++---+----------+
+|1  |2022-03-10|
+|2  |2022-03-10|
+|4  |2022-03-10|
+|3  |2022-03-10|
+|5  |2022-03-10|
+|6  |2022-03-10|
+|9  |2022-03-10|
+|7  |2022-03-10|
+|8  |2022-03-10|
++---+----------+
+```
+The column names of the output should be the partition column names and each row outputs the partition values for one partition. 
+
+Syntax:
+```
+SHOW PARTITIONS delta.`<path>` PARTITION(partition_spec)
+SHOW PARTITIONS <table-name>
+SHOW PARTITIONS <table-name> PARTITION(partition_spec)
+```
+
+Note: we don't want to follow Spark's current [SHOW PARTITIONS](https://spark.apache.org/docs/latest/sql-ref-syntax-aux-show-partitions.html) output format because it's not easy to write code to consume this format. For example, the following example puts two values in one cell.
+```
++----------------------+
+|             partition|
++----------------------+
+|  state=AZ/city=Peoria|
+| state=CA/city=Fremont|
+|state=CA/city=San Jose|
++----------------------+
+```

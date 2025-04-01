@@ -1,0 +1,56 @@
+## Bug
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the issue title
+For example: [BUG][Spark] Title of my issue
+-->
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Other (fill in here)
+- [ ] Kernel
+
+### Describe the problem
+Delta missed some of the cdc entries of delta table. As the events are generated the cdc entries are not logged in _change_data while they are registered in metadata.
+
+
+#### Steps to reproduce
+
+<!--
+Please include copy-pastable code snippets if possible.
+query -> 
+```with t1 as (SELECT * FROM TABLE(system.table_changes(schema_name => '**',table_name => '**', since_version => 0)))select t1.* from t1 where t1.col1='**' order by ** ASC;```
+
+-->
+
+#### Observed results
+After enabling the change_data_feed of new delta table, and querying the history version, getting ```Change Data Feed is not enabled at version 18. Version contains 'remove' entries without 'cdc' entries```
+
+
+<!-- What happened?  This could be a description, log output, etc. -->
+
+#### Expected results
+
+<!-- What did you expect to happen? -->
+
+#### Further details
+
+<!--
+Include any additional details that may be useful for diagnosing the problem here. If including tracebacks, please include the full traceback. Large logs and files should be attached.
+-->
+
+### Environment information
+
+* Delta Lake version: 2.0.2
+* Spark version: 3.2.4
+* Scala version: 2.12
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [ ] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute a bug fix at this time.

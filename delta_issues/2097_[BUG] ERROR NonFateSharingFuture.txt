@@ -1,0 +1,20 @@
+I updated my delta lake to version 3.0.0 and user pyspark 3.5.0.
+I Use this code to save my df in delta lake:
+
+```
+df\
+        .write\
+        .format("delta")\
+        .saveAsTable(
+           "db.user"
+        )
+```
+
+But this error is shown:  
+ `ERROR NonFateSharingFuture: Failed to get result from future scala.runtime.NonLocalReturnControl`
+
+also when data is small it can save data but in large data it crash.
+
+when I change it again to delta lake 2.4.0 it run correctly.
+
+How can i solve that problem?

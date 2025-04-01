@@ -1,0 +1,4 @@
+It will be nice to have SQL API for delta restore command (similar to Databricks delta (https://docs.databricks.com/spark/latest/spark-sql/language-manual/delta-restore.html)
+
+Will be unblocked after merging #863 
+

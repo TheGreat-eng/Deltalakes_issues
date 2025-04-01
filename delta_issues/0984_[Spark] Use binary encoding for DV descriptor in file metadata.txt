@@ -1,0 +1,19 @@
+#### Which Delta project/connector is this regarding?
+
+- [X] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+The Deletion Vector descriptor of each file is currently serialized in file's custom metadata as a JSON string. We can reduce the size of the descriptor by using a custom binary encoding. Note that the serialized DV descriptor is never persisted to disk so this change is safe.
+
+## How was this patch tested?
+
+Updated existing new tests.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

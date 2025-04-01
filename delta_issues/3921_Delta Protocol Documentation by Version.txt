@@ -1,0 +1,6 @@
+Hello,
+
+I am developing a reader for parsing Delta Logs in Python (without Spark as a dependency). The protocol document [here](https://github.com/delta-io/delta/blob/master/PROTOCOL.md) is very useful, but it does say "THIS IS AN IN-PROGRESS DRAFT". However, based on the protocol records created by Delta tables, it appears there have been two versions (1, 2) of the Delta Protocol already released. Is that correct?
+
+If I am understanding this correctly, I think it would be helpful to have final version of the protocol for each released version, so that alternative connectors can know how to support the protocol. For example, I don't have a clear picture on what changed from V1 to V2.
+

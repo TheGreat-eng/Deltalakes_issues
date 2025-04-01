@@ -1,0 +1,9 @@
+## Feature request
+
+Currently there are two connectors in Python that allow you to interact with Delta lake. 
+- Spark-Delta, which requires spark
+- Deltalake (delta-rs python bindings)
+
+We may need to make it clearer on the Delta.io docs page that the python implementation is only for **PySpark**. Currently when you google python delta you get these results:
+
+![image](https://github.com/delta-io/delta/assets/15728914/ab92864a-888f-4ca4-ae9d-b74ebb0802d6)

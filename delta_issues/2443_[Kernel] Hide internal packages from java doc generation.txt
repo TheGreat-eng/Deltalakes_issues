@@ -1,0 +1,3 @@
+This is used by the github action to publish the API docs
+
+Ran `build/sbt kernelApi/doc` locally and checked the index.

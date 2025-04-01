@@ -1,0 +1,13 @@
+hello , 
+Description
+when trying to execute the following code 
+
+`DeltaTable.forPath(spark, deltaLakeSilverPath).as("delta")
+      .merge(dataFrameUpSert.as(table_name), f"delta.id = $table_name.id")
+      .whenMatched.updateExpr(columnName.map(t => (t, f"$table_name." + t)).toMap)
+      .whenNotMatched().insertExpr(columnName.map(t => (t, f"$table_name." + t)).toMap)
+      .execute()`
+
+i got error Caused by: java.io.NotSerializableException: main$
+
+i 'm using spark version : 3.1.2 , delta : 1.0.0

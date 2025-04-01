@@ -1,0 +1,1 @@
+Right now the LogStore conf key is "delta.logStore.class", but this is not getting picked up because Spark requires spark conf to start with "spark.". So we change this to "spark.delta.logStore.class". 

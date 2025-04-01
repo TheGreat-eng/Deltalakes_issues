@@ -1,0 +1,10 @@
+## Description
+Due to Spark unfortunate behavior of resolving plan nodes it doesn't know, the `DeltaMergeInto` plan created when using the MERGE scala API needs to be manually resolved to ensure spark doesn't interfere with its analysis.
+
+This currently completely bypasses Spark's analysis as we then manually execute the MERGE command which has negatiev effects, e.g. the execution is not visible in QueryExecutionListener.
+
+This change addresses this issue, by executing the plan using the Dataframe API after it's manually resolved so that the command goes through the regular code path.
+
+Resolves https://github.com/delta-io/delta/issues/1521
+## How was this patch tested?
+Covered by existing tests.

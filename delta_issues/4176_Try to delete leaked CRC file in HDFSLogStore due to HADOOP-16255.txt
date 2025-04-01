@@ -1,0 +1,5 @@
+Due to [HADOOP-16255](https://issues.apache.org/jira/browse/HADOOP-16255), `fc.rename` doesn't correctly rename CRC file of source file if filesystem is descendant of `ChecksumFs` (specifically `LocalFs`), which makes HDFSLogStore leak CRC files of temp files.
+
+This patch will try to delete CRC file of source file when renaming, but just do as a "best-effort" since it's OK to leak some CRC file instead of let write fail.
+
+Also added verification logic to check any leaked CRC files.

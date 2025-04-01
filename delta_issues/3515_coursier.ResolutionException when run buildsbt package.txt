@@ -1,0 +1,38 @@
+I encountered this exception when I clone this project and run command 'build/sbt package'.
+sbt:1.5.5
+jdk: AdoptOpenJDK Java 14.0.2.
+detail error:
+```
+Using /Library/Java/JavaVirtualMachines/adoptopenjdk-14.jdk/Contents/Home/ as default JAVA_HOME.
+Note, this will be overridden by -java-home if it is set.
+[info] welcome to sbt 1.5.5 (AdoptOpenJDK Java 14.0.2)
+[info] loading global plugins from /Users/chyun/.sbt/1.0/plugins
+[info] loading settings for project delta-build-build from plugins.sbt ...
+[info] loading project definition from /Users/chyun/workspace/delta/project/project
+[info] loading settings for project delta-build from plugins.sbt ...
+[info] loading project definition from /Users/chyun/workspace/delta/project
+[info] Updating delta-build
+[info] Resolved delta-build dependencies
+[error] coursier.ResolutionException: Encountered 1 error(s) in dependency resolution:
+[error]     org.scala-sbt:global-plugins;sbtVersion=1.0;scalaVersion=2.12:0.0:
+[error]         not found:
+[error]             https://repo1.maven.org/maven2/org/scala-sbt/global-plugins_2.12_1.0/0.0/global-plugins-0.0.pom
+[error]             /Users/chyun/.ivy2/local/org.scala-sbt/global-plugins/scala_2.12/sbt_1.0/0.0/ivys/ivy.xml
+[error]             https://maven.aliyun.com/nexus/content/groups/public/org/scala-sbt/global-plugins_2.12_1.0/0.0/global-plugins-0.0.pom
+[error]             https://oss.sonatype.org/service/local/repositories/releases/content/org/scala-sbt/global-plugins_2.12_1.0/0.0/global-plugins-0.0.pom
+[error]             https://oss.sonatype.org/content/repositories/snapshots/org/scala-sbt/global-plugins_2.12_1.0/0.0/global-plugins-0.0.pom
+[error]             https://repo.scala-sbt.org/scalasbt/sbt-plugin-releases/org.scala-sbt/global-plugins/scala_2.12/sbt_1.0/0.0/ivys/ivy.xml
+[error] (coursierResolutions) coursier.ResolutionException: Encountered 1 error(s) in dependency resolution:
+[error]     org.scala-sbt:global-plugins;sbtVersion=1.0;scalaVersion=2.12:0.0:
+[error]         not found:
+[error]             https://repo1.maven.org/maven2/org/scala-sbt/global-plugins_2.12_1.0/0.0/global-plugins-0.0.pom
+[error]             /Users/chyun/.ivy2/local/org.scala-sbt/global-plugins/scala_2.12/sbt_1.0/0.0/ivys/ivy.xml
+[error]             https://maven.aliyun.com/nexus/content/groups/public/org/scala-sbt/global-plugins_2.12_1.0/0.0/global-plugins-0.0.pom
+[error]             https://oss.sonatype.org/service/local/repositories/releases/content/org/scala-sbt/global-plugins_2.12_1.0/0.0/global-plugins-0.0.pom
+[error]             https://oss.sonatype.org/content/repositories/snapshots/org/scala-sbt/global-plugins_2.12_1.0/0.0/global-plugins-0.0.pom
+[error]             https://repo.scala-sbt.org/scalasbt/sbt-plugin-releases/org.scala-sbt/global-plugins/scala_2.12/sbt_1.0/0.0/ivys/ivy.xml
+[warn] Project loading failed: (r)etry, (q)uit, (l)ast, or (i)gnore? (default: r)
+```
+
+It seems like a sbt-coursier's bug, see https://github.com/coursier/coursier/issues/1064
+I changed the version of sbt-coursier to 1.1.0-M12, it did worked.

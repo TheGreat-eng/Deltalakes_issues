@@ -1,0 +1,52 @@
+## Bug
+
+### Describe the problem
+Having a class not found exception while trying to write as delta
+
+#### Steps to reproduce
+```scala
+val s3_conf = new SparkConf()
+    .set("fs.s3a.access.key", "xxxx")
+    .set("fs.s3a.secret.key", "xxx")
+// I tested with and without this option, nothing change
+    .set("spark.delta.logStore.class", "org.apache.spark.sql.delta.storage.S3SingleDriverLogStore")
+val spark = SparkSession
+    .builder()
+    .master("local")
+    .appName("delta-writer")
+    .config(s3_conf)
+    .getOrCreate()
+// creating a dataframe
+  df.write
+    .partitionBy("date")
+    .mode("overwrite")
+    .format("delta")
+    .save("s3a://mybucket/myObject")
+```
+
+#### Observed results
+The job fails with this error
+```log
+Exception in thread "main" com.google.common.util.concurrent.ExecutionError: java.lang.NoClassDefFoundError: io/delta/storage/LogStore
+```
+
+#### Further details
+aws cli version that are in the classpath
+- hadoop-aws-3.2.2.jar
+- aws-java-sdk-bundle-1.11.563.jar  
+
+I am using the spark-submit command to launch the program
+
+### Environment information
+
+* Delta Lake version: 1.2.0
+* Spark version: 3.2.1
+* Scala version: 2.12.15
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [x] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute a bug fix at this time.

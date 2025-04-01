@@ -1,0 +1,7 @@
+Kernel has been accumulating a few special contributors/developers' guidelines. We should create an end-2-end contribution guide
+
+Example areas:
+1. Tests are expected to be in Scala
+2. Exception principles.
+3. Kernel-API module should be kept lightweight weight and no additional maven dependencies
+4. Guidelines on what should fall in Kernel vs Engine

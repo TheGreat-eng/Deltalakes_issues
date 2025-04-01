@@ -1,0 +1,21 @@
+#### Which Delta project/connector is this regarding?
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+This PR replaces the call to DeltaLog.startTransaction() in StatisticsCollection.recompute with calls to DeltaLog.startTransaction(Option[CatalogTable], Snapshot). This PR is part of https://github.com/delta-io/delta/issues/2105 and a follow-up to https://github.com/delta-io/delta/pull/2125, to ensure that all transactions have a valid catalogTable attached to them so Uniform can correctly update the table in the catalog.
+
+This PR also introduces a new helper in DeltaTestImplicits, which allows unit test call sites to still call the old version of StatisticsCollection.recompute and passes None as the catalogTable. This implicit should only be used if the test really only runs against a path-based Delta table and so no catalogTable is present.
+
+## How was this patch tested?
+
+This is a small refactoring change so existing test coverage is sufficient.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

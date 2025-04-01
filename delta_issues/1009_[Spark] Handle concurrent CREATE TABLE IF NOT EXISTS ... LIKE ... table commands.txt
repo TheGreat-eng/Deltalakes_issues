@@ -1,0 +1,20 @@
+#### Which Delta project/connector is this regarding?
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+When 2 or more CREATE TABLE IF NOT EXISTS table commands are run concurrently, they both think the table doesn't exist yet and the second command fails with TABLE_ALREADY_EXISTS error.
+
+With this PR, we aim to make sure the second command end up in a no-op instead of a failure.
+
+## How was this patch tested?
+
+UTs
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

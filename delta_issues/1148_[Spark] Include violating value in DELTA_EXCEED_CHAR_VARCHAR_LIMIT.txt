@@ -1,0 +1,19 @@
+#### Which Delta project/connector is this regarding?
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+This PR modifies the error message for the `DELTA_EXCEED_CHAR_VARCHAR_LIMIT` error class to include the value that violated the constraint.
+
+## How was this patch tested?
+
+Modified a test in `DeltaErrorsSuite` and added a test to `DeltaConstraintsSuite`.
+
+## Does this PR introduce _any_ user-facing changes?
+
+Yes, the error message for the `DELTA_EXCEED_CHAR_VARCHAR_LIMIT` error class is modified to include the value that violated the constraint.

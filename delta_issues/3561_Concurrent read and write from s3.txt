@@ -1,0 +1,45 @@
+Hi Team
+
+I am trying to build fairly common use case but i stumbled on it. 
+With spark operator i am starting 2 jobs. 
+
+1) read from kafka and write to delta lake on s3 - A
+2) read from delta lake s3, transform and write to another kafka topic - B
+
+however i have issue to start those 2 jobs. Spark operator starts the jobs simultaneously hence i cant say which one start first. 
+
+on A i have write to delta lake:
+```java
+.writeStream()
+                .format("delta")
+                .option("mergeSchema", "true")
+                .option("checkpointLocation", System.getenv("SPARK_CHECKPOINT_LOCATION"))
+                .outputMode(OutputMode.Append())
+                .start(System.getenv("MINIO_BUCKET") + "/" + System.getenv("DELTA_TABLE_PATH"))
+                .awaitTermination();
+```
+
+on B i added to avoid the fact that if B starts before A it complains that the table doesnt exist and simply crash 
+```java
+if (!DeltaTable.isDeltaTable(source)) {
+            spark.createDataFrame(spark.emptyDataFrame().rdd(), JiraIssueSchema.SCHEMA)
+                    .write()
+                    .format("delta")
+                    .mode(SaveMode.Overwrite)
+                    .save(source);
+        }
+```
+
+So if A starts first it is fine. 
+But if B starts before A then empty table based on schema is created. Should be fine however i get on A following exception.
+```
+Caused by: io.delta.exceptions.ProtocolChangedException: The protocol version of the Delta table has been changed by a concurrent update. This happens when multiple writers are writing to an empty directory. Creating the table ahead of t
+ime will avoid this conflict. Please try the operation again.
+Conflicting commit: {"timestamp":1628670811274,"operation":"WRITE","operationParameters":{"mode":Overwrite,"partitionBy":[]},"isBlindAppend":false,"operationMetrics":{"numFiles":"1","numOutputBytes":"21034","numOutputRows":"0"}}
+Refer to https://docs.delta.io/latest/concurrency-control.html for more details.
+        at org.apache.spark.sql.delta.DeltaErrors$.protocolChangedException(DeltaErrors.scala:1184)
+```
+
+Is there a way that A can start after B and simply override the empty table or append it?
+Thanks 
+

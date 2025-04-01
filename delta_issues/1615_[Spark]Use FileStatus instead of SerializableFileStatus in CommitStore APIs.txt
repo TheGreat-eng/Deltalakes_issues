@@ -1,0 +1,15 @@
+#### Which Delta project/connector is this regarding?
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+Similar to LogStore, we will let CommitStore depend on Hadoop FileStatus. CommitStore already depends on Hadoop Path and Hadoop Configuration.
+
+## How was this patch tested?
+Existing UTs
+
+## Does this PR introduce _any_ user-facing changes?
+No

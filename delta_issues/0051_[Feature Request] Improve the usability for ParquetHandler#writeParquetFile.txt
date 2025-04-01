@@ -1,0 +1,9 @@
+Now, if the user wants to write the data to the partitioned table. It need to filter the data with different partition key.
+
+According to the example code. 
+https://github.com/delta-io/delta/blob/2a1ca8a6ff591b343375841f0ad578b7f5765948/kernel/examples/kernel-examples/src/main/java/io/delta/kernel/examples/CreateTableAndInsertData.java#L186-L223
+
+It needs to create three data iterator for different paritioned data. 
+But in general, the user will use one iterator as the input data, but not the current API requires users to manually split an iterator into multiple iterators based on the partition column value of the data. So the user needs to iterate each data to parse the partition column value to determine the partitioned directory.
+
+So I hope that the API will automatically write the data to different parquet files based on the value of the partition column, which is more convenient and reasonable for users.

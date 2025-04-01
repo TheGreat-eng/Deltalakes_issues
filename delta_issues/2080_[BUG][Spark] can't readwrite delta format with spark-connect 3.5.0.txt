@@ -1,0 +1,140 @@
+## Bug
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the issue title
+For example: [BUG][Spark] Title of my issue
+-->
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+### Describe the problem
+I have recently upgraded my setup to spark 3.5.0, delta 3.0.0 and pyspark 3.5.0. I'm using jupyterlab to connect to a remote Spark server, using spark-connect to read/write delta tables to a S3 storage.
+Previously with spark 3.4.1 and delta 2.4.0 I was able to read/write delta tables :
+`df.write.format("delta").mode("overwrite").save('s3a://bucketname/deltatable')`
+
+Doing exactly the same with the newer packages returns this error:
+```
+java.lang.ClassCastException: cannot assign instance of java.lang.invoke.SerializedLambda to field org.apache.spark.sql.catalyst.expressions.ScalaUDF.f of type scala.Function1 in instance of org.apache.spark.sql.catalyst.expressions.ScalaUDF
+	
+```
+
+I have double checked and the spark-driver and executor all have the correct upgraded jar files, jupyter also has the correct delta and pyspark packages.
+
+#### Steps to reproduce
+
+1. Prepare a spark connect server, see https://spark.apache.org/docs/latest/spark-connect-overview.html eg. ./sbin/start-connect-server.sh --packages org.apache.spark:spark-connect_2.12:3.5.0
+2. Connect with python with the correct jars and write some data
+```
+from pyspark.sql import SparkSession
+spark = SparkSession.builder.remote("sc://localhost").config("spark.jars.packages","org.apache.spark:spark-sql_2.12:3.5.0,org.apache.spark:spark-core_2.12:3.5.0,org.apache.spark:spark-connect_2.12:3.5.0,org.apache.hadoop:hadoop-aws:3.3.6,com.amazonaws:aws-java-sdk-bundle:1.12.572,org.apache.hadoop:hadoop-common:3.3.6,io.delta:delta-storage:3.0.0,io.delta:delta-spark_2.12:3.0.0").config("spark.sql.extensions","io.delta.sql.DeltaSparkSessionExtension").config("spark.sql.catalog.spark_catalog","org.apache.spark.sql.delta.catalog.DeltaCatalog").getOrCreate()
+
+columns = ["id","name"]
+data = [(1,"Sarah"),(2,"Maria")]
+df = spark.createDataFrame(data).toDF(*columns)
+
+df.write.format("delta").mode("overwrite").save('s3a://bucket/tablename')
+```
+
+
+#### Observed results
+
+The complete error:
+```
+---------------------------------------------------------------------------
+SparkConnectGrpcException                 Traceback (most recent call last)
+Cell In[17], line 1
+----> 1 df.write.format("delta").mode("overwrite").save('s3a://bucketname/deltatable')
+
+File /opt/app-root/lib64/python3.11/site-packages/pyspark/sql/connect/readwriter.py:601, in DataFrameWriter.save(self, path, format, mode, partitionBy, **options)
+    599     self.format(format)
+    600 self._write.path = path
+--> 601 self._spark.client.execute_command(self._write.command(self._spark.client))
+
+File /opt/app-root/lib64/python3.11/site-packages/pyspark/sql/connect/client/core.py:982, in SparkConnectClient.execute_command(self, command)
+    980     req.user_context.user_id = self._user_id
+    981 req.plan.command.CopyFrom(command)
+--> 982 data, _, _, _, properties = self._execute_and_fetch(req)
+    983 if data is not None:
+    984     return (data.to_pandas(), properties)
+
+File /opt/app-root/lib64/python3.11/site-packages/pyspark/sql/connect/client/core.py:1282, in SparkConnectClient._execute_and_fetch(self, req, self_destruct)
+   1279 schema: Optional[StructType] = None
+   1280 properties: Dict[str, Any] = {}
+-> 1282 for response in self._execute_and_fetch_as_iterator(req):
+   1283     if isinstance(response, StructType):
+   1284         schema = response
+
+File /opt/app-root/lib64/python3.11/site-packages/pyspark/sql/connect/client/core.py:1263, in SparkConnectClient._execute_and_fetch_as_iterator(self, req)
+   1261                     yield from handle_response(b)
+   1262 except Exception as error:
+-> 1263     self._handle_error(error)
+
+File /opt/app-root/lib64/python3.11/site-packages/pyspark/sql/connect/client/core.py:1502, in SparkConnectClient._handle_error(self, error)
+   1489 """
+   1490 Handle errors that occur during RPC calls.
+   1491 
+   (...)
+   1499 Throws the appropriate internal Python exception.
+   1500 """
+   1501 if isinstance(error, grpc.RpcError):
+-> 1502     self._handle_rpc_error(error)
+   1503 elif isinstance(error, ValueError):
+   1504     if "Cannot invoke RPC" in str(error) and "closed" in str(error):
+
+File /opt/app-root/lib64/python3.11/site-packages/pyspark/sql/connect/client/core.py:1538, in SparkConnectClient._handle_rpc_error(self, rpc_error)
+   1536             info = error_details_pb2.ErrorInfo()
+   1537             d.Unpack(info)
+-> 1538             raise convert_exception(info, status.message) from None
+   1540     raise SparkConnectGrpcException(status.message) from None
+   1541 else:
+
+SparkConnectGrpcException: (org.apache.spark.SparkException) Job aborted due to stage failure: Task 0 in stage 1.0 failed 4 times, most recent failure: Lost task 0.3 in stage 1.0 (TID 6) (172.31.15.138 executor 6): java.lang.ClassCastException: cannot assign instance of java.lang.invoke.SerializedLambda to field org.apache.spark.sql.catalyst.expressions.ScalaUDF.f of type scala.Function1 in instance of org.apache.spark.sql.catalyst.expressions.ScalaUDF
+	at java.base/java.io.ObjectStreamClass$FieldReflector.setObjFieldValues(ObjectStreamClass.java:2096)
+	at java.base/java.io.ObjectStreamClass$FieldReflector.checkObjectFieldValueTypes(ObjectStreamClass.java:2060)
+	at java.base/java.io.ObjectStreamClass.checkObjFieldValueTypes(ObjectStreamClass.java:1347)
+	at java.base/java.io.ObjectInputStream$FieldValues.defaultCheckFieldValues(ObjectInputStream.java:2679)
+	at java.base/java.io.ObjectInputStream.readSerialData(ObjectInputStream.java:2486)
+	at java.base/java.io.ObjectInputStream.readOrdinaryObject(ObjectInputStream.java:2257)
+	at java.base/java.io.ObjectInputStream.readObject0(ObjectInputStream.java:1733)
+	at java.base/java.io.ObjectInputStream.readArray(ObjectInputStream.java:2157)
+	at java.base/java.io.ObjectInputStream.readObject0(ObjectInputStream.java:1721)
+	at java.base/java.io.ObjectInputStream$FieldValues.<init>(ObjectInputStream.java:2606)
+	at java.base/java.io.ObjectInputStream.readSerialData(ObjectInputStream.java:2457)
+	at java.base/java.io.ObjectInputStream.readOrdinaryObject(ObjectInputStream.java:2257)
+	at java.base/java.io.ObjectInputStream.readObject0(ObjectInputStream.java:1733)
+	at java.base/java.io.ObjectInputStream$FieldValues.<init>(ObjectInputStream.java:2606)
+	at java.base/java.io.ObjectInputStream.readSerialData(ObjectInputStream.java:2457)
+	at java.base/java.io.ObjectInputStream.readOrdinaryObject(ObjectInputStream.java:2257)
+	at java.base/java.io.ObjectInputStream.readObject0(ObjectInputStream.java:1733)
+	at java.base/java.io.ObjectInputStream.readArray(ObjectInputStream.java:2157)
+	at java.base/java.io.ObjectInputStream.readObject0(ObjectInputS...
+```
+
+#### Expected results
+
+A new delta table on s3
+
+#### Further details
+
+<!--
+Include any additional details that may be useful for diagnosing the problem here. If including tracebacks, please include the full traceback. Large logs and files should be attached.
+-->
+
+### Environment information
+
+* Delta Lake version: 3.0.0
+* Spark version: 3.5.0
+* Scala version: 2.12
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [x] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute a bug fix at this time.

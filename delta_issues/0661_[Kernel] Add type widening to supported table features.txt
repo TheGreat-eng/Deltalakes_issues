@@ -1,0 +1,44 @@
+## Description
+Allow reading and writing to tables that have the type widening table features enabled (both preview and stable table feature).
+
+Reading:
+- The default kernel parquet reader supports widening conversions since https://github.com/delta-io/delta/pull/3541. Engines may also choose to implement type widening natively in their parquet reader if they wish.
+Writing:
+- Nothing to do, type widening doesn't impact the write path - writing data always uses the latest data schema.
+
+## How was this patch tested?
+Added read integration tests.
+
+Tests are based on golden tables. Generating the tables requires Spark 4.0, due to spark master cross-compilation being broken, the table generation code is not included here.
+The following steps where used to generate the tables.
+1. Create a table with initial data types and insert initial data
+2. Enable type widening and schema evolution
+3. Insert data with wider type for each column. Column types are automatically widened during schema evolution.
+
+`type-widening` table:
+| Column | Initial type | Widened Type |
+| - | - | - |
+| byte_long | byte | long |
+| int_long | int | long |
+| float_double | float | double |
+| byte_double | byte | double |
+| short_double | short | double |
+| int_double | int | double |
+| decimal_decimal_same_scale | decimal(10, 2) | decimal(20, 2) |
+| decimal_decimal_greater_scale | decimal(10, 2) | decimal(20, 5) |
+| byte_decimal | byte | decimal(11, 1) |
+| short_decimal | short | decimal(11, 1) |
+| int_decimal | int | decimal(11, 1) |
+| long_decimal | long | decimal(21, 1) |
+| date_timestamp_ntz | date | timestamp_ntz |
+
+`type-widening-nested` table:
+| Column | Initial type | Widened Type |
+| - | - | - |
+| struct | struct<a: int> | struct<a: long> |
+| map | map<int, int> | map<long, long> |
+| array | array<int> | array<long> |
+
+
+## Does this PR introduce _any_ user-facing changes?
+Yes, it's now possible to read from and write to delta tables with type widening enabled using kernel.

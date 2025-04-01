@@ -1,0 +1,6 @@
+ * RestoreTableCommand moved to org.apache.spark.sql.delta.commands package
+ * cache() of filesToRemove  and filesToAdd DataFame removed (according to https://github.com/delta-io/delta/pull/863#issuecomment-1015672532). Without cache computation 2x faster (tested on restoring table with 50k files)
+ * added better job description for spark UI
+![image](https://user-images.githubusercontent.com/22071320/151706336-8fdeb2fb-0813-4095-868b-a67bbd42d5e2.png)
+
+Signed-off-by: Maksym Dovhal <maksym.dovhal@gmail.com>

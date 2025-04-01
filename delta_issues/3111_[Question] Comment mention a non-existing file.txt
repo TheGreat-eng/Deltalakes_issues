@@ -1,0 +1,6 @@
+## Question
+
+### Describe the problem
+DeltaScan mention a DataSkippingReaderV2.scala: https://github.com/delta-io/delta/blob/6707b29f58a30989f40478ce40b3200c48bf37ce/core/src/main/scala/org/apache/spark/sql/delta/stats/DeltaScan.scala#L55
+
+Is this part of any work in progress?

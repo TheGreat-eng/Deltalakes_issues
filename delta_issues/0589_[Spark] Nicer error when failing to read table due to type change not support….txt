@@ -1,0 +1,9 @@
+## Description
+Delta 3.2/3.3 only supports a limited subset of type changes that will become available with Delta 4.0 / Spark 4.0.
+This changes improves the error returned when reading a table with an unsupported type change to tell user to upgrade to Delta 4.0 in case the type change will be supported in that version.
+
+## How was this patch tested?
+Added tests to cover the error path.
+
+## Does this PR introduce _any_ user-facing changes?
+Updates error thrown on unsupported type change when reading a table.

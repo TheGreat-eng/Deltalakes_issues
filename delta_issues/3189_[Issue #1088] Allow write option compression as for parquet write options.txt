@@ -1,0 +1,12 @@
+
+## Description
+
+This PR allows the use of the "compression" parquet write option in delta.
+
+## How was this patch tested?
+
+Tests were added. Testing cases where "compression" option is absent and defaults to snappy, "compression" specifies a valid value and eventually "compression" provides an invalid value and raises an exception.
+
+## Does this PR introduce _any_ user-facing changes?
+
+Yes, please check issue #1088 for examples.

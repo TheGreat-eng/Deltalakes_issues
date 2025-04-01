@@ -1,0 +1,8 @@
+## Description
+Currently, in order to run performance benchmarks one need to create the infrastructure manually. This PR adds Terraform scripts which do that automatically for AWS and GCP.
+
+## How was this patch tested?
+I tested this patch manually on AWS and GCP cloud.
+
+## Does this PR introduce _any_ user-facing changes?
+No.

@@ -1,0 +1,22 @@
+## Feature request
+
+#### Which Delta project/connector is this regarding?
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+### Overview
+
+I have an interesting problem with how my company evolves their data naturally within our own ecosystem. We have a bunch of ids that starts off as longs but eventually evolves into strings. This causes delta to oftentimes break and require manual intervention for schema evolutions.
+
+Ideally we can add functionality that allows for automatic schema evolution from numerics into strings.
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [ ] Yes. I can contribute this feature independently.
+- [x] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.

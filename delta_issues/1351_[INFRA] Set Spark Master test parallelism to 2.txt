@@ -1,0 +1,18 @@
+#### Which Delta project/connector is this regarding?
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [X] Other (INFRA)
+
+## Description
+
+Set test parallelism to 2 for delta-spark against Spark Master tests
+
+## How was this patch tested?
+
+CI tests on this PR
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

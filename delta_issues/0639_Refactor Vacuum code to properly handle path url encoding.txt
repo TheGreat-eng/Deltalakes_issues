@@ -1,0 +1,25 @@
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [X] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+This is intended to handle special characters in the table path. For context, DV team recently made a change to include special characters in all paths used by tests.
+
+As of today, the paths we get from listing are not url encoded -- they get url-encoded later in the logic. However, paths contained in delta log files are already url encoded. To keep these two things compatible, this change makes the file names from listing to be url encoded and changes the later logic to not url encode again.
+
+## How was this patch tested?
+
+Existing tests
+
+## Does this PR introduce _any_ user-facing changes?
+
+NO

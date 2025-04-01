@@ -1,0 +1,5 @@
+## Description
+Add test matrix suite for all different ways to write to Delta for configs that do/do not start with `delta.` prefix. e.g. DataFrameWriter, DataStreamWriter, SQL API, etc.
+
+## How was this patch tested?
+Test suite.

@@ -1,0 +1,45 @@
+## Bug
+
+Describe the problem
+I am not able to see table schema in Trino for the table I created/registered in Hive metastore from Flink & vice-versa. Not sure, if is it supposed to be like this?
+
+Flink Version: 1.16.0
+
+I added following dep in server classpath:
+Flink SQL> ADD JAR '/opt/flink-webssh/lib/delta-flink-3.0.0rc1.jar';
+Flink SQL> ADD JAR '/opt/flink-webssh/lib/delta-standalone_2.12-3.0.0rc1.jar';
+Flink SQL> ADD JAR '/opt/flink-webssh/lib/shapeless_2.12-2.3.4.jar';
+Flink SQL> ADD JAR '/opt/flink-webssh/lib/parquet-hadoop-bundle-1.12.2.jar';
+Flink SQL> ADD JAR '/opt/flink-webssh/lib/flink-parquet-1.16.0.jar';
+
+Created Delta catalog:
+CREATE CATALOG delta_catalog WITH (
+   'type' = 'delta-catalog',
+   'catalog-type' = 'hive');
+
+Create Delta Table:
+CREATE TABLE flightsintervaldata1 (arrivalAirportCandidatesCount INT, estArrivalHour INT) PARTITIONED BY (estArrivalHour) WITH ('connector' = 'delta', 'table-path' = 'abfs://container@storage_account.dfs.core.windows.net'/delta-output);
+
+
+While reading this table from Trino side:
+![MicrosoftTeams-image (3)](https://github.com/delta-io/delta/assets/115492890/a14a1fd9-7aab-43c7-bc17-02aca966333a)
+
+
+
+In SQL DB, I tried to check Table parameters:
+For Delta table created in Trino:
+![image](https://github.com/delta-io/delta/assets/115492890/1070ee59-9e98-45bd-93f4-bf75db73a614)
+For delta table created in Flink:
+
+![image](https://github.com/delta-io/delta/assets/115492890/328ac451-5095-4133-bcc6-b6244091675c)
+
+
+
+**Is this intended from delta community or am I missing some parameters while table creation only?**
+
+
+
+
+
+- [ ] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+

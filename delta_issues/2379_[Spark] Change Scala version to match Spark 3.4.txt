@@ -1,0 +1,28 @@
+#### Which Delta project/connector is this regarding?
+- [X] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+Matches Scala version of Spark 3.4: https://github.com/apache/spark/blob/59fcecb5a59df54ecb3c675d4f3722fc72c1466e/pom.xml#L171
+
+https://github.com/scala/scala/releases/tag/v2.12.16
+https://github.com/scala/scala/releases/tag/v2.12.17
+
+https://github.com/scala/scala/releases/tag/v2.13.6
+https://github.com/scala/scala/releases/tag/v2.13.7
+https://github.com/scala/scala/releases/tag/v2.13.8
+
+Fix #1909
+
+## How was this patch tested?
+
+
+## Does this PR introduce _any_ user-facing changes?
+
+Changes Scala version, which should be compatible:
+"As usual for our minor releases, Scala 2.12.17 is binary-compatible with the whole Scala 2.12 series."
+"As usual for our minor releases, Scala 2.13.8 is binary-compatible with the whole Scala 2.13 series."

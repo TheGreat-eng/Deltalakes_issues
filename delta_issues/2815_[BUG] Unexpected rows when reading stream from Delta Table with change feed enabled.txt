@@ -1,0 +1,85 @@
+## Bug
+Unexpected rows when reading stream from Delta Table with change feed enabled
+
+### Describe the problem
+When streaming changes from a Delta table, in _forEachBatch_, we are reading unexpected events, particularly we get an _insert_ event and a _delete_ event for the same entity at the same commit version.
+
+#### Steps to reproduce
+
+1. Create a Delta Table
+2. Execute a merge operation that doesn't modify any row of the Delta table, by specifying a condition:
+```
+deltaTable
+        .alias("t")
+        .merge(toMerge.alias("s"), "s.document_id=t.document_id")
+        .whenMatched("s.title!=t.title")
+        .updateAll()
+        .whenNotMatched()
+        .insertAll()
+        .execute();
+```
+
+4. Read stream of changes:
+
+```
+Dataset<Row> df =
+        spark
+            .readStream()
+            .format("delta")
+            .option("readChangeFeed", "true")
+            .option("startingVersion", 0)
+            .load(path)
+)
+```
+
+#### Observed results
+
+For a given id, we get this batch:
+
++---------------------+---------------+--------------------+--------------+-------------------+
+|      id                             |           title         |  _change_type |_commit_version|   _commit_timestamp|
++----------------------+--------------+--------------------+------------  + -------------------+
+|62d69ab58edce0062  | Prescription.  |      insert           |              1             |   2022-11-26 16:03:...|
+|62d69ab58edce0062  | Prescription   |      delete          |              1             |    2022-11-26 16:03:..|
+|62d69ab58edce0062  | Prescription.  |      insert           |              0            |   2022-11-26 16:02:... |
++--------------------+-------------+--------------------+---------------+-------------------- +
+
+
+#### Expected results
+
+Reading the change feed with Spark in batch mode we get the expected result, which differs from what we read from streaming:
+
+```
+Dataset<Row> df =
+        spark
+            .read()
+            .format("delta")
+            .option("readChangeFeed", "true")
+            .option("startingVersion", 0)
+            .load(sourceDeltaPath)
+
+```
+
++------------------------+------------------------------+----------------+-----------------+----------------------+
+| id                                       |  title                                            | _change_type | _commit_version | _commit_timestamp  |
++------------------------+------------------------------+--------------+-----------------+---------------------+
+|62d69ab58edce0062      | Prescription Drug Guidelines |  insert                |    0                         | 2022-11-26 16: ...     |
++------------------------+------------------------------+---------------+-----------------+---------------------+
+
+#### Further details
+
+In my opinion reading the change feed in streaming and batch should obtain the same results. These kind of commits that we are reading with both insert and delete for a given object don't give any value, they just complicate downstream processing.
+
+### Environment information
+
+* Delta Lake version: 2.0.1 and 2.1.1
+* Spark version: 3.2.1 and 3.3.1
+* Scala version: 2.12
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [x] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute a bug fix at this time.

@@ -1,0 +1,9 @@
+## Description
+The following type changes available in the preview of type widening aren't supported by Iceberg and it will be very hard to support them - mainly due to the [Binary single-value serialization](https://iceberg.apache.org/spec/#binary-single-value-serialization) part of the spec:
+- (byte,short,int,long) → decimals
+- (byte,short,int) → double
+- decimal scale increase, e.g. decimal(12,2) → decimal(14,4)
+
+These type changes will get in the way of interoperability with Iceberg. To prevent issues in the future, we won't allow applying these types changes in the stable version of the type widening feature. We can add these back once Iceberg supports them. Reading a table that had such a type change applied will still be allowed though.
+
+The documentation is updated to remove these type changes from the list of supported type changes for the upcoming Delta 4.0 version

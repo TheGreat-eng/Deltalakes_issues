@@ -1,0 +1,13 @@
+## Description
+This change relaxes the condition on read-compatible type changes that the Delta streaming source can handle and recover from.
+
+The type widening feature guarantees that all parquet readers now support reading values using a wider schema type - see `TypeWidening.isTypeChangeSupported` for the list of supported conversions.
+This effectively means that the corresponding type changes are read-compatible in the context of Delta streaming sources, whether the feature is effectively enabled on the source table or not. 
+
+## How was this patch tested?
+Added tests `DeltaTypeWideningStreamingSourceSuite` cover widening, narrowing and arbitrary type changes.
+
+## Does this PR introduce _any_ user-facing changes?
+Yes. Applying a widening type change to a Delta table used as a streaming source will propagate that type change to the streaming sink instead of failing.
+The write to the sink will still fail if that sink doesn't support type changes (e.g. the Delta streaming sink).
+

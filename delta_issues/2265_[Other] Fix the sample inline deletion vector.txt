@@ -1,0 +1,25 @@
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [x] Other (Sample data from the protocol specification)
+
+## Description
+
+Fixes the example inline deletion vector to match how the code currently works. The existing sample likely dates to an older specification and caused (me) quite a bit of confusion when I was implementing deletion vector support in our code.
+
+Resolves #1905
+
+## How was this patch tested?
+
+I ran the new sample through code which successfully decodes other DVs written by Spark and confirmed that the right values came back out.
+
+## Does this PR introduce _any_ user-facing changes?
+
+It only updates developer-facing documentation.

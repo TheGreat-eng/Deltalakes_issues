@@ -1,0 +1,10 @@
+Hey,
+
+I have problem with reproducing results of https://kb.databricks.com/delta/delta-merge-into.html
+
+I have tired reproducing the example scripts provided in the article on DBR 6.2 and 6.4 Beta runtimes and I did not manage to get expected performance when setting spark.conf.set("spark.databricks.optimizer.dynamicPartitionPruning","true").
+
+Is that part of functionality part of the delta io or is it databricks specific and I should raise it with them?
+
+Thx,
+G

@@ -1,0 +1,3 @@
+Current image LTS is being expired: https://github.com/actions/runner-images/issues/11101
+
+Jobs started failing (warning before deprecation): https://github.com/delta-io/delta/actions/runs/13659779604/job/38188156870?pr=4221

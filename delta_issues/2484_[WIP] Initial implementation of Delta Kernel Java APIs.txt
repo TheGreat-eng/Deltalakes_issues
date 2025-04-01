@@ -1,0 +1,7 @@
+## Description
+Initial implementation of Delta Kernel APIs landed in delta-io/delta#1808 working end-2-end reading Delta tables.
+
+PR will be updated as improvements are made to the code and as TODOs are resolved.
+
+## How was this patch tested?
+Integration tests in DeltaKernelAPISuite

@@ -1,0 +1,6 @@
+We were using spark 3.0.0 and delta lake 0.7.0 after upgrading to Spark 3.2.0 and delta 1.1.0, we can see the following exception (under load of 100K events)
+
+Caused by: java.lang.ClassCastException: [C cannot be cast to [J, at org.apache.spark.unsafe.memory.HeapMemoryAllocator.allocate(HeapMemoryAllocator.java:58) , at org.apache.spark.memory.TaskMemoryManager.allocatePage(TaskMemoryManager.java:314)
+
+Details provided in stackoverflow
+https://stackoverflow.com/questions/70664397/spark-task-failure-with-classcastexception-c-cannot-be-cast-to-j-at-org-apach

@@ -1,0 +1,10 @@
+## Description
+This pr modifies (DELTA_FAILED_TO_MERGE_FIELDS ) and adds a new error class (DELTA_MERGE_INCOMPATIBLE_DATATYPE) to migrate AnalysisException to use the new error framework. 
+
+## How was this patch tested?
+It modifies the existing test. 
+
+## Does this PR introduce _any_ user-facing changes?
+Yes.
+Exception message before: Failed to merge fields 'c0' and 'c0'. Failed to merge incompatible data types IntegerType and StringType.
+Exception message after: [DELTA_FAILED_TO_MERGE_FIELDS] Failed to merge fields 'c0' and 'c0'. Failed to merge incompatible data types IntegerType and StringType.

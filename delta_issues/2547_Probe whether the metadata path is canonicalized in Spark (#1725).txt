@@ -1,0 +1,11 @@
+## Description
+
+This issue fixes https://github.com/delta-io/delta/issues/1725.
+
+The mechanism of this fix is to call the Spark internal method, which is used to generate metadata columns, to see if it will canonicalize spaces in a crafted path string. If the answer is yes, then we don't need to do anything on the Delta side; otherwise, we manually canonicalize the obtained metadata column.
+
+Why don't use the Spark internal method on `FileToDvDescriptor`, so both sides of the join are either canonicalized or not-canonicalized? Because most Delta methods are expecting a canonicalized path, thus the returned DF must be canonicalized in all cases.
+
+## How was this patch tested?
+
+Existing tests didn't fail.

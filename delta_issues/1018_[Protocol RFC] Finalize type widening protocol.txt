@@ -1,0 +1,7 @@
+## Description
+Finalize the protocol RFC for type widening:
+- Add missing supported type changes: `byte`,`short`,`int` to `double` and integers to decimals.
+- Remove `tableVersion` from the type change metadata fields.
+- Remove requirements around populating default row commit versions.
+
+The two last requirements were initially intended to allow matching each file against type changes that happened before or after it was written. This didn't prove useful in practice - it was temporarily used to collect files to rewrite when dropping the feature but this now relies on fetching parquet footer as a more robust and simpler approach.

@@ -1,0 +1,3 @@
+Add the usage of create table, blind append, idempotent writes and checkpointing usage guides.
+
+Rendered at: https://github.com/vkorukanti/delta/tree/writeUsageGuide

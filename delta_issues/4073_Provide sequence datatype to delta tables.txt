@@ -1,0 +1,9 @@
+One large limitation on spark/hive stuff over traditional datawarehouse is to provide auto-increment fields.
+
+I wonder if delta could achieve this. One idea would be to store the actual max_value within the delta json file, and apply the monotonically_increment function while using the merge function or appending to delta files.
+
+I guess having the goal to have monotonically increment meets the need of sequences (versus real sequential numbers).
+
+More generally, sequence objects could be created and referenced within tables as postgresql does. MVCC design could theorically be applied for concurrent creation of values, having the table number of rows by advance.
+
+Any previous work in this field ? 

@@ -1,0 +1,22 @@
+#### Which Delta project/connector is this regarding?
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+When truncating maxValue strings longer than 32 characters for statistics, it's crucial to ensure the final truncated string is lexicographically greater than or equal to the input string in UTF-8 encoded bytes.
+
+Previously, we used the Unicode replacement character as the tieBreaker, comparing it directly against one byte of the next character at a time. This approach was insufficient because the tieBreaker could incorrectly win against the non-first bytes of other characters (e.g., � < 🌼 but � > the second byte of 🌼). We now compare one UTF-8 character (i.e. upto 2 Scala UTF-16 characters depending on surrogates) at a time to address this issue.
+
+We also start using U+10FFFD i.e. character with highest Unicode code point as the tie-breaker now.
+
+## How was this patch tested?
+UTs
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

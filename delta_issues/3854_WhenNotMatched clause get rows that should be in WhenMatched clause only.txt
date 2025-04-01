@@ -1,0 +1,21 @@
+I am using the below code to merge a source table into a target table. `id` is the primary key and `hash` is a checksum over all the columns to detect modifications and faster the comparison condition (versus checking one of the hundred columns is modified ).
+
+The problem is I got 150 duplicated PK in the resulting table after the merge (scrolled history). The target table is 150M rows. The source table was 1M rows, where 100K should have been updated and 900k should have been inserted.
+
+For 150 id, I get the previous version and the updated version. It looks like those 150 rows have been considered as "notMatched". However, they were already in the table before merging.
+
+I cannot imagin how I could have introduced a bug, and how the resulting table can have duplicated id after the below code. Any thought appreciated
+
+I am using delta 0.6.0 and spark 2.4.3
+
+```scala
+      DeltaTable.forPath(spark, deltaPath)
+        .as("t")
+        .merge(
+          candidate.as("s"), "s.id = t.id")
+        .whenMatched("s.hash <> t.hash")
+        .updateAll()
+        .whenNotMatched()
+        .insertAll()
+        .execute()
+```

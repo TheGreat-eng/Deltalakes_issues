@@ -1,0 +1,18 @@
+#### Which Delta project/connector is this regarding?
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [X] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+Remove `engine` references from `TableConfig` APIs. We don't actually need it, and it muddles our APIs, making us pass `engine` references everywhere. Clean up code along the way.
+
+## How was this patch tested?
+
+Existing UTs.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No.

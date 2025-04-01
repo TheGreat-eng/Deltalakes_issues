@@ -1,0 +1,23 @@
+## Feature request
+
+### Overview
+
+Using
+
+delta_table.alias(...).merge(old.alias(...),matchstrings).whenMatchedUpdateAll().whenNotMatchedInsertAll().execute()
+
+### Motivation
+
+I need to figure out what records are causing errors, it is just failing with no information on what records are causing the error.
+
+The error I get is `Cannot perform Merge as multiple source rows matched and attempted to modify the same`, I know there are duplicate records but I do not what ones are the duplicates. Knowing what rows are duplicated will help me. Also knowing what is the problem, is it the target data frame or the source has multiple records. I need to know what the context is so I can debug it. 
+
+Because I am using this in a stream it is extremely hard to find the issue, I have a chunk of 10K rows per second coming through. I now need to break out and find the issue that is causing errors and how the delta table has duplicates when it should not.
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [ ] Yes. I can contribute this feature independently.
+- [X] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.

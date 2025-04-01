@@ -1,0 +1,14 @@
+## Description
+Currently, we are using `--target` and `--source` to set the target JVM version, but it is known to cause issues when the jars are built using JDK17 to generate bytecode that is runnable using JVM 1.8 and above. See [here](https://www.morling.dev/blog/bytebuffer-and-the-dreaded-nosuchmethoderror/) for an example. Instead, use `--release` to generate the useable byte code in JVM 1.8 and above.
+
+Quote from [blog](https://www.morling.dev/blog/bytebuffer-and-the-dreaded-nosuchmethoderror/):
+```
+In contrast to the more widely known pair of—-source and—-target, the—-release switch will ensure that only byte code is produced that is actually usable with the specified Java version.
+```
+
+## How was this patch tested?
+* Set JDK home to 17
+* `./build/sbt clean  publishM2`
+* Edit `kernel/examples/run-kernel-examples.py` to comment the line `clear_artifact_cache()`.
+* Set JAVA_HOME to 1.8
+* Run Kernel integration tests: `./kernel/examples/run-kernel-examples.py --version 3.2.1-SNAPSHOT`

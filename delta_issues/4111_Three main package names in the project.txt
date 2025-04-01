@@ -1,0 +1,9 @@
+The [DeltaLog](https://github.com/delta-io/delta/blob/master/src/main/scala/org/apache/spark/sql/delta/DeltaLog.scala) package name is `org.apache.spark.sql.delta`.  I think the `DeltaLog` I'm trying to import is conflicting with another `DeltaLog` on the cluster.
+
+I took a look at the Delta Lake JAR file contents with the `jar tvf delta-core_2.11-0.4.0.jar | less` command and looks like these namespaces are all included:
+
+* `com.databricks`
+* `org.apache.spark`
+* `io.delta`
+
+Maybe we should consider getting all the code in the `io.delta` namespace?  Or perhaps we can shade the `com.databricks` and `org.apache.spark` stuff?  

@@ -1,0 +1,17 @@
+## Protocol Change Request
+
+### Description of the protocol change
+This protocol change is part of the proposed Type Widening table feature, see feature request: https://github.com/delta-io/delta/issues/2622
+
+Design doc: https://docs.google.com/document/d/1KIqf6o6JMD7e8aMrGlUROSwTfzYeW4NCIZVAUMW_-Tc
+
+The type widening table feature covers changing the type of existing columns or nested fields in a Delta table without having to rewrite the data.
+
+### Willingness to contribute
+
+The Delta Lake Community encourages protocol innovations. Would you or another member of your organization be willing to contribute this feature to the Delta Lake code base?
+
+- [x] Yes. I can contribute.
+- [ ] Yes. I would be willing to contribute with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute at this time.
+

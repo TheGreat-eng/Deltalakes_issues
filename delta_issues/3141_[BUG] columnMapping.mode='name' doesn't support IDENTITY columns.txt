@@ -1,0 +1,43 @@
+I use the following table:
+
+```
+CREATE TABLE `datawarehouse`.`orders` ( 
+    ID BIGINT GENERATED ALWAYS AS IDENTITY (START WITH 0 INCREMENT BY 1),
+    `Sales Order` STRING ,
+ ) using delta location '/mnt/datawarehouse/orders'
+ TBLPROPERTIES (
+  'delta.columnMapping.mode' = 'name',
+   'delta.minReaderVersion' = '2',
+   'delta.minWriterVersion' = '6') 
+```
+
+When executing a merge the following error is returned:
+
+```
+MERGE INTO `datawarehouse`.`orders` AS Target 
+USING 
+(
+SELECT 
+sales.`SalesOrder` `Sales Order` 
+FROM staging.`salestable` sales
+)
+AS Source 
+ON Target.`Client` = Source.`Client` 
+AND Target.`Sales Order` = Source.`Sales Order` 
+
+WHEN MATCHED THEN 
+UPDATE SET * 
+
+WHEN NOT MATCHED THEN 
+INSERT *
+
+```
+```
+Error in SQL statement: AnalysisException: Column 'ID' does not exist. Did you mean one of the following? [col-0245aefe-2ae6-40fc-90bb-b32f730a6815, col-0d196606-f06a-4d51-9de1-905413d4dfbe]; line 1 pos 0;
+'Aggregate [unresolvedalias(to_json(array(max('ID)), Some(Etc/UTC)), Some(org.apache.spark.sql.Column$$Lambda$7363/1735434257@5f699b53))]
++- LocalRelation <empty>, [col-0d196606-f06a-4d51-9de1-905413d4dfbe#24297L, col-0245aefe-2ae6-40fc-90bb-b32f730a6815#24298, col-8cb73d52-f763-42ce-87b3-07bb9febaef0#24299, col-7ec231fd-76d7-43bb-ad06-089834aadbab#24300, col-bcb83a56-16b4-41f1-bf78-41369c183eba#24301, col-c22c91dd-ff4b-4f3a-9ba1-8b33f6e068e5#24302, col-1c2f77ab-05b2-4083-8c2b-06e5ad25de0e#24303, col-375ef258-d9cc-485f-881f-1730071172b1#24304, col-869876ba-a09f-4cdc-b3f2-6591bb31a08d#24305, col-99063d6e-2ec3-4038-ae7c-937e7fe02e4d#24306]
+```
+
+Databricks Runtime: 10.5
+Apache Spark: 3.2.1
+Scala: 2.12

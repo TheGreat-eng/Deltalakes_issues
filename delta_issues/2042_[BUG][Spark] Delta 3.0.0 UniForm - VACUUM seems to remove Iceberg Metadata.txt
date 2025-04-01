@@ -1,0 +1,59 @@
+## Bug
+
+#### Which Delta project/connector is this regarding?
+
+- [X] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+### Describe the problem
+VACUUM removes the contents of the Iceberg metadata folder created through the UniForm Feature. 
+
+#### Steps to reproduce
+Step 1: Create a Delta Table with the Iceberg Integration
+
+```
+CREATE OR REPLACE table testtimestamp 
+USING delta 
+TBLPROPERTIES ('delta.columnMapping.mode' = 'name' , 'delta.universalFormat.enabledFormats' = 'iceberg', 'delta.feature.timestampNtz' = 'enabled' ) 
+COMMENT 'Test Timestamp Columns' 
+AS SELECT CAST('2020-09-20 10:00:00.123345' AS TIMESTAMP_NTZ) as test_col;
+```
+Step 2: Insert New Records
+
+```
+INSERT INTO testtimestamp VALUES ('2023-02-01 12:00:00.123456'),('2023-02-02 12:00:00.123456'),('2023-02-03 12:00:00.123456')
+```
+Step 2: Vacuum with Retention Set to Zero 
+
+`
+VACUUM testtimestamp RETAIN 0 HOURS DRY RUN
+` 
+#### Observed results
+
+Iceberg Version files(JSON), Snapshot and Manifest AVRO files are also getting deleted.
+
+#### Expected results
+
+Only PARQUET files, PARTITION folders + appropriate DELTA metadata files should be removed.
+
+#### Further details (Potential Issue)
+
+Iceberg metadata folder should be treated as a hidden directory for delta-related file operations, such as Vacuum and Fsck.
+
+
+### Environment information
+
+* Delta Lake version: 3.0.0
+* Spark version: 3.4.1
+* Scala version: 2.12
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [X] Yes. I can contribute a fix for this bug independently.
+- [ ] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute a bug fix at this time.

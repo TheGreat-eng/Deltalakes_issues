@@ -1,0 +1,110 @@
+Hello,
+
+I am building a process that creates a delta table if it doesn't yet exist or merges data into an existing one in a multi-tenant fashion. So, I am partitioning by the TenantId column in the data. I am doing this for a few datasets and I noticed odd behavior for 2 of the datasets after they go through the deltatable creation and subsequent merges.
+
+For example, there are 35 columns in the data (can't share because of PII) one of which is a name (last, first) and then the tenant id column which is a string form of a guid.
+
+Couple of odd behaviors, first is the fact that the partition in azure data lake is something like "first last-sdfd-23424-ef23424" as if it is plucking out a name from another column (may not be the same row) and overwriting the TenantId column.
+
+Second, I checked the data creating/merging into the delta table, a parquet file. It has both of these columns separated properly. I even print out the first 5 rows after each major step in the pipeline and it is not until after it has been written to a delta table that the combining of the columns happens.
+
+Thirdly, this only happens on a couple of delta tables. This leads me to believe it is a data issue, but I generate the data using Parquet.NET and then I can open it with pandas without any issues.
+
+Is there some other thing that delta or spark is doing that would affect this?
+
+Core process:
+```python
+def create_merge_dataset(idx: int, config: dict, multithreaded:bool=True):
+    if multithreaded:
+        sc.setLocalProperty("spark.scheduler.pool", f"pool_{idx}")
+    
+    container_base_path = f"abfss://{raw_data_container}@{storage_account_name}.dfs.core.windows.net"
+    try:
+        tenant_id = config['TenantID']
+        dataset_id = config['CustomerDatasetId']
+        primary_keys = config['CustomerPrimaryKeys']
+        datalake_path = config['FileDataLakePath']
+
+        file_fragment_paths = list(set([f"{container_base_path}/{datalake_path}/{dataset_id}/{f['FileName']}" for f in config['Files']]))
+        delta_path = f"abfss://{dataset_container}@{storage_account_name}.dfs.core.windows.net/{dataset_id}/"
+
+        # Load fragments and remove duplicates of primary key based on soonest export timestamp
+        newDataFragment = spark.read.option("mergeSchema", "true").parquet(*file_fragment_paths)
+#         newDataFragment.show(5)
+        
+        for pk in primary_keys:
+            if pk not in newDataFragment.columns:
+                raise Exception("Primary key mismatch in dataset.")
+                
+        for c in ['ExportTimestamp', 'TenantId']:
+            if c not in newDataFragment.columns:
+                raise Exception(f"Required column: {c} not in dataset for orchestration process IDs: {config['OrchestrationProcessIDs']}")
+        
+        newDataFragment = newDataFragment \
+            .withColumn(
+                "row_number",
+                F.row_number().over(Window.partitionBy([F.col(pk) for pk in primary_keys] + [F.col('TenantId')]).orderBy(F.col('ExportTimestamp').desc()))) \
+            .filter(F.col("row_number")==1) \
+            .drop('row_number') \
+            .alias('source')
+        
+#         newDataFragment.show(5)
+
+        if not DeltaTable.isDeltaTable(spark, delta_path):
+            newDataFragment \
+              .write \
+              .format("delta") \
+              .partitionBy("TenantId") \
+              .save(delta_path)
+            DeltaTable.forPath(spark, delta_path).toDF().show(5)
+        else:
+            existingDeltaTable = DeltaTable.forPath(spark, delta_path).alias('sink')
+            existingDeltaTable.toDF().show(5)
+
+            #build merge condition based on 1 or more primary keys
+            merge_condition = ' AND '.join([
+                f"sink.TenantId = source.TenantId",
+                f"sink.TenantId = '{tenant_id}'",
+                *[ f"sink.{pk} = source.{pk}" for pk in primary_keys ]
+            ])
+            
+            print(merge_condition)
+
+            existingDeltaTable \
+                .merge(
+                    newDataFragment,
+                    merge_condition
+                ) \
+                .whenMatchedUpdateAll() \
+                .whenNotMatchedInsertAll() \
+                .execute()
+
+        # archive files API call
+        updateConfigBatch(config['OrchestrationProcessIDs'], {"StatusID": ConfigStatus.ProcessCompleted, "JobID": job_run_id})
+        send_log_analytics_data([
+            LogEntry(
+                OrchestrationProcessID = config_id,
+                StatusID = ConfigStatus.ProcessCompleted,
+                JobID = job_run_id,
+                Log = "Successfully processed orchestration process"
+            ).__dict__ for config_id in config['OrchestrationProcessIDs']
+        ])
+        return True
+    except Exception as e:
+        # TODO change to catch spark errors first then all errors
+        # move failed fragment data API call
+        updateConfigBatch(config['OrchestrationProcessIDs'], {"StatusID": ConfigStatus.ProcessFailed, "JobID": job_run_id})
+        send_log_analytics_data([
+            LogEntry(
+                OrchestrationProcessID = config_id,
+                StatusID = ConfigStatus.ProcessFailed,
+                JobID = job_run_id,
+                Log = traceback.format_exc()
+            ).__dict__ for config_id in config['OrchestrationProcessIDs']
+        ])
+        print(config, traceback.format_exc())
+        return False
+    finally:
+        if multithreaded:
+            sc.setLocalProperty("spark.scheduler.pool", None)
+```

@@ -1,0 +1,1 @@
+During Delta release, we manually execute `run-integration-tests.py`. However, this only runs scala 2.12, and we should be running it for all scala versions.

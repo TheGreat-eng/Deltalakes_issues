@@ -1,0 +1,22 @@
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+Add `DeletioVectorDescriptor.getTotalSizeOfDVFieldsInFile` function, which unifies the computation of DV file size and allows easy reference for callers.
+
+## How was this patch tested?
+Existing tests. This just moves existing code into a method.
+
+## Does this PR introduce _any_ user-facing changes?
+No
+

@@ -1,0 +1,1 @@
+Currently Delta will throw a special type of exception when it detects a conflict. It's better to build public APIs for these exceptions so that people can use them in their code. For example, depending on their business logic, they can decide to retry for some specific exceptions.

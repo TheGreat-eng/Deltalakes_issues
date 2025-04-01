@@ -1,0 +1,16 @@
+In sql if I want to update a table I do
+
+
+Update A
+set a.col1 = b.col1 
+from tablea A join tableb b
+on a.id = b.id
+
+This does not work in pyspark SQL for delta tables. I cannot use merge because target has multiple rows matching and merge fails. Please help.
+
+Above code gives below error
+
+Error in SQL statement: ParseException: 
+mismatched input 'from' expecting {<EOF>, ';'}(line 3, pos 0)
+
+Pointing to the portion saying " from tablea A join tableb b"

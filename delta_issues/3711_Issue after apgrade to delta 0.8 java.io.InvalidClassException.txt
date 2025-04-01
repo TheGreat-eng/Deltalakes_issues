@@ -1,0 +1,22 @@
+Hi.
+I got error to read delta table after upgrade from 0.7 to 0.8.
+I had upgrade pyspark3.0.2, spark 3.0.2, and I got this :
+_java.io.InvalidClassException: org.apache.spark.broadcast.TorrentBroadcast; local class incompatible: stream classdesc serialVersionUID = 3291767831129286585, local class serialVersionUID = 4804550167553929379
+org.apache.spark.broadcast.TorrentBroadcast; local class incompatible: stream classdesc serialVersionUID = 3291767831129286585, local class serialVersionUID = 4804550167553929379_
+
+Here my code, this code work fine with 0.7 version.
+
+`spark = SparkSession.builder.appName("loadata") \
+    .master("spark://localhost:7077") \
+    .config("spark.jars.packages", "io.delta:delta-core_2.12:0.8.0") \
+    .config("spark.sql.extensions", "io.delta.sql.DeltaSparkSessionExtension") \
+    .config("spark.sql.catalog.spark_catalog", "org.apache.spark.sql.delta.catalog.DeltaCatalog") \
+    .config("spark.sql.mapKeyDedupPolicy", "LAST_WIN") \
+    .config("spark.sql.execution.arrow.pyspark.enable", "true") \
+    .config("spark.sql.execution.arrow.pyspark.fallback.enabled", "true") \
+    .config("spark.executor.memory", "2g") \
+    .config("spark.executor.cores", "2") \
+    .enableHiveSupport() \
+    .getOrCreate()
+
+spark.sql("select count(*) from testable").show()`

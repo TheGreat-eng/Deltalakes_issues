@@ -1,0 +1,10 @@
+## Feature request
+
+### Overview
+Remove the old scala LogStores located at https://github.com/delta-io/delta/tree/master/core/src/main/scala/org/apache/spark/sql/delta/storage
+
+and then redirect any `delta.logStore.$scheme.impl` calls from the scala implementations to the java implementations.
+
+### Motivation
+
+We started using the new java LogStores about a year ago. It's time to deprecate and remove the old scala implementations.

@@ -1,0 +1,2 @@
+The comment for vacuum says "note: This will use the default retention period of 7 hours."
+But actually the default value is 7 days.

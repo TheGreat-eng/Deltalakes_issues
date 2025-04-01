@@ -1,0 +1,29 @@
+Is there anything on the roadmap as far as allowing merges from PySpark with this clean syntax that Scala supports:
+
+````
+val deltaTable = DeltaTable.forName("aggregates")
+
+def upsertToDelta(microBatchOutputDF: DataFrame, batchId: Long) {
+  deltaTable.as("t")
+    .merge(
+      microBatchOutputDF.as("s"), 
+      "s.key = t.key")
+    .whenMatched().updateAll()
+    .whenNotMatched().insertAll()
+    .execute()
+````
+
+as opposed to this:
+
+````
+def upsertToDelta(microBatchOutputDF, batchId): 
+  microBatchOutputDF.createOrReplaceTempView("updates")
+
+  microBatchOutputDF._jdf.sparkSession().sql("""
+    MERGE INTO aggregates t
+    USING updates s
+    ON s.key = t.key
+    WHEN MATCHED THEN UPDATE SET *
+    WHEN NOT MATCHED THEN INSERT *
+  """)
+````

@@ -1,0 +1,6 @@
+Making Delta a multi-module project will enable us to add other sub-modules. For example, we can then add a contribs sub-module that can have contributions from the community that needs to be very closely tied to the delta-core project (hence in this repo, and not delta/connectors) but does not have the same level of maturity as delta-core.
+
+Changes made in this
+- Moved all scala files to core/
+- update build.sbt to multiple modules
+  - Removed dependency on spark-packages.

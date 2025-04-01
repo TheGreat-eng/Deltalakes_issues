@@ -1,0 +1,6 @@
+Currently, we have a Scala utility command: `history`. We can add a SQL command for this when #161 gets merged.
+
+```
+DESCRIBE HISTORY '/foo/bar'
+DESCRIBE HISTORY delta.`/foo/bar`
+```

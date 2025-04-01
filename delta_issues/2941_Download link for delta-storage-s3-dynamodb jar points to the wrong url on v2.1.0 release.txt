@@ -1,0 +1,3 @@
+Download link for delta-storage-s3-dynamodb jar points to the wrong url on v2.1.0 release
+
+This is where it should point: https://repo1.maven.org/maven2/io/delta/delta-storage-s3-dynamodb/2.1.0/

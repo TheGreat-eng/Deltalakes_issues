@@ -1,0 +1,1 @@
+The `Metadata.format.options` is useful to specify Parquet properties of the files written by Delta operations such as `compression` type, for example

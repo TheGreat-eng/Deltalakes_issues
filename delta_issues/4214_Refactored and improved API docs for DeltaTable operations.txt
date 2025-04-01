@@ -1,0 +1,3 @@
+- Moved the update() methods to DeltaTable class to fix java doc issues
+- Converted builder classes from case class to simple class because case classes have unnecessary public methods (e.g. productArity, etc.) that show up in the API docs.
+- Added details docs for update and merge

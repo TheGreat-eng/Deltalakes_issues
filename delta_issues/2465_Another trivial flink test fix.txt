@@ -1,0 +1,1 @@
+Fix test helper method so that only `.checkpoint.parquet` files are returned (and not, for example, .crc files)

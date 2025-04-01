@@ -1,0 +1,57 @@
+## Feature request
+
+#### Which Delta project/connector is this regarding?
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+### Overview
+
+Delta allows specifying [generated columns](https://docs.delta.io/latest/delta-batch.html#use-generated-columns), for which values are calculated at runtime during insert.
+After table creation, there is no (easy) way to look up the generation expression using `delta-Spark`.
+
+**Feature request**: I propose implementing one of the two options...
+- _**option a)**_ returning `metaData.format.schemaString` value from delta_log when calling `DeltaTable.detail()`
+- _**option b)**_ making sure, that the [`delta.generationExpression`](https://github.com/delta-io/delta/blob/master/PROTOCOL.md#generated-columns) is set when accessing the schema via `DeltaTable.forName(spark, "my_table").toDF().schema`
+
+### Motivation
+
+We have the scenario where we'd like to check if a given Delta table complies to a given specification (schema, partition columns, generated columns).
+Currently I need to read and parse the delta_log manually to obtain the generation expression.
+
+### Further details
+
+#### Reproduce the issue with
+```python
+from delta.tables import DeltaTable
+dt = (
+    DeltaTable.createOrReplace(spark)
+    .tableName("tmp_delta_table_generated_column")
+    .addColumn("c1", dataType = "LONG", nullable = False)
+    .addColumn("c2", dataType = "LONG", generatedAlwaysAs = "c1 + 1")
+    .partitionedBy("c2")
+    .execute()
+)
+
+dt.toDF().schema
+>>>StructType([StructField('c1', LongType(), False), StructField('c2', LongType(), True)])
+```
+
+#### `delta-Spark` vs `delta-rs`
+When using `delta-rs` DeltaTable().schema() already contains [`delta.generationExpression`](https://github.com/delta-io/delta/blob/master/PROTOCOL.md#generated-columns) as in _option b)_
+```python
+from deltalake import DeltaTable
+DeltaTable(...).schema()
+>>>Schema([Field(c1, PrimitiveType("long"), nullable=False), Field(c2, PrimitiveType("long"), nullable=True, metadata={'delta.generationExpression': 'c1 + 1'})])
+```
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [ ] Yes. I can contribute this feature independently.
+- [ ] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [x] No. I cannot contribute this feature at this time.

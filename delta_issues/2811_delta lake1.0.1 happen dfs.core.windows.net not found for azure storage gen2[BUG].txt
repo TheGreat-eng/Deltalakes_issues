@@ -1,0 +1,35 @@
+### Describe the problem
+in this issue https://github.com/delta-io/delta/issues/1093,This problem occurs first occasionally in structured streaming. It is solved by upgrading the delta lake to 1.0.1. However, recently, I found that the delta lake is 1.0.1 after using it in other services, but the problem still occurs. I read data through SparkSQL.
+
+the log is :
+------>
+{
+    "instant": {
+        "epochSecond": 1669713819,
+        "nanoOfSecond": 600426000
+    },
+    "thread": "main",
+    "level": "ERROR",
+    "loggerName": "com.foxit.sensor.Indicator.AnalysisWorker",
+    "message": "analysis error",
+    "thrown": {
+        "commonElementCount": 0,
+        "localizedMessage": "Configuration property azk8ssensordatalakegen2.dfs.core.windows.net not found.",
+        "message": "Configuration property azk8ssensordatalakegen2.dfs.core.windows.net not found.",
+        "name": "org.apache.hadoop.fs.azurebfs.contracts.exceptions.ConfigurationPropertyNotFoundException",
+        "extendedStackTrace": "org.apache.hadoop.fs.azurebfs.contracts.exceptions.ConfigurationPropertyNotFoundException: Configuration property azk8ssensordatalakegen2.dfs.core.windows.net not found.\n\tat org.apache.hadoop.fs.azurebfs.AbfsConfiguration.getStorageAccountKey(AbfsConfiguration.java:342) ~[?:?]\n\tat org.apache.hadoop.fs.azurebfs.AzureBlobFileSystemStore.initializeClient(AzureBlobFileSystemStore.java:812) ~[?:?]\n\tat org.apache.hadoop.fs.azurebfs.AzureBlobFileSystemStore.<init>(AzureBlobFileSystemStore.java:149) ~[?:?]\n\tat org.apache.hadoop.fs.azurebfs.AzureBlobFileSystem.initialize(AzureBlobFileSystem.java:108) ~[?:?]\n\tat org.apache.hadoop.fs.FileSystem.createFileSystem(FileSystem.java:3303) ~[hadoop-common-3.2.0.jar:?]\n\tat org.apache.hadoop.fs.FileSystem.access$200(FileSystem.java:124) ~[hadoop-common-3.2.0.jar:?]\n\tat org.apache.hadoop.fs.FileSystem$Cache.getInternal(FileSystem.java:3352) ~[hadoop-common-3.2.0.jar:?]\n\tat org.apache.hadoop.fs.FileSystem$Cache.get(FileSystem.java:3320) ~[hadoop-common-3.2.0.jar:?]\n\tat org.apache.hadoop.fs.FileSystem.get(FileSystem.java:479) ~[hadoop-common-3.2.0.jar:?]\n\tat org.apache.hadoop.fs.Path.getFileSystem(Path.java:361) ~[hadoop-common-3.2.0.jar:?]\n\tat org.apache.spark.sql.delta.DeltaTableUtils$.findDeltaTableRoot(DeltaTable.scala:164) ~[?:?]\n\tat org.apache.spark.sql.delta.sources.DeltaDataSource$.parsePathIdentifier(DeltaDataSource.scala:267) ~[?:?]\n\tat org.apache.spark.sql.delta.catalog.DeltaTableV2.x$1$lzycompute(DeltaTableV2.scala:67) ~[?:?]\n\tat org.apache.spark.sql.delta.catalog.DeltaTableV2.x$1(DeltaTableV2.scala:62) ~[?:?]\n\tat org.apache.spark.sql.delta.catalog.DeltaTableV2.rootPath$lzycompute(DeltaTableV2.scala:62) ~[?:?]\n\tat org.apache.spark.sql.delta.catalog.DeltaTableV2.rootPath(DeltaTableV2.scala:62) ~[?:?]\n\tat org.apache.spark.sql.delta.catalog.DeltaTableV2.deltaLog$lzycompute(DeltaTableV2.scala:73) ~[?:?]\n\tat org.apache.spark.sql.delta.catalog.DeltaTableV2.deltaLog(DeltaTableV2.scala:73) ~[?:?]\n\tat org.apache.spark.sql.delta.catalog.DeltaTableV2.toBaseRelation(DeltaTableV2.scala:139) ~[?:?]\n\tat org.apache.spark.sql.delta.sources.DeltaDataSource.createRelation(DeltaDataSource.scala:177) ~[?:?]\n\tat org.apache.spark.sql.execution.datasources.DataSource.resolveRelation(DataSource.scala:354) ~[spark-sql_2.12-3.1.1.jar:3.1.1]\n\tat org.apache.spark.sql.DataFrameReader.loadV1Source(DataFrameReader.scala:326) ~[spark-sql_2.12-3.1.1.jar:3.1.1]\n\tat org.apache.spark.sql.DataFrameReader.$anonfun$load$1(DataFrameReader.scala:306) ~[spark-sql_2.12-3.1.1.jar:3.1.1]\n\tat scala.Option.map(Option.scala:230) ~[scala-library-2.12.10.jar:?]\n\tat org.apache.spark.sql.DataFrameReader.load(DataFrameReader.scala:266) ~[spark-sql_2.12-3.1.1.jar:3.1.1]\n\tat org.apache.spark.sql.DataFrameReader.load(DataFrameReader.scala:240) ~[spark-sql_2.12-3.1.1.jar:3.1.1]\n\tat com.foxit.sensor.data.dataset.DeltaLakeDataSet.load(DeltaLakeDataSet.java:88) ~[?:?]\n\tat com.foxit.sensor.data.dataset.DeltaLakeDataSet.load(DeltaLakeDataSet.java:103) ~[?:?]\n\tat com.foxit.sensor.data.dataset.DataSetManager.load(DataSetManager.java:64) ~[?:?]\n\tat com.foxit.sensor.Indicator.model.ExportHandler.doExec(ExportHandler.java:178) ~[?:?]\n\tat com.foxit.sensor.Indicator.model.ExportHandler.exec(ExportHandler.java:70) ~[?:?]\n\tat com.foxit.sensor.Indicator.model.ModelHandler.handler(ModelHandler.java:77) ~[?:?]\n\tat com.foxit.sensor.Indicator.IndicatorEngine.analysis(IndicatorEngine.java:219) ~[?:?]\n\tat com.foxit.sensor.Indicator.AnalysisWorker.run(AnalysisWorker.java:71) ~[?:?]\n\tat com.foxit.sensor.runner.Application.start(Application.java:128) ~[?:?]\n\tat com.foxit.sensor.runner.Application.main(Application.java:39) ~[?:?]\n\tat jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method) ~[?:?]\n\tat jdk.internal.reflect.NativeMethodAccessorImpl.invoke(Unknown Source) ~[?:?]\n\tat jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(Unknown Source) ~[?:?]\n\tat java.lang.reflect.Method.invoke(Unknown Source) ~[?:?]\n\tat org.apache.spark.deploy.JavaMainApplication.start(SparkApplication.scala:52) ~[spark-core_2.12-3.1.1.jar:3.1.1]\n\tat org.apache.spark.deploy.SparkSubmit.org$apache$spark$deploy$SparkSubmit$$runMain(SparkSubmit.scala:951) ~[spark-core_2.12-3.1.1.jar:3.1.1]\n\tat org.apache.spark.deploy.SparkSubmit.doRunMain$1(SparkSubmit.scala:180) ~[spark-core_2.12-3.1.1.jar:3.1.1]\n\tat org.apache.spark.deploy.SparkSubmit.submit(SparkSubmit.scala:203) ~[spark-core_2.12-3.1.1.jar:3.1.1]\n\tat org.apache.spark.deploy.SparkSubmit.doSubmit(SparkSubmit.scala:90) ~[spark-core_2.12-3.1.1.jar:3.1.1]\n\tat org.apache.spark.deploy.SparkSubmit$$anon$2.doSubmit(SparkSubmit.scala:1030) ~[spark-core_2.12-3.1.1.jar:3.1.1]\n\tat org.apache.spark.deploy.SparkSubmit$.main(SparkSubmit.scala:1039) ~[spark-core_2.12-3.1.1.jar:3.1.1]\n\tat org.apache.spark.deploy.SparkSubmit.main(SparkSubmit.scala) ~[spark-core_2.12-3.1.1.jar:3.1.1]\n"
+    },
+    "endOfBatch": true,
+    "loggerFqcn": "org.apache.logging.slf4j.Log4jLogger",
+    "threadId": 13,
+    "threadPriority": 5
+}
+<----
+
+### Environment information
+
+* Delta Lake version: 1.0.1
+* Spark version: 3.1.2
+* Scala version: 2.12.11
+
+

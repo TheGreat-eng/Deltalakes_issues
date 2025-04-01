@@ -1,0 +1,4 @@
+Is there any open source alternative to parquet I/O cache (data blocks) of delta tables?
+I'm looking for something similar to "spark.*.io.cache.enabled" but with no luck.
+
+If this project doesn't support something similar, can anyone suggest an alternative?

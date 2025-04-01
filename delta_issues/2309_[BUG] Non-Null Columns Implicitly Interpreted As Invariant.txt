@@ -1,0 +1,57 @@
+## Bug
+
+#### Which Delta project/connector is this regarding?
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+### Describe the problem
+We have a table whose schema includes a non-nullable column (example below), and does not explicitly specify any invariants. This table is readable via Spark up until we set the reader version to 3 and the writer version to 7. At that point, reads fail because invariants are not listed in the protocol's writerFeatures, despite the fact that the table doesn't explicitly specify invariants (error code/stack below). Looking at the code, it appears that non-null constraints in the schema are being conflated with invariants, and are then failing a downstream check that if invariants are used, they must also be specified in writerFeatures.
+
+#### Steps to reproduce
+
+1. Publish log with non-nullable column, and without invariants:
+```
+{"protocol":{"minReaderVersion":1,"minWriterVersion":1}}
+{"metaData":{"id":"92F69D3B-ECE2-494A-BD3F-9683AEE759D9","name":"LunchMenu","format":{"provider":"parquet","options":{}},"schemaString":"{\"type\":\"struct\",\"fields\":[{\"name\":\"Dish\",\"type\":\"string\",\"nullable\":false,\"metadata\":{}}]}","partitionColumns":[],"configuration":{}}}
+
+```
+2. Update the reader and writer versions.
+`{"protocol":{"minReaderVersion":3,"minWriterVersion":7,"readerFeatures":["deletionVectors"],"writerFeatures":["deletionVectors"]}}`
+
+3. Attempt to read the table.
+
+#### Observed results
+
+`DeltaTableFeatureException: Unable to operate on this table because the following table features are enabled in metadata but not listed in protocol: invariants.`
+
+#### Expected results
+
+The table should still be readable, as invariants are not used.
+
+#### Further details
+
+Loose code tracing below, just based on some initial digging in the implementation. 
+
+This is the call which produces [InvariantsTableFeature](https://github.com/delta-io/delta/blob/9726f7f2e3922ecdbe4c3c9a0a1c11174193d14d/spark/src/main/scala/org/apache/spark/sql/delta/TableFeature.scala#L420).
+
+And in the definition of [getFromSchema](https://github.com/delta-io/delta/blob/9726f7f2e3922ecdbe4c3c9a0a1c11174193d14d/spark/src/main/scala/org/apache/spark/sql/delta/constraints/Invariants.scala#L73), not null constraints are returned as invariants.
+
+That likely flows up through the [allSupportedFeaturesMap](https://github.com/delta-io/delta/blob/9726f7f2e3922ecdbe4c3c9a0a1c11174193d14d/spark/src/main/scala/org/apache/spark/sql/delta/TableFeature.scala#L323) which is referenced in [extractAutomaticallyEnabledFeatures](https://github.com/delta-io/delta/blob/9726f7f2e3922ecdbe4c3c9a0a1c11174193d14d/spark/src/main/scala/org/apache/spark/sql/delta/actions/actions.scala#L269C7-L269C42).
+
+### Environment information
+
+* Delta Lake version: 2.4
+* Spark version: 3.4
+* Scala version: 2.12
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [ ] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [x] No. I cannot contribute a bug fix at this time.

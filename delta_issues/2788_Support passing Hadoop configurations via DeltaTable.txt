@@ -1,0 +1,45 @@
+<!--
+Thanks for sending a pull request!  Here are some tips for you:
+  1. If this is your first time, please read our contributor guidelines: https://github.com/delta-io/delta/blob/master/CONTRIBUTING.md
+  2. If the PR is unfinished, add '[WIP]' in your PR title, e.g., '[WIP] Your PR title ...'.
+  3. Be sure to keep the PR description updated to reflect all changes.
+  4. Please write your PR title to summarize what this PR proposes.
+  5. If possible, provide a concise example to reproduce the issue for a faster review.
+  6. If applicable, include the corresponding issue number in the PR title and link it in the body.
+-->
+
+## Description
+(Cherry-pick https://github.com/delta-io/delta/commit/f1ec3a0d77a2ab2701fbc8170adae3d5d7d10d90 to branch-2.1)
+
+This PR makes DeltaTable support reading Hadoop configuration. It adds a new public API to the DeltaTable in both Scala and Python:
+    ```
+        def forPath(
+          sparkSession: SparkSession,
+          path: String,
+          hadoopConf: scala.collection.Map[String, String])
+    ```
+    
+    Along with the API change, it adds the necessary change to make operations on `DeltaTable` work:
+    ```
+        def as()
+        def alias()
+        def toDF()
+        def optimize()
+        def upgradeTableProtocol()
+        def vacuum(...)
+        def history()
+        def generate(...)
+        def update(...)
+        def updateExpr(...)
+        def delete(...)
+        def merge(...)
+        def clone(...)
+        def cloneAtVersion(...)
+        def restoreToVersion(...)
+    ```
+    With the change in this PR, the above functions work and are verified in a new unit test. Some commands such as Merge/Vacuum/restoreToVersion etc don't pick up the Hadoop configurations even though they are passed to DeltaTableV2 through new forPath(..., options) API. Note that the unit test is written first by verifying that it fails without the change and passes with the change.
+
+
+## How was this patch tested?
+
+New unit tests.

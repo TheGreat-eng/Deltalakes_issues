@@ -1,0 +1,1 @@
+ Refine the scala code of example streaming. Rearranged these codes. Make the codes more readable.

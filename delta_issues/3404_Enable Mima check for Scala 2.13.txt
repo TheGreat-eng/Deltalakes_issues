@@ -1,0 +1,1 @@
+We disabled Mima check for Scala 2.13 as Delta 1.1.0 was not available. Now Delta 1.1.0 is in Maven Central, we should revert this change: https://github.com/delta-io/delta/commit/c4227f3dd4c9bb174e51bfc5ee86855d4f23eda9#diff-5634c415cd8c8504fdb973a3ed092300b43c4b8fc1e184f7249eb29a55511f91R222-R230

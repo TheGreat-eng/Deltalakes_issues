@@ -1,0 +1,8 @@
+Provided APIs allow
+* Appending data to a Delta table (with or without partitioning)
+  * With idempotent writes options
+  *  With conflicting resolution
+* Create a new table
+* Checkpoint the Delta table.
+
+These are just interface stubs. Implementations will follow after this PR review and merging.

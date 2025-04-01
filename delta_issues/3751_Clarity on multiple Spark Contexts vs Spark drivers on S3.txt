@@ -1,0 +1,15 @@
+Quotes from the [Delta Lake on Amazon S3 doc ](https://docs.delta.io/latest/delta-storage.html#amazon-s3)
+1) _Delta Lake supports concurrent reads from multiple clusters, but concurrent writes to S3 must originate from a single Spark driver in order for Delta Lake to provide transactional guarantees_
+2) _Concurrent writes to the same Delta table from multiple Spark drivers can lead to data loss._
+
+Background:
+Scenario 1: 
+2 or more users might connect to a Spark(Standalone or Yarn) cluster running remotely using [sparkmagic](https://github.com/jupyter-incubator/sparkmagic) & [Apache Livy](https://livy.apache.org/) & write to the same DeltaLake table. (Apache Livy provides functionality for sharing SparkContexts between users.)
+Scenario 2:
+2 or more scheduled (long-running) Spark jobs might write to the same Delta Lake table
+
+Questions:
+1) In both these scenarios, are we looking at the possibility of data loss? If yes, is that solved by having just 1 SparkContext **always** running, using Livy to share that context & & then writing to the (same) Delta Lake?
+2) Or, does the referenced doc mean we could have problems when 2 Spark clusters, say 1 of them running at  
+spark://172.31.1.88:7077    & the other running at    spark://3.5.11.2:7077    happen to write to the same Delta Lake table **at the same time**
+3) Isn't the point of multiple Spark Contexts in a single JVM moot, since it is anyway discouraged, and only for running intrinsic Spark tests?

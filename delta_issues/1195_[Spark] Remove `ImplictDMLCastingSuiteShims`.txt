@@ -1,0 +1,1 @@
+Spark master fixed https://github.com/apache/spark/pull/45981. Now both the spark-3.5 and spark-master have the same error message and we don't need this shim anymore

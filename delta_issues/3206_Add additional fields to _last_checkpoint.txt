@@ -1,0 +1,8 @@
+## Description
+
+Add sizeInBytes and numOfAddFiles to _last_checkpoint to help delta look up checkpoint details.
+
+## How was this patch tested?
+
+unit test
+

@@ -1,0 +1,14 @@
+
+## Description
+
+Resolve [https://github.com/delta-io/delta/issues/1127](1127)
+
+Consolidate CDC Tahoe File Indexes to a parent-common class.
+
+## How was this patch tested?
+
+Current unit tests
+
+## Does this PR introduce _any_ user-facing changes?
+
+Nope

@@ -1,0 +1,18 @@
+            val deltaTable = DeltaTable.forPath(sparks, updatePath)
+            deltaTable.as("t")
+              .merge(
+                filterSql.as("s"),
+                "s." + primaryKey + " = t." + primaryKey)
+              .whenMatched().updateAll()
+              .whenNotMatched().insertAll()
+              .execute()
+error：
+true), true, false), input[0, scala.collection.mutable.Map, true]) AS value#28]
++- MapPartitions <function1>, obj#27: scala.collection.mutable.Map
+   +- DeserializeToObject cast(value#21 as string).toString, obj#26: java.lang.String
+      +- Project [cast(value#8 as string) AS value#21]
+         +- StreamingExecutionRelation KafkaV2[Subscribe[tt_03]], [key#7, value#8, topic#9, partition#10, offset#11L, timestamp#12, timestampType#13]
+
+	at org.apache.spark.sql.execution.streaming.StreamExecution.org$apache$spark$sql$execution$streaming$StreamExecution$$runStream(StreamExecution.scala:297)
+	at org.apache.spark.sql.execution.streaming.StreamExecution$$anon$1.run(StreamExecution.scala:193)
+Caused by: java.lang.UnsupportedOperationException: Cannot perform MERGE as multiple source rows matched and attempted to update the same target row in the Delta table.

@@ -1,0 +1,129 @@
+**SCENARIO**: I have a Kubernetes cluster with a HELM Spark 3.1.2. I mounted a NFS storage because I run a script that uses delta files.
+My spark cluster has 8 workers. I gave full permission to each worker to write and read on the NFS storage.
+
+**PROBLEM**: The script is failing to create delta_log directory on a NFS storage in Kubernetes.
+
+When I run my script, I got the following error:
+
+`Cannot create file:/spark-nfs/data/delta/delta_table/_delta_log `
+
+After the error occurs, I searched on my NFS storage and I've found that the parquets file were created on disk. Although the delta_log folder was not created.
+Based on this, I tried to create the delta_log folder using mkdir directly from the spark workers, and using the mkdir aproach the delta_log directory was created with no erro.
+
+Considering all this infos, I don't know what is happening since the script cannot create the delta_log folder.
+
+**SPECS**:
+```
+Spark 3.1.2
+Delta Package io.delta:delta-core_2.12:1.0.1
+```
+
+I used Bitnami Helm Chart version that uses 
+```
+python 3.7.9-19
+java 11.0.9-1-0
+spark 3.1.2-0 
+gosu 1.12.0-2. 
+```
+
+And my environmentes settings are  
+
+```
+OS_ARCH="amd64"
+OS_FLAVOUR="debian-10"
+OS_NAME="linux"
+```
+Spark conf settings (pyspark)
+```
+.config("spark.driver.bindAddress", IP)
+.config("spark.driver.host", IP)
+.config("spark.driver.port", DRIVER_PORT)
+.config("spark.ui.port", UI_PORT)
+.config("spark.dynamicAllocation.enabled", "false")
+.config("spark.network.timeout", 36000000)
+.config("spark.executor.heartbeatInterval", 36000000)
+.config("spark.storage.blockManagerSlaveTimeoutMs", 36000000)
+.config("spark.sql.debug.maxToStringFields", 2000)
+.config("spark.driver.maxResultSize", "100g")
+.config("spark.cores.max", CORES)
+.config("spark.executor.cores", EXECUTOR_CORES if EXECUTOR_CORES else CORES)
+.config("spark.executor.memory", f'{str(mem)}g')
+.config("spark.driver.memory", f'{str(mem)}g')
+.config("spark.mongodb.input.uri", MONGO_IN)
+.config("spark.mongodb.output.uri", MONGO_OUT)
+.config("spark.executor.extraJavaOptions", "-Dcom.amazonaws.services.s3.enableV4=true")
+.config("spark.driver.extraJavaOptions", "-Dcom.amazonaws.services.s3.enableV4=true")
+.config("spark.hadoop.fs.s3a.path.style.access", True)
+.config("spark.hadoop.fs.s3a.multipart.size", "104857600")
+.config("spark.sql.broadcastTimeout", -1)
+.config('spark.hadoop.fs.s3a.access.key', ACCESS_KEY)
+.config('spark.hadoop.fs.s3a.secret.key', SECRET_KEY)
+.config("spark.hadoop.mapreduce.fileoutputcommitter.marksuccessfuljobs", False)
+.config("spark.sql.legacy.parquet.int96RebaseModeInWrite", "LEGACY")  
+.config('spark.hadoop.fs.s3a.aws.credentials.provider', 'org.apache.hadoop.fs.s3a.SimpleAWSCredentialsProvider')  
+.config("spark.sql.extensions", "io.delta.sql.DeltaSparkSessionExtension")  
+.config("spark.sql.catalog.spark_catalog", "org.apache.spark.sql.delta.catalog.DeltaCatalog")  
+.config("spark.hadoop-metrics2.properties", "org.apache.hadoop.metrics2.sink.ganglia.GangliaSink31")
+```
+
+
+Complete stack trace:
+```
+Cannot create file:/spark-nfs/data/delta/delta_table/_delta_log 
+ at org.apache.spark.sql.delta.DeltaLog.ensureLogDirectoryExist(DeltaLog.scala:290)
+      at org.apache.spark.sql.delta.OptimisticTransactionImpl.prepareCommit(OptimisticTransaction.scala:519)
+      at org.apache.spark.sql.delta.OptimisticTransactionImpl.prepareCommit$(OptimisticTransaction.scala:499)
+      at org.apache.spark.sql.delta.OptimisticTransaction.prepareCommit(OptimisticTransaction.scala:84)
+      at org.apache.spark.sql.delta.OptimisticTransactionImpl.$anonfun$commit$1(OptimisticTransaction.scala:432)
+      at scala.runtime.java8.JFunction0$mcJ$sp.apply(JFunction0$mcJ$sp.java:23)
+      at com.databricks.spark.util.DatabricksLogging.recordOperation(DatabricksLogging.scala:77)
+      at com.databricks.spark.util.DatabricksLogging.recordOperation$(DatabricksLogging.scala:67)
+      at org.apache.spark.sql.delta.OptimisticTransaction.recordOperation(OptimisticTransaction.scala:84)
+      at org.apache.spark.sql.delta.metering.DeltaLogging.recordDeltaOperation(DeltaLogging.scala:106)
+      at org.apache.spark.sql.delta.metering.DeltaLogging.recordDeltaOperation$(DeltaLogging.scala:91)
+      at org.apache.spark.sql.delta.OptimisticTransaction.recordDeltaOperation(OptimisticTransaction.scala:84)
+      at org.apache.spark.sql.delta.OptimisticTransactionImpl.commit(OptimisticTransaction.scala:427)
+      at org.apache.spark.sql.delta.OptimisticTransactionImpl.commit$(OptimisticTransaction.scala:425)
+      at org.apache.spark.sql.delta.OptimisticTransaction.commit(OptimisticTransaction.scala:84)
+      at org.apache.spark.sql.delta.commands.WriteIntoDelta.$anonfun$run$1(WriteIntoDelta.scala:69)
+      at org.apache.spark.sql.delta.commands.WriteIntoDelta.$anonfun$run$1$adapted(WriteIntoDelta.scala:65)
+      at org.apache.spark.sql.delta.DeltaLog.withNewTransaction(DeltaLog.scala:187)
+      at org.apache.spark.sql.delta.commands.WriteIntoDelta.run(WriteIntoDelta.scala:65)
+      at org.apache.spark.sql.delta.sources.DeltaDataSource.createRelation(DeltaDataSource.scala:154)
+      at org.apache.spark.sql.execution.datasources.SaveIntoDataSourceCommand.run(SaveIntoDataSourceCommand.scala:46)
+      at org.apache.spark.sql.execution.command.ExecutedCommandExec.sideEffectResult$lzycompute(commands.scala:70)
+      at org.apache.spark.sql.execution.command.ExecutedCommandExec.sideEffectResult(commands.scala:68)
+      at org.apache.spark.sql.execution.command.ExecutedCommandExec.doExecute(commands.scala:90)
+      at org.apache.spark.sql.execution.SparkPlan.$anonfun$execute$1(SparkPlan.scala:180)
+      at org.apache.spark.sql.execution.SparkPlan.$anonfun$executeQuery$1(SparkPlan.scala:218)
+      at org.apache.spark.rdd.RDDOperationScope$.withScope(RDDOperationScope.scala:151)
+      at org.apache.spark.sql.execution.SparkPlan.executeQuery(SparkPlan.scala:215)
+      at org.apache.spark.sql.execution.SparkPlan.execute(SparkPlan.scala:176)
+      at org.apache.spark.sql.execution.QueryExecution.toRdd$lzycompute(QueryExecution.scala:132)
+      at org.apache.spark.sql.execution.QueryExecution.toRdd(QueryExecution.scala:131)
+      at org.apache.spark.sql.DataFrameWriter.$anonfun$runCommand$1(DataFrameWriter.scala:989)
+      at org.apache.spark.sql.execution.SQLExecution$.$anonfun$withNewExecutionId$5(SQLExecution.scala:103)
+      at org.apache.spark.sql.execution.SQLExecution$.withSQLConfPropagated(SQLExecution.scala:163)
+      at org.apache.spark.sql.execution.SQLExecution$.$anonfun$withNewExecutionId$1(SQLExecution.scala:90)
+      at org.apache.spark.sql.SparkSession.withActive(SparkSession.scala:775)
+      at org.apache.spark.sql.execution.SQLExecution$.withNewExecutionId(SQLExecution.scala:64)
+      at org.apache.spark.sql.DataFrameWriter.runCommand(DataFrameWriter.scala:989)
+      at org.apache.spark.sql.DataFrameWriter.saveToV1Source(DataFrameWriter.scala:438)
+      at org.apache.spark.sql.DataFrameWriter.saveInternal(DataFrameWriter.scala:409)
+      at org.apache.spark.sql.DataFrameWriter.save(DataFrameWriter.scala:293)
+      at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+      at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+      at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+      at java.base/java.lang.reflect.Method.invoke(Method.java:566)
+      at py4j.reflection.MethodInvoker.invoke(MethodInvoker.java:244)
+      at py4j.reflection.ReflectionEngine.invoke(ReflectionEngine.java:357)
+      at py4j.Gateway.invoke(Gateway.java:282)
+      at py4j.commands.AbstractCommand.invokeMethod(AbstractCommand.java:132)
+      at py4j.commands.CallCommand.execute(CallCommand.java:79)
+      at py4j.GatewayConnection.run(GatewayConnection.java:238)
+      at java.base/java.lang.Thread.run(Thread.java:829)
+```
+
+Code: 
+
+`df.write.partitionBy("Code", "Year", "Month").format('delta').save(path="/spark-nfs/data/delta/delta_table/")`

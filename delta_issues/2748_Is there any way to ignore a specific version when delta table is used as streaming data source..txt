@@ -1,0 +1,3 @@
+We use spark structured streaming and delta table. We process private data, so we need to delete the data. We have a seperate job to process the customer consent and delete the data when consent is revoked. And this deletion is not on partition level. Then once we purge the data based on customer consent. Huge number of rows are copied. And this takes huge processing time for normal downstream handling. So I would like to know is there any way to skip a version when  delta table is used as streaming data source?
+For example,  in commit info, we have {"commitInfo":{"operation":"DELETE", "jobName":"PURGE" ...
+Or if there is a way to ignore a specific version. Then we can figure out which version we want to skip and set it when start the streaming.

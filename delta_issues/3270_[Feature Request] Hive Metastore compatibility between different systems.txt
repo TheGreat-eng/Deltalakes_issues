@@ -1,0 +1,14 @@
+## Feature request
+
+### Overview
+
+Currently when we creates a Delta table in Hive Metastore using different systems, we will store different formats in Hive Metastore. This causes the following issue:
+
+- After create a Delta table in Hive Metastore using Spark, this table can only be accessed by Spark. For example, using Hive to access this table will fail.
+- After create a Delta table in Hive Metastore using Hive, this table can only be accessed by Hive. Using Spark to access this table will fail.
+
+Similar issues happen in Presto and Flink as well. It would be great if we can define a unified format in Hive Metastore for Delta.
+
+### Motivation
+
+If we define a unifed format in Hive Metastore, and all of systems (Spark, Hive, Presto, Flink) use the same format, then no matter how a table is created, it can be accessed by all of systems.

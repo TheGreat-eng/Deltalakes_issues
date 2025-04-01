@@ -1,0 +1,9 @@
+**Feature Request:**
+Create ability to selectively overwrite only the data that matches predicates over arbitrary columns by enhancing the replaceWhere function.
+
+**Requirements:**
+Given a set of column and values for them from an input DataFrame, remove all rows in a target Delta table that meet that condition and replace them with the rows from the input DataFrame. Note that the record matches do not have to be unique.
+
+**Why is this different than upsert?** With upsert existing rows are changed and new rows are inserted. This function not only requires changes and inserts, but also deletes.
+
+**Why can’t the existing replaceWhere function be used?** replaceWhere is only good in the case of replacing complete partitions. Not individual records belonging to it.

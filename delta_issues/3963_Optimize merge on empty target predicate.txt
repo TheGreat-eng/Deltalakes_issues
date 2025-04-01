@@ -1,0 +1,3 @@
+Problem: When a merge condition is given that contains a target only predicate, if that target predicate does not match any files, I don't want Delta to still go through the effort of inner joining and collecting.
+
+Reason for change: When given an explicit partition predicate like `target.date in ('YYYY-mm-dd')` in addition to other source = target conditions, if that partition does not yet exist the merge statement takes too long in the "finding files for merge" step.

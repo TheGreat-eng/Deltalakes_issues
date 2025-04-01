@@ -1,0 +1,73 @@
+## Bug
+
+#### Which Delta project/connector is this regarding?
+Spark 3.3.1
+Delta 
+
+
+### Describe the problem
+I have a Delta table, that when merging new data, will generate ONLY one HUGE file ( > 3 GB), per partition.
+
+
+#### Steps to reproduce
+**Create Session**
+
+```
+builder = pyspark.sql.SparkSession.builder.appName("create_cdr_master_table") \
+    .config("spark.sql.extensions", "io.delta.sql.DeltaSparkSessionExtension") \
+    .config("spark.sql.catalog.spark_catalog", "org.apache.spark.sql.delta.catalog.DeltaCatalog")
+    
+spark = configure_spark_with_delta_pip(builder).getOrCreate()
+
+# Configure Spark Settings
+
+# Default Delta File size
+spark.conf.set("spark.databricks.delta.targetFileSize", "134217728")
+
+```
+
+Merge Data
+```
+print("Merging data")
+deltaTable = DeltaTable.forName(spark, "telco.cdr_master_delta2")
+deltaTable.alias("target").merge(new_cdr_raw_df.alias('source'), "target.uuid = source.uuid and target.date_string = source.date_string").whenMatchedUpdateAll().whenNotMatchedInsertAll().execute()
+
+```
+
+**Optimize Table**
+In addition, after, when I try to optimize the table, it does nothing.
+```
+
+from delta.tables import DeltaTable
+
+# Optimize Data
+print("Optimize data")
+
+deltaTable = DeltaTable.forName(spark, "telco.cdr_master_delta2")
+# deltaTable.optimize().where("date_string='20240717'").executeCompaction(targetSize = 128 * 1024 * 1024) # Seems to be version problem, since doesn't accept targetSize param
+deltaTable.optimize().where("date_string='20240717'").executeCompaction()
+
+```
+
+#### Observed results
+
+Generetas ONE huge file with >3.8 GB per partition
+
+#### Expected results
+1st. When merging, generate target file size files
+2nd. When run optimize, make big files smaller targeting target file size
+
+
+#### Further details
+
+
+### Environment information
+
+* Delta Lake version: 2.3.0
+* Spark version: 3.3.1
+* Scala version: 
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+- [ ] No. I cannot contribute a bug fix at this time. (I am not developer :( )

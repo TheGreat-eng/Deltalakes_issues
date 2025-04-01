@@ -1,0 +1,13 @@
+Delta log json files are serialized with [Jackson library](https://github.com/delta-io/delta/blob/a746c3af92ea56b8ceac3ed20bb7769c67c11b6a/src/main/scala/org/apache/spark/sql/delta/util/JsonUtils.scala#L32) but deserialized [with Spark](https://github.com/delta-io/delta/blob/a746c3af92ea56b8ceac3ed20bb7769c67c11b6a/src/main/scala/org/apache/spark/sql/delta/Snapshot.scala#L177). This seems to be a problem for `java.sql.Timestamp` field (currently present only in [CommitInfo](https://github.com/delta-io/delta/blob/a746c3af92ea56b8ceac3ed20bb7769c67c11b6a/src/main/scala/org/apache/spark/sql/delta/actions/actions.scala#L244) action). 
+
+The Timestamp is serialized as Long type representing **number of milliseconds**, however Spark deserializes this value as **number of seconds**.
+
+Timestamp `2019-10-10 11:36:51.165` will be serialized in Json log file as:
+`{"commitInfo":{"timestamp":1570707411165, ... }}`
+
+And deserialized by Spark as: 
+`51744-01-24 00:10:10.0`
+
+This behavior was introduced with [SPARK-12744](https://issues.apache.org/jira/browse/SPARK-12744) from Spark 2.0.0.
+
+Currently this is not a functional problem, because CommitInfo's timestamp is used only for comparison with other [CommitInfo's timestamp](https://github.com/delta-io/delta/blob/a746c3af92ea56b8ceac3ed20bb7769c67c11b6a/src/main/scala/org/apache/spark/sql/delta/DeltaHistoryManager.scala#L276). But for future development this may cause an issue.

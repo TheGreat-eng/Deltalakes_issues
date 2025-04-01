@@ -1,0 +1,72 @@
+## Feature request
+This is an uber issue for designing and implementing APIs (Delta Kernel) to unify and simplify APIs for connectors to read Delta Lake tables. Currently the focus is on reading, support for writing will be added later.
+
+### Motivation
+Delta connector ecosystem is currently fragmented with too many independent protocol implementations - [Delta Spark](https://github.com/delta-io/delta), [Delta Standalone](https://github.com/delta-io/connectors), [Trino](https://github.com/trinodb/trino/tree/master/plugin/trino-delta-lake/src/main/java/io/trino/plugin/deltalake/transactionlog), [delta-rs](https://github.com/delta-io/delta-rs/), [Delta Sharing](https://github.com/delta-io/delta-sharing) etc. This leads to the following problems:
+1. High variability in performance and bugs in connectors - Each implementation tries to implement the spec in different ways causing suboptimal performance and data correctness bugs. 
+
+2. Sluggish adoption of new protocol features - Whenever there is a protocol update, every implementation needs to be updated separately. Furthermore, even when multiple connectors share the log replay implementation, each connector currently requires deep understanding of the protocol details for the actual data operations (i.e., reads, writes, upserts) to be implemented correctly. For example, Delta Standalone hides the details of log file formats, but ultimately exposes raw actions via programmatic APIs. Connectors using Standalone must understand all the nitty gritty details of the column stats in the `AddFile`s to use them correctly for skipping. Such friction prevents new connector creation as well as slows d own adoption of new protocol features in existing connectors.
+
+To reduce fragmentation and speed up the rate of innovation, we have to simplify and unify the connector ecosystem. 
+
+* Simplify the programmatic APIs for building connectors - We want to build a "kernel" library (or a small set of them in different languages) that hides all the protocol details of all operations behind simple library APIs. Connectors will just use those APIs to get scan file data that it can forward to the engine without any interpretation of the underlying raw actions. The engine will just use the scan file data to read data using the Kernel APIs. For example, for reads,
+    *  core will generate a list of scan files (as generic records)
+    * connector + engine will blindly distribute these scan file records to the workers and call Kernel API `ScanFile.read(scan file record)` to get rows without having to understand what file action the data is coming from. 
+
+* Unify the ecosystem - With these simplified APIs, we will be able to encourage new connectors to be built on them, and we can slowly convince the community to transition existing connectors to them too. 
+
+
+### Further details
+
+**See the [design doc](https://docs.google.com/document/d/1A91z59Ga1rG-LHz9FdFClR7sIJ2KY-CSlkgvvLUHTEc/edit?usp=sharing) for details.**
+**See the [presentation](https://docs.google.com/presentation/d/1PGSSuJ8ndghucSF9GpYgCi9oeRpWolFyehjQbPh92-U/edit?usp=sharing) for high level details.**
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [ ] Yes. I can contribute this feature independently.
+- [x] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.
+
+## Project Plan
+
+### Delta 3.0
+|Task description | Category| PR/Issue | Status | Author |
+|---|---|---|---|---|
+|Decimal support <br><ul><li>across expressions</li><li>ColumnarBatch/Row interface</li><li>Default parquet reader</li></ul>| Protocol support | #1951 | DONE | @allisonport-db|
+|Timestamp support <br><ul><li>across expressions</li><li>ColumnarBatch/Row interface</li><li>Default parquet reader</li></ul>| Protocol support | #1920 | DONE | @allisonport-db |
+|Improve Log Replay Code: use ColumnarBatch method & improve test coverage/fix found bugs|Protocol Support|#1939, #2069|DONE|@scottsand-db/@vkorukanti|
+|Log Segment Loading: Support multi-part checkpoint reads|Protocol Support|#1984|DONE|@allisonport-db|
+|Additional expressions<br><ul><li>Comparison (<,<=, >, >=)</li></ul>|Performance, API|#1997|DONE|@vkorukanti|
+|Partition pruning support|Performance|#2071|DONE|@vkorukanti|
+|Improve the complex type value access from the `ColumnVector` interface|API|#2087|DONE|@allisonport-db|
+|Usage doc|Misc.|#1927|DONE|@vkorukanti|
+|Examples programs using Java Kernel|Misc.|#1926|DONE|@vkorukanti|
+|Various Parquet reader bug fixes and code cleanup|Default TableClient|#1974, #1980|DONE|@vkorukanti|
+|Code checkstyle/build setup|Misc.|#1901, #1962, #1970, #1977, #2085, #1954|DONE|@allisonport-db|
+|Misc. clean up of APIs|API|#2041, #2058, #2064|DONE|@vkorukanti|
+
+### Delta 3.1
+|Task description | Category| PR/Issue | Status | Author |
+|---|---|---|---|---|
+|Support for file skipping using file stats in Delta Log|Performance|#2229|IN PROGRESS|@allisonport-db|
+|More unit tests based on golden tables|Testing||DONE|@allisonport-db|
+|Logging framework|Misc.|#2230|DONE|@allisonport-db|
+|Support `id` column mapping mode|Protocol Support|#2374|DONE|@vkorukanti|
+
+### Laundry List
+|Task description | Category| PR/Issue | Status | Author | Proposed Release |
+|---|---|---|---|---|---|
+|Exceptions framework|Misc.|#2231|||
+|Additional expressions<br><ul><li>IS_NULL/IS_NOT_NULL</li><li>IN List Support</li></ul>|Performance, API||||
+| Timestamp partition column support| Protocol Support | | | |
+|Test reading large tables  - a large state with multiple different types of actions|Testing||||
+|Performance eval of reading large state tables|Performance||||
+| TimestampNTZ Support <br><ul><li>across expressions</li><li>ColumnarBatch/Row interface</li><li>Default parquet reader</li></ul>| Protocol Support | | | |
+|Utility methods to (de)serialize Row/ColumnarBatch - speeds up connector development|Misc.|||||
+|Add checkpoint v2 support|Protocol||#2232|||
+|Get snapshot by version|Protocol|||||
+|Get snapshot by timestamp|Protocol|||||
+|table_changes|Protocol|||||
+|streaming support|Protocol|||||

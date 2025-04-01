@@ -1,0 +1,9 @@
+## Description
+Add tests covering stats and data skipping when a type change is applied to a Delta table.
+Covers:
+- A combination of disabling/enabling storing JSON stats in checkpoint files and the impact on data skipping.
+- Parsed partition values stored as part of the checkpoint file when the type of the partition column is changed.
+
+## How was this patch tested?
+See above.
+

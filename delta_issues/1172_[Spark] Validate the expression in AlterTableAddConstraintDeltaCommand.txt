@@ -1,0 +1,21 @@
+#### Which Delta project/connector is this regarding?
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+This PR fixes an internal error thrown from `AlterTableAddConstraintDeltaCommand`. This error is thrown when adding a CHECK constraint with a non-existent column in the expression. The error is thrown when we check if the expressions returns a boolean. This works correctly for most expressions, but will result in an exception if the data type of the unresolved column is checked.
+
+This PR fixes this issue by making the analyzer responsible for checking whether the expression returns a boolean by wrapping the expression with a `Filter` node.
+
+## How was this patch tested?
+
+Added a test
+
+## Does this PR introduce _any_ user-facing changes?
+
+Yes, `ALTER TABLE ... ADD CONSTRAINT ... CHECK` will now throw a `UNRESOLVED_COLUMN` error instead of a `INTERNAL_ERROR` in the case described above.

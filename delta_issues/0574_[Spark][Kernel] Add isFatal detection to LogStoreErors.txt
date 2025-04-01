@@ -1,0 +1,19 @@
+
+#### Which Delta project/connector is this regarding?
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [x] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+Simple PR that adds `isFatal` utility that can be used in `delta-storage`
+
+## How was this patch tested?
+
+Build
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

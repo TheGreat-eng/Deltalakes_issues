@@ -1,0 +1,1 @@
+Now, the kernel delta table didn't support updating the table configuration, we need to support it.

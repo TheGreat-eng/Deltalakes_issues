@@ -1,0 +1,65 @@
+## Bug
+
+### Describe the problem
+Executing the Merge operation with a delta table fails under the following conditions:
+
+- The Merge contains only a single insert with a NOT MATCHED clause
+- The configuration `spark.databricks.delta.merge.failIfSourceChanged` is set to true
+
+
+#### Steps to reproduce
+
+```
+ import spark.implicits._
+ spark.conf.set("spark.databricks.delta.merge.failIfSourceChanged", "true")
+ val path = "sample.delta"
+ val df = Seq(("test1", 1), ("test2", 2)).toDF("name", "id")
+
+  df.write.format("delta").save(path)
+  val changes = Seq(("test3", 3)).toDF("name", "id")
+  DeltaTable
+    .forPath(path).as("s").merge(
+      changes.as("c"),
+    $"s.id" === $"c.id")
+    .whenNotMatched
+    .insertAll
+    .execute
+```
+
+#### Observed results
+
+An error is thrown: 
+
+```
+java.lang.UnsupportedOperationException: Cannot perform Merge because the source dataset is not deterministic. Please refer to
+[error] https://docs.delta.io/latest/delta-update.html#operation-semantics for more information.
+```
+ 
+
+#### Expected results
+
+The merge should execute successfully and insert a row to the delta table
+
+#### Further details
+
+If the configuration is set to false, the merge executes successfully with the below warning  
+
+`Merge source has SQLMetric(id: 171, name: Some(number of source rows), value: 1) rows in initial scan but SQLMetric(id: 172, name: Some(number of source rows (during repeated scan)), value: 0) rows in second scan`
+
+The issue seems to be caused by this [sanity check](https://github.com/delta-io/delta/blob/d56c031fb53ec3e99db28fada71353e43b492596/core/src/main/scala/org/apache/spark/sql/delta/commands/MergeIntoCommand.scala#L408) 
+This check should not be executed when the merge has single insert (NOT MATCHED) as in this case delta scans the source table only once
+
+
+### Environment information
+
+* Delta Lake version: 2.2
+* Spark version: 3.3.1
+* Scala version: 2.12.15
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [x] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute a bug fix at this time.

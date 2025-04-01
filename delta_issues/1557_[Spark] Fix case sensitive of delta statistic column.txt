@@ -1,0 +1,22 @@
+
+
+#### Which Delta project/connector is this regarding?
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+This PR fixes a bug that happens when collecting the column attributes specified inside Delta statistic column table property.
+
+The Delta statistic column table property translates all columns' name into lower case while table schema keep the case of each column created by customer. As a result, if there are upper case columns inside table definition, the delta statistic collection would miss these columns.
+
+This PR fixes this issue by translating the column name to lower case while searching statistic columns.
+
+
+## How was this patch tested?
+
+Modify existing test case to cover more column character cases.

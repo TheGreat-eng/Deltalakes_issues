@@ -1,0 +1,2 @@
+The README says "Delta Lake currently requires Apache Spark 3.0.0", which is not true.
+Only version 0.7.0 requires it.

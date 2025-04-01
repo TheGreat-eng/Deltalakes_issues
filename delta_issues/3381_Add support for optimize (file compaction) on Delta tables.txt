@@ -1,0 +1,18 @@
+## Overview
+This work adds the “OPTIMIZE (file compaction)” as outlined in issue #927
+
+## Implementation Details
+
+- Add OPTIMIZE SQL command to grammar file DeltaSqlBase.g4
+- Handle the Optimize table SQL command in DeltaSqlParser.scala by creating a DeltaCommand implementation of OPTIMIZE (file compaction).
+- Implement DeltaCommand for OPTIMIZE (file compaction) (OptimizeTableCommand). Algorithm is as follows:
+- List all the files in latest snapshot that satisfy the given partition predicate
+   - Go through the files and filter out all files that are greater than the minimum size (DeltaSQLConf.DELTA_OPTIMIZE_MIN_FILE_SIZE)
+   - Group files by each partition
+   - For each partition divide the files into bins where the sum of the size of the files in a bin is <= DeltaSQLConf.DELTA_OPTIMIZE_MAX_FILE_SIZE
+   - Run a Spark job for each bin that reads the files in the bin and writes the output in a single file. The command can run DeltaSQLConfig.DELTA_OPTIMIZE_MAX_THREADS number of parallel jobs, each working on one bin.
+   - At the end, create a DeltaLog transaction that adds the output files generated and removes the compacted files.
+   - At each step, collect metrics to output in the Optimize SQL command.
+- Tests
+
+This resolves #927.

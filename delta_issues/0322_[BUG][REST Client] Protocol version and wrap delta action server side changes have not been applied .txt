@@ -1,0 +1,51 @@
+## Bug
+
+#### Delta rest client
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [x] Other (REST Client)
+
+### DeltaSharingProfile and Protocol version has not been updated to version 3 which impacts to rest client when connecting to a server that has tables with corresponding versions.
+Server side change (Wrap delta action in the response action when responseFormat=delta) addressed in [PR](https://github.com/delta-io/delta-sharing/commit/2eca6689be0dafe34f69a544da67b8c30e857b40) has not been updated in rest client side
+
+#### Steps to reproduce
+
+1. Connect to a deltashare server with Protocol version 3 tables (Ideally tables with deletion vectors)
+2. Call query_table_metadata function on the DataSharingRestClient
+
+```
+client = DataSharingRestClient(DeltaSharingProfile.from_json(json.dumps(profile)))
+client.set_delta_format_header()
+table_metadata = client.query_table_metadata(Table.from_json(table_json))
+
+print(table_metadata.metadata.schema_string)
+```
+
+#### Observed results
+
+`An error occurred: 'minReaderVersion'`
+
+#### Expected results
+
+table_metadata variable should populated without any error
+
+#### Further details
+
+<!--
+Include any additional details that may be useful for diagnosing the problem here. If including tracebacks, please include the full traceback. Large logs and files should be attached.
+-->
+
+### Environment information
+
+* Delta Lake version: 1.2.0
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [x] Yes. I can contribute a fix for this bug independently.
+- [ ] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute a bug fix at this time.

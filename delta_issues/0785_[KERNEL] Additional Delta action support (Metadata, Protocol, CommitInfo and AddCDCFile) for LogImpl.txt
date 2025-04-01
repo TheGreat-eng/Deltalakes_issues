@@ -1,0 +1,19 @@
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [X] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+https://github.com/delta-io/delta/pull/3531 added support for reading the add and remove file actions using the LogImpl::getChangesByVersion API. This PR adds support for additional actions metadata, protocol, commitInfo and cdc.
+
+## How was this patch tested?
+
+Adds unit tests.

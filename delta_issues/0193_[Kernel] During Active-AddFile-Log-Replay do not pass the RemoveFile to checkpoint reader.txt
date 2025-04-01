@@ -1,0 +1,22 @@
+#### Which Delta project/connector is this regarding?
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [X] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+Implemented a minor performance improvement to not read any RemoveFiles when we read checkpoint Parquet files during active-add-file-log-replay. Fixes #4102
+
+## How was this patch tested?
+
+Existing unit test, manual test using
+delta/kernel/examples/run-kernel-examples.py --use-local
+and
+./run-tests.py --group kernel
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

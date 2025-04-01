@@ -1,0 +1,30 @@
+## Bug
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the issue title
+For example: [BUG][Spark] Title of my issue
+-->
+
+- [X] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+### Describe the problem
+
+The implementation of V2 Checkpoint has a few inconsistencies with the Delta Spec (Thanks to @ebyhr for pointing this out). It does not write some fields in the V2 Checkpoint-related actions:
+1. `flavor` in checkpointMetadata action [Spec Link](https://github.com/delta-io/delta/blob/8639c411890a5c77386f04e2282fcf4caa401eff/PROTOCOL.md?plain=1#L676)
+2. `type` in sidecar action [Spec Link](https://github.com/delta-io/delta/blob/8639c411890a5c77386f04e2282fcf4caa401eff/PROTOCOL.md?plain=1#L654)
+3. Also, the specification requires that the sidecar’s relative file path should be specified under the field `fileName` in the sidecar action. But the implementation writes this under the field name `path`.
+
+Given that V2 Checkpoints have not been out for long, we should update the PROTOCOL to match the implementation.
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [X] Yes. I can contribute a fix for this bug independently.
+- [ ] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute a bug fix at this time.

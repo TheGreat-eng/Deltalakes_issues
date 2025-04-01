@@ -1,0 +1,30 @@
+## Feature request
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the issue title
+For example: [Feature Request][Spark] Title of my issue
+-->
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+### Overview
+
+To ensure proper parsing and handling of clustering column names, we should add test coverage for clustered tables where the clustering columns contain commas in the name.
+
+We can add tests for these columns in `ClusteredTableDDLDataSourceV2IdColumnMappingSuite.scala`.
+
+### Further details
+
+Note that the current test utility [verifyClusteringColumnsInDomainMetadata](https://github.com/delta-io/delta/blob/master/spark/src/test/scala/org/apache/spark/sql/delta/skipping/ClusteredTableTestUtils.scala#L54) will currently not support column names with commas in them and should be updated to support this case.
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [ ] Yes. I can contribute this feature independently.
+- [ ] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [x] No. I cannot contribute this feature at this time.

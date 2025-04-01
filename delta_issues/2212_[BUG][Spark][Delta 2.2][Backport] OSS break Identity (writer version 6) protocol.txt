@@ -1,0 +1,64 @@
+## Bug
+
+#### Which Delta project/connector is this regarding?
+- [X] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+### Describe the problem
+It allows to write to Delta Table where writer version is 6, and given Identity column is not supported, it breaks the protocol, by allowing explicit values and not updating highWaterMark 
+
+#### Steps to reproduce
+
+Create a table with Identity Column (you need another library, OSS don''t support it):
+
+CREATE OR REPLACE TABLE delta.`path....` (
+  id BIGINT GENERATED ALWAYS AS IDENTITY,
+  product_type STRING,
+  sales BIGINT
+);
+
+Using OSS append new data:
+
+val df = spark.createDataFrame(Seq((1, "ABC", 10)))
+      .toDF("id", "product_type", "sales")
+
+df.write.mode("append").format("delta").save("path...")
+
+**UPDATE**: repro without Identity, OSS library only:
+
+CREATE TABLE MyTestProtocol USING DELTA AS SELECT col1 as id FROM VALUES 0,1,2,3,4;
+ALTER TABLE MyTestProtocol SET TBLPROPERTIES('delta.minReaderVersion' = '1', 'delta.minWriterVersion' = '6');
+INSERT INTO MyTestProtocol VALUES (1);
+DESCRIBE EXTENDED MyTestProtocol;
+
+![image](https://user-images.githubusercontent.com/1336227/231850941-a6e6a7d2-ae74-45eb-ab00-e5a55d479559.png)
+
+#### Observed results
+
+Insert successfully. But break the identity.
+
+#### Expected results
+
+Error
+
+#### Further details
+
+The fix was backported to 2.3, but missed 2.2: https://github.com/delta-io/delta/pull/1722.
+Opening this issue to track it.
+
+### Environment information
+
+* Delta Lake version: 2.2.0
+* Spark version: 3.3.1
+* Scala version: 2.12
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [ ] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [X] No. I cannot contribute a bug fix at this time.

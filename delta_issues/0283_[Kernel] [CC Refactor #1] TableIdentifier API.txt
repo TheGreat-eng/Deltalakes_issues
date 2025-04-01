@@ -1,0 +1,24 @@
+#### Which Delta project/connector is this regarding?
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [X] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+Note that
+- TableIdentifier was added in this PR https://github.com/delta-io/delta/pull/3795
+- That PR was reverted here https://github.com/delta-io/delta/pull/3900
+- #3900 incorrectly didn't remove the TableIdentifier API
+
+This PR adds back the TableIdentifier tests. It also adds the `Table::forPathWithTableId` API.
+
+## How was this patch tested?
+
+New UT.
+
+## Does this PR introduce _any_ user-facing changes?
+
+New Table API to create a Table using a path and Table Identifier.

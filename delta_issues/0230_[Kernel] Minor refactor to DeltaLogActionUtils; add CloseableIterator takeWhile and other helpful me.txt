@@ -1,0 +1,20 @@
+#### Which Delta project/connector is this regarding?
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [X] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+This PR does the following:
+- changes our DeltaLogActionUtils `listDeltaLogFiles` method to return an iterator. This will eventually let it be used in a followup PR to further consolidate and clean up code in DeltaHistoryManager (which lists the delta log and expects an iterator)
+- adds CloseabelIterator::takeWhile, breakableFilter, and toInMemoryList
+
+## How was this patch tested?
+
+- New UTs
+
+## Does this PR introduce _any_ user-facing changes?
+
+No.

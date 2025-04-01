@@ -1,0 +1,5 @@
+Delta Python API docs tells that "Using this builder, you can specify 1, 2 or 3 when clauses of which there can be at most 2 whenMatched clauses and at most 1 whenNotMatched clause." ([Python Docs](https://docs.delta.io/latest/api/python/index.html#delta.tables.DeltaMergeBuilder) and also [JavaDocs](https://docs.delta.io/latest/api/java/io/delta/tables/DeltaMergeBuilder.html))
+
+Delta Docs tells that "There can be any number of whenMatched and whenNotMatched clauses." ([source](https://docs.delta.io/latest/delta-update.html))
+
+The API Docs conflict with the 0.8.0 release notes ([link](https://github.com/delta-io/delta/releases/tag/v0.8.0))

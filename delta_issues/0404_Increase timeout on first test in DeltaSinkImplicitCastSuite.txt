@@ -1,0 +1,11 @@
+
+## Description
+Test `write wider type - long -> int` in suite `DeltaSinkImplicitCastSuiteBase`  is randomly timing out. Specifically, the first write in the test suite times out, due to the initial streaming setup taking a long time.
+
+The timeout on that first write is increased to address the test flakiness
+
+## How was this patch tested?
+Test-only change
+
+## Does this PR introduce _any_ user-facing changes?
+No

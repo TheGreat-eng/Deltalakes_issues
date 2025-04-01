@@ -1,0 +1,17 @@
+#### Which Delta project/connector is this regarding?
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+Resolves #4201
+The convertValueIfRequired function casts DateType columns to java.sql.Date. Optimizing subqueries involving date columns with spark.sql.datetime.java8API.enabled set to true currently results in ClassCastException errors. This fix correctly converts dates regardless of the java type of the date value.
+
+## How was this patch tested?
+A unit test was added to verify that the optimizations now work regardless of the value of the spark.sql.datetime.java8API.enabled configuration (without this fix the unit test is failing).
+
+## Does this PR introduce _any_ user-facing changes?
+No

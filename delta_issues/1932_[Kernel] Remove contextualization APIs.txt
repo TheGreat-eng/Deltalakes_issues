@@ -1,0 +1,13 @@
+## Description
+Currently, Delta Kernel has FileHandler.contextualize and FileReadContext API/interfaces to allow the connectors to split the scan files into chunks. However, Kernel is the one initiating these calls. It should be in the control of the connector. By making the connectors control the contextualization/splitting, we can get rid of a few interfaces/APIs from Kernel which simplifies Kernel interfaces.
+
+More details are [here](https://docs.google.com/document/d/11XJ_5x9A8g_tYSlfPHu4M4_sGnT40nVIOJs4a9HLi9c/edit?usp=sharing).
+
+TODO (will be done once this PR lands as the java doc generated can be generated only from the master branch)
+* update the staging API java docs
+* update usage_guide (needs staged java docs for links)
+
+## How was this patch tested?
+Existing tests
+
+

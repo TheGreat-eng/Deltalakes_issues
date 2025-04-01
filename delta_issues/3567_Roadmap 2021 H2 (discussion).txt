@@ -1,0 +1,26 @@
+This is the proposed Delta Lake 2021 H2 roadmap discussion thread.  Below are the initial proposed items for the roadmap to be completed by December 2021.   We will also be sending out a survey (we will update this issue with the survey) to get more feedback from the Delta Lake community!
+
+
+| Issue | Description | Target CY2021 |
+| :---- | :---------- | :------ |
+| #731 | Improve Delta protocol to support changes such as column drop and rename | Q3 |
+| #732 | Support Spark’s column drop and rename commands | Q3 |
+| [#101](https://github.com/delta-io/connectors/issues/101) | Streaming enhancements to the standalone reader to support Pulsar, Flink | Q3 | 
+| [#85](https://github.com/delta-io/connectors/issues/85) | Delta Standalone Writer: This feature will allow other connectors such as Flink, Kafka, and Pulsar to write to Delta. | Q4 |
+| #733 | Support Apache Spark 3.2 | Q4 | 
+| [#110](https://github.com/delta-io/connectors/issues/110)| Delta Source for Apache Flink: Build a Flink/Delta source (i.e., Flink reads from Delta Lake) potentially leveraging the [Delta Standalone Reader](https://github.com/delta-io/connectors#delta-standalone-reader).  Join us via the Delta Users Slack [#flink-delta-connector](https://delta-users.slack.com/archives/C023YA69W6B) channel and we have bi-weekly meetings on Tuesdays. | CY2022 Q1 | 
+| [#111](https://github.com/delta-io/connectors/issues/111) | Delta Sink for Apache Flink: Build a Flink/Delta sink (i.e., Flink writes to Delta Lake) potentially leveraging the [Delta Standalone Writer](https://github.com/delta-io/connectors/issues/85).  Join us via the Delta Users Slack [#flink-delta-connector](https://delta-users.slack.com/archives/C023YA69W6B) channel and we have bi-weekly meetings on Tuesdays. | Q4 |
+| [#82](https://github.com/delta-io/connectors/pull/82) | Delta Source for Trino: Build a Trino/Delta reader, potentially leveraging the [Delta Standalone Reader](https://github.com/delta-io/connectors#delta-standalone-reader).  This is a community effort and all are welcome!  Join us via the Delta User Slack channel [#trino](https://delta-users.slack.com/archives/C021Z8G1AE5) channel and we will have bi-weekly meetings on Thursdays. | Q3 |
+| [#338](https://github.com/delta-io/delta-rs/issues/338) | Delta Rust API: Formally verify S3 multi-writer design using stateright | Q4 | 
+| [#339](https://github.com/delta-io/delta-rs/issues/339) | Delta Rust API: Low level API for creating new delta tables | Q3 |
+| #545 | Nessie / Delta Integration: Build tighter integration between Nessie and Delta to allow for Nessie’s Git-like experience for data lakes to work with Delta Lake. This is a community effort and all are welcome!  Join us via the Delta User Slack channel [#nessie](https://delta-users.slack.com/archives/C02774WMVND) channel and we have bi-weekly meetings on Tuesdays. | Q4 | 
+|  | LakeFS / Delta Integration: Build tighter integration between Nessie and Delta to allow for Nessie’s Git-like experience for data lakes to work with Delta Lake. This is a community effort and all are welcome!  Join us via the Delta User Slack channel [#lakefs](https://delta-users.slack.com/archives/C029RKRTHMF) channel and we will have bi-weekly meetings soon. | Q4 | 
+| [#112](https://github.com/delta-io/connectors/issues/112) | Delta Source for Apache Pulsar: Build a Pulsar/Delta reader, potentially leveraging the [Delta Standalone Reader](https://github.com/delta-io/connectors#delta-standalone-reader).  Join us via the Delta Users Slack [connector-pulsar](https://delta-users.slack.com/archives/C028MGBP4JY) channel. | Q3 | 
+| [#94](https://github.com/delta-io/connectors/pull/94) | Power BI Connector: Fix issue with data sources that do not support streaming of binary files | Q3 | 
+| [#103](https://github.com/delta-io/connectors/pull/103) | Power BI Connector: Add inline-documentation to PQ function | Q3 | 
+| [#104](https://github.com/delta-io/connectors/issues/104) | PowerBI: Add support for TIMESTAMP AS OF | Q4 |
+| [#36](https://github.com/delta-io/connectors/issues/36), [#116](https://github.com/delta-io/connectors/pull/116) | Update the existing Hive 2 connector ala Delta Standalone Reader to support Hive 3. | Q3 | 
+| #746 | Restructure delta.io website: Update delta.io website to allow for community blogs, include top community contributors, updated how-to-contribute guide and place the code-base into GitHub. | Q3 | 
+| #747 | Delta Guide: Update the Delta documentation to include a Delta guide. | Q4 | 
+
+If there are other issue that should be considered within this roadmap, let's have a discussion here or via the Delta Users Slack [#deltalake-oss](https://delta-users.slack.com/archives/CJ70UCSHM) channel. 

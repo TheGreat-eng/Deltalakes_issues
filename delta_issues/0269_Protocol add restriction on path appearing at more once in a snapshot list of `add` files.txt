@@ -1,0 +1,1 @@
+add restriction on path appearing at more once in a snapshot list of `add` files per discussion at [4021](https://github.com/delta-io/delta/discussions/4021)

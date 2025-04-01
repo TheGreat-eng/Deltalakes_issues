@@ -1,0 +1,18 @@
+## Bug
+
+### Describe the problem
+
+This commit https://github.com/delta-io/delta/commit/0c349da8 added support for `COUNT(*)` aggregate pushdown. For example, this command `spark.sql("SELECT COUNT(*) FROM <my-table>").collect()` is able to use just the metadata in the delta log to perform this count query, instead of scanning the parquet files.
+
+However, this command `spark.sql("SELECT COUNT(*) FROM <my-table>").show()` does NOT perform the aggregate pushdown. The aggregate plan that is matched inside of [OptimizeMetadataOnlyDeltaQuery](https://github.com/delta-io/delta/blob/master/core/src/main/scala/org/apache/spark/sql/delta/perf/OptimizeMetadataOnlyDeltaQuery.scala) does not match the plan used during the `.show()` command, which performs a CAST.
+
+#### Expected results
+
+`COUNT(*)` aggregate pushdown should also occur when you do `.show()`, just like how it works with `.collect()`.
+
+All you need to do is update [OptimizeMetadataOnlyDeltaQuery](https://github.com/delta-io/delta/blob/master/core/src/main/scala/org/apache/spark/sql/delta/perf/OptimizeMetadataOnlyDeltaQuery.scala) and add a test.
+
+### Environment information
+
+* Delta Lake version: 2.2.0
+* Spark version: 3.3.1

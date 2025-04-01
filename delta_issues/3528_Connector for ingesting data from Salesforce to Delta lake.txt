@@ -1,0 +1,2 @@
+Looking for a connector for data ingestion from Salesforce to Delta Lake  , with minimal transformation transformation .
+Somewhat in similar lines of KsqlDB

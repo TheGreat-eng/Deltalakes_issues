@@ -1,0 +1,7 @@
+## Description
+Utilities for
+* finding the implicitly and explicitly enabled table features
+* adding a feature to the protocol and creating an upgraded protocol
+
+## How was this patch tested?
+Unittests.

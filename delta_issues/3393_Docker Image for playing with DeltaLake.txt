@@ -1,0 +1,31 @@
+This pull request is an attempt to resolve issue #919.
+
+This PR adds instructions in the example directory for a dockerfile.
+
+Instructions on what the image is trying to do:
+The base is derived from `jupyter/minimal-notebook` and it installs openjdk-8 and r-lang.
+
+It also installs deltalake 1.1.0, and uses jupytext to convert all the sample python notebooks into example ipynb files.
+
+spark-defaults.conf is also set to introduce delta jars and delta configurations.
+
+The intent is after running the container you have a playground to start using delta, with some starter notebooks.
+
+Go to examples:
+```
+cd examples
+```
+To build:
+```bash
+docker build -t delta-lake-playground:latest .
+```
+To run:
+```bash
+docker run -it -p 8888:8888 delta-lake-playground
+```
+
+Notes: This image uses python 3.9.x. Those are the only images provided by jupyter that are supporting both intel + arm based builds.
+
+Access the jupyterlab instance via `http://localhost:8888/lab?token=docker`
+
+Signed-off-by: Sri Tikkireddy <sri.tikkireddy@databricks.com>

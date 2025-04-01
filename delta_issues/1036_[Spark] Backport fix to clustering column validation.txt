@@ -1,0 +1,11 @@
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+Currently, clustering columns are validating by parsing a list of clustering columns. This is super brittle, and breaks when any clustering column has a comma in the name. Fix that by passing a list of clustering columns directly.
+
+This fix resolves https://github.com/delta-io/delta/issues/3265
+
+This fix is backported from https://github.com/delta-io/delta/commit/8c7b62e1a39a27e7108208a8d921e8de07b60ff2

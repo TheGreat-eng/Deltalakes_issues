@@ -1,0 +1,15 @@
+What were proposed in this Pull Request?
+
+1. Scala doesn't require `Return` keyword.
+2. Unwanted parentheses has been removed.
+3. Curly braces removed for variable, it's need for expression.
+4. map - lamdba function doesn't need anonymous function. Example - `val replacedDb = database.map(quoteIdentifier(_))`.
+5. `new` keyword is only required for class not for case class, it automatically executes `apply` method.
+6. Collection type check, `!columns.isEmpty` has changed to `columns.nonEmpty` for better readability.
+7. dataframe object declaration from `var` change to `val` for immutability.
+
+How this pull request is tested?
+* ran `sbt compile` to check compile time errors. PASSED
+* Checked circle-ci log, could not see any exception.
+
+Looking forward for your review comments. @brkyvz 

@@ -1,0 +1,26 @@
+## Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+currently we utilize the helper function
+`shouldRewriteToBeIcebergCompatible` to filter the portion of parquet files that need to be rewritten when running `REORG UPGRADE UNIFORM` based on the tags in the `AddFile`.
+
+however, the `DeltaUpgradeUniformOperation.icebergCompatVersion` is accidentally shadowed, which will make
+`shouldRewriteToBeIcebergCompatible` always return `false` if the `AddFile.tags` is not `null` - this is not the expected semantic of this function.
+
+this PR introduces the fix for this problem and add unit tests to ensure the correctness.
+
+## How was this patch tested?
+through unit tests in `UniFormE2ESuite.scala`.
+
+## Does this PR introduce _any_ user-facing changes? 
+no.

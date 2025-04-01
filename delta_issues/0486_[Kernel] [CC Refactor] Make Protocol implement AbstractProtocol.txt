@@ -1,0 +1,22 @@
+#### Which Delta project/connector is this regarding?
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [X] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+Make `Protocol` implement `AbstractProtocol`.
+
+Add some better validation of constructor params, too.
+
+Add a simple ActionSerializerSuite, that is not fully fleshed out, that makes sure we are writing good protocol json.
+
+## How was this patch tested?
+
+Existing + new UTs.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No.

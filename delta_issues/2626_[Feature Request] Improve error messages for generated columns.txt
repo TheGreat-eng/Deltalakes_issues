@@ -1,0 +1,64 @@
+## Feature request
+
+### Overview
+
+Delta tables with generated columns sometimes produce confusing error messages.  We should be able to make the error messaging more intuitive.
+
+### Motivation
+
+Users will understand error messages for Delta tables better if the messaging is more precise.
+
+### Further details
+
+Suppose you have the following Delta table:
+
+```python
+(
+    DeltaTable.create(spark)
+    .tableName("default.some_people")
+    .addColumn("id", "LONG")
+    .addColumn("first_name", "STRING")
+    .addColumn("last_name", "STRING")
+    .addColumn("age", "LONG")
+    .addColumn(
+        "full_name", "STRING", generatedAlwaysAs="concat(first_name, ' ', last_name)"
+    )
+    .execute()
+)
+```
+
+And you try to append the following DataFrame:
+
+```python
+df = spark.createDataFrame(
+    [
+        (8, "Liam", 66),
+        (9, "Colin", 77),
+    ]
+).toDF("id", "first_name", "age")
+
+df.write.option("mergeSchema", "true").mode("append").format("delta").saveAsTable(
+    "some_people"
+)
+```
+
+Here's the error message you'll get:
+
+```
+AnalysisException: Column 'last_name' does not exist. Did you mean one of the following? [first_name, age, id]; line 1 pos 24;
+'Project [id#2335L AS id#2391L, first_name#2336 AS first_name#2392, age#2337L AS age#2393L, 'concat(first_name#2336,  , 'last_name) AS full_name#2394]
++- Project [_1#2329L AS id#2335L, _2#2330 AS first_name#2336, _3#2331L AS age#2337L]
+   +- LogicalRDD [_1#2329L, _2#2330, _3#2331L], false
+```
+
+Perhaps this would be a better error message:
+
+`full_name` is a generated column that is populated with this expression `concat(first_name, ' ', last_name)`.  You're trying to append a DataFrame with the following columns: [first_name, age, id].  This DataFrame does not contain the `last_name` column that's required by the generated column expression, so this transaction cannot be performed.
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [ ] Yes. I can contribute this feature independently.
+- [ ] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [X] No. I cannot contribute this feature at this time.

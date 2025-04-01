@@ -1,0 +1,6 @@
+It has been over 6 months since the last release of `v0.7.0` which is a considerably longer gap than in-between previous releases. I was also unable to find any information on (or an up-to-date milestone for) the release plan for `0.8`.
+Is there any source of documentation around the release process or cycle for the project or can someone provide information on the release of `v0.8`?
+
+We are interested in this release due to changes that have been merged since June, including but not limited to the performance improvements to the `vacuum` operation.
+
+I have read and understood the contributing guidelines but please do let me know if this issue does not adhere to the purpose of the issue system and my request should be addressed elsewhere instead.

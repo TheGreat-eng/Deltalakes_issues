@@ -1,0 +1,41 @@
+## Description
+
+This PR extends the existing benchmarks with new test cases dedicated to the MERGE INTO command, with two scale factors: 1GB & 3TB.
+The following type of test cases are created and can be extended in the future:
+- `SingleInsertOnlyTestCase`
+- `MultipleInsertOnlyTestCase`
+- `DeleteOnlyTestCase`
+- `UpsertTestCase`
+
+Each test case uses the same (cloned) target table and defines its source table using the following parameters:
+- `fileMatchedFraction`: The fraction of target files sampled to create the source table.
+- `rowMatchedFraction: The fraction of rows sampled in each selected target file to form the rows that match the `ON` condition.
+- `rowNotMatchedFraction`: The fraction of rows sampled in each selected target file to form the rows that don't match the `ON` condition.
+
+The target and source tables are created using the `merge-1gb-delta-load`/`merge-3tb-delta-load`, which collect all the source table configurations used in merge test cases and creates the required source tables.
+
+## How was this patch tested?
+
+This benchmark is added to measure the impact of a series of changes to the merge command, see https://github.com/delta-io/delta/issues/1827
+
+I followed the instructions in https://github.com/delta-io/delta/tree/master/benchmarks to create an EMR cluster and run the new benchmarks. Here are the result comparing the impact of https://github.com/delta-io/delta/issues/1827:
+
+Test case  | Base duration (s) | Test duration (s)  |  Improvement ratio
+-- | -- | -- | --
+delete_only_fileMatchedFraction_0.05_rowMatchedFraction_0.05 | 26,1 | 20,5 | 1,27
+multiple_insert_only_fileMatchedFraction_0.05_rowNotMatchedFraction_0.05 | 8,8 | 15,2 | 0,58
+multiple_insert_only_fileMatchedFraction_0.05_rowNotMatchedFraction_0.5 | 27,7 | 17,5 | 1,58
+multiple_insert_only_fileMatchedFraction_0.05_rowNotMatchedFraction_1.0 | 36,3 | 21,2 | 1,71
+single_insert_only_fileMatchedFraction_0.05_rowNotMatchedFraction_0.05 | 14,9 | 14,8 | 1,01
+single_insert_only_fileMatchedFraction_0.05_rowNotMatchedFraction_0.5 | 17,5 | 17,3 | 1,01
+single_insert_only_fileMatchedFraction_0.05_rowNotMatchedFraction_1.0 | 20,3 | 20,7 | 0,98
+upsert_fileMatchedFraction_0.05_rowMatchedFraction_0.01_rowNotMatchedFraction_0.1 | 39,5 | 28,8 | 1,37
+upsert_fileMatchedFraction_0.05_rowMatchedFraction_0.0_rowNotMatchedFraction_0.1 | 19,9 | 19,3 | 1,03
+upsert_fileMatchedFraction_0.05_rowMatchedFraction_0.1_rowNotMatchedFraction_0.0 | 39,1 | 29,9 | 1,31
+upsert_fileMatchedFraction_0.05_rowMatchedFraction_0.1_rowNotMatchedFraction_0.01 | 39,1 | 31 | 1,26
+upsert_fileMatchedFraction_0.05_rowMatchedFraction_0.5_rowNotMatchedFraction_0.001 | 41,9 | 32,5 | 1,29
+upsert_fileMatchedFraction_0.05_rowMatchedFraction_0.99_rowNotMatchedFraction_0.001 | 43,3 | 33,8 | 1,28
+upsert_fileMatchedFraction_0.05_rowMatchedFraction_1.0_rowNotMatchedFraction_0.001 | 43,8 | 34,1 | 1,28
+upsert_fileMatchedFraction_0.5_rowMatchedFraction_0.01_rowNotMatchedFraction_0.001 | 147,9 | 84,8 | 1,74
+upsert_fileMatchedFraction_1.0_rowMatchedFraction_0.01_rowNotMatchedFraction_0.001 | 266,9 | 142,5 | 1,87
+

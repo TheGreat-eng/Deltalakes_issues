@@ -1,0 +1,11 @@
+## Feature request
+
+### Overview
+
+https://github.com/delta-io/delta/pull/1210 allows `S3SingleDriverLogStore` to use the startAfter param for faster list logStore calls. This feature only works on S3A file systems.
+
+We need to ensure that a `ClassCastException` is thrown when using the wrong file system during the cast, not during the first method invocation.
+
+### Motivation
+
+This will improve the user experience of this feature.

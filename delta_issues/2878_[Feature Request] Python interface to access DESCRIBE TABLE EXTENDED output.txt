@@ -1,0 +1,92 @@
+## Feature request
+
+### Overview
+
+You can query managed Delta tables, external Delta tables, and views with `DESCRIBE TABLE EXTENDED` to access detailed table information.  It'd be nice if this information was easily accessible via the Python API.
+
+### Motivation
+
+This will make it a lot easier for Python devs to query the information contained in `DESCRIBE TABLE EXTENDED`.  Suppose you have 10 external Delta tables and would like to iterate over the list and build another list of all the paths where they store data.  A Python interface could make this a lot easier to code.
+
+### Further details
+
+Here's the output of `DESCRIBE TABLE EXTENDED` for managed Delta tables and external Delta tables.
+
+**Managed tables**
+
+```python
+columns = ["movie", "release_date"]
+data = [("The Godfather", 1972), ("Detective Pikachu", 2019), ("Donny Darko", 2001)]
+rdd = spark.sparkContext.parallelize(data)
+df = rdd.toDF(columns)
+
+df.write.format("delta").saveAsTable("some_managed_table")
+```
+
+```
+spark.sql("DESCRIBE TABLE EXTENDED some_managed_table").show(truncate=False)
+
++----------------------------+---------------------------------------------------+
+|col_name                    |data_type                                          |
++----------------------------+---------------------------------------------------+
+|movie                       |string                                             |
+|release_date                |bigint                                             |
+|                            |                                                   |
+|# Partitioning              |                                                   |
+|Not partitioned             |                                                   |
+|                            |                                                   |
+|# Detailed Table Information|                                                   |
+|Name                        |default.some_managed_table                         |
+|Location                    |file:/Users/…/spark-warehouse/some_managed_table   |
+|Provider                    |delta                                              |
+|Table Properties            |[delta.minReaderVersion=1,delta.minWriterVersion=2]|
++----------------------------+---------------------------------------------------+
+```
+
+**External tables**
+
+```python
+df.write.format("delta").option("path", "tmp/some_external_table").saveAsTable(
+    "default.my_external_table"
+)
+```
+
+```
+spark.sql("DESCRIBE TABLE EXTENDED my_external_table").show(truncate=False)
+
++----------------------------+------------------------------------------------------+
+|col_name                    |data_type                                             |
++----------------------------+------------------------------------------------------+
+|movie                       |string                                                |
+|release_date                |bigint                                                |
+|                            |                                                      |
+|# Partitioning              |                                                      |
+|Not partitioned             |                                                      |
+|                            |                                                      |
+|# Detailed Table Information|                                                      |
+|Name                        |default.my_external_table                             |
+|Location                    |file:/Users/…/spark-warehouse/tmp/some_external_table |
+|Provider                    |delta                                                 |
+|External                    |true                                                  |
+|Table Properties            |[delta.minReaderVersion=1,delta.minWriterVersion=2]   |
++----------------------------+------------------------------------------------------+
+```
+
+### Possible interface
+
+This could be a nice interface:
+
+```python
+dt = DeltaTable.forName(spark, "my_external_table")
+dt.describeTable()
+```
+
+That could return a dictionary like `{"isExternal": True, "name": "default.my_external_table", "location": "file:/Users/…/spark-warehouse/tmp/some_external_table", ...}`.
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [ ] Yes. I can contribute this feature independently.
+- [ ] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [X] No. I cannot contribute this feature at this time.

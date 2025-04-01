@@ -1,0 +1,11 @@
+## Description
+
+Removes a Databricks reference from an error message
+
+## How was this patch tested?
+
+N/A
+
+## Does this PR introduce _any_ user-facing changes?
+
+No. Except by error message changed.

@@ -1,0 +1,3 @@
+Clarify the format for delta-log entries on the documentation to explain that every action is written as a JSON document and separated by a new-line character.
+
+Signed-off-by: Alexandre Lopes <aleaugustoplus@gmail.com>

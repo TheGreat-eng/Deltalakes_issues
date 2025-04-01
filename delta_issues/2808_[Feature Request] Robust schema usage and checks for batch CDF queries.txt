@@ -1,0 +1,21 @@
+## Feature request
+
+### Overview
+
+Right now, the batch CDF query (e.g. with `spark.read.option("readChangeFeed", true)`) has the following issues:
+
+1. It almost always uses the latest schema from `DeltaTableV2` during analysis, but actually uses the unstable `deltaLog.unsafeVolatileSnapshot` to create the data frame, so there may be unwanted side effects due to this mismatch.
+2. There are no schema read-compatibility checks at all, this may cause weird issues while reading the past undelying parquet files using latest schema. In addition, as we introduce column mapping, non-additive schema changes such as Rename or Drop columns could cause further side effects such as missing columns or weird column names.
+3. Any read-incompatible schema changes is completely blocked on column mapping right now.
+
+To mitigate all these, we would like to add:
+1. Robust schema checks for CDF
+2. The ability to easily use the end version's schema to query historical table changes, to avoid surprises coming from non-additive schema changes. This is especially critical for column mapping enabled tables as their schema could change drastically. 
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [x] Yes. I can contribute this feature independently.
+- [ ] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.

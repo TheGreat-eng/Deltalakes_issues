@@ -1,0 +1,27 @@
+## Feature request
+
+### Overview
+
+As Delta is just a storage format and is actually not tied directly to Spark, the spec (Protocol.md) should mention what dialect and subset is ok. I guess it should be mostly ANSI SQL if possible
+
+### Motivation
+
+The spec should be clear so that different implementations do it in the same way. Otherwise we end up with delta files which can only be read by a particular implementation
+
+### Further details
+
+At least the following needs to be answered:
+
+- How is quoting a column supposed to work? I guess it should be ANSI-style: "column with space"
+- Which functions are allowed?
+- Which operators are allowed?
+- Which SQL Expressions are allowed? `AND`/`OR`/`CASE WHEN` ?
+
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [ ] Yes. I can contribute this feature independently.
+- [x] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.

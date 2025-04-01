@@ -1,0 +1,39 @@
+## Bug
+
+### Describe the problem
+
+`endTimeMs` of `OPTIMIZE` command (`OptimizeStats`) is always `0`.
+
+#### Steps to reproduce
+
+```
+// Create a delta table
+spark.range(10e4.toLong)
+  .repartitionByRange(3, $"id" % 10)
+  .write
+  .format("delta")
+  .save("/tmp/numbers")
+
+// Execute OPTIMIZE
+val optimizeMetrics = sql("OPTIMIZE delta.`/tmp/numbers`")
+
+// Print out the metrics
+scala> optimizeMetrics.select("metrics.endTimeMs").show
++---------+
+|endTimeMs|
++---------+
+|        0|
++---------+
+```
+
+### Environment information
+
+* Delta Lake version: 2.2.0
+* Spark version: 3.3.2
+* Scala version: 2.12
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.

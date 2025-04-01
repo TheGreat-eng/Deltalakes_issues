@@ -1,0 +1,5 @@
+Adds Java implementation of `LineCloseableIterator` to `delta-storage` and updates `LineCloseableIteratorSuite` in `delta-core` to test both scala (internal) and java (public) versions.
+
+This class is a prerequisite for `HadoopFileSystemLogStore`.
+
+This PR also moves `storage/src/scala/java/io/delta/storage/CloseableIterator.java` (scala folder) to `storage/src/main/java/io/delta/storage/CloseableIterator.java`. It should be in the java folder.

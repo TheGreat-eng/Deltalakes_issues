@@ -1,0 +1,14 @@
+## Description
+The `DeltaTypeWideningSuite`  has grown organically as the feature was implemented and now contains a very large number of tests covering different aspects.
+
+This change splits it into individual suites, this is fairly straightforward as the tests were already collected in multiple traits.
+
+- Only test `widening Date -> TimestampNTZ rejected when TimestampNTZ feature isn't supported` had to be updated to explicitly disable timestampNTZ support in the test. All other tests are completely unchanged.
+- All files, classes, traits are renamed from `DeltaTypeWideningX` to `TypeWideningX` and moved from `tahoe` to `tahoe.typewidening`
+
+## How was this patch tested?
+Test-only change
+
+
+## Does this PR introduce _any_ user-facing changes?
+No

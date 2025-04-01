@@ -1,0 +1,12 @@
+DeltaCatalog today provides integration with Unity Catalog, where it adds a new variable isUnityCatalog in DeltaCatalog.scala
+```
+private lazy val isUnityCatalog: Boolean = {
+    val delegateField = classOf[DelegatingCatalogExtension].getDeclaredField("delegate")
+    delegateField.setAccessible(true)
+    delegateField.get(this).getClass.getCanonicalName.startsWith("io.unitycatalog.")
+  }
+```
+
+When isUnityCatalog is true, things could work differently. For example, during createTable, it will avoid triggering spark.sessionState.catalog.createTable to avoid potential problems.
+
+The same idea could be generalized to any REST Spark Catalog to help integrate with spark. Instead of checking specifically for "io.unitycatalog", maybe we can generalize the checking to see whether it is a REST Catalog by looking at the catalog type configuration in spark.

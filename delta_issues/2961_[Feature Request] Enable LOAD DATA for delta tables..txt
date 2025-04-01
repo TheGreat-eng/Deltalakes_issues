@@ -1,0 +1,32 @@
+## Feature request
+
+### Overview
+
+Currently Deltalake - Databricks has the ["COPY INTO"](https://docs.databricks.com/spark/latest/spark-sql/language-manual/delta-copy-into.html) DML statement, and vanilla parquet datasets in spark support the ["LOAD DATA" DML statement](https://spark.apache.org/docs/latest/sql-ref-syntax-dml-load.html). However, currently there doesn't seem to be work regarding this in deltalake that I can find. There's also currently [tests](https://github.com/delta-io/delta/blob/edaeb86304211513c8028d056a7d90e98ec2839c/core/src/test/scala/org/apache/spark/sql/delta/DeltaNotSupportedDDLSuite.scala#L155) that make sure they raise not supported warnings.
+
+### Motivation
+
+Currently Delta has great support for inserting and writing NEW data into delta tables. However, patterns where we want to insert a new existing parquet file into a delta table currently require us to read the file into memory, and write it into the table.
+
+Ideally, for cases where the file already exists and can be simply 'copied' into the delta table, we would support a DML statement to do this but also track the changes in the delta log.
+
+This should make some use cases of delta more efficient, for example, writing staging partitions somewhere else before testing them, then using `LOAD DATA` to load them into the final delta table.
+
+### Further details
+
+I'd need to look more into this to figure out exactly what would need to be done, but, I'd imagine it something like:
+
+1. Inspect parquet file path for schema compatibility
+2. Check for partition spec
+3. calculate delta log changes
+4. copy file into new location
+5. commit transaction log
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [ ] Yes. I can contribute this feature independently.
+- [X] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [X] No. I cannot contribute this feature at this time.
+( I'd be willing, but if this isn't a good 'first' issue, it may require more knowledge/expertise than I have)

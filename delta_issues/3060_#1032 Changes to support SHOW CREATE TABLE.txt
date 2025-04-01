@@ -1,0 +1,31 @@
+## Description
+This PR Resolves #1032 - Changes to support SHOW CREATE TABLE
+
+- Modification of antlr grammar
+- Additions to `DeltaSqlParser` to call a new command `ShowCreateTableCommand`
+- Creation of `ShowCreateTableCommand` based on attributed source
+- Addition of 10 tests to cover various permutations
+
+## How was this patch tested?
+Added a new test suite to test various permutations across 10 tests.
+```
+[info] DeltaShowCreateTableSuite:
+[info] - Test DDL Output for External Table SHOW CREATE TABLE (9 seconds, 109 milliseconds)
+[info] - Test DDL Output for Managed Table SHOW CREATE TABLE (1 second, 147 milliseconds)
+[info] - Test Recreate table using DDL SHOW CREATE TABLE (1 second, 819 milliseconds)
+[info] - Test DDL Idempotency SHOW CREATE TABLE (1 second, 566 milliseconds)
+[info] - Test DDL Comment SHOW CREATE TABLE (779 milliseconds)
+[info] - Test DDL Partition SHOW CREATE TABLE (749 milliseconds)
+[info] - Test DDL Random Table Property SHOW CREATE TABLE (692 milliseconds)
+[info] - Test DDL with full variations SHOW CREATE TABLE (766 milliseconds)
+[info] - Test Generated Column Results in Exception for SHOW CREATE TABLE (807 milliseconds)
+[info] - Test DDL with full variations Recreate from DDL SHOW CREATE TABLE (1 second, 507 milliseconds)
+[info] Run completed in 23 seconds, 813 milliseconds.
+[info] Total number of tests run: 10
+[info] Suites: completed 1, aborted 0
+[info] Tests: succeeded 10, failed 0, canceled 0, ignored 0, pending 0
+[info] All tests passed.
+```
+
+## Does this PR introduce _any_ user-facing changes?
+Yes. When running the command `SHOW CREATE TABLE tablename`. You will receive a DataFrame with a single column "ddl", which contains the CREATE TABLE script for the table in question.

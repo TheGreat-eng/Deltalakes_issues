@@ -1,0 +1,12 @@
+## What changes were proposed in this pull request?
+
+In this PR, I am adding the TPCDS benchmark in the newly added benchmark framework. It is constructed such that you have to run the follow two steps. 
+1. *Load data*: You have to create the TPC-DS database with all the Delta tables. To do that, the raw TPC-DS data has been provided as Apache Parquet files. In this step you will have to use your EMR cluster to read the parquet files and rewrite them as Delta tables.
+2. *Query data*: Then, using the tables definitions in the Hive Metatore, you can run the 99 benchmark queries.   
+
+Please see the README updates for more details.
+
+*Note for reviewers*: This PR looks massive because of all the TPCDS SQL queries. If they are ignored, then it's not really a lot of code.
+
+## How was this patch tested?
+Manual

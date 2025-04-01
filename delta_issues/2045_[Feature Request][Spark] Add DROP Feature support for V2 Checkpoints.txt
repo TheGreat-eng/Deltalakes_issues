@@ -1,0 +1,39 @@
+## Feature request
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the issue title
+For example: [Feature Request][Spark] Title of my issue
+-->
+
+- [X] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+### Overview
+
+<!-- Provide a high-level description of the feature request. -->
+
+Now that Delta supports dropping Table Features from Protocol, it would be nice to be able to drop features like V2 Checkpoints for compatibility reasons from tables.
+
+### Further details
+
+<!--
+Use this section to include any additional information about the feature. If you have a proposal for how to implement this feature, please include it here. For implementation guidelines, please read our contributor guidelines: https://github.com/delta-io/delta/blob/master/CONTRIBUTING.md
+If there are any specific requirements for this feature that are not immediately obvious please outline them here.
+-->
+
+Adding DROP feature support for Reader-Writer features like V2 Checkpoints would involve the following steps:
+1. Disabling V2 Checkpoints in table metadata to stop clients from creating more of them.
+2. Remove the reliance on V2 Checkpoints for the latest Snapshot. Creating a new commit and then creating a Classic checkpoint should suffice for this.
+3. Wait until all V2 Checkpoints have been cleaned up from the delta log and then drop the table feature from the Protocol.
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [X] Yes. I can contribute this feature independently.
+- [ ] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.

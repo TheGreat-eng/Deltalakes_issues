@@ -1,0 +1,61 @@
+## Bug
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the issue title
+For example: [BUG][Spark] Title of my issue
+-->
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+### Describe the problem
+We are using delta lake optimize function with zorder to generate files of 100MB each.
+For this we are using the parameter **spark.databricks.delta.optimize.maxFileSize = 104857600**, **spark.databricks.delta.targetFileSize = 104857600**
+Existing parquet files in delta folder are 1MB each, after optimize the files generated are ~600MB each rather than expected 100MB.
+We are using Java API.
+
+**Note: We are using AWS EMR to run optimize with zorder.**
+
+
+#### Steps to reproduce
+1. Generate deltalake table with 1MB parquet files in delta folder
+2. Execute optimize with zorder
+
+#### copy-pastable code snippets
+DeltaTable table = DeltaTable.forPath(path);  //path refers to S3 deltalake folder
+List<String> cols = tableConfig.getzOrderColumns();   // List of columns on which zoder needs to be applied
+table.optimize().where(partitionCondition).executeZOrderBy(convertListToSeq(cols));  //partition condition refers to the columns on 
+which deltalake table is partitioned
+
+
+#### Observed results
+The optimize function is not considering the value provided in the **maxFileSize**/**targetFileSize** parameter.
+Expected parquet file size in delta folder ~100MB generated file size ~600MB
+<!-- What happened?  This could be a description, log output, etc. -->
+
+#### Expected results
+The optimize function should create compacted files of size which is near about the size provided by **maxFileSize**/**targetFileSize** parameter
+Expected parquet file size in delta folder ~100MB generated file size ~600MB
+<!-- What did you expect to happen? -->
+
+#### Further details
+Below article was used to implement optimize
+https://delta.io/blog/2023-01-25-delta-lake-small-file-compaction-optimize/
+
+### Environment information
+
+* delta-core_2.12 version: 2.0.2
+* Spark version: 3.2.1
+* Scala version: 2.12.15
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [x] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute a bug fix at this time.

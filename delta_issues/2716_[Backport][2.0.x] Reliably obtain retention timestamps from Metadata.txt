@@ -1,0 +1,7 @@
+Today, Delta log replay filters out expired `RemoveFile` tombstones and `SetTransaction` actions – but those retention periods are controlled by table properties and so log replay is required in order to properly access them.
+
+Delta has no code to break that cycle, and so on cold start it will access an empty/defaulted metadata and thus ends up using default values for both retention periods – even if the user set the table property to something longer.
+
+The solution is to craft a "miniature" version of log replay that only fetches protocol and metadata. The mini-replay can then run first, ensuring that the retention period table properties are reliably available during state reconstruction. This will add a small amount of latency to snapshot creation, but enforces correct behavior.
+
+(cherry picked from commit 9fc7da818b0c5aa97756b8db2d4bdf2a5e6e147c)

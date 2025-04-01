@@ -1,0 +1,8 @@
+
+## Description
+The number of bytes needed to calculate the max buffer size needed when writing the decimal type to Parquet is off by one.
+
+Resolved #3152
+
+## How was this patch tested?
+Added unit tests that read and write decimals with various precision and scales.

@@ -1,0 +1,38 @@
+## Feature request
+
+### Overview
+
+During DELETE operation, delta collect all files affected file and only then overwrite them.
+Theoretically, collect afftected files must be much cheaper then overwrite them.
+But becasue of strange behave in Spark SQL catalyst, on tables with big amount of columns -
+`Delta: Finding files to rewrite for DELETE operation` query take more time than rewrite files.
+The main issue is `udf` function with `accumulator` iwhich collect metric `val deletedRowCount = metrics("numDeletedRows")`, this function used as `filter` in [DeleteCommand -> line 220](https://github.com/delta-io/delta/blob/master/core/src/main/scala/org/apache/spark/sql/delta/commands/DeleteCommand.scala#L220). \
+This code prevent Spark SQL catalyst to apply projection push down, so delta load all columns from parquet files, but need only `input_file_name()`. \
+For table with big amount of columns or 'fat' columns - this is siginficantly IO and ser/de penalty. \
+For example, in my case I have Delete condition on only 2 columns. The size of this columns is only 16mb per file. While all file is near 512mb. So my Spark cluster process 32 times more data than needed.
+
+### How to check issue 
+
+1. Run DeleteScalaSuite -> test ("delete usage test - with condition").
+2. Check Query Plan for `Delta: Finding files to rewrite for DELETE operation`
+3. Scan parquet  Output [1]` must be `[key#565]`, but `[key#565, value#566]`
+
+Tested with delta 1.2.1  and spark 3.2.1;  delta 2.1.0 and spark 3.3.0.
+
+### Motivation
+
+Reduce amount of data which loaded from storage and deserialized from parquet to POJO on spark executors.
+Which may siginificantly improve latency and memmory usage for tables with a lot of columns or 'fat' columns.
+
+### Further details
+I don't know how to fix Spark SQL catalyst to apply projection push down when this UDF used in filter. \
+But simply change order of `select(input_file_name())` and `.filter(deletedRowUdf())` line help. \
+I test it in my produciton env. \
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [x] Yes. I can contribute this feature independently.
+- [x] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.

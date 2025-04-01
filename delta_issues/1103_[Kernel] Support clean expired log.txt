@@ -1,0 +1,1 @@
+Add support for metadata cleanup as part of the checkpointing. Metadata cleanup removes expired Delta table log files (delta + checkpoints) according to the table log retention configuration. Any removed delta log files must not cause the table state to be inconstructible. 

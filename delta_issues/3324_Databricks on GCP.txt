@@ -1,0 +1,1 @@
+When using photon, I receive the message queries are not support in photon when I change the timezone in the spark configuration using the java options on the executor and driver. The Databricks team said I need to raise a ticket for this issue.

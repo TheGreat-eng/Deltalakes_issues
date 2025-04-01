@@ -1,0 +1,2 @@
+debezium is a very popular cdc data synchronization tool, flink cdc is currently the most convenient way, can delta directly support? hudi only supports the debezium avro format and relies on kafka registry, which is inconvenient
+ 

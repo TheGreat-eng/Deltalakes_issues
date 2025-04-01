@@ -1,0 +1,94 @@
+ANTLR Tool version 4.7 used for code generation does not match the current runtime version 4.8ANTLR Tool version 4.7 used for code generation does not match the current runtime version 4.8Exception in thread "main" java.lang.UnsatisfiedLinkError: org.apache.hadoop.io.nativeio.NativeIO$Windows.access0(Ljava/lang/String;I)Z
+	at org.apache.hadoop.io.nativeio.NativeIO$Windows.access0(Native Method)
+	at org.apache.hadoop.io.nativeio.NativeIO$Windows.access(NativeIO.java:645)
+	at org.apache.hadoop.fs.FileUtil.canRead(FileUtil.java:1230)
+	at org.apache.hadoop.fs.FileUtil.list(FileUtil.java:1435)
+	at org.apache.hadoop.fs.RawLocalFileSystem.listStatus(RawLocalFileSystem.java:493)
+	at org.apache.hadoop.fs.FileSystem.listStatus(FileSystem.java:1868)
+	at org.apache.hadoop.fs.FileSystem.listStatus(FileSystem.java:1910)
+	at org.apache.hadoop.fs.ChecksumFileSystem.listStatus(ChecksumFileSystem.java:678)
+	at org.apache.spark.sql.delta.catalog.SupportsPathIdentifier.tableExists(DeltaCatalog.scala:590)
+	at org.apache.spark.sql.delta.catalog.SupportsPathIdentifier.tableExists$(DeltaCatalog.scala:586)
+	at org.apache.spark.sql.delta.catalog.DeltaCatalog.tableExists(DeltaCatalog.scala:57)
+	at org.apache.spark.sql.execution.datasources.v2.AtomicReplaceTableExec.run(ReplaceTableExec.scala:64)
+	at org.apache.spark.sql.execution.datasources.v2.V2CommandExec.result$lzycompute(V2CommandExec.scala:40)
+	at org.apache.spark.sql.execution.datasources.v2.V2CommandExec.result(V2CommandExec.scala:40)
+	at org.apache.spark.sql.execution.datasources.v2.V2CommandExec.executeCollect(V2CommandExec.scala:46)
+	at org.apache.spark.sql.Dataset.$anonfun$logicalPlan$1(Dataset.scala:228)
+	at org.apache.spark.sql.Dataset.$anonfun$withAction$1(Dataset.scala:3687)
+	at org.apache.spark.sql.execution.SQLExecution$.$anonfun$withNewExecutionId$5(SQLExecution.scala:103)
+	at org.apache.spark.sql.execution.SQLExecution$.withSQLConfPropagated(SQLExecution.scala:163)
+	at org.apache.spark.sql.execution.SQLExecution$.$anonfun$withNewExecutionId$1(SQLExecution.scala:90)
+	at org.apache.spark.sql.SparkSession.withActive(SparkSession.scala:775)
+	at org.apache.spark.sql.execution.SQLExecution$.withNewExecutionId(SQLExecution.scala:64)
+	at org.apache.spark.sql.Dataset.withAction(Dataset.scala:3685)
+	at org.apache.spark.sql.Dataset.<init>(Dataset.scala:228)
+	at org.apache.spark.sql.Dataset$.$anonfun$ofRows$2(Dataset.scala:99)
+	at org.apache.spark.sql.SparkSession.withActive(SparkSession.scala:775)
+	at org.apache.spark.sql.Dataset$.ofRows(Dataset.scala:96)
+	at org.apache.spark.sql.SparkSession.$anonfun$sql$1(SparkSession.scala:618)
+	at org.apache.spark.sql.SparkSession.withActive(SparkSession.scala:775)
+	at org.apache.spark.sql.SparkSession.sql(SparkSession.scala:613)
+
+ 
+i have change de dependens ,but  it doesn't seem to work
+```
+<dependencies>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.11</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.spark</groupId>
+      <artifactId>spark-core_2.12</artifactId>
+      <version>3.1.2</version>
+    </dependency>
+
+
+    <dependency>
+      <groupId>org.apache.spark</groupId>
+      <artifactId>spark-sql_2.12</artifactId>
+      <version>3.1.2</version>
+      <!--<exclusions>-->
+        <!--<exclusion>-->
+          <!--<artifactId>antlr4-runtime</artifactId>-->
+          <!--<groupId>org.antlr</groupId>-->
+        <!--</exclusion>-->
+      <!--</exclusions>-->
+    </dependency>
+
+    <dependency>
+      <artifactId>antlr4</artifactId>
+      <groupId>org.antlr</groupId>
+      <version>4.8-1</version>
+    </dependency>
+    <dependency>
+      <groupId>io.delta</groupId>
+      <artifactId>delta-core_2.12</artifactId>
+      <version>1.0.0</version>
+      <exclusions>
+        <exclusion>
+          <artifactId>antlr4</artifactId>
+          <groupId>org.antlr</groupId>
+        </exclusion>
+        <exclusion>
+          <artifactId>antlr4-runtime</artifactId>
+          <groupId>org.antlr</groupId>
+        </exclusion>
+      </exclusions>
+      <!--<exclusions>-->
+        <!--<exclusion>-->
+          <!--<artifactId>antlr4-runtime</artifactId>-->
+          <!--<groupId>org.antlr</groupId>-->
+        <!--</exclusion>-->
+        <!--<exclusion>-->
+          <!--<artifactId>antlr4</artifactId>-->
+          <!--<groupId>org.antlr</groupId>-->
+        <!--</exclusion>-->
+      <!--</exclusions>-->
+    </dependency>
+  </dependencies>
+```

@@ -1,0 +1,86 @@
+What happens?
+-------------
+I desired to extract the _number of row deleted_ in a commit, so I got it using 
+```
+myDeltaTable.history(1).select("operationMetrics.numTargetRowsDeleted")
+```
+But the value was not the one I expected by counting the size of my dataset _before_ and _after_ the operation.
+
+I calculated the size of the dataset for two consecutive versions and the difference does not match the `numTargetRowsDeleted` (the Delta metric is always greater or equal than the difference)
+
+![image](https://user-images.githubusercontent.com/23342449/124930521-b1f2ca80-e001-11eb-92dc-df7e5176ed68.png)
+
+As we can see in the previous image, the difference between version 806 and 805 is 1449 but `operationMetrics.numTargetRowsDeleted` gives us 31052.
+
+The operation was:
+
+```scala
+    deltaTable
+      .as("target")
+      .merge(referential.as("ref"), s"target.uid = ref.user_id")
+      .whenMatched
+      .delete
+      .execute
+```
+
+> The referential is in `.csv`
+
+I had this problem with several delta tables, sometimes the numbers match, but more ofthen the metric is greater
+
+What versions of software are you using?
+----------------------------------------
+* Delta 1.0.0 (same issue with 0.8.0)
+* Spark 3.1.1
+* Emr 6.3.0 (with read/write on S3)
+
+What are the steps to reproduce this issue?
+-------------------------------------------
+It seams to appear randomly but I manage to reproduce it by doing:
+
+```scala
+val r = scala.util.Random
+(1 to 1000).map(i => (s"uid$i", (r.nextDouble * 100).toInt)).toDF("uid", "age").write.format("delta").save("test_table")
+```
+
+Then I execute the following block several times:
+
+```scala
+val deltaTable = DeltaTable.forPath("test_table")
+val toDelete = (1 to 25).map(i => (s"uid${(r.nextDouble * 1000).toInt}")).toDF("uid")
+
+deltaTable
+    .as("target")
+    .merge(toDelete.as("ref"), s"target.uid = ref.uid")
+    .whenMatched
+    .delete
+    .execute
+```
+
+And then I display the metric along with the diff between versions to find issues:
+
+```scala
+val history = deltaTable.history.where("version > 1").select("version", "operationMetrics.numTargetRowsDeleted")
+val diffBetweenVersions = history
+  .select("version")
+  .collect
+  .map(
+    row =>
+      (
+        row.getAs[Long]("version"),
+        spark.read
+          .format("delta")
+          .option("versionAsOf", row.getAs[Long]("version") - 1)
+          .load("test_table")
+          .count - spark.read
+          .format("delta")
+          .option("versionAsOf", row.getAs[Long]("version"))
+          .load("test_table")
+          .count
+      )
+  )
+  .toSeq
+  .toDF("version", "diff_between_versions")
+
+history.join(diffBetweenVersions, Seq("version")).withColumn("issue", $"numTargetRowsDeleted" =!= $"diff_between_versions").show
+```
+![image](https://user-images.githubusercontent.com/23342449/124948346-e3bf5d80-e010-11eb-98ee-aa59a69e9f51.png)

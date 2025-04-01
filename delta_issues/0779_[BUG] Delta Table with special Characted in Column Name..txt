@@ -1,0 +1,79 @@
+## Bug
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the issue title
+For example: [BUG][Spark] Title of my issue
+-->
+
+- [✓ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+### Describe the problem
+I'm trying to create an empty Delta table using schema of a dataframe with special characters in the column name.
+
+#### Steps to reproduce
+
+<!--
+Please include copy-pastable code snippets if possible.
+1. _____
+2. _____
+3. _____
+-->
+
+1. ```table_name = 'table-name-with-dashes' 
+    df_bad - Dataframe with special characters "(", ")", "`" and " " in column names.
+    path = dbfs:/mnt/02arch/temp  #Mounted path on Databricks. (The path is empty)
+```
+2. 
+
+``` (DeltaTable.createOrReplace(spark).tableName(f"default.{table_name.replace('-', '_')}")
+    .property('delta.minReaderVersion', '2')
+    .property('delta.minWriterVersion', '5')
+    .property('delta.columnMapping.mode', 'name')     
+    .addColumns(df_bad.schema)
+    .location(path)
+    .execute())
+```
+#### Observed results
+
+<!-- What happened?  This could be a description, log output, etc. -->
+```AnalysisException: The specified properties do not match the existing properties at dbfs:/mnt/02arch/temp.
+
+== Specified ==
+delta.columnMapping.mode=name
+delta.minReaderVersion=2
+delta.minWriterVersion=5
+
+== Existing ==
+delta.columnMapping.mode=name
+delta.columnMapping.maxColumnId=72
+```
+#### Expected results
+
+<!-- What did you expect to happen? -->
+
+An empty Delta Table should have been created.
+
+#### Further details
+
+<!--
+Include any additional details that may be useful for diagnosing the problem here. If including tracebacks, please include the full traceback. Large logs and files should be attached.
+-->
+
+### Environment information
+* Databricks Runtime: DBR 10.4 LTS
+* Delta Lake version:
+* Spark version: Apache Spark 3.2.1.
+* Scala version: 2.12
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [ ] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute a bug fix at this time.

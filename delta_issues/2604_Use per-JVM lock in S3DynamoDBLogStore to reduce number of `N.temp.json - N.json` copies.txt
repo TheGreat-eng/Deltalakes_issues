@@ -1,0 +1,12 @@
+## Description
+Adds a global (per JVM) path lock to S3DynamoDBLogStore to reduce the number of `T(N) -> N.json` copies, which can occur when there are concurrent readers/writers.
+
+Note: multiple `T(N) -> N.json` copies will not cause data loss, but it may impact readers who already have an existing InputStream open on that particular file.
+
+## How was this patch tested?
+
+It's really hard to test this specific concurrency issue. Code review + existing tests.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No.

@@ -1,0 +1,60 @@
+## Bug
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+### Describe the problem
+
+According to [the documentation](https://docs.delta.io/latest/delta-update.html#operation-semantics):
+
+> A merge operation can fail if multiple rows of the source dataset match and the merge attempts to update the same rows of the target Delta table.
+
+The following merge operation should not fail, because there is only a single source row (1, 10) that updates the target row (1, 1) after evaluating the match condition.
+
+```sql
+create table source using delta as values
+  (0, 0),
+  (1, 10),
+  (1, 11),
+  (2, 20) as (key, value);
+
+create table target using delta as values
+  (1, 1),
+  (2, 2) as (key, value);
+
+merge into target t using source s on s.key = t.key
+  when matched and s.value = 10 then update set key = s.key, value = s.value;
+```
+
+But it fails when run with Delta 3.2 / Spark 3.5.
+
+As a comparison, it works in Microsoft SQL Server 2022 and PostgreSQL 15. 
+
+#### Steps to reproduce
+
+Run the above SQL in Spark 3.5 with Delta 3.2.
+
+#### Observed results
+
+The command fails with an error saying "multiple matches not allowed".
+
+#### Expected results
+
+The command shouldn't fail.
+
+### Environment information
+
+* Delta Lake version: 3.2
+* Spark version: 3.5
+* Scala version: 2.12
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [ ] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [x] No. I cannot contribute a bug fix at this time.

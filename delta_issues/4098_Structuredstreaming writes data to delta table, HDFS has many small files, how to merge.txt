@@ -1,0 +1,2 @@
+Each batch will produce 3 files. If it is a long-running streaming program, the later reading and writing speed will be affected. How to merge these small files?I'm still doing it wrong
+![image](https://user-images.githubusercontent.com/18672877/66905418-68499b80-f038-11e9-8164-9814453e091a.png)

@@ -1,0 +1,1 @@
+Match the javaOptions heap-size (xmx) in compile and test scopes.

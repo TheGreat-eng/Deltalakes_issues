@@ -1,0 +1,3 @@
+Resolves #505 
+
+Signed-off-by: Scott Sandre <scott.sandre@databricks.com>

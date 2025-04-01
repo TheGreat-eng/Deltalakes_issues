@@ -1,0 +1,12 @@
+## Feature request
+
+### Overview
+Currently Kernel only support [v1 checkpoints](https://github.com/delta-io/delta/blob/master/PROTOCOL.md#v1-spec). This issue to add support for reading Delta tables with [v2 checkpoint](https://github.com/delta-io/delta/blob/master/PROTOCOL.md#v2-spec).
+
+### Further details
+
+- Get latest PROTOCOL for the table
+- if it has v2 checkpoint disabled => old way.
+- if it has v2 checkpoint enabled, your checkpoint may or maynot be a v2 checkpoint.
+- Run a file listing to see if there are any sidecars on the checkpoint, if no sidecars => old way
+- If there are sidecars, use Union with main checkpoint file. Union(main checkpoint + sidecars)

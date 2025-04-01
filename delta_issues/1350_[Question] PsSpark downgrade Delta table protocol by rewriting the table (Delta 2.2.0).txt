@@ -1,0 +1,101 @@
+Hi, I have a Delta table where [column mapping](https://docs.delta.io/latest/delta-column-mapping.html) is enabled (`minReaderVersion=2`, `minWriterVersion=5`).
+There is a reading application that does not understand that feature / protocol yet, so I thought that I could simply **downgrade the Delta table to a lower protocol by rewriting the entire table** (accepting that `RENAME/DROP COLUMN` will not work anymore):
+```python
+(
+	spark
+	.table("delta_table")
+	.write
+	.format("delta")
+	.mode("overwrite")
+	.option("overwriteSchema", "True")
+	.saveAsTable("delta_table")
+)
+```
+However, the resulting table still has `minReaderVersion=2`, `minWriterVersion=5`.
+
+Inconsistently, when using a different (new) name in `saveAsTable()` the new table will have `minReaderVersion=1`, `minWriterVersion=2`.
+
+Is this plausible or a bug?
+
+Is there a way to _explicitly_ set the protocol / table properties as part of the `df.write` operation?
+
+I am using Spark 3.3 + Delta 2.2.0.
+
+### full code to reproduce
+
+```python
+from delta.tables import DeltaTable
+
+# setup: create table with some rows
+dt = (
+    DeltaTable.createOrReplace(spark)
+        .tableName("test_delta_table_properties")
+        .addColumn("id", "BIGINT")
+        .addColumn("product_type", "STRING")
+        .addColumn("sales", "BIGINT")
+    .execute()
+)
+
+spark.sql("""
+    INSERT INTO test_delta_table_properties (id, product_type, sales) VALUES
+        (1, 'a', 1000),
+        (2, 'b', 2000),
+        (3, 'cc', 30000)
+""")
+print("initial")
+DeltaTable.forName(spark, "test_delta_table_properties").detail().select("minReaderVersion", "minWriterVersion").show(truncate=False, vertical=True)
+
+# setup: upgrade protocol
+spark.sql("ALTER TABLE test_delta_table_properties SET TBLPROPERTIES ('delta.minReaderVersion' = '2', 'delta.minWriterVersion' = '5', 'delta.columnMapping.mode' = 'name')")
+print("after protocol upgrade")
+DeltaTable.forName(spark, "test_delta_table_properties").detail().select("minReaderVersion", "minWriterVersion").show(truncate=False, vertical=True)
+
+# try overwriting table ==> protocol stays the same
+(
+    spark
+    .table("test_delta_table_properties")
+    .write
+    .format("delta")
+    .mode("overwrite")
+    .option("overwriteSchema", "True")
+    .saveAsTable("test_delta_table_properties")
+)
+print("after overwriting table")
+DeltaTable.forName(spark, "test_delta_table_properties").detail().select("minReaderVersion", "minWriterVersion").show(truncate=False, vertical=True)
+
+# writing table to *new* table ==> protocol is reset to lowest
+(
+    spark
+    .table("test_delta_table_properties")
+    .write
+    .format("delta")
+    .mode("overwrite")
+    .option("overwriteSchema", "True")
+    .saveAsTable("test_delta_table_properties_lower_protocol")
+)
+print("after write to *new* table")
+DeltaTable.forName(spark, "test_delta_table_properties_lower_protocol").detail().select("minReaderVersion", "minWriterVersion").show(truncate=False, vertical=True)
+```
+
+#### result
+```
+initial
+-RECORD 0---------------
+ minReaderVersion | 1   
+ minWriterVersion | 2   
+
+after protocol upgrade
+-RECORD 0---------------
+ minReaderVersion | 2   
+ minWriterVersion | 5   
+
+after overwriting table
+-RECORD 0---------------
+ minReaderVersion | 2   
+ minWriterVersion | 5   
+
+after write to *new* table
+-RECORD 0---------------
+ minReaderVersion | 1   
+ minWriterVersion | 2 
+```

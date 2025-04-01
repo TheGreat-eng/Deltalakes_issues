@@ -1,0 +1,34 @@
+## Description
+Follow-up on https://github.com/delta-io/delta/pull/3443 that introduced implicit casting during streaming write to delta tables.
+
+The feature was shipped disabled due to a regression found in testing where writing data with missing struct fields start being rejected. Streaming writes are one of the few inserts that allows missing struct fields.
+
+This change allows configuring the casting behavior used in MERGE, UPDATE and streaming writes wrt to missing struct fields.
+
+## How was this patch tested?
+Extensive tests were added in https://github.com/delta-io/delta/pull/3762 in preparation for this changes, covering for all inserts (SQL, dataframe, append/overwrite, ..):
+- Missing top-level columns and nested struct fields.
+- Extra top-level columns and nested struct fields with schema evolution.
+- Position vs. name based resolution for top-level columns and nested struct fields.
+with e.p. the goal of ensuring that enabling implicit casting in stream writes here doesn't cause any other unwanted behavior change.
+
+## This PR introduces the following *user-facing* changes
+From the initial PR: https://github.com/delta-io/delta/pull/3443
+
+Previously, writing to a Delta sink using a type that doesn't match the column type in the Delta table failed with `DELTA_FAILED_TO_MERGE_FIELDS`:
+```
+spark.readStream
+    .table("delta_source")
+    # Column 'a' has type INT in 'delta_sink'.
+    .select(col("a").cast("long").alias("a"))
+    .writeStream
+    .format("delta")
+    .option("checkpointLocation", "<location>")
+    .toTable("delta_sink")
+
+DeltaAnalysisException: [DELTA_FAILED_TO_MERGE_FIELDS] Failed to merge fields 'a' and 'a'
+```
+With this change, writing to the sink now succeeds and data is cast from `LONG` to `INT`. If any value overflows, the stream fails with (assuming default `storeAssignmentPolicy=ANSI`):
+```
+SparkArithmeticException: [CAST_OVERFLOW_IN_TABLE_INSERT] Fail to assign a value of 'LONG' type to the 'INT' type column or variable 'a' due to an overflow. Use `try_cast` on the input value to tolerate overflow and return NULL instead."
+```

@@ -1,0 +1,3 @@
+merge after https://github.com/delta-io/delta/pull/1039
+
+See commits on and after Mar 31, 2022

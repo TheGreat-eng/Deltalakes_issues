@@ -1,0 +1,19 @@
+#### Which Delta project/connector is this regarding?
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+The `DeltaTable` implementation is redundant, internally tracking both a `DeltaTableV2` and a `DataFrame`. Use `DeltaTableV2.toDf` method to replace the latter, simplifying the class implementation.
+
+## How was this patch tested?
+
+New unit tests.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No.

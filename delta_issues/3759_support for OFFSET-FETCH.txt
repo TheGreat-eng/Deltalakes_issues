@@ -1,0 +1,5 @@
+I am fetching the data from the Delta take using the ODBC connection to Azure Data bricks. My requirement is to fetch the chunked data (Server side paganization) based on the user request. 
+
+When using normal SQL we can use OFFSET to skip the records and FETCH to retrieve those many records. I am not able to do so in Spark SQL query.
+
+I have create a VIEW in Delta lake and querying on that view.

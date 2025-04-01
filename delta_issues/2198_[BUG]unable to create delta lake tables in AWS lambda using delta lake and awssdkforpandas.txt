@@ -1,0 +1,62 @@
+I have followed this [blog ](https://delta.io/blog/2023-04-06-deltalake-aws-lambda-wrangler-pandas/)
+to create a simple python code in lambda to create delta table, here is the code snippet:
+_************************************************************************************************************
+import json
+import boto3
+import pandas as pd
+from io import StringIO
+from io import BytesIO
+import logging
+from boto3 import Session
+from deltalake import DeltaTable
+from deltalake.writer import write_deltalake
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
+s3_client=boto3.client('s3')
+print("Loading Function---")
+def lambda_handler(event, context):
+    logger.info(pd.__version__)
+    print(pd.__version__)
+    csv_obj = s3_client.get_object(Bucket=source_bucket_name, Key=file_name)
+    body = csv_obj['Body']
+    csv_string = body.read().decode('utf-8')
+    
+    df = pd.read_csv(StringIO(csv_string))
+    
+    print("reading and printing 5 records of CSV file from S3")
+    print("####################################################")
+    print(df.head(5))
+    
+    print("Following are the raw columns:",df.columns.to_list())
+**____________code works file till this line_________________________**
+
+
+    try:
+    # Write the dataframe to a new Delta table on S3
+        new_path = 's3://some-folder/
+        print(new_path)
+        write_deltalake(new_path, data=df, mode='append',overwrite_schema=True)   #,storage_options=storage_options)
+        print("executed the write_deltalake statement")
+    except Exception as error:
+        raise error
+**************************************************************************************************************_
+
+Till print(newpath)_, the code works fine, the write_deltalake function too gets executed, no error is thrown other than warning messages, but the delta table is not being created in destination "s3" buckets.
+
+below is the partial cloudwatch log  (please note that the actual s3 bucket path has been renamed to some fake bucket name)
+
+_**Following are the raw columns: ['CARID', 'Make', 'Model', 'Type', 'Origin', 'DriveTrain', 'MSRP', 'Invoice', 'EngineSize', 'Cylinders', 'Horsepower', 'MPG_City', 'MPG_Highway', 'Weight', 'Wheelbase', 'Length']
+s3://destinationbucketpath
+**/opt/python/pyarrow/pandas_compat.py:373: FutureWarning: is_sparse is deprecated and will be removed in a future version. Check `isinstance(dtype, pd.SparseDtype)` instead.
+if _pandas_api.is_sparse(col):
+/opt/python/pyarrow/pandas_compat.py:456: FutureWarning: is_sparse is deprecated and will be removed in a future version. Check `isinstance(dtype, pd.SparseDtype)` instead.
+if _pandas_api.is_sparse(col):
+2023-09-28T04:56:06.837Z 8ca42f02-9a82-4a7c-b0e8-77f883ab4787 Task timed out after 3.08 seconds**
+END RequestId: 8ca42f02-9a82-4a7c-b0e8-77f883ab4787
+REPORT RequestId: 8ca42f02-9a82-4a7c-b0e8-77f883ab4787	Duration: 3084.32 ms	Billed Duration: 3000 ms	Memory Size: 128 MB	Max Memory Used: 128 MB	Init Duration: 2955.07 ms**_	
+
+lambda layers being used: As documented in the above blog and attaching the screenshot
+![image](https://github.com/delta-io/delta/assets/39046156/526f0944-ee1a-4185-8fc0-a115faa3911a)
+
+
+Please note that the same code works file if executed from local enviornment using the deltalake library and awswrangler.

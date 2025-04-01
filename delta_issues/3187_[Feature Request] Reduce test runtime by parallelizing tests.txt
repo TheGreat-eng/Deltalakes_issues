@@ -1,0 +1,23 @@
+## Feature request
+
+### Overview
+
+SBT tests currently run sequentially. It would be good to reduce the total test runtime by parallelizing the SBT tests. 
+
+### Motivation
+
+SBT tests are taking longer and longer. This is not scalable. While we have already split various version of Scala tests into two CI builds in the repo, each build takes a long time. This is a burden for local testing as well. Any parallelization without causing test flakiness is going to be help here.
+
+### Further details
+
+Running multiple concurrent SBT tests in the same JVM is likely going to cause major test flakiness. So we have to configure the parallel tests to run in separately JVMs. A quick google search led me to this resource which seems to explain the possibilities pretty well - https://www.yannmoisan.com/sbt-parallel-test.html
+
+A while ago, Apache Spark did something like this as well - https://github.com/apache/spark/commit/9c238b8a462c483644237bd038edcf58f42a7db9
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [ ] Yes. I can contribute this feature independently.
+- [ ] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [x] No. I cannot contribute this feature at this time.

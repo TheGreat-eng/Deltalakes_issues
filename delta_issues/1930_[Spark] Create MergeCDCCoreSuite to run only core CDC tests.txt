@@ -1,0 +1,17 @@
+#### Which Delta project/connector is this regarding?
+
+- [X] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+This is a small refactor to `MergeCDCSuite` to create a second, smaller suite `MergeCDCCoreSuite` that only runs CDC tests defined in that same file.
+This allows running a small number of tests with high CDC coverage instead of running the (very) large number of tests defined in `MergeIntoSQLSuite` every time.
+
+## How was this patch tested?
+Running the tests
+
+## Does this PR introduce _any_ user-facing changes?
+No

@@ -1,0 +1,1 @@
+https://stackoverflow.com/questions/68758331/exception-org-apache-spark-sql-delta-concurrentappendexception-files-were-adde

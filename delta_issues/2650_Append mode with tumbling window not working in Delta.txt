@@ -1,0 +1,51 @@
+## Bug
+
+### Describe the problem
+We stream from the delta table and do a tumbing aggegation and write to delta
+
+#### Steps to reproduce
+
+src table : spark.range(10).selectExpr("id","cast('2023-01-01 10:15:00' as timestamp) as event").write.mode("append").saveAsTable("Src")
+tgt stream: 
+df_str=spark.readStream.table("src")
+df_str.withWatermark("event","20 minutes").groupBy(window("event", "10 minutes")).count().writeStream.outputMode("append").option("checkpointLocation","dbfs:/tmp_new2").format("delta").start("dbfs:/user/hive/warehouse/tgt_new2")
+
+<!--
+Please include copy-pastable code snippets if possible.
+tgt stream: 
+df_str=spark.readStream.table("src")
+df_str.withWatermark("event","20 minutes").groupBy(window("event", "10 minutes")).count().writeStream.outputMode("append").option("checkpointLocation","dbfs:/tmp_new2").format("delta").start("dbfs:/user/hive/warehouse/tgt_new2")
+
+#### Observed results
+
+%sql select * from delta.`dbfs:/user/hive/warehouse/tgt_new2`
+
+returned 0 count
+
+
+
+<!-- What happened?  This could be a description, log output, etc. -->
+
+#### Expected results
+
+<!-- What did you expect to happen? -->
+
+#### Further details
+
+<!--
+Include any additional details that may be useful for diagnosing the problem here. If including tracebacks, please include the full traceback. Large logs and files should be attached.
+-->
+
+### Environment information
+
+* Delta Lake version:
+* Spark version:3.30
+* Scala version:2.12
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [ ] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [x] No. I cannot contribute a bug fix at this time.

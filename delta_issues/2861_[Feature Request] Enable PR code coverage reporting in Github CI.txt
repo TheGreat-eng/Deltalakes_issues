@@ -1,0 +1,17 @@
+## Feature request
+
+### Overview
+
+https://github.com/delta-io/delta/pull/1312 enabled code coverage in the delta-io/delta code base, which can be run using `sbt test coverageAggregate`.
+
+It would be great to have this report run on every PR, so PR authors can know if their changes are well tested.
+
+### Motivation
+
+Having well-tested code can help prevent bugs in the future.
+
+### Further details
+
+There is some uncertainty to this task. Are we able to see the code coverage for code changes in the PR **only**?
+
+If not, is there a way to show the diff between the current `master` code coverage and the code coverage in the PR?

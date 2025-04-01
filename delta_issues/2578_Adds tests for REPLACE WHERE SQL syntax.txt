@@ -1,0 +1,1 @@
+Spark 3.4 added RELACE WHERE SQL support for insert. This PR adds tests for the feature after upgrading to Spark 3.4.

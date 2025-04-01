@@ -1,0 +1,142 @@
+## Bug
+
+### Describe the problem
+connect Operation not allowed: `SHOW CREATE TABLE` is not supported for Delta tables;
+
+#### Steps to reproduce
+1.start thriftserver 
+ ./sbin/start-thriftserver.sh  --conf "spark.sql.extensions=io.delta.sql.DeltaSparkSessionExtension"   --conf "spark.sql.catalog.spark_catalog=org.apache.spark.sql.delta.catalog.DeltaCatalog"  
+
+2.connect by beeline create table and show create table 
+create table fake3(id int) using delta;
+show create table fake3;
+
+
+```
+> create table fake3(id int) using delta;
++---------+
+| Result  |
++---------+
++---------+
+No rows selected (6.829 seconds)
+0: jdbc:hive2://******:10007> show create table fake3;
+Error: org.apache.hive.service.cli.HiveSQLException: Error running query: [DELTA_OPERATION_NOT_ALLOWED] org.apache.spark.sql.AnalysisException: Operation not allowed: `SHOW CREATE TABLE` is not supported for Delta tables;
+ShowCreateTable false, [createtab_stmt#919]
++- ResolvedTable org.apache.spark.sql.delta.catalog.DeltaCatalog@46d66cdc, default.fake3, DeltaTableV2(org.apache.spark.sql.SparkSession@bb4d3cb,hdfs://xxx/warehouse/tablespace/managed/hive/fake3,Some(CatalogTable(
+Database: default
+Table: fake3
+Owner: hive
+Created Time: Sat Oct 01 15:29:11 CST 2022
+Last Access: UNKNOWN
+Created By: Spark 3.3.0
+Type: MANAGED
+Provider: delta
+Location: hdfs://xxx/warehouse/tablespace/managed/hive/fake3
+Serde Library: org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe
+InputFormat: org.apache.hadoop.mapred.SequenceFileInputFormat
+OutputFormat: org.apache.hadoop.hive.ql.io.HiveSequenceFileOutputFormat
+Partition Provider: Catalog)),Some(default.fake3),None,Map(),org.apache.spark.sql.util.CaseInsensitiveStringMap@1f), [id#920]
+
+        at org.apache.spark.sql.hive.thriftserver.HiveThriftServerErrors$.runningQueryError(HiveThriftServerErrors.scala:43)
+        at org.apache.spark.sql.hive.thriftserver.SparkExecuteStatementOperation.org$apache$spark$sql$hive$thriftserver$SparkExecuteStatementOperation$$execute(SparkExecuteStatementOperation.scala:325)
+        at org.apache.spark.sql.hive.thriftserver.SparkExecuteStatementOperation$$anon$2$$anon$3.$anonfun$run$2(SparkExecuteStatementOperation.scala:230)
+        at scala.runtime.java8.JFunction0$mcV$sp.apply(JFunction0$mcV$sp.java:23)
+        at org.apache.spark.sql.hive.thriftserver.SparkOperation.withLocalProperties(SparkOperation.scala:79)
+        at org.apache.spark.sql.hive.thriftserver.SparkOperation.withLocalProperties$(SparkOperation.scala:63)
+        at org.apache.spark.sql.hive.thriftserver.SparkExecuteStatementOperation.withLocalProperties(SparkExecuteStatementOperation.scala:43)
+        at org.apache.spark.sql.hive.thriftserver.SparkExecuteStatementOperation$$anon$2$$anon$3.run(SparkExecuteStatementOperation.scala:230)
+        at org.apache.spark.sql.hive.thriftserver.SparkExecuteStatementOperation$$anon$2$$anon$3.run(SparkExecuteStatementOperation.scala:225)
+        at java.security.AccessController.doPrivileged(Native Method)
+        at javax.security.auth.Subject.doAs(Subject.java:422)
+        at org.apache.hadoop.security.UserGroupInformation.doAs(UserGroupInformation.java:1730)
+        at org.apache.spark.sql.hive.thriftserver.SparkExecuteStatementOperation$$anon$2.run(SparkExecuteStatementOperation.scala:239)
+        at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)
+        at java.util.concurrent.FutureTask.run(FutureTask.java:266)
+        at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
+        at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+        at java.lang.Thread.run(Thread.java:748)
+Caused by: org.apache.spark.sql.AnalysisException: Operation not allowed: `SHOW CREATE TABLE` is not supported for Delta tables;
+ShowCreateTable false, [createtab_stmt#919]
++- ResolvedTable org.apache.spark.sql.delta.catalog.DeltaCatalog@46d66cdc, default.fake3, DeltaTableV2(org.apache.spark.sql.SparkSession@bb4d3cb,hdfs://xxx/warehouse/tablespace/managed/hive/fake3,Some(CatalogTable(
+Database: default
+Table: fake3
+Owner: hive
+Created Time: Sat Oct 01 15:29:11 CST 2022
+Last Access: UNKNOWN
+Created By: Spark 3.3.0
+Type: MANAGED
+Provider: delta
+Location: hdfs://xxx/warehouse/tablespace/managed/hive/fake3
+Serde Library: org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe
+InputFormat: org.apache.hadoop.mapred.SequenceFileInputFormat
+OutputFormat: org.apache.hadoop.hive.ql.io.HiveSequenceFileOutputFormat
+Partition Provider: Catalog)),Some(default.fake3),None,Map(),org.apache.spark.sql.util.CaseInsensitiveStringMap@1f), [id#920]
+
+        at org.apache.spark.sql.delta.DeltaErrorsBase.operationNotSupportedException(DeltaErrors.scala:429)
+        at org.apache.spark.sql.delta.DeltaErrorsBase.operationNotSupportedException$(DeltaErrors.scala:428)
+        at org.apache.spark.sql.delta.DeltaErrors$.operationNotSupportedException(DeltaErrors.scala:2293)
+        at org.apache.spark.sql.delta.DeltaUnsupportedOperationsCheck.fail(DeltaUnsupportedOperationsCheck.scala:48)
+        at org.apache.spark.sql.delta.DeltaUnsupportedOperationsCheck.$anonfun$apply$1(DeltaUnsupportedOperationsCheck.scala:104)
+        at org.apache.spark.sql.delta.DeltaUnsupportedOperationsCheck.$anonfun$apply$1$adapted(DeltaUnsupportedOperationsCheck.scala:52)
+        at org.apache.spark.sql.catalyst.trees.TreeNode.foreach(TreeNode.scala:357)
+        at org.apache.spark.sql.delta.DeltaUnsupportedOperationsCheck.apply(DeltaUnsupportedOperationsCheck.scala:52)
+        at org.apache.spark.sql.delta.DeltaUnsupportedOperationsCheck.apply(DeltaUnsupportedOperationsCheck.scala:36)
+        at org.apache.spark.sql.catalyst.analysis.CheckAnalysis.$anonfun$checkAnalysis$45(CheckAnalysis.scala:609)
+        at org.apache.spark.sql.catalyst.analysis.CheckAnalysis.$anonfun$checkAnalysis$45$adapted(CheckAnalysis.scala:609)
+        at scala.collection.mutable.ResizableArray.foreach(ResizableArray.scala:62)
+        at scala.collection.mutable.ResizableArray.foreach$(ResizableArray.scala:55)
+        at scala.collection.mutable.ArrayBuffer.foreach(ArrayBuffer.scala:49)
+        at org.apache.spark.sql.catalyst.analysis.CheckAnalysis.checkAnalysis(CheckAnalysis.scala:609)
+        at org.apache.spark.sql.catalyst.analysis.CheckAnalysis.checkAnalysis$(CheckAnalysis.scala:96)
+        at org.apache.spark.sql.catalyst.analysis.Analyzer.checkAnalysis(Analyzer.scala:187)
+        at org.apache.spark.sql.catalyst.analysis.Analyzer.$anonfun$executeAndCheck$1(Analyzer.scala:210)
+        at org.apache.spark.sql.catalyst.plans.logical.AnalysisHelper$.markInAnalyzer(AnalysisHelper.scala:330)
+        at org.apache.spark.sql.catalyst.analysis.Analyzer.executeAndCheck(Analyzer.scala:207)
+        at org.apache.spark.sql.execution.QueryExecution.$anonfun$analyzed$1(QueryExecution.scala:76)
+        at org.apache.spark.sql.catalyst.QueryPlanningTracker.measurePhase(QueryPlanningTracker.scala:111)
+        at org.apache.spark.sql.execution.QueryExecution.$anonfun$executePhase$2(QueryExecution.scala:185)
+        at org.apache.spark.sql.execution.QueryExecution$.withInternalError(QueryExecution.scala:510)
+        at org.apache.spark.sql.execution.QueryExecution.$anonfun$executePhase$1(QueryExecution.scala:185)
+        at org.apache.spark.sql.SparkSession.withActive(SparkSession.scala:779)
+        at org.apache.spark.sql.execution.QueryExecution.executePhase(QueryExecution.scala:184)
+        at org.apache.spark.sql.execution.QueryExecution.analyzed$lzycompute(QueryExecution.scala:76)
+        at org.apache.spark.sql.execution.QueryExecution.analyzed(QueryExecution.scala:74)
+        at org.apache.spark.sql.execution.QueryExecution.assertAnalyzed(QueryExecution.scala:66)
+        at org.apache.spark.sql.Dataset$.$anonfun$ofRows$2(Dataset.scala:99)
+        at org.apache.spark.sql.SparkSession.withActive(SparkSession.scala:779)
+        at org.apache.spark.sql.Dataset$.ofRows(Dataset.scala:97)
+        at org.apache.spark.sql.SparkSession.$anonfun$sql$1(SparkSession.scala:622)
+        at org.apache.spark.sql.SparkSession.withActive(SparkSession.scala:779)
+        at org.apache.spark.sql.SparkSession.sql(SparkSession.scala:617)
+        at org.apache.spark.sql.SQLContext.sql(SQLContext.scala:651)
+        at org.apache.spark.sql.hive.thriftserver.SparkExecuteStatementOperation.org$apache$spark$sql$hive$thriftserver$SparkExecuteStatementOperation$$execute(SparkExecuteStatementOperation.scala:291)
+        ... 16 more (state=,code=0
+```
+
+#### Observed results
+
+<!-- What happened?  This could be a description, log output, etc. -->
+
+#### Expected results
+
+<!-- What did you expect to happen? -->
+
+#### Further details
+
+<!--
+Include any additional details that may be useful for diagnosing the problem here. If including tracebacks, please include the full traceback. Large logs and files should be attached.
+-->
+
+### Environment information
+
+* Delta Lake version: 2.1.0
+* Spark version: 3.3.0
+* Scala version: 2.12
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [ ] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [x] No. I cannot contribute a bug fix at this time.

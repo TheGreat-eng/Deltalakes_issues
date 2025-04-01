@@ -1,0 +1,21 @@
+Hello,
+
+We have been using delta library for more than 2 years now on HDI Cluster. Recently we came across few cases where the spark job starts failing when trying to append data to a existing partitioned table. It fails with java.lang.OutOfMemory: Jave heap size  at ...... issue. 
+Delta library used - 0.5 version 
+Table partitioned on 3 columns.
+
+We tried querying this delta table through Jupyter and when no filters applied, it fails with same error. 
+
+After searching for this issue, it looks like the delta  library is trying read / store the  list of parquet files that need to be scanned into an array, however its failing to do so.
+
+When we try with huge (10GB) driver memory the spark job goes through. However, we cannot afford to allocate that much of driver memory due to # of jobs and infra limitations.  
+
+Based on this we have the below questions. It would be nice if you can help answer the doubts
+1. We find almost 1K json files under _delta_log folder and too many checkpoints file around 90MB each. When do these files get deleted from the folder and what triggers this deletion ?
+2. We have HDFS based on Azure Blob storage. In this case, we see one of the DELTA table has almost 1.7 Million blobs (files), but latest checkpoint size is only 35 MB, while other DELTA table has same number of blobs and checkpoint file size around 90MB ? How is this possible ? Table structure is exactly same. 
+3.  When delta tries to write in any mode (overwrite / append), does it read the complete table first, before writing. If yes, is this as designed or done with specific purpose ? As we see the spark job goes through when reading, but fails, when writing every time.
+4. When delta table is read from spark, does it really need 10GB to read a 90 MB parquet file ? Anything else happening behind the scenes ?
+5. What is the max size a checkpoint file can be extended to ?
+6. Any good way to compact the complete table, as even compaction is failing due to OOM issues. seems it tries to read all the data and fails. 
+
+Note - We have already vacuumed all the data for these tables. 

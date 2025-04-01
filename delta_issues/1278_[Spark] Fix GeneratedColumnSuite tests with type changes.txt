@@ -1,0 +1,6 @@
+## Description
+Spark started using ANSI mode enabled by default, breaking a couple of tests in `GeneratedColumnSuite` that contained slient overflows.
+These tests are updated to remove the overflows.
+
+## How was this patch tested?
+Running tests with ANSI mode enabled

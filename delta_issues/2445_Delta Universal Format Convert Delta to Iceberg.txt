@@ -1,0 +1,34 @@
+## Description
+
+Delta Universal Format (UniForm) allows you to read Delta tables with Iceberg clients.
+
+UniForm takes advantage of the fact that both Delta and Iceberg consist of Parquet data files and a metadata layer. UniForm automatically generates Iceberg metadata asynchronously, allowing Iceberg clients to read Delta tables as if they were Iceberg tables. You can expect negligible Delta write overhead when UniForm is enabled, as the Iceberg conversion and transaction occurs asynchronously after the Delta commit.
+
+A single copy of the data files provides access to both format clients.
+
+This PR adds the implementation for Universal Format (Iceberg) as well as the IcebergCompatV1 protocol validation.
+
+To create a table with UniForm:
+
+```sql
+CREATE TABLE T(c1 INT) USING DELTA SET TBLPROPERTIES(
+  'delta.universalFormat.enabledFormats' = 'iceberg');
+```
+
+To enable UniForm on an existing table
+
+```sql
+ALTER TABLE T SET TBLPROPERTIES(
+  'delta.columnMapping.mode' = 'name',
+  'delta.universalFormat.enabledFormats' = 'iceberg');
+```
+
+See the IcebergCompatV1 protocol specification PR here: https://github.com/delta-io/delta/pull/1869.
+
+## How was this patch tested?
+New UT `iceberg/src/test/scala/org/apache/spark/sql/delta/ConvertToIcebergSuite.scala` as well as manual local publishing and integration testing with two spark shells, one loaded with Delta, the other with Iceberg.
+
+## Does this PR introduce _any_ user-facing changes?
+
+Optional delta table property `delta.universalFormat.enabledFormats`.
+

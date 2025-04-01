@@ -1,0 +1,28 @@
+## Feature request
+
+### Overview
+
+It is very easy to change the compression codec used to write parquet files when using format "parquet". Example:
+```scala
+df.write.format("parquet").option("compression", "gzip").save("/path/to/somewhere")
+```
+
+However, in case of format "delta", one has to set the Spark conf `spark.sql.parquet.compression.codec` instead. Would be nice to read to "compression" option to keep the same user-friendlyness of "parquet".
+```scala
+df.write.format("delta").option("compression", "gzip").save("/path/to/somewhere")
+```
+
+NB: the above does not work, eventually compression used is snappy instead of gzip (tested with delta-io 0.6.1)
+
+### Motivation
+
+Keep same interface to set compression option when using `delta` instead of `parquet` format.
+
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [ ] Yes. I can contribute this feature independently.
+- [x] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.

@@ -1,0 +1,13 @@
+#### Which Delta project/connector is this regarding?
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+This PR uncomments the iceberg module (it was commented out previously to prevent compilation).
+
+This PR also changes how we clone the iceberg src code (in order to be able to apply patch files). Instead of using a deep clone, we use a shallow clone. This had some ramifications in how the JAR files were named ... so needed to update the python generation script, too.

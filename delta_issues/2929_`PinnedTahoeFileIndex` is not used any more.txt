@@ -1,0 +1,1 @@
+`PinnedTahoeFileIndex` is an unused class and it's safe to remove. It was introduced before data skipping. But we forgot to remove it.

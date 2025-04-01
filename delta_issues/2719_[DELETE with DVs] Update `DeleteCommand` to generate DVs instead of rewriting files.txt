@@ -1,0 +1,6 @@
+(This is a PR stacked on top of another PR: delta-io/delta#1593)
+
+This PR is part of [DELETE with Deletion Vector implementation](https://github.com/delta-io/delta/pull/1591).
+
+Detailed overview of changes are described in [feature request issue](https://github.com/delta-io/delta/pull/1591).
+

@@ -1,0 +1,26 @@
+#### Which Delta project/connector is this regarding?
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+Support for writing fresh row IDs / row commit versions was introduced in the following PRs:
+- https://github.com/delta-io/delta/pull/1723
+- https://github.com/delta-io/delta/pull/1781
+- https://github.com/delta-io/delta/pull/1896
+
+This is sufficient to enable row tracking on a table and write to a table that has row tracking enabled but not to actually read row IDs / row commit versions back, which will require changes in Spark that will be released with Spark 3.5 (see e.g. https://github.com/apache/spark/pull/40677 and https://github.com/apache/spark/pull/40545)
+
+Using row tracking is currently only allowed in testing, this change allows enabling row tracking outside of testing so that the upcoming Delta 3.0 release includes support for writing to tables with row tracking enabled, making Delta writers future-proof.
+
+## How was this patch tested?
+Tests have already been added in previous changes, this only flips the switch to let users enabled Row Tracking outside of tests
+
+## Does this PR introduce _any_ user-facing changes?
+Users are now able to enable Row Tracking when creating a delta table:
+```
+CREATE TABLE tbl(a int) USING DELTA TBLPROPERTIES ('delta.enableRowTracking' = 'true')
+```

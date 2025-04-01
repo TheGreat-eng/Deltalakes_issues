@@ -1,0 +1,82 @@
+## Bug
+
+### Describe the problem
+
+When we perform a delete when matched merge (with no match condition) with duplicate matches we output duplicate CDF rows. We [ignore multiple matches](https://github.com/delta-io/delta/blob/master/core/src/main/scala/org/apache/spark/sql/delta/commands/MergeIntoCommand.scala#L409) for delete-only merges so this is allowed, and the duplicate matches are dropped from the end result due to the delete condition. But the duplicate CDC rows are let through.
+
+These duplicate matches can be due to
+- Duplicate rows in the source
+- A target-only or source-only merge condition
+    - In this scenario, our join condition is satisfied for each target row with each and every source row (essentially turning our [our join](https://github.com/delta-io/delta/blob/master/core/src/main/scala/org/apache/spark/sql/delta/commands/MergeIntoCommand.scala#L559) into a cross join)
+
+#### Steps to reproduce
+
+```scala
+val target = spark.range(start = 0, end = 5, step = 1).toDF()
+val source = spark.range(start = 0, end = 10, step = 1).toDF()
+target.write.format("delta").mode("overwrite").saveAsTable("testMergeCDC")
+
+// delete-only merge on target-only merge condition
+val targetTable = io.delta.tables.DeltaTable.forName("testMergeCDC")
+targetTable.as("t")
+  .merge(source.as("s"), "t.id >= 3")
+  .whenMatched()
+  .delete()
+  .execute()
+spark.table("testMergeCDC").show()
+// +---+
+// | id|
+// +---+
+// |  2|
+// |  0|
+// |  1|
+// +---+
+
+// check the CDC data
+spark.read.format("delta").option("readChangeFeed", "true").option("startingVersion", 1).table("testMergeCDC").show()
+```
+
+#### Observed results
+
+```
++---+------------+---------------+-------------------+
+| id|_change_type|_commit_version|  _commit_timestamp|
++---+------------+---------------+-------------------+
+|  4|      delete|              1|2022-07-08 00:46:23|
+|  4|      delete|              1|2022-07-08 00:46:23|
+|  4|      delete|              1|2022-07-08 00:46:23|
+|  4|      delete|              1|2022-07-08 00:46:23|
+|  4|      delete|              1|2022-07-08 00:46:23|
+|  4|      delete|              1|2022-07-08 00:46:23|
+|  4|      delete|              1|2022-07-08 00:46:23|
+|  4|      delete|              1|2022-07-08 00:46:23|
+|  4|      delete|              1|2022-07-08 00:46:23|
+|  4|      delete|              1|2022-07-08 00:46:23|
+|  3|      delete|              1|2022-07-08 00:46:23|
+|  3|      delete|              1|2022-07-08 00:46:23|
+|  3|      delete|              1|2022-07-08 00:46:23|
+|  3|      delete|              1|2022-07-08 00:46:23|
+|  3|      delete|              1|2022-07-08 00:46:23|
+|  3|      delete|              1|2022-07-08 00:46:23|
+|  3|      delete|              1|2022-07-08 00:46:23|
+|  3|      delete|              1|2022-07-08 00:46:23|
+|  3|      delete|              1|2022-07-08 00:46:23|
+|  3|      delete|              1|2022-07-08 00:46:23|
++---+------------+---------------+-------------------+
+```
+#### Expected results
+
+```
++---+------------+---------------+-------------------+
+| id|_change_type|_commit_version|  _commit_timestamp|
++---+------------+---------------+-------------------+
+|  4|      delete|              1|2022-07-08 00:46:23|
+|  3|      delete|              1|2022-07-08 00:46:23|
++---+------------+---------------+-------------------+
+```
+
+### Environment information
+
+* Delta Lake version: 2.0
+* Spark version: 3.2
+* Scala version: any

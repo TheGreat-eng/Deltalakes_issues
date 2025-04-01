@@ -1,0 +1,103 @@
+## Feature request
+
+### Overview
+
+Using the option `readDataFeed` as well as `timestampAsOf` when reading Delta tables are Deltas implementation of being able to go back in time when it comes to CDC data and process the historic snapshot. You gotta love that feature. 
+
+What is missing for me as a Delta user is the ability to manipulate the `timestamp` column in the table history.
+
+### Motivation
+Why would I wanna manipulate the timestamp?
+
+This is strictly useful for testing purposes. As I am confident that the implementation on Delta side is solid, a user has no means to test the integration of DCF, or Time Travel in general, in their own spark jobs.
+
+Imagine you have an integration test for a spark job that accepts a date argument `dt`.
+The job should always only process the changes that occur in DCF for that particular `dt`.
+
+```python
+class SomeSparkJob:
+    @staticmethod
+    def run(spark: SparkSession, dt: str):
+        return (
+            spark.read.format('delta')
+            .option("readChangeFeed", "true")
+            .option("startingTimestamp", f'{dt} 00:00:00')
+            .option("endingTimestamp", f'{dt} 23:59:59')
+            .load('/tmp/datalake/gold/table')
+            .collect()[0]['value']
+        )
+
+
+dt: str = '2022-01-01'
+
+# I would like to set the timestamp for this commit to `dt`, simulating it was written on that day
+spark.createDataFrame([Row(id=1, value='foo')]).write.format('delta').mode(
+    'append'
+).save('/tmp/datalake/gold/table')
+
+# This job run should process id = 1 with value = 'foo'
+assert SomeSparkJob.run(spark=spark, dt=dt) == 'foo'
+
+# I would like to set the timestamp for this commit to `dt + timedelta(days=1)`
+spark.createDataFrame([Row(id=2, value='bar')]).write.format('delta').mode(
+    'append'
+).save('/tmp/datalake/gold/table')
+
+# This job run should still only process id = 1 with value = 'foo'
+assert SomeSparkJob.run(spark=spark, dt=dt) == 'foo'
+
+# I would like to set the timestamp for this commit to `dt + timedelta(days=2)`
+spark.createDataFrame([Row(id=1, value='baz')]).write.format('delta').mode(
+    'append'
+).save('/tmp/datalake/gold/table')
+
+# This job run should still only process id = 1 with value = 'foo'
+assert SomeSparkJob.run(spark=spark, dt=dt) == 'foo'
+```
+**Note: I expect the same outcome with using the Delta `merge` operation.**
+### Current Workaround
+
+Assuming you run the integration test with your Datalake being in a temporary directory like `/tmp/datalake/` then you can actually manipulate with python the time the _delta_log files were written, which in return adjusts the history of the delta table, which allows the above example to work as expected.
+
+**Note: This does not work with [Localstack S3](https://docs.localstack.cloud/user-guide/aws/s3/) since S3 API does not allow to maniupulate the `LastModified`!**
+
+```python
+    import time
+    import os
+    from datetime import datetime
+
+    date_file_0 = time.mktime(datetime(2022, 1, 1, 10, 0, 0).timetuple())
+    date_file_1 = time.mktime(datetime(2022, 1, 1, 11, 0, 0).timetuple())
+
+    os.utime(
+        '/tmp/datalake/gold/table/_delta_log/00000000000000000000.json',
+        (date_file_0, date_file_0),
+    )
+    os.utime(
+        '/tmp/datalake/gold/table/_delta_log/.00000000000000000000.json.crc',
+        (date_file_0, date_file_0),
+    )
+
+    os.utime(
+        '/tmp/datalake/gold/table/_delta_log/00000000000000000001.json',
+        (date_file_1, date_file_1),
+    )
+    os.utime(
+        '/tmp/datalake/gold/table/_delta_log/.00000000000000000001.json.crc',
+        (date_file_1, date_file_1),
+    )
+```
+
+### Summary
+A general utility for faking the commit timestamp is desired in this feature request, solely for integration testing purposes!
+
+### Further details
+Stackoverflow discussion with @dennyglee : https://stackoverflow.com/questions/75033131/can-you-fake-the-timestamp-of-deltatable-history-in-pyspark/
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [ ] Yes. I can contribute this feature independently.
+- [x] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.

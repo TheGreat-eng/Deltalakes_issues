@@ -1,0 +1,1 @@
+This PR solves https://github.com/delta-io/delta/issues/792

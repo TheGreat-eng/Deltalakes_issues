@@ -1,0 +1,1 @@
+Updated the CONTRIBUTING.md file at several places to fix the grammatical, punctuation updates.

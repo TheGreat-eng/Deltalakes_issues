@@ -1,0 +1,10 @@
+This is more of a discussion as opposed to an issue.
+
+If we interleave bits, 0 will be always be at the top (so to speak). In your code, you convert nulls to 0. 
+
+- Why push nulls to the top?
+- Why not `val nullValue: Int = math.pow(2, 31) - 1`?
+
+Take for example telco data. We will have server hostname and domain name. These columns are used a lot in query where statements. However, the server hostname (where I used to work), would contain a lot of nulls. In a day, we have 10 billion plus records. Stacking all the nulls in the front for interleave wouldn't be ideal (or help with query performance since we are usually looking for non-null entries for some sort of analysis). Instead we pushed them to back for Z ordering (on premise cluster and this wasn't open sourced until a few days ago).
+
+Is there any reason to convert nulls to 0 during Z ordering or was this just a quick idea to overcome null values? 

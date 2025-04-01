@@ -1,0 +1,13 @@
+## Description
+
+This test changes when/how actions are instantiated inside of ActionSerializerSuite when passed into testActionSerDe. We change the action type from `Action` to `=> Action`. We also make the failing metadata lazy. This ensures that the metadata are instantiated after `SparkFunSuite::beforeAll` has run. This ensures that `Utils.isTesting` is true, meaning that the metadata will be instantiated with id testId.
+
+## How was this patch tested?
+
+Existing UTs.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No
+
+Resolves delta-io/delta#1283

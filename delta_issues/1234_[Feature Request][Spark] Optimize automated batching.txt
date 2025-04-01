@@ -1,0 +1,39 @@
+## Feature request
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the issue title
+For example: [Feature Request][Spark] Title of my issue
+-->
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+### Overview
+
+<!-- Provide a high-level description of the feature request. -->
+Currently optimize is an all or nothing operation on all files in the table, or limited by a partition filter. The partition filter allows you to do manually batching of subsets of the table, but with clustering now a thing, there is no option to do partition filtering. We should add the ability to enable batch support inside of optimize, so chunks of optimized files can be added to the transaction log incrementally.
+
+### Motivation
+
+<!-- How will this feature be used? Why is it important? Which users will benefit from it? -->
+Currently you could rewrite an entire petabyte of data, just to fail on the last file and have all that be for naught, wasting a lot of compute time and storage space. With automatic batching, nearly all of the results would be saved along the way, and only the last batch that failed would have to be retried.
+
+### Further details
+
+<!--
+Use this section to include any additional information about the feature. If you have a proposal for how to implement this feature, please include it here. For implementation guidelines, please read our contributor guidelines: https://github.com/delta-io/delta/blob/master/CONTRIBUTING.md
+If there are any specific requirements for this feature that are not immediately obvious please outline them here.
+-->
+I think this can be fairly straightforward, just grouping the existing bins into another layer of batches.
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [x] Yes. I can contribute this feature independently.
+- [ ] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.

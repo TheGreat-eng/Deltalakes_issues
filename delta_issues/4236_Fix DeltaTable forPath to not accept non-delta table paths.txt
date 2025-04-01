@@ -1,0 +1,5 @@
+In this PR, I added exception handling for `forPath` method in `DeltaTable.scala`.
+
+After the change, Delta Table will make sure create instance just for "Delta Source", other sources will throw an exception.
+
+This PR is tested by `DeltaTableSuite.scala`

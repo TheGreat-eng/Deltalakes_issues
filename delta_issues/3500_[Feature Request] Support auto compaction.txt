@@ -1,0 +1,8 @@
+We have a situation delta lake producing a lot of small files so trying to see if there is any way to instruct deltalake to merge the small files into large files. I came across this article,https://docs.databricks.com/delta/optimizations/auto-optimize.html, it appears the auto compact merges files and creates a large file w/ size 128MB. 
+
+does delta lake support auto compact?
+spark.databricks.delta.autoCompact.enabled=true
+
+I tried in EMR 6 w/ io.delta:delta-core_2.12:1.0.0 but it's not working as expected 
+
+/usr/bin/spark-submit --master yarn --deploy-mode cluster --conf spark.yarn.maxAppAttempts=1 --queue=elead --conf spark.databricks.delta.autoCompact.minNumFiles=20 --conf spark.databricks.delta.autoCompact.enabled=true s3://.../incremental.py

@@ -1,0 +1,49 @@
+<!--
+Thanks for sending a pull request!  Here are some tips for you:
+  1. If this is your first time, please read our contributor guidelines: https://github.com/delta-io/delta/blob/master/CONTRIBUTING.md
+  2. If the PR is unfinished, add '[WIP]' in your PR title, e.g., '[WIP] Your PR title ...'.
+  3. Be sure to keep the PR description updated to reflect all changes.
+  4. Please write your PR title to summarize what this PR proposes.
+  5. If possible, provide a concise example to reproduce the issue for a faster review.
+  6. If applicable, include the corresponding issue number in the PR title and link it in the body.
+-->
+
+## Description
+Commit 59d5ea2 replaced the usage of `AnalysisException` with `DeltaAnalysisException`. This caused the Python API exception conversion to not work. Earlier the exception `AnalysisException` used to be convertd to PySpark's `AnalysisException` (code is [here](https://github.com/databricks/runtime/blob/master/python/pyspark/sql/utils.py#L156)). With 59d5ea2, exception `DeltaAnalysisException` is thrown directly as a Py4JError.
+
+Revert the usage of `DeltaAnalysisException` to not break the Python API compatibility.
+
+Summary of reverts.
+* `DeltaAnalysisException` - Reverted in all production code. Only place this remains is in a disabled test in `DeltaErrorsSuite`
+* `DeltaIllegalArgumentException` - This is used only in two helper methods (`copyIntoEncryptionSseCRequired` and `copyIntoEncryptionMasterKeyRequired`) in `DeltaErrors` which are not used anywhere in the production code.
+* `DeltaIllegalStateException` - Used only in couple of places (`Checkpoints.scala`, `DeltaInvariantCheckerExec.scala`) which are reverted in this PR. Remaining uses are in utility method `DeltaErrors.failOnCheckpoint` which is not used anywhere in the production code.
+* `DeltaColumnMappingUnsupportedException` - This is used in few places like when column rename not supported, generating manifest file, convert to delta and few schema change operations. These changes are not reverted. Let me know if this needs revert as well.
+
+Resolves #1086
+<!--
+- Describe what this PR changes.
+- Describe why we need the change.
+ 
+If this PR resolves an issue be sure to include "Resolves #XXX" to correctly link and close the issue upon merge.
+-->
+
+## How was this patch tested?
+Locally.
+
+```
+(base) $ spark-3.2.1-bin-hadoop3.2 % pyspark --packages io.delta:delta-core_2.12:1.2.1-SNAPSHOT --conf "spark.sql.extensions=io.delta.sql.DeltaSparkSessionExtension" --conf "spark.sql.catalog.spark_catalog=org.apache.spark.sql.delta.catalog.DeltaCatalog"
+
+
+downloading file:~/.m2/repository/io/delta/delta-core_2.12/1.2.1-SNAPSHOT/delta-core_2.12-1.2.1-SNAPSHOT.jar ...
+
+>>> df = spark.read.format("delta").load("/tmp/delta-table2234234")
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+  File "/opt/anaconda3/lib/python3.9/site-packages/pyspark/sql/readwriter.py", line 158, in load
+    return self._df(self._jreader.load(path))
+  File "/opt/anaconda3/lib/python3.9/site-packages/pyspark/python/lib/py4j-0.10.9.3-src.zip/py4j/java_gateway.py", line 1321, in __call__
+  File "/opt/anaconda3/lib/python3.9/site-packages/pyspark/sql/utils.py", line 117, in deco
+    raise converted from None
+pyspark.sql.utils.AnalysisException: `/tmp/delta-table2234234` is not a Delta table.
+```
+

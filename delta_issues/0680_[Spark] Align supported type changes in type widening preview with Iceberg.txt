@@ -1,0 +1,17 @@
+## Description
+The following type changes available in the preview of type widening aren't supported by Iceberg and it will be very hard to support them - mainly due to the [Binary single-value serialization](https://iceberg.apache.org/spec/#binary-single-value-serialization) part of the spec:
+- (byte,short,int,long) → decimals
+- (byte,short,int) → double
+- decimal scale increase, e.g. decimal(12,2) → decimal(14,4)
+
+These type changes will get in the way of interoperability with Iceberg. To prevent issues in the future, we won't allow applying these types changes in the stable version of the type widening feature. We can add these back once Iceberg supports them. Reading a table that had such a type change applied will still be allowed though.
+
+## How was this patch tested?
+Moved existing test cases for these type changes to the 'unsuported' list.
+Added a dedicated test to ensure we can still read back data if such a type change was applied in the past.
+
+## Does this PR introduce _any_ user-facing changes?
+Running `ALTER TABLE <table> CHANGE COLUMN <col> TYPE <type>` to apply one of the deprecated type changes will fail with:
+```
+[DELTA_UNSUPPORTED_ALTER_TABLE_CHANGE_COL_OP] ALTER TABLE CHANGE COLUMN is not supported for changing column <fieldPath> from <oldField> to <newField>
+```

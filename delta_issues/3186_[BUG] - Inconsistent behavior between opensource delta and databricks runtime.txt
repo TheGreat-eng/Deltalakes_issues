@@ -1,0 +1,63 @@
+## Bug
+
+### Describe the problem
+
+Create a delta table with table properties like this got exception
+
+ TBLPROPERTIES
+           | ( delta.autoOptimize.autoCompact = true,
+           |   delta.autoOptimize.optimizeWrite = true,
+           |   delta.dataSkippingNumIndexedCols = 9,
+           |   delta.logRetentionDuration = 'interval 30 days',
+           |   delta.deletedFileRetentionDuration = 'interval 1 weeks'
+           |  )
+
+Unknown configuration was specified: delta.autoOptimize.autoCompact
+org.apache.spark.sql.AnalysisException: Unknown configuration was specified: delta.autoOptimize.autoCompact
+	at org.apache.spark.sql.delta.DeltaErrors$.unknownConfigurationKeyException(DeltaErrors.scala:412)
+	at org.apache.spark.sql.delta.DeltaConfigsBase.$anonfun$validateConfigurations$3(DeltaConfig.scala:157)
+	at scala.Option.getOrElse(Option.scala:189)
+	at org.apache.spark.sql.delta.DeltaConfigsBase.$anonfun$validateConfigurations$1(DeltaConfig.scala:157)
+
+#### Steps to reproduce
+
+Run SQL like this should get similar exception 
+
+sparkSession.sql(s"ALTER TABLE delta.`${deltaTableUrl}` SET TBLPROPERTIES (delta.autoOptimize.optimizeWrite = true)")
+
+#### Observed results
+
+Unknown configuration was specified: delta.autoOptimize.optimizeWrite
+org.apache.spark.sql.AnalysisException: Unknown configuration was specified: delta.autoOptimize.optimizeWrite
+	at org.apache.spark.sql.delta.DeltaErrors$.unknownConfigurationKeyException(DeltaErrors.scala:412)
+	at org.apache.spark.sql.delta.DeltaConfigsBase.$anonfun$validateConfigurations$3(DeltaConfig.scala:157)
+	at scala.Option.getOrElse(Option.scala:189)
+	at org.apache.spark.sql.delta.DeltaConfigsBase.$anonfun$validateConfigurations$1(DeltaConfig.scala:157)
+	at scala.collection.TraversableLike.$anonfun$map$1(TraversableLike.scala:286)
+	at scala.collection.immutable.Map$Map1.foreach(Map.scala:193)
+	at scala.collection.TraversableLike.map(TraversableLike.scala:286)
+	at scala.collection.TraversableLike.map$(TraversableLike.scala:279)
+	at scala.collection.AbstractTraversable.map(Traversable.scala:108)
+	at org.apache.spark.sql.delta.DeltaConfigsBase.validateConfigurations(DeltaConfig.scala:149)
+
+#### Expected results
+
+No exception
+
+#### Further details
+
+We hope able to share same code base and test suits between open source spark/delta and databricks runtime. 
+
+### Environment information
+
+* Delta Lake version: 1.2.1
+* Spark version: 3.2.1
+* Scala version: 2.12
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [ ] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [X] No. I cannot contribute a bug fix at this time.

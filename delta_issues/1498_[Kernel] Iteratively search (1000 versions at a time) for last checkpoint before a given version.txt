@@ -1,0 +1,8 @@
+## Description
+
+Adds a utility method for iteratively searching backwards 1000 delta versions at a time from a given version to find the checkpoint. This utility method is used when loading a snapshot by version id. This is similar to how delta-spark does. More details are [here](https://docs.google.com/document/d/13Nock1I8-143Dwidj8rMpgt3wAicrOI2OvDJt3OufOQ/edit?usp=sharing).
+
+
+
+## How was this patch tested?
+Existing tests and mock unittests for granular tests.

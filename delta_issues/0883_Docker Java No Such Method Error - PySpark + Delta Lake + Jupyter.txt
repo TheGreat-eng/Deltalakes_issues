@@ -1,0 +1,156 @@
+I'm trying to create an environment of PySpark, Delta Lake and Jupyter Notebook with Docker.
+
+Everything seems to be using the same Spark, Scala and Java version. (3.5, 2.12.18, 17.0.8.1)
+
+I'm unable to save a DF as a Delta Table. Below code works fine with CSV but not with Delta.
+
+Error is: `: java.lang.NoSuchMethodError: 'scala.collection.Seq org.apache.spark.sql.types.StructType.toAttributes()`
+
+So far I don't see anything that would conflict and would cause this to not work.
+
+    from pyspark.sql import SparkSession
+    
+    spark = SparkSession.builder \
+        .appName("test") \
+        .config("spark.sql.extensions", "io.delta.sql.DeltaSparkSessionExtension") \
+        .config("spark.sql.catalog.spark_catalog", "org.apache.spark.sql.delta.catalog.DeltaCatalog") \
+        .master("spark://spark-master:7077") \
+        .getOrCreate()
+    
+    data = [
+        (1, "Alice", 34),
+        (2, "Bob", 45),
+        (3, "Catherine", 29)
+    ]
+    columns = ["id", "name", "age"]
+    
+    df = spark.createDataFrame(data, columns)
+    df.write.format("delta").mode("overwrite").save("/mnt/cluster/test")
+
+Dockerfile.spark
+
+    FROM bitnami/spark:3.5.0
+    
+    USER root
+    
+    # Install prerequisites
+    RUN apt-get update && apt-get install -y curl
+    
+    # Specify the Scala version
+    ENV SCALA_VERSION=2.12
+    
+    # Copy spark-defaults.conf to the correct location
+    COPY spark-defaults.conf /opt/bitnami/spark/conf/spark-defaults.conf
+    
+    # Download and install Delta Lake, Azure Data Lake Storage, and AWS JARs
+    RUN curl -O https://repo1.maven.org/maven2/io/delta/delta-core_2.12/2.4.0/delta-core_2.12-2.4.0.jar \
+        && curl -O https://repo1.maven.org/maven2/io/delta/delta-storage/3.2.0/delta-storage-3.2.0.jar \
+        && mv delta-core_2.12-2.4.0.jar /opt/bitnami/spark/jars \
+        && mv delta-storage-3.2.0.jar /opt/bitnami/spark/jar
+
+Dockerfile.jupyter
+
+    FROM jupyter/pyspark-notebook:x86_64-spark-3.5.0
+    
+    USER root
+    
+    RUN apt-get update && apt-get install -y curl
+    
+    # Specify the Scala version
+    ENV SCALA_VERSION=2.12
+    
+    # Download and install necessary JAR files
+    RUN curl -O https://repo1.maven.org/maven2/io/delta/delta-core_2.12/2.4.0/delta-core_2.12-2.4.0.jar && \
+        curl -O https://repo1.maven.org/maven2/io/delta/delta-storage/3.2.0/delta-storage-3.2.0.jar && \
+        mv delta-core_2.12-2.4.0.jar /usr/local/spark/jars && \
+        mv delta-storage-3.2.0.jar /usr/local/spark/jars
+        
+    # Copy requirements.txt and install packages
+    COPY requirements.txt /tmp/requirements.txt
+    RUN pip install --no-cache-dir -r /tmp/requirements.txt
+    
+    USER jovyan
+    
+    # Set Spark Master URL
+    ENV SPARK_MASTER=spark://spark-master:7077
+    
+    # Start JupyterLab in /mnt/cluster
+    CMD ["jupyter", "lab", "--notebook-dir=/mnt/cluster"]
+
+spark-defaults-jupyter.conf
+
+    spark.jars                                          /usr/local/spark/jars/delta-core_2.12-2.4.0.jar,/usr/local/spark/jars/delta-storage-3.2.0.jar
+    spark.sql.extensions                                io.delta.sql.DeltaSparkSessionExtension
+    spark.sql.catalog.spark_catalog                     org.apache.spark.sql.delta.catalog.DeltaCatalog
+
+spark-defaults-spark.conf
+
+    spark.jars                                          jars/delta-core_2.12-2.4.0.jar,jars/delta-storage-3.2.0.jar
+    spark.sql.extensions                                io.delta.sql.DeltaSparkSessionExtension
+    spark.sql.catalog.spark_catalog                     org.apache.spark.sql.delta.catalog.DeltaCatalog
+
+
+requirements.txt
+
+    pyspark
+    jupyterlab
+    delta-spark
+
+docker-compose.yml
+
+    version: '3'
+    
+    services:
+      spark-master:
+        build:
+          context: .
+          dockerfile: Dockerfile.spark
+        container_name: spark-master
+        environment:
+          - SPARK_MODE=master
+        ports:
+          - "8080:8080"
+          - "7077:7077"
+        volumes:
+          - C:/cluster:/mnt/cluster
+          - ./spark-defaults-spark.conf:/opt/bitnami/spark/conf/spark-defaults.conf
+        networks:
+          - spark-network
+    
+      spark-worker:
+        build:
+          context: .
+          dockerfile: Dockerfile.spark
+        environment:
+          - SPARK_MODE=worker
+          - SPARK_MASTER_URL=spark://spark-master:7077
+        depends_on:
+          - spark-master
+        volumes:
+          - C:/cluster:/mnt/cluster
+        networks:
+          - spark-network
+        deploy:
+          mode: replicated
+          replicas: 2
+    
+      jupyter:
+        build:
+          context: .
+          dockerfile: Dockerfile.jupyter
+        container_name: jupyter-lab
+        ports:
+          - "8888:8888"
+        volumes:
+          - C:/cluster:/mnt/cluster
+          - ./spark-defaults-jupyter.conf:/usr/local/spark/conf/spark-defaults.conf
+        depends_on:
+          - spark-master
+          - spark-worker
+        networks:
+          - spark-network
+    
+    networks:
+      spark-network:
+        driver: bridge
+

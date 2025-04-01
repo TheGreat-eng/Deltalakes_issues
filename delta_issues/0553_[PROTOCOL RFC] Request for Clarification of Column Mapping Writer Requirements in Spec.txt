@@ -1,0 +1,30 @@
+## Protocol Change Request
+
+### Description of the protocol change
+
+PROTOCOL.md currently specifies the following requirement for column mapping writers, namely that writers must 
+
+> Write the 32 bit integer column identifier as part of the field_id field of the SchemaElement struct in the [Parquet Thrift specification](https://github.com/apache/parquet-format/blob/master/src/main/thrift/parquet.thrift).
+
+This requirement appears to be independent of whether or not column mapping is enabled for the table in 'id' mode or 'name' mode.
+
+When enabling column mapping on an existing table today in 'name' mode, Spark does not rewrite existing parquet files for the table to include field_id and uses the logical column name as the physical column name for existing columns. This makes sense to me as it allows enabling column mapping in 'name' mode on an existing table to be a metadata only operation, rather than a size of data operation, but it isn't clear to me from the spec that this results in a table that is spec compliant.
+
+I would like clarification on the protocol for the following questions:
+1. When enabling column mapping on an existing table in 'name' mode, must all parquet files for that table be (re)written to include properly populated field_id fields?
+2. If the answer to 1. is no, when enabling column mapping on a table in 'name' mode, must all parquet files for that table going forward be written with field_id?
+3. If the answer to 1. and 2. is no, unlike delta.columnMapping.physicalName I see nowhere outside of column mapping where delta.columnMapping.id is used. Therefore, when enabling enabling column mapping on a table in 'name' mode (existing or new), must delta.columnMapping.id be generated for columns? How about delta.columnMapping.maxColumnId?
+4. If the answer to 1. is no, then that necessarily means that column mapping mode can't be changed from 'name' to 'id' on a table. For unrelated reasons it also seems clear that switching between 'name' and 'none' is unsafe as they share the same field in the parquet file. Can the mutability (or immutability) of delta.columnMapping.mode once set on a table be clarified in the spec?
+5. The column mapping specification for writers doesn't seem to treat 'none' mode specially from a requirements perspective, however I've noticed that Spark writing in 'none' mode will not include 'columnMapping' in the reader or writer features when on reader version 3 and writer version 7, will not generate delta.columnMapping.maxColumnId for the table, will not generate delta.columnMapping.physicalName or delta.columnMapping.id for the columns, and will not write the field_id field to parquet files. Can the expected behavior for different column mapping modes be explicitly specified in the spec when it's not consistent across modes?
+
+To whatever extent my preferences may matter here for what the spec should be, my preference for 1. would be to not require a rewrite of data to enable column mapping in 'name' mode on existing tables and to instead allow that to be a metadata only operation. For all other points I'm just looking for additional clarity being provided in the spec.
+
+### Willingness to contribute
+
+The Delta Lake Community encourages protocol innovations. Would you or another member of your organization be willing to contribute this feature to the Delta Lake code base?
+
+- [ ] Yes. I can contribute.
+- [ ] Yes. I would be willing to contribute with guidance from the Delta Lake community.
+- [X] No. I cannot contribute at this time.
+
+

@@ -1,0 +1,3 @@
+- Made sphinx throw all warnings as errors. Sphinx tends to mark a build successful even if there are major issues (e.g., import not found) that cause the contents of built docs to be invalid. These issues shows up as warning, and converting them to errors allows them to be caught in the CI/CD loop early on.
+- Fixed indentation issues in docs.
+- Ignore pyspark not being present during python doc generation.

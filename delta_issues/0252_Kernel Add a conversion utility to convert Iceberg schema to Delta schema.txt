@@ -1,0 +1,23 @@
+This change adds a `icebergToDeltaSchema` util function to SchemaUtils which converts an Iceberg Schema to a Delta schema. 
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ X] Kernel
+- [ ] Other (fill in here)
+
+## Description
+This change adds a `icebergToDeltaSchema` util function to SchemaUtils which converts an Iceberg Schema to a Delta schema. The utility function should be a part of kernel to enable any consumers of kernel to be able to do this kind of metadata conversion.
+
+
+## How was this patch tested?
+Added unit tests.
+
+## Does this PR introduce _any_ user-facing changes?
+New utility API added

@@ -1,0 +1,47 @@
+<!--
+Thanks for sending a pull request!  Here are some tips for you:
+  1. If this is your first time, please read our contributor guidelines: https://github.com/delta-io/delta/blob/master/CONTRIBUTING.md
+  2. If the PR is unfinished, add '[WIP]' in your PR title, e.g., '[WIP] Your PR title ...'.
+  3. Be sure to keep the PR description updated to reflect all changes.
+  4. Please write your PR title to summarize what this PR proposes.
+  5. If possible, provide a concise example to reproduce the issue for a faster review.
+  6. If applicable, include the corresponding issue number in the PR title and link it in the body.
+-->
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [X] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+Includes all the necessary changes so that we run the python tests for our spark master build.
+
+The delta connect python code changes can be viewed here: https://github.com/delta-io/delta/pull/3535/commits/5c608fa108dacffe47cfb93ea9eeeda5080ea357
+- Note the changes in `tables.py` includes checking for the Spark version before doing any imports
+```
+        if (sparkSession.version.split(".")[0] == "4"):
+            # Delta Connect is only supported in Delta 4.0+ on Spark 4.0+
+            # Only import if using Delta/Spark 4.0+ since the import fails without grpc installed
+            from pyspark.sql.connect.session import SparkSession as RemoteSparkSession
+
+            if isinstance(sparkSession, RemoteSparkSession):
+                from delta.connect.tables import DeltaTable as RemoteDeltaTable
+                return RemoteDeltaTable.forPath(sparkSession, path, hadoopConf)
+```
+
+
+## How was this patch tested?
+
+CI jobs pass and checked for tests run.
+
+You can also see this PR + the delta connect python code here https://github.com/delta-io/delta/pull/3535.
+
+See PR here to verify the python tests pass: https://github.com/delta-io/delta/pull/3571 (since Spark master scala tests are currently failing)

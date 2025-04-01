@@ -1,0 +1,48 @@
+I am attempting to mock as much of our DataBricks Delta Table tasks for unit testing functionality. I suspect whatever DataBricks has added on top makes this "partition management" possible, but I'm hoping this isn't the case.
+
+> You can partition a Delta table by a column
+~ https://docs.delta.io/latest/best-practices.html#choose-the-right-partition-column
+
+Context:
+```SQL
+CREATE TABLE spark_catalog.my_db.my_table (
+            BatchId BIGINT,
+            Month STRING,
+            Id BIGINT,
+            ReleasedDate TIMESTAMP,
+            Name STRING,
+            UnitOfMeasure STRING,
+            Header_1 TIMESTAMP)
+            USING delta
+            PARTITIONED BY (OpAccountingMonth)
+            TBLPROPERTIES (
+            'Type' = 'EXTERNAL',
+            'delta.enableChangeDataFeed' = 'true',
+            'delta.minReaderVersion' = '1',
+            'delta.minWriterVersion' = '4')
+```
+
+Offending code:
+```python
+spark.sql(f"SHOW PARTITIONS {table}")
+```
+
+Traceback
+```python
+AnalysisException: Table spark_catalog.my_db.my)_table does not support partition management.;
+ShowPartitions [partition#1010]
++- ResolvedTable org.apache.spark.sql.delta.catalog.DeltaCatalog@772270ed, my_db.my_table, DeltaTableV2(org.apache.spark.sql.SparkSession@6232a920,file:/Users/me/my-project/tests/unit/spark-warehouse/my_db.db/my_table,Some(CatalogTable(
+Database: my_db
+Table: my_table
+Created Time: Mon Oct 10 16:56:53 PDT 2022
+Last Access: UNKNOWN
+Created By: Spark 3.3.0
+Type: MANAGED
+Provider: delta
+Location: file:/Users/me/my-project/tests/unit/spark-warehouse/my_db.db/my_table
+Partition Provider: Catalog)),Some(my_db.my_table),None,Map(),org.apache.spark.sql.util.CaseInsensitiveStringMap@1f), [BatchId#1011L, Month#1012, Id#1013L, ReleasedDate#1014, Name#1015, UnitOfMeasure#1016, Header_1#1017, ... 16 more fields]
+```
+
+Software/Environment:
+- `delta-spark==2.1.0`
+- `pyspark<3.4.0,>=3.3.0`

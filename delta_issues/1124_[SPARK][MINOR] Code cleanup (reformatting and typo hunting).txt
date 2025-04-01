@@ -1,0 +1,17 @@
+#### Which Delta project/connector is this regarding?
+
+- Spark
+
+## Description
+
+Many of these changes are to make the code more Scala-idiomatic (and less "Pythonic") to ease code comprehension ❤️
+
+A few typos got squashed along the way, too 😎
+
+## How was this patch tested?
+
+Local builds
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

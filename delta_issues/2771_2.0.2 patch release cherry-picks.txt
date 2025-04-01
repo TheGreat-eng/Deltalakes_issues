@@ -1,0 +1,8 @@
+Following changes are cherry-picked
+
+ - Support passing Hadoop configurations via DeltaTable (Cherry-pick ee3917fc to branch-2.0)
+ - Add varargs annotation to executeZOrderBy (Cherry-pick 7380c5c0 to branch-2.0)
+ - Pass the SparkSession when resolving the tables in the DeltaTableBuilder (Cherry-pick 68c8e183 to branch-2.0)
+ - Delta metadata reads fail on missing/corrupt files (Cherry-pick 0eb4c7eb to branch-2.0)
+ - Update delta Dockerfile (Cherry-pick of c3020e1 to branch-2.0)
+    - This change is needed to fix the pyspark version to 3.2.0. Without this the test setup installs latest 3.2.x pyspark and there are [partitioning differences](https://issues.apache.org/jira/browse/SPARK-40407) between 3.2.0 and 3.2.3 which cause tests to returns slightly different behavior in partitioning.

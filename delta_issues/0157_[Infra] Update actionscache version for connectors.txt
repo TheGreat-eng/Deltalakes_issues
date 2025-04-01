@@ -1,0 +1,35 @@
+<!--
+Thanks for sending a pull request!  Here are some tips for you:
+  1. If this is your first time, please read our contributor guidelines: https://github.com/delta-io/delta/blob/master/CONTRIBUTING.md
+  2. If the PR is unfinished, add '[WIP]' in your PR title, e.g., '[WIP] Your PR title ...'.
+  3. Be sure to keep the PR description updated to reflect all changes.
+  4. Please write your PR title to summarize what this PR proposes.
+  5. If possible, provide a concise example to reproduce the issue for a faster review.
+  6. If applicable, include the corresponding issue number in the PR title and link it in the body.
+-->
+
+#### Which Delta project/connector is this regarding?
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [X] Other (INFRA)
+
+## Description
+
+actions/cache@v2 is being deprecated
+- https://github.com/actions/cache/discussions/1510
+- https://github.com/actions/toolkit/discussions/1890
+
+This PR job caught the brownout https://github.com/delta-io/delta/actions/runs/13396661811/job/37417276819?pr=4127
+
+Upgrades connectors workflow which is still on v2.
+
+## How was this patch tested?
+
+CI test suffices.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

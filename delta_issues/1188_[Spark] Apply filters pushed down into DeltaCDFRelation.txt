@@ -1,0 +1,19 @@
+#### Which Delta project/connector is this regarding?
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+This PR modifies `DeltaCDFRelation` to apply the filters that are pushed down into this. This enables both partition pruning and row group skipping to happen when reading the Change Data Feed.
+
+## How was this patch tested?
+
+Unit tests
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

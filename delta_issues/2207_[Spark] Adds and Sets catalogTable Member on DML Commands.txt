@@ -1,0 +1,21 @@
+#### Which Delta project/connector is this regarding?
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+This PR adds a catalogTable member to UPDATE, DELETE, and MERGE commands. This catalogTable member is then passed to the transaction these commands create so that it is later accessible in the Iceberg conversion that Uniform performs. This is necessary so Uniform can correctly retrieve and update a table from HMS.
+
+This PR is part of https://github.com/delta-io/delta/issues/2105.
+
+## How was this patch tested?
+
+Adapted existing unit tests. This is mainly a refactoring change so existing unit test coverage is sufficient.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

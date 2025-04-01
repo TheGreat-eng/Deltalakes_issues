@@ -1,0 +1,1 @@
+It's trying to install pyspark with python 3.5 instead of the system global 3.7.

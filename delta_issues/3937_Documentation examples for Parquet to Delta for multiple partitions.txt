@@ -1,0 +1,13 @@
+The current Delta Lake documentation provides example for 1 partition column in Scala.
+https://docs.delta.io/latest/delta-utility.html#-convert-to-delta
+
+```
+// Convert partitioned parquet table at path '/path/to/table' and partitioned by integer column named 'part'
+val partitionedDeltaTable = DeltaTable.convertToDelta(spark, "parquet.`/path/to/table`", "part int")
+```
+
+My Parquet table has 3 partition columns.  It is unclear to me if current (source code) version (0.5) of Delta supports more than 1 partition column as part of this conversion.  My Spark version is 2.4.4.  (Not sure if Spark version is an requirement or not.)
+
+If the answer is an absolute yes, some examples to show the actual syntax would be extremely helpful.  It is unclear if the string input expects a comma delimited string, and if that string has case sensitivity checks or not.  
+
+It is good to have clarity before converting a large parquet table with at least 3 partitions for example (year, month, day) and not have any irreversible corrupted table on the other side of that function.  

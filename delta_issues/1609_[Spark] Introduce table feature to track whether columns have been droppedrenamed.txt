@@ -1,0 +1,19 @@
+#### Which Delta project/connector is this regarding?
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+This PR adds a small extension to the Column Mapping feature. It tracks whether a column name has been dropped or renamed during the history of the table. This allows using the (logical) name of a column as the physical name of a column, while still ensuring that all physical names are unique. This helps with the disablement of Column Mapping proposed in https://github.com/delta-io/delta/issues/2481, as in this case it is no longer required to rewrite the table, and it simply suffices to change the mode to none.
+
+## How was this patch tested?
+
+Added new unit tests in the new suite `ColumnMappingUsageTrackingSuite`.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No, other than the new table feature this should be entirely transparent to the user.

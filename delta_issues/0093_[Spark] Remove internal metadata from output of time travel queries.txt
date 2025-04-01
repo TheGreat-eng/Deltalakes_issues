@@ -1,0 +1,10 @@
+## Description
+We usually strip internal delta metadata (column mapping, generated columns) in schemas returned from e.g. `df.schema`.
+
+One missing case is for partition columns during time-travel, which removes some metadata (column mapping, type widening), but not others (generated columns, identity columns).
+
+Exposing generated column metadata can cause issues as it may then be propagated to other tables during CTAS.
+
+## How was this patch tested?
+- Adding test case covering stripping generated column metadata for partition columns in time-travel query.
+The test fails without this fix.

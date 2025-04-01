@@ -1,0 +1,28 @@
+## Feature request
+
+### Overview
+
+We suggest that Vacuum supports partition filters so that users can control the amount of scan performed on object stores and it becomes incremental.
+
+
+### Motivation
+
+Currently, users have large tables with daily/hourly partitions for many years, among all these partitions only recent ones are subjected to change due to job reruns, corrections and late arriving events. 
+
+When Vacuum is run on these tables, the listing is performed on all the partitions and it runs for several hours/days. This duration grows as tables grow and vacuum becomes a major overhead for customers especially when they have hundreds or thousands of such delta tables. File system scan takes the most amount of time in Vacuum operation for large tables, mostly due to the parallelism achievable and API throttling on the object stores.
+
+### Further details
+
+We suggest an improvement where Vacuum supports WHERE clause with partition predicates just like [Optimize command](https://docs.databricks.com/sql/language-manual/delta-optimize.html). Vacuum is limited to a subset of paths/directories matching the given partition predicate. It only limits the scan operations to those paths, it still compares with whole table metadata to identify the files to be deleted. Only filters involving partition key attributes are supported by this where clause.
+
+`VACUUM table_name [WHERE predicate] [RETAIN num HOURS] [DRY RUN]`
+
+Design Doc : https://docs.google.com/document/d/1vRTfMk3bRmCWLa-E4W-UaNOgFo_DyFCcCMVjB1GzrcU/edit?usp=sharing
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [ ] Yes. I can contribute this feature independently.
+- [x] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.

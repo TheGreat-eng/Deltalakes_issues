@@ -1,0 +1,36 @@
+## Feature request
+
+#### Which Delta project/connector is this regarding?
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+### Overview
+
+<!-- Provide a high-level description of the feature request. -->
+Currently, the `spark.databricks.delta.snapshotPartitions` value is static. The idea is to make this value dependent on the size of snapshot such that we can have well sized partitions.
+
+### Motivation
+
+<!-- How will this feature be used? Why is it important? Which users will benefit from it? -->
+Delta computes the snapshot to understand which parquet files to read and caches the snapshot to make planning and execution performant. The cached number of partitions depend upon `spark.databricks.delta.snapshotPartitions`. For bigger tables, the default value of 50 might be saner but for smaller tables, this usually results in partition sizes of few bytes. This does not play well with dynamic allocation. It is not recommended to kill an executor that has cached partition on it, by default spark sets decommission time to infinity for such executors. Many a times, this leads to idle executor staying alive just because it has few bytes of delta cache. Converse is also true, for a bigger snapshot, the value might be too small making the job fail. This value should be abstracted away from users.
+
+### Further details
+
+<!--
+Use this section to include any additional information about the feature. If you have a proposal for how to implement this feature, please include it here. For implementation guidelines, please read our contributor guidelines: https://github.com/delta-io/delta/blob/master/CONTRIBUTING.md
+If there are any specific requirements for this feature that are not immediately obvious please outline them here.
+-->
+A naïve approach: can we leverage AQE here? Perhaps, introduce a configuration that directly deal with the size of snapshot and remove the num partitions.
+
+A simpler win could be to allow users to also configure storage level for their caches.
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [ ] Yes. I can contribute this feature independently.
+- [x] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.

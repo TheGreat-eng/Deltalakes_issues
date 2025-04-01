@@ -1,0 +1,26 @@
+## Description
+
+This PR changes the value of table feature configs to be `supported` instead of `enabled`, to avoid confusion with the same word in the sentence `Change Data Feed is enabled on a table when delta.enableChangeDataFeed=true`. The old value `enabled` will still work.
+
+Before this change:
+```sql
+CREATE TABLE tbl ... TBLPROPERTIES ('delta.feature.featureName' = 'enabled')
+```
+After this change, both of the following will work:
+```sql
+CREATE TABLE tbl ... TBLPROPERTIES ('delta.feature.featureName' = 'enabled');
+CREATE TABLE tbl ... TBLPROPERTIES ('delta.feature.featureName' = 'supported');
+```
+
+New terminology:
+
+- `supported` means a feature is listed in the protocol, and can be enabled when its metadata requirement is satisfied. For example, `changeDataFeed` is supported when the feature name is in the protocol's `writerFeatures`, but no CDF is captured unless `delta.enableChangeDataFeed` is set to `true`.
+- `enabled` means a feature's metadata requirement is satisfied. For example, `changeDataFeed` is enabled when `delta.enableChangeDataFeed` is set to `true`, and there are CDFs captured.
+
+## How was this patch tested?
+
+Existing changes and a new test.
+
+## Does this PR introduce _any_ user-facing changes?
+
+Yes, see the above "Description" section.

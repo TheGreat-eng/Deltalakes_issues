@@ -1,0 +1,19 @@
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [x] Kernel
+- [ ] Other (fill in here)
+
+## Description
+Currently Kernel can not read a table with `name` column mapping mode and having complex type columns.
+
+Also includes refactoring of the column mapping-related code in one file `ColumnMapping.java`.
+
+## How was this patch tested?
+Added a test reading column mapping mode enabled table with different types of complex and primitive types.

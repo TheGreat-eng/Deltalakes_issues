@@ -1,0 +1,904 @@
+This branch exists just to prove that https://github.com/delta-io/delta/pull/721 is valid. It is the same as that branch, except this branch comments out some unrelated tests adds some print statements.
+
+We want to verify that
+a) we package and use the latest, current scala code in the delta repo for our python tests
+and, consequently,
+b) we use the right delta pypi package version (specified in the code).
+
+Below is the full test output, but here I will summarize the changes to the code and output findings.
+
+1. To verify (a), I added the statement `println("pypi TEST foo")` inside of `DeltaLog.scala`. We expect to see `pypi TEST foo` in the console output (and we do).
+
+Here's the succinct output (copied from below):
+```
+...
+########### Create a Parquet table ##############
+########### Convert to Delta ###########
+pypi TEST foo
+########### Read table with DataFrames ###########
+...
+```
+
+2. To verify (b), I changed the package version to `1.1.0-SNAPSHOT-test-foo` in ` version.sbt`. We should see this version used in `pip_utils.py` when it decides which delta version to use for the spark session configuration (and we do).
+
+Here's the succinct output (copied from below):
+```
+Successfully installed delta-spark-1.1.0-SNAPSHOT-test-foo pyspark-3.1.2
+Test command: ['python3', '/Users/scott.sandre/delta/examples/python/using_with_pip.py']
+*** using_with_pip.py > delta version 1.1.0-SNAPSHOT-test-foo
+*** pip_utils.py > configure_spark_with_delta_pip > delta_version 1.1.0-SNAPSHOT-test-foo
+:: loading settings :: url = jar:file:/usr/local/lib/python3.9/site-packages/pyspark/jars/ivy-2.4.0.jar!/org/apache/ivy/core/settings/ivysettings.xml
+```
+
+To get test output, run `cd delta && python run-tests.py`.
+
+You will get:
+```
+##### Running Python tests #####
+('Calling script %s', 'python/run-tests.py')
+Using /Library/Java/JavaVirtualMachines/jdk1.8.0_131.jdk/Contents/Home as default JAVA_HOME.
+Note, this will be overridden by -java-home if it is set.
+[info] Loading global plugins from /Users/scott.sandre/.sbt/0.13/plugins
+[info] Loading project definition from /Users/scott.sandre/delta/project/project
+[info] Loading project definition from /Users/scott.sandre/delta/project
+[info] Set current project to delta (in build file:/Users/scott.sandre/delta/)
+[success] Total time: 0 s, completed Jul 29, 2021 1:17:38 PM
+[info] Packaging /Users/scott.sandre/delta/contribs/target/scala-2.12/delta-contribs_2.12-1.1.0-SNAPSHOT-test-foo-sources.jar ...
+[info] scalastyle using config /Users/scott.sandre/delta/scalastyle-config.xml
+[info] scalastyle using config /Users/scott.sandre/delta/scalastyle-config.xml
+[info] Packaging /Users/scott.sandre/delta/core/target/scala-2.12/delta-core_2.12-1.1.0-SNAPSHOT-test-foo-sources.jar ...
+[info] Done packaging.
+[info] Wrote /Users/scott.sandre/delta/core/target/scala-2.12/delta-core_2.12-1.1.0-SNAPSHOT-test-foo.pom
+[info] Wrote /Users/scott.sandre/delta/contribs/target/scala-2.12/delta-contribs_2.12-1.1.0-SNAPSHOT-test-foo.pom
+[info] Done packaging.
+[info] scalastyle Processed 3 file(s)
+[info] scalastyle Found 0 errors
+[info] scalastyle Found 0 warnings
+[info] scalastyle Found 0 infos
+[info] scalastyle Finished in 10 ms
+[success] created output: /Users/scott.sandre/delta/contribs/target
+[info] scalastyle Processed 115 file(s)
+[info] scalastyle Found 0 errors
+[info] scalastyle Found 0 warnings
+[info] scalastyle Found 0 infos
+[info] scalastyle Finished in 5 ms
+[success] created output: /Users/scott.sandre/delta/core/target
+[info] Compiling 115 Scala sources and 8 Java sources to /Users/scott.sandre/delta/core/target/scala-2.12/classes...
+[info] Main Scala API documentation to /Users/scott.sandre/delta/core/target/scala-2.12/api...
+[warn] /Users/scott.sandre/delta/core/target/scala-2.12/src_managed/main/antlr4/io/delta/sql/parser/DeltaSqlBaseBaseListener.java:350: The comment for method visitErrorNode contains @inheritdoc, but no parent comment is available to inherit from.
+[warn] 	@Override public void visitErrorNode(ErrorNode node) { }
+[warn] 	                      ^
+[warn] /Users/scott.sandre/delta/core/target/scala-2.12/src_managed/main/antlr4/io/delta/sql/parser/DeltaSqlBaseBaseListener.java:344: The comment for method visitTerminal contains @inheritdoc, but no parent comment is available to inherit from.
+[warn] 	@Override public void visitTerminal(TerminalNode node) { }
+[warn] 	                      ^
+[warn] /Users/scott.sandre/delta/core/target/scala-2.12/src_managed/main/antlr4/io/delta/sql/parser/DeltaSqlBaseBaseListener.java:338: The comment for method exitEveryRule contains @inheritdoc, but no parent comment is available to inherit from.
+[warn] 	@Override public void exitEveryRule(ParserRuleContext ctx) { }
+[warn] 	                      ^
+[warn] /Users/scott.sandre/delta/core/target/scala-2.12/src_managed/main/antlr4/io/delta/sql/parser/DeltaSqlBaseBaseListener.java:332: The comment for method enterEveryRule contains @inheritdoc, but no parent comment is available to inherit from.
+[warn] 	@Override public void enterEveryRule(ParserRuleContext ctx) { }
+[warn] 	                      ^
+model contains 404 documentable templates
+[warn] /Users/scott.sandre/delta/core/src/main/scala/org/apache/spark/sql/delta/sources/DeltaSQLConf.scala:25: Could not find any member to link for "SQLConf".
+[warn] /**
+[warn] ^
+[warn] /Users/scott.sandre/delta/core/src/main/scala/org/apache/spark/sql/delta/PreprocessTableDelete.scala:27: Could not find any member to link for "DeltaDelete".
+[warn] /**
+[warn] ^
+[warn] /Users/scott.sandre/delta/core/src/main/scala/org/apache/spark/sql/delta/PreprocessTableUpdate.scala:28: Could not find any member to link for "DeltaUpdateTable".
+[warn] /**
+[warn] ^
+[warn] /Users/scott.sandre/delta/core/src/main/scala/org/apache/spark/sql/delta/util/DatasetRefCache.scala:23: Could not find any member to link for "Dataset".
+[warn] /**
+[warn] ^
+[warn] /Users/scott.sandre/delta/core/src/main/scala/org/apache/spark/sql/delta/util/DateFormatter.scala:45: Could not find any member to link for "org.apache.spark.sql.catalyst.util.DateFormatter".
+[warn] /**
+[warn] ^
+[warn] /Users/scott.sandre/delta/core/src/main/scala/org/apache/spark/sql/delta/util/DateTimeFormatterHelper.scala:50: Could not find any member to link for "org.apache.spark.sql.catalyst.util.DateTimeFormatterHelper".
+[warn] /**
+[warn] ^
+[warn] /Users/scott.sandre/delta/core/src/main/scala/org/apache/spark/sql/delta/util/PartitionUtils.scala:59: Could not find any member to link for "org.apache.spark.sql.execution.datasources.PartitioningUtils".
+[warn] /**
+[warn] ^
+[warn] /Users/scott.sandre/delta/core/src/main/scala/org/apache/spark/sql/delta/util/TimestampFormatter.scala:48: Could not find any member to link for "org.apache.spark.sql.catalyst.util.TimestampFormatter".
+[warn] /**
+[warn] ^
+[warn] /Users/scott.sandre/delta/core/src/main/scala/org/apache/spark/sql/delta/files/TahoeFileIndex.scala:36: Could not find any member to link for "FileIndex".
+[warn] /**
+[warn] ^
+[warn] /Users/scott.sandre/delta/core/src/main/scala/org/apache/spark/sql/delta/storage/HadoopFileSystemLogStore.scala:33: Could not find any member to link for "FileSystem".
+[warn] /**
+[warn] ^
+[warn] /Users/scott.sandre/delta/core/src/main/scala/org/apache/spark/sql/delta/storage/HDFSLogStore.scala:35: Could not find any member to link for "FileContext".
+[warn] /**
+[warn] ^
+[warn] /Users/scott.sandre/delta/core/src/main/scala/io/delta/storage/LogStore.java:81: Could not find any member to link for "java.nio.file.FileAlreadyExistsException".
+[warn]   /**
+[warn]   ^
+[warn] /Users/scott.sandre/delta/core/src/main/scala/io/delta/sql/parser/DeltaSqlParser.scala:144: Could not find any member to link for "VacuumTableCommand".
+[warn]   /**
+[warn]   ^
+[warn] /Users/scott.sandre/delta/core/src/main/scala/org/apache/spark/sql/delta/util/TimestampFormatter.scala:52: Could not find any member to link for "DateTimeException".
+[warn]   /**
+[warn]   ^
+[warn] /Users/scott.sandre/delta/core/src/main/scala/org/apache/spark/sql/delta/storage/AzureLogStore.scala:24: Could not find any member to link for "FileSystem".
+[warn] /**
+[warn] ^
+[warn] /Users/scott.sandre/delta/core/src/main/scala/org/apache/spark/sql/delta/storage/LocalLogStore.scala:24: Could not find any member to link for "LogStore]]".
+[warn] /**
+[warn] ^
+[warn] /Users/scott.sandre/delta/core/src/main/scala/org/apache/spark/sql/delta/storage/S3SingleDriverLogStore.scala:34: Could not find any member to link for "FileSystem".
+[warn] /**
+[warn] ^
+[warn] /Users/scott.sandre/delta/core/src/main/scala/org/apache/spark/sql/delta/storage/LogStore.scala:99: Could not find any member to link for "java.nio.file.FileAlreadyExistsException".
+[warn]   /**
+[warn]   ^
+[warn] /Users/scott.sandre/delta/core/src/main/scala/org/apache/spark/sql/delta/storage/LogStore.scala:91: Could not find any member to link for "java.nio.file.FileAlreadyExistsException".
+[warn]   /**
+[warn]   ^
+[warn] /Users/scott.sandre/delta/core/src/main/scala/org/apache/spark/sql/delta/storage/LocalLogStore.scala:42: Could not find any member to link for "org.apache.hadoop.fs.RawLocalFileSystem".
+[warn]   /**
+[warn]   ^
+[warn] /Users/scott.sandre/delta/core/src/main/scala/org/apache/spark/sql/delta/schema/SchemaMergingUtils.scala:30: Could not find any member to link for "DeltaMergeInto.resolveReferences".
+[warn] /**
+[warn] ^
+[warn] /Users/scott.sandre/delta/core/src/main/scala/org/apache/spark/sql/delta/commands/MergeIntoCommand.scala:176: Could not find any member to link for "findTouchedFiles".
+[warn] /**
+[warn] ^
+[warn] /Users/scott.sandre/delta/core/src/main/scala/org/apache/spark/sql/delta/commands/DeltaCommand.scala:49: Could not find any member to link for "AnalysisException".
+[warn]   /**
+[warn]   ^
+[warn] /Users/scott.sandre/delta/core/src/main/scala/org/apache/spark/sql/delta/commands/ConvertToDeltaCommand.scala:454: Could not find any member to link for "org.apache.spark.sql.execution.datasources.HadoopFsRelation".
+[warn]   /**
+[warn]   ^
+[warn] /Users/scott.sandre/delta/core/src/main/scala/org/apache/spark/sql/delta/commands/ConvertToDeltaCommand.scala:501: Could not find any member to link for "ParquetFileFormat".
+[warn]   /**
+[warn]   ^
+[warn] /Users/scott.sandre/delta/core/src/main/scala/org/apache/spark/sql/delta/actions/actions.scala:371: Could not find any member to link for "StructType".
+[warn]   /** Returns the partitionSchema as a [[StructType]] */
+[warn]   ^
+[warn] /Users/scott.sandre/delta/core/src/main/scala/org/apache/spark/sql/delta/actions/actions.scala:364: Could not find any member to link for "StructType".
+[warn]   /** Returns the schema as a [[StructType]] */
+[warn]   ^
+[warn] /Users/scott.sandre/delta/core/src/main/scala/org/apache/spark/sql/delta/DeltaTableIdentifier.scala:99: Could not find any member to link for "None".
+[warn]   /**
+[warn]   ^
+[warn] /Users/scott.sandre/delta/core/src/main/scala/org/apache/spark/sql/delta/DeltaLog.scala:497: Could not find any member to link for "Dataset".
+[warn]   /**
+[warn]   ^
+[warn] /Users/scott.sandre/delta/core/src/main/scala/org/apache/spark/sql/delta/DeltaLog.scala:326: Could not find any member to link for "BaseRelation".
+[warn]   /**
+[warn]   ^
+[warn] /Users/scott.sandre/delta/core/src/main/scala/org/apache/spark/sql/delta/DeltaHistoryManager.scala:393: Fixing missing delimiter row
+[warn]   /**
+[warn]   ^
+[warn] /Users/scott.sandre/delta/core/src/main/scala/org/apache/spark/sql/delta/DeltaConfig.scala:76: Could not find any member to link for "IllegalArgumentException".
+[warn]   /**
+[warn]   ^
+[warn] /Users/scott.sandre/delta/core/src/main/scala/org/apache/spark/sql/delta/DeltaConfig.scala:210: Could not find any member to link for "CalendarInterval".
+[warn]   /**
+[warn]   ^
+[warn] /Users/scott.sandre/delta/core/src/main/scala/org/apache/spark/sql/delta/CharVarcharUtils.scala:67: Could not find any member to link for "DataType".
+[warn]   /**
+[warn]   ^
+[warn] /Users/scott.sandre/delta/core/src/main/scala/org/apache/spark/sql/catalyst/plans/logical/deltaMerge.scala:75: Could not find any member to link for "Expression".
+[warn] /**
+[warn] ^
+[warn] 39 warnings found
+[info] Main Scala API documentation successful.
+[info] Packaging /Users/scott.sandre/delta/core/target/scala-2.12/delta-core_2.12-1.1.0-SNAPSHOT-test-foo-javadoc.jar ...
+[info] Done packaging.
+[warn] there were three deprecation warnings; re-run with -deprecation for details
+[warn] one warning found
+[info] Main Scala API documentation to /Users/scott.sandre/delta/contribs/target/scala-2.12/api...
+[info] Compiling 3 Scala sources to /Users/scott.sandre/delta/contribs/target/scala-2.12/classes...
+[info] Packaging /Users/scott.sandre/delta/core/target/scala-2.12/delta-core_2.12-1.1.0-SNAPSHOT-test-foo.jar ...
+model contains 7 documentable templates
+[info] Packaging /Users/scott.sandre/delta/contribs/target/scala-2.12/delta-contribs_2.12-1.1.0-SNAPSHOT-test-foo.jar ...
+[info] Done packaging.
+[info] Done packaging.
+[warn] /Users/scott.sandre/delta/contribs/src/main/scala/io/delta/storage/GCSLogStore.scala:32: Could not find any member to link for "LogStore".
+[warn] /**
+[warn] ^
+[warn] /Users/scott.sandre/delta/contribs/src/main/scala/io/delta/storage/IBMCOSLogStore.scala:31: Could not find any member to link for "FileSystem".
+[warn] /**
+[warn] ^
+[info] 	published delta-core_2.12 to file:/Users/scott.sandre/.m2/repository/io/delta/delta-core_2.12/1.1.0-SNAPSHOT-test-foo/delta-core_2.12-1.1.0-SNAPSHOT-test-foo.pom
+[warn] two warnings found
+[info] Main Scala API documentation successful.
+[info] Packaging /Users/scott.sandre/delta/contribs/target/scala-2.12/delta-contribs_2.12-1.1.0-SNAPSHOT-test-foo-javadoc.jar ...
+[info] 	published delta-core_2.12 to file:/Users/scott.sandre/.m2/repository/io/delta/delta-core_2.12/1.1.0-SNAPSHOT-test-foo/delta-core_2.12-1.1.0-SNAPSHOT-test-foo.jar
+[info] 	published delta-core_2.12 to file:/Users/scott.sandre/.m2/repository/io/delta/delta-core_2.12/1.1.0-SNAPSHOT-test-foo/delta-core_2.12-1.1.0-SNAPSHOT-test-foo-sources.jar
+[info] 	published delta-core_2.12 to file:/Users/scott.sandre/.m2/repository/io/delta/delta-core_2.12/1.1.0-SNAPSHOT-test-foo/delta-core_2.12-1.1.0-SNAPSHOT-test-foo-javadoc.jar
+[info] Done packaging.
+[info] 	published delta-contribs_2.12 to file:/Users/scott.sandre/.m2/repository/io/delta/delta-contribs_2.12/1.1.0-SNAPSHOT-test-foo/delta-contribs_2.12-1.1.0-SNAPSHOT-test-foo.pom
+[info] 	published delta-contribs_2.12 to file:/Users/scott.sandre/.m2/repository/io/delta/delta-contribs_2.12/1.1.0-SNAPSHOT-test-foo/delta-contribs_2.12-1.1.0-SNAPSHOT-test-foo.jar
+[info] 	published delta-contribs_2.12 to file:/Users/scott.sandre/.m2/repository/io/delta/delta-contribs_2.12/1.1.0-SNAPSHOT-test-foo/delta-contribs_2.12-1.1.0-SNAPSHOT-test-foo-sources.jar
+[info] 	published delta-contribs_2.12 to file:/Users/scott.sandre/.m2/repository/io/delta/delta-contribs_2.12/1.1.0-SNAPSHOT-test-foo/delta-contribs_2.12-1.1.0-SNAPSHOT-test-foo-javadoc.jar
+[success] Total time: 33 s, completed Jul 29, 2021 1:18:11 PM
+##### Running PyPi Packaging tests #####
+Found existing installation: delta-spark 1.1.0-SNAPSHOT-test-foo
+Uninstalling delta-spark-1.1.0-SNAPSHOT-test-foo:
+  Successfully uninstalled delta-spark-1.1.0-SNAPSHOT-test-foo
+Found existing installation: pyspark 3.1.2
+Uninstalling pyspark-3.1.2:
+  Successfully uninstalled pyspark-3.1.2
+### Clearing Delta artifacts from ivy2 and mvn cache
+### Executing:pip3 install wheel twine setuptools --upgrade
+Requirement already satisfied: wheel in /usr/local/lib/python3.9/site-packages (0.36.2)
+Requirement already satisfied: twine in /usr/local/lib/python3.9/site-packages (3.4.2)
+Requirement already satisfied: setuptools in /usr/local/lib/python3.9/site-packages (57.4.0)
+Requirement already satisfied: keyring>=15.1 in /usr/local/lib/python3.9/site-packages (from twine) (23.0.1)
+Requirement already satisfied: pkginfo>=1.4.2 in /usr/local/lib/python3.9/site-packages (from twine) (1.7.1)
+Requirement already satisfied: requests-toolbelt!=0.9.0,>=0.8.0 in /usr/local/lib/python3.9/site-packages (from twine) (0.9.1)
+Requirement already satisfied: requests>=2.20 in /usr/local/lib/python3.9/site-packages (from twine) (2.26.0)
+Requirement already satisfied: importlib-metadata>=3.6 in /usr/local/lib/python3.9/site-packages (from twine) (4.6.1)
+Requirement already satisfied: colorama>=0.4.3 in /usr/local/lib/python3.9/site-packages (from twine) (0.4.4)
+Requirement already satisfied: tqdm>=4.14 in /usr/local/lib/python3.9/site-packages (from twine) (4.61.2)
+Requirement already satisfied: readme-renderer>=21.0 in /usr/local/lib/python3.9/site-packages (from twine) (29.0)
+Requirement already satisfied: rfc3986>=1.4.0 in /usr/local/lib/python3.9/site-packages (from twine) (1.5.0)
+Requirement already satisfied: zipp>=0.5 in /usr/local/lib/python3.9/site-packages (from importlib-metadata>=3.6->twine) (3.5.0)
+Requirement already satisfied: six in /usr/local/lib/python3.9/site-packages (from readme-renderer>=21.0->twine) (1.16.0)
+Requirement already satisfied: Pygments>=2.5.1 in /usr/local/lib/python3.9/site-packages (from readme-renderer>=21.0->twine) (2.9.0)
+Requirement already satisfied: bleach>=2.1.0 in /usr/local/lib/python3.9/site-packages (from readme-renderer>=21.0->twine) (3.3.1)
+Requirement already satisfied: docutils>=0.13.1 in /usr/local/lib/python3.9/site-packages (from readme-renderer>=21.0->twine) (0.17.1)
+Requirement already satisfied: webencodings in /usr/local/lib/python3.9/site-packages (from bleach>=2.1.0->readme-renderer>=21.0->twine) (0.5.1)
+Requirement already satisfied: packaging in /usr/local/lib/python3.9/site-packages (from bleach>=2.1.0->readme-renderer>=21.0->twine) (21.0)
+Requirement already satisfied: charset-normalizer~=2.0.0 in /usr/local/lib/python3.9/site-packages (from requests>=2.20->twine) (2.0.3)
+Requirement already satisfied: idna<4,>=2.5 in /usr/local/lib/python3.9/site-packages (from requests>=2.20->twine) (3.2)
+Requirement already satisfied: urllib3<1.27,>=1.21.1 in /usr/local/lib/python3.9/site-packages (from requests>=2.20->twine) (1.26.6)
+Requirement already satisfied: certifi>=2017.4.17 in /usr/local/lib/python3.9/site-packages (from requests>=2.20->twine) (2021.5.30)
+Requirement already satisfied: pyparsing>=2.0.2 in /usr/local/lib/python3.9/site-packages (from packaging->bleach>=2.1.0->readme-renderer>=21.0->twine) (2.4.7)
+### Deleting `dist` directory if it exists
+Deleted /Users/scott.sandre/delta/dist
+### Executing: python3 setup.py bdist_wheel
+running bdist_wheel
+running build
+running build_py
+copying python/delta/pip_utils.py -> build/lib/delta
+installing to build/bdist.macosx-11-x86_64/wheel
+running install
+running install_lib
+creating build/bdist.macosx-11-x86_64/wheel
+creating build/bdist.macosx-11-x86_64/wheel/delta
+copying build/lib/delta/__init__.py -> build/bdist.macosx-11-x86_64/wheel/delta
+copying build/lib/delta/pip_utils.py -> build/bdist.macosx-11-x86_64/wheel/delta
+copying build/lib/delta/exceptions.py -> build/bdist.macosx-11-x86_64/wheel/delta
+copying build/lib/delta/tables.py -> build/bdist.macosx-11-x86_64/wheel/delta
+running install_egg_info
+running egg_info
+writing python/delta_spark.egg-info/PKG-INFO
+writing dependency_links to python/delta_spark.egg-info/dependency_links.txt
+writing requirements to python/delta_spark.egg-info/requires.txt
+writing top-level names to python/delta_spark.egg-info/top_level.txt
+adding license file 'LICENSE.txt'
+adding license file 'NOTICE.txt'
+writing manifest file 'python/delta_spark.egg-info/SOURCES.txt'
+Copying python/delta_spark.egg-info to build/bdist.macosx-11-x86_64/wheel/delta_spark-1.1.0_SNAPSHOT_test_foo-py3.9.egg-info
+running install_scripts
+adding license file "LICENSE.txt" (matched pattern "LICEN[CS]E*")
+adding license file "NOTICE.txt" (matched pattern "NOTICE*")
+creating build/bdist.macosx-11-x86_64/wheel/delta_spark-1.1.0_SNAPSHOT_test_foo.dist-info/WHEEL
+creating 'dist/delta_spark-1.1.0_SNAPSHOT_test_foo-py3-none-any.whl' and adding 'build/bdist.macosx-11-x86_64/wheel' to it
+adding 'delta/__init__.py'
+adding 'delta/exceptions.py'
+adding 'delta/pip_utils.py'
+adding 'delta/tables.py'
+adding 'delta_spark-1.1.0_SNAPSHOT_test_foo.dist-info/LICENSE.txt'
+adding 'delta_spark-1.1.0_SNAPSHOT_test_foo.dist-info/METADATA'
+adding 'delta_spark-1.1.0_SNAPSHOT_test_foo.dist-info/NOTICE.txt'
+adding 'delta_spark-1.1.0_SNAPSHOT_test_foo.dist-info/WHEEL'
+adding 'delta_spark-1.1.0_SNAPSHOT_test_foo.dist-info/top_level.txt'
+adding 'delta_spark-1.1.0_SNAPSHOT_test_foo.dist-info/RECORD'
+removing build/bdist.macosx-11-x86_64/wheel
+### Executing: python3 setup.py sdist
+/usr/local/lib/python3.9/site-packages/setuptools/dist.py:498: UserWarning: The version specified ('1.1.0-SNAPSHOT-test-foo') is an invalid version, this may not work as expected with newer versions of setuptools, pip, and PyPI. Please see PEP 440 for more details.
+  warnings.warn(
+running sdist
+running egg_info
+writing python/delta_spark.egg-info/PKG-INFO
+writing dependency_links to python/delta_spark.egg-info/dependency_links.txt
+writing requirements to python/delta_spark.egg-info/requires.txt
+writing top-level names to python/delta_spark.egg-info/top_level.txt
+adding license file 'LICENSE.txt'
+adding license file 'NOTICE.txt'
+writing manifest file 'python/delta_spark.egg-info/SOURCES.txt'
+running check
+creating delta-spark-1.1.0-SNAPSHOT-test-foo
+creating delta-spark-1.1.0-SNAPSHOT-test-foo/.circleci
+creating delta-spark-1.1.0-SNAPSHOT-test-foo/contribs
+creating delta-spark-1.1.0-SNAPSHOT-test-foo/contribs/src
+creating delta-spark-1.1.0-SNAPSHOT-test-foo/contribs/src/main
+creating delta-spark-1.1.0-SNAPSHOT-test-foo/contribs/src/main/scala
+creating delta-spark-1.1.0-SNAPSHOT-test-foo/contribs/src/main/scala/io
+creating delta-spark-1.1.0-SNAPSHOT-test-foo/contribs/src/main/scala/io/delta
+creating delta-spark-1.1.0-SNAPSHOT-test-foo/contribs/src/main/scala/io/delta/storage
+creating delta-spark-1.1.0-SNAPSHOT-test-foo/contribs/src/test
+creating delta-spark-1.1.0-SNAPSHOT-test-foo/contribs/src/test/scala
+creating delta-spark-1.1.0-SNAPSHOT-test-foo/contribs/src/test/scala/io
+creating delta-spark-1.1.0-SNAPSHOT-test-foo/contribs/src/test/scala/io/delta
+creating delta-spark-1.1.0-SNAPSHOT-test-foo/contribs/src/test/scala/io/delta/storage
+creating delta-spark-1.1.0-SNAPSHOT-test-foo/core
+creating delta-spark-1.1.0-SNAPSHOT-test-foo/core/src
+creating delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main
+creating delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/antlr4
+creating delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/antlr4/io
+creating delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/antlr4/io/delta
+creating delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/antlr4/io/delta/sql
+creating delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/antlr4/io/delta/sql/parser
+creating delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/resources
+creating delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/resources/META-INF
+creating delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/resources/META-INF/services
+creating delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala
+creating delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/com
+creating delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/com/databricks
+creating delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/com/databricks/spark
+creating delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/com/databricks/spark/util
+creating delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/io
+creating delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/io/delta
+creating delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/io/delta/exceptions
+creating delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/io/delta/implicits
+creating delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/io/delta/sql
+creating delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/io/delta/sql/parser
+creating delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/io/delta/storage
+creating delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/io/delta/tables
+creating delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/io/delta/tables/execution
+creating delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/org
+creating delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/org/apache
+creating delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/org/apache/spark
+creating delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/org/apache/spark/sql
+creating delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/org/apache/spark/sql/catalyst
+creating delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/org/apache/spark/sql/catalyst/plans
+creating delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/org/apache/spark/sql/catalyst/plans/logical
+creating delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/org/apache/spark/sql/delta
+creating delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/org/apache/spark/sql/delta/actions
+creating delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/org/apache/spark/sql/delta/catalog
+creating delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/org/apache/spark/sql/delta/commands
+creating delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/org/apache/spark/sql/delta/constraints
+creating delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/org/apache/spark/sql/delta/files
+creating delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/org/apache/spark/sql/delta/hooks
+creating delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/org/apache/spark/sql/delta/metering
+creating delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/org/apache/spark/sql/delta/schema
+creating delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/org/apache/spark/sql/delta/sources
+creating delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/org/apache/spark/sql/delta/stats
+creating delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/org/apache/spark/sql/delta/storage
+creating delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/org/apache/spark/sql/delta/util
+creating delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test
+creating delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/java
+creating delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/java/io
+creating delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/java/io/delta
+creating delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/java/io/delta/sql
+creating delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/java/io/delta/tables
+creating delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/java/org
+creating delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/java/org/apache
+creating delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/java/org/apache/spark
+creating delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/java/org/apache/spark/sql
+creating delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/java/org/apache/spark/sql/delta
+creating delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/resources
+creating delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/resources/delta
+creating delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/resources/delta/dbr_8_0_non_generated_columns
+creating delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/resources/delta/dbr_8_0_non_generated_columns/_delta_log
+creating delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/resources/delta/dbr_8_1_generated_columns
+creating delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/resources/delta/dbr_8_1_generated_columns/_delta_log
+creating delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/resources/delta/delta-0.1.0
+creating delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/resources/delta/delta-0.1.0/_delta_log
+creating delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/resources/delta/delta-0.1.0/id=4
+creating delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/resources/delta/delta-0.1.0/id=5
+creating delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/resources/delta/delta-0.1.0/id=6
+creating delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/resources/delta/history
+creating delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/resources/delta/history/delta-0.2.0
+creating delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/resources/delta/history/delta-0.2.0/_delta_log
+creating delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/resources/delta/transaction_log_schema_evolvability
+creating delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/resources/delta/transaction_log_schema_evolvability/_delta_log
+creating delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/scala
+creating delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/scala/io
+creating delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/scala/io/delta
+creating delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/scala/io/delta/exceptions
+creating delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/scala/io/delta/sql
+creating delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/scala/io/delta/sql/parser
+creating delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/scala/io/delta/tables
+creating delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/scala/org
+creating delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/scala/org/apache
+creating delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/scala/org/apache/spark
+creating delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/scala/org/apache/spark/sql
+creating delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/scala/org/apache/spark/sql/delta
+creating delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/scala/org/apache/spark/sql/delta/schema
+creating delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/scala/org/apache/spark/sql/delta/storage
+creating delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/scala/org/apache/spark/sql/delta/test
+creating delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/scala/org/apache/spark/sql/delta/util
+creating delta-spark-1.1.0-SNAPSHOT-test-foo/dev
+creating delta-spark-1.1.0-SNAPSHOT-test-foo/docs
+creating delta-spark-1.1.0-SNAPSHOT-test-foo/docs/python
+creating delta-spark-1.1.0-SNAPSHOT-test-foo/examples
+creating delta-spark-1.1.0-SNAPSHOT-test-foo/examples/cheat_sheet
+creating delta-spark-1.1.0-SNAPSHOT-test-foo/examples/python
+creating delta-spark-1.1.0-SNAPSHOT-test-foo/examples/scala
+creating delta-spark-1.1.0-SNAPSHOT-test-foo/examples/scala/build
+creating delta-spark-1.1.0-SNAPSHOT-test-foo/examples/scala/build/sbt-config
+creating delta-spark-1.1.0-SNAPSHOT-test-foo/examples/scala/project
+creating delta-spark-1.1.0-SNAPSHOT-test-foo/examples/scala/src
+creating delta-spark-1.1.0-SNAPSHOT-test-foo/examples/scala/src/main
+creating delta-spark-1.1.0-SNAPSHOT-test-foo/examples/scala/src/main/resources
+creating delta-spark-1.1.0-SNAPSHOT-test-foo/examples/scala/src/main/scala
+creating delta-spark-1.1.0-SNAPSHOT-test-foo/examples/scala/src/main/scala/example
+creating delta-spark-1.1.0-SNAPSHOT-test-foo/examples/tutorials
+creating delta-spark-1.1.0-SNAPSHOT-test-foo/examples/tutorials/saiseu19
+creating delta-spark-1.1.0-SNAPSHOT-test-foo/examples/tutorials/saiseu19/img
+creating delta-spark-1.1.0-SNAPSHOT-test-foo/project
+creating delta-spark-1.1.0-SNAPSHOT-test-foo/project/project
+creating delta-spark-1.1.0-SNAPSHOT-test-foo/python
+creating delta-spark-1.1.0-SNAPSHOT-test-foo/python/delta
+creating delta-spark-1.1.0-SNAPSHOT-test-foo/python/delta/testing
+creating delta-spark-1.1.0-SNAPSHOT-test-foo/python/delta/tests
+creating delta-spark-1.1.0-SNAPSHOT-test-foo/python/delta_spark.egg-info
+copying files to delta-spark-1.1.0-SNAPSHOT-test-foo...
+copying .gitattributes -> delta-spark-1.1.0-SNAPSHOT-test-foo
+copying .gitignore -> delta-spark-1.1.0-SNAPSHOT-test-foo
+copying CODE_OF_CONDUCT.md -> delta-spark-1.1.0-SNAPSHOT-test-foo
+copying CONTRIBUTING.md -> delta-spark-1.1.0-SNAPSHOT-test-foo
+copying Dockerfile -> delta-spark-1.1.0-SNAPSHOT-test-foo
+copying LICENSE.txt -> delta-spark-1.1.0-SNAPSHOT-test-foo
+copying NOTICE.txt -> delta-spark-1.1.0-SNAPSHOT-test-foo
+copying PROTOCOL.md -> delta-spark-1.1.0-SNAPSHOT-test-foo
+copying README.md -> delta-spark-1.1.0-SNAPSHOT-test-foo
+copying build.sbt -> delta-spark-1.1.0-SNAPSHOT-test-foo
+copying run-integration-tests.py -> delta-spark-1.1.0-SNAPSHOT-test-foo
+copying run-tests.py -> delta-spark-1.1.0-SNAPSHOT-test-foo
+copying scalastyle-config.xml -> delta-spark-1.1.0-SNAPSHOT-test-foo
+copying setup.py -> delta-spark-1.1.0-SNAPSHOT-test-foo
+copying version.sbt -> delta-spark-1.1.0-SNAPSHOT-test-foo
+copying .circleci/config.yml -> delta-spark-1.1.0-SNAPSHOT-test-foo/.circleci
+copying contribs/src/main/scala/io/delta/storage/GCSLogStore.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/contribs/src/main/scala/io/delta/storage
+copying contribs/src/main/scala/io/delta/storage/IBMCOSLogStore.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/contribs/src/main/scala/io/delta/storage
+copying contribs/src/main/scala/io/delta/storage/OracleCloudLogStore.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/contribs/src/main/scala/io/delta/storage
+copying contribs/src/test/scala/io/delta/storage/GCSLogStoreSuite.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/contribs/src/test/scala/io/delta/storage
+copying contribs/src/test/scala/io/delta/storage/IBMCOSLogStoreSuite.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/contribs/src/test/scala/io/delta/storage
+copying contribs/src/test/scala/io/delta/storage/OracleCloudLogStoreSuite.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/contribs/src/test/scala/io/delta/storage
+copying core/src/main/antlr4/io/delta/sql/parser/DeltaSqlBase.g4 -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/antlr4/io/delta/sql/parser
+copying core/src/main/resources/NOTICE.txt -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/resources
+copying core/src/main/resources/META-INF/services/org.apache.spark.sql.sources.DataSourceRegister -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/resources/META-INF/services
+copying core/src/main/scala/com/databricks/spark/util/DatabricksLogging.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/com/databricks/spark/util
+copying core/src/main/scala/io/delta/exceptions/DeltaConcurrentExceptions.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/io/delta/exceptions
+copying core/src/main/scala/io/delta/implicits/package.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/io/delta/implicits
+copying core/src/main/scala/io/delta/sql/DeltaSparkSessionExtension.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/io/delta/sql
+copying core/src/main/scala/io/delta/sql/parser/DeltaSqlParser.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/io/delta/sql/parser
+copying core/src/main/scala/io/delta/storage/CloseableIterator.java -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/io/delta/storage
+copying core/src/main/scala/io/delta/storage/LogStore.java -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/io/delta/storage
+copying core/src/main/scala/io/delta/tables/DeltaColumnBuilder.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/io/delta/tables
+copying core/src/main/scala/io/delta/tables/DeltaMergeBuilder.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/io/delta/tables
+copying core/src/main/scala/io/delta/tables/DeltaTable.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/io/delta/tables
+copying core/src/main/scala/io/delta/tables/DeltaTableBuilder.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/io/delta/tables
+copying core/src/main/scala/io/delta/tables/execution/DeltaConvert.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/io/delta/tables/execution
+copying core/src/main/scala/io/delta/tables/execution/DeltaTableBuilderOptions.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/io/delta/tables/execution
+copying core/src/main/scala/io/delta/tables/execution/DeltaTableOperations.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/io/delta/tables/execution
+copying core/src/main/scala/io/delta/tables/execution/VacuumTableCommand.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/io/delta/tables/execution
+copying core/src/main/scala/org/apache/spark/sql/catalyst/plans/logical/DeltaDelete.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/org/apache/spark/sql/catalyst/plans/logical
+copying core/src/main/scala/org/apache/spark/sql/catalyst/plans/logical/DeltaUpdateTable.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/org/apache/spark/sql/catalyst/plans/logical
+copying core/src/main/scala/org/apache/spark/sql/catalyst/plans/logical/deltaConstraints.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/org/apache/spark/sql/catalyst/plans/logical
+copying core/src/main/scala/org/apache/spark/sql/catalyst/plans/logical/deltaMerge.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/org/apache/spark/sql/catalyst/plans/logical
+copying core/src/main/scala/org/apache/spark/sql/delta/ActiveOptimisticTransactionRule.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/org/apache/spark/sql/delta
+copying core/src/main/scala/org/apache/spark/sql/delta/CharVarcharUtils.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/org/apache/spark/sql/delta
+copying core/src/main/scala/org/apache/spark/sql/delta/Checkpoints.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/org/apache/spark/sql/delta
+copying core/src/main/scala/org/apache/spark/sql/delta/Checksum.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/org/apache/spark/sql/delta
+copying core/src/main/scala/org/apache/spark/sql/delta/ConflictChecker.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/org/apache/spark/sql/delta
+copying core/src/main/scala/org/apache/spark/sql/delta/DeltaAnalysis.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/org/apache/spark/sql/delta
+copying core/src/main/scala/org/apache/spark/sql/delta/DeltaConfig.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/org/apache/spark/sql/delta
+copying core/src/main/scala/org/apache/spark/sql/delta/DeltaErrors.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/org/apache/spark/sql/delta
+copying core/src/main/scala/org/apache/spark/sql/delta/DeltaFileFormat.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/org/apache/spark/sql/delta
+copying core/src/main/scala/org/apache/spark/sql/delta/DeltaHistoryManager.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/org/apache/spark/sql/delta
+copying core/src/main/scala/org/apache/spark/sql/delta/DeltaLog.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/org/apache/spark/sql/delta
+copying core/src/main/scala/org/apache/spark/sql/delta/DeltaLogFileIndex.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/org/apache/spark/sql/delta
+copying core/src/main/scala/org/apache/spark/sql/delta/DeltaOperations.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/org/apache/spark/sql/delta
+copying core/src/main/scala/org/apache/spark/sql/delta/DeltaOptions.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/org/apache/spark/sql/delta
+copying core/src/main/scala/org/apache/spark/sql/delta/DeltaTable.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/org/apache/spark/sql/delta
+copying core/src/main/scala/org/apache/spark/sql/delta/DeltaTableIdentifier.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/org/apache/spark/sql/delta
+copying core/src/main/scala/org/apache/spark/sql/delta/DeltaTimeTravelSpec.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/org/apache/spark/sql/delta
+copying core/src/main/scala/org/apache/spark/sql/delta/DeltaUnsupportedOperationsCheck.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/org/apache/spark/sql/delta
+copying core/src/main/scala/org/apache/spark/sql/delta/DeltaViewHelper.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/org/apache/spark/sql/delta
+copying core/src/main/scala/org/apache/spark/sql/delta/GeneratedColumn.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/org/apache/spark/sql/delta
+copying core/src/main/scala/org/apache/spark/sql/delta/MetadataCleanup.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/org/apache/spark/sql/delta
+copying core/src/main/scala/org/apache/spark/sql/delta/OptimisticTransaction.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/org/apache/spark/sql/delta
+copying core/src/main/scala/org/apache/spark/sql/delta/PartitionFiltering.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/org/apache/spark/sql/delta
+copying core/src/main/scala/org/apache/spark/sql/delta/PreprocessTableDelete.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/org/apache/spark/sql/delta
+copying core/src/main/scala/org/apache/spark/sql/delta/PreprocessTableMerge.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/org/apache/spark/sql/delta
+copying core/src/main/scala/org/apache/spark/sql/delta/PreprocessTableUpdate.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/org/apache/spark/sql/delta
+copying core/src/main/scala/org/apache/spark/sql/delta/Snapshot.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/org/apache/spark/sql/delta
+copying core/src/main/scala/org/apache/spark/sql/delta/SnapshotManagement.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/org/apache/spark/sql/delta
+copying core/src/main/scala/org/apache/spark/sql/delta/SupportedGenerationExpressions.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/org/apache/spark/sql/delta
+copying core/src/main/scala/org/apache/spark/sql/delta/UpdateExpressionsSupport.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/org/apache/spark/sql/delta
+copying core/src/main/scala/org/apache/spark/sql/delta/isolationLevels.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/org/apache/spark/sql/delta
+copying core/src/main/scala/org/apache/spark/sql/delta/actions/InMemoryLogReplay.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/org/apache/spark/sql/delta/actions
+copying core/src/main/scala/org/apache/spark/sql/delta/actions/actions.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/org/apache/spark/sql/delta/actions
+copying core/src/main/scala/org/apache/spark/sql/delta/catalog/DeltaCatalog.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/org/apache/spark/sql/delta/catalog
+copying core/src/main/scala/org/apache/spark/sql/delta/catalog/DeltaTableV2.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/org/apache/spark/sql/delta/catalog
+copying core/src/main/scala/org/apache/spark/sql/delta/commands/ConvertToDeltaCommand.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/org/apache/spark/sql/delta/commands
+copying core/src/main/scala/org/apache/spark/sql/delta/commands/CreateDeltaTableCommand.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/org/apache/spark/sql/delta/commands
+copying core/src/main/scala/org/apache/spark/sql/delta/commands/DeleteCommand.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/org/apache/spark/sql/delta/commands
+copying core/src/main/scala/org/apache/spark/sql/delta/commands/DeltaCommand.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/org/apache/spark/sql/delta/commands
+copying core/src/main/scala/org/apache/spark/sql/delta/commands/DeltaGenerateCommand.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/org/apache/spark/sql/delta/commands
+copying core/src/main/scala/org/apache/spark/sql/delta/commands/DescribeDeltaDetailsCommand.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/org/apache/spark/sql/delta/commands
+copying core/src/main/scala/org/apache/spark/sql/delta/commands/DescribeDeltaHistoryCommand.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/org/apache/spark/sql/delta/commands
+copying core/src/main/scala/org/apache/spark/sql/delta/commands/MergeIntoCommand.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/org/apache/spark/sql/delta/commands
+copying core/src/main/scala/org/apache/spark/sql/delta/commands/UpdateCommand.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/org/apache/spark/sql/delta/commands
+copying core/src/main/scala/org/apache/spark/sql/delta/commands/VacuumCommand.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/org/apache/spark/sql/delta/commands
+copying core/src/main/scala/org/apache/spark/sql/delta/commands/WriteIntoDelta.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/org/apache/spark/sql/delta/commands
+copying core/src/main/scala/org/apache/spark/sql/delta/commands/alterDeltaTableCommands.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/org/apache/spark/sql/delta/commands
+copying core/src/main/scala/org/apache/spark/sql/delta/constraints/CheckDeltaInvariant.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/org/apache/spark/sql/delta/constraints
+copying core/src/main/scala/org/apache/spark/sql/delta/constraints/Constraints.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/org/apache/spark/sql/delta/constraints
+copying core/src/main/scala/org/apache/spark/sql/delta/constraints/DeltaInvariantCheckerExec.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/org/apache/spark/sql/delta/constraints
+copying core/src/main/scala/org/apache/spark/sql/delta/constraints/ExpressionLogicalPlanWrapper.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/org/apache/spark/sql/delta/constraints
+copying core/src/main/scala/org/apache/spark/sql/delta/constraints/Invariants.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/org/apache/spark/sql/delta/constraints
+copying core/src/main/scala/org/apache/spark/sql/delta/constraints/tableChanges.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/org/apache/spark/sql/delta/constraints
+copying core/src/main/scala/org/apache/spark/sql/delta/files/DelayedCommitProtocol.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/org/apache/spark/sql/delta/files
+copying core/src/main/scala/org/apache/spark/sql/delta/files/DeltaSourceSnapshot.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/org/apache/spark/sql/delta/files
+copying core/src/main/scala/org/apache/spark/sql/delta/files/SQLMetricsReporting.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/org/apache/spark/sql/delta/files
+copying core/src/main/scala/org/apache/spark/sql/delta/files/TahoeFileIndex.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/org/apache/spark/sql/delta/files
+copying core/src/main/scala/org/apache/spark/sql/delta/files/TransactionalWrite.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/org/apache/spark/sql/delta/files
+copying core/src/main/scala/org/apache/spark/sql/delta/hooks/GenerateSymlinkManifest.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/org/apache/spark/sql/delta/hooks
+copying core/src/main/scala/org/apache/spark/sql/delta/hooks/PostCommitHook.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/org/apache/spark/sql/delta/hooks
+copying core/src/main/scala/org/apache/spark/sql/delta/metering/DeltaLogging.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/org/apache/spark/sql/delta/metering
+copying core/src/main/scala/org/apache/spark/sql/delta/schema/ImplicitMetadataOperation.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/org/apache/spark/sql/delta/schema
+copying core/src/main/scala/org/apache/spark/sql/delta/schema/InvariantViolationException.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/org/apache/spark/sql/delta/schema
+copying core/src/main/scala/org/apache/spark/sql/delta/schema/SchemaMergingUtils.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/org/apache/spark/sql/delta/schema
+copying core/src/main/scala/org/apache/spark/sql/delta/schema/SchemaUtils.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/org/apache/spark/sql/delta/schema
+copying core/src/main/scala/org/apache/spark/sql/delta/sources/DeltaDataSource.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/org/apache/spark/sql/delta/sources
+copying core/src/main/scala/org/apache/spark/sql/delta/sources/DeltaSQLConf.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/org/apache/spark/sql/delta/sources
+copying core/src/main/scala/org/apache/spark/sql/delta/sources/DeltaSink.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/org/apache/spark/sql/delta/sources
+copying core/src/main/scala/org/apache/spark/sql/delta/sources/DeltaSource.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/org/apache/spark/sql/delta/sources
+copying core/src/main/scala/org/apache/spark/sql/delta/sources/DeltaSourceOffset.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/org/apache/spark/sql/delta/sources
+copying core/src/main/scala/org/apache/spark/sql/delta/sources/DeltaSourceUtils.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/org/apache/spark/sql/delta/sources
+copying core/src/main/scala/org/apache/spark/sql/delta/sources/limits.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/org/apache/spark/sql/delta/sources
+copying core/src/main/scala/org/apache/spark/sql/delta/stats/ArrayAccumulator.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/org/apache/spark/sql/delta/stats
+copying core/src/main/scala/org/apache/spark/sql/delta/stats/DeltaScan.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/org/apache/spark/sql/delta/stats
+copying core/src/main/scala/org/apache/spark/sql/delta/stats/FileSizeHistogram.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/org/apache/spark/sql/delta/stats
+copying core/src/main/scala/org/apache/spark/sql/delta/storage/AzureLogStore.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/org/apache/spark/sql/delta/storage
+copying core/src/main/scala/org/apache/spark/sql/delta/storage/ClosableIterator.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/org/apache/spark/sql/delta/storage
+copying core/src/main/scala/org/apache/spark/sql/delta/storage/DelegatingLogStore.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/org/apache/spark/sql/delta/storage
+copying core/src/main/scala/org/apache/spark/sql/delta/storage/HDFSLogStore.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/org/apache/spark/sql/delta/storage
+copying core/src/main/scala/org/apache/spark/sql/delta/storage/HadoopFileSystemLogStore.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/org/apache/spark/sql/delta/storage
+copying core/src/main/scala/org/apache/spark/sql/delta/storage/LineClosableIterator.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/org/apache/spark/sql/delta/storage
+copying core/src/main/scala/org/apache/spark/sql/delta/storage/LocalLogStore.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/org/apache/spark/sql/delta/storage
+copying core/src/main/scala/org/apache/spark/sql/delta/storage/LogStore.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/org/apache/spark/sql/delta/storage
+copying core/src/main/scala/org/apache/spark/sql/delta/storage/S3SingleDriverLogStore.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/org/apache/spark/sql/delta/storage
+copying core/src/main/scala/org/apache/spark/sql/delta/util/AnalysisHelper.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/org/apache/spark/sql/delta/util
+copying core/src/main/scala/org/apache/spark/sql/delta/util/DatasetRefCache.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/org/apache/spark/sql/delta/util
+copying core/src/main/scala/org/apache/spark/sql/delta/util/DateFormatter.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/org/apache/spark/sql/delta/util
+copying core/src/main/scala/org/apache/spark/sql/delta/util/DateTimeFormatterHelper.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/org/apache/spark/sql/delta/util
+copying core/src/main/scala/org/apache/spark/sql/delta/util/DateTimeUtils.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/org/apache/spark/sql/delta/util
+copying core/src/main/scala/org/apache/spark/sql/delta/util/DeltaFileOperations.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/org/apache/spark/sql/delta/util
+copying core/src/main/scala/org/apache/spark/sql/delta/util/DeltaProgressReporter.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/org/apache/spark/sql/delta/util
+copying core/src/main/scala/org/apache/spark/sql/delta/util/FileNames.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/org/apache/spark/sql/delta/util
+copying core/src/main/scala/org/apache/spark/sql/delta/util/JsonUtils.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/org/apache/spark/sql/delta/util
+copying core/src/main/scala/org/apache/spark/sql/delta/util/PartitionUtils.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/org/apache/spark/sql/delta/util
+copying core/src/main/scala/org/apache/spark/sql/delta/util/SerializableFileStatus.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/org/apache/spark/sql/delta/util
+copying core/src/main/scala/org/apache/spark/sql/delta/util/SetAccumulator.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/org/apache/spark/sql/delta/util
+copying core/src/main/scala/org/apache/spark/sql/delta/util/StateCache.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/org/apache/spark/sql/delta/util
+copying core/src/main/scala/org/apache/spark/sql/delta/util/TimestampFormatter.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/main/scala/org/apache/spark/sql/delta/util
+copying core/src/test/java/io/delta/sql/JavaDeltaSparkSessionExtensionSuite.java -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/java/io/delta/sql
+copying core/src/test/java/io/delta/tables/JavaDeltaTableBuilderSuite.java -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/java/io/delta/tables
+copying core/src/test/java/io/delta/tables/JavaDeltaTableSuite.java -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/java/io/delta/tables
+copying core/src/test/java/org/apache/spark/sql/delta/DeleteJavaSuite.java -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/java/org/apache/spark/sql/delta
+copying core/src/test/java/org/apache/spark/sql/delta/DeltaSQLCommandJavaTest.java -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/java/org/apache/spark/sql/delta
+copying core/src/test/java/org/apache/spark/sql/delta/MergeIntoJavaSuite.java -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/java/org/apache/spark/sql/delta
+copying core/src/test/java/org/apache/spark/sql/delta/UpdateJavaSuite.java -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/java/org/apache/spark/sql/delta
+copying core/src/test/resources/log4j.properties -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/resources
+copying core/src/test/resources/delta/dbr_8_0_non_generated_columns/.part-00000-74e02f0d-e727-46e5-8d74-779d2abd616e-c000.snappy.parquet.crc -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/resources/delta/dbr_8_0_non_generated_columns
+copying core/src/test/resources/delta/dbr_8_0_non_generated_columns/part-00000-74e02f0d-e727-46e5-8d74-779d2abd616e-c000.snappy.parquet -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/resources/delta/dbr_8_0_non_generated_columns
+copying core/src/test/resources/delta/dbr_8_0_non_generated_columns/_delta_log/.00000000000000000000.json.crc -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/resources/delta/dbr_8_0_non_generated_columns/_delta_log
+copying core/src/test/resources/delta/dbr_8_0_non_generated_columns/_delta_log/00000000000000000000.crc -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/resources/delta/dbr_8_0_non_generated_columns/_delta_log
+copying core/src/test/resources/delta/dbr_8_0_non_generated_columns/_delta_log/00000000000000000000.json -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/resources/delta/dbr_8_0_non_generated_columns/_delta_log
+copying core/src/test/resources/delta/dbr_8_1_generated_columns/_delta_log/.00000000000000000000.json.crc -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/resources/delta/dbr_8_1_generated_columns/_delta_log
+copying core/src/test/resources/delta/dbr_8_1_generated_columns/_delta_log/00000000000000000000.crc -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/resources/delta/dbr_8_1_generated_columns/_delta_log
+copying core/src/test/resources/delta/dbr_8_1_generated_columns/_delta_log/00000000000000000000.json -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/resources/delta/dbr_8_1_generated_columns/_delta_log
+copying core/src/test/resources/delta/delta-0.1.0/.part-00000-348d7f43-38f6-4778-88c7-45f379471c49-c000.snappy.parquet.crc -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/resources/delta/delta-0.1.0
+copying core/src/test/resources/delta/delta-0.1.0/.part-00000-f4aeebd0-a689-4e1b-bc7a-bbb0ec59dce5-c000.snappy.parquet.crc -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/resources/delta/delta-0.1.0
+copying core/src/test/resources/delta/delta-0.1.0/.part-00001-6d252218-2632-416e-9e46-f32316ec314a-c000.snappy.parquet.crc -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/resources/delta/delta-0.1.0
+copying core/src/test/resources/delta/delta-0.1.0/.part-00001-f1cb1cf9-7a73-439c-b0ea-dcba5c2280a6-c000.snappy.parquet.crc -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/resources/delta/delta-0.1.0
+copying core/src/test/resources/delta/delta-0.1.0/part-00000-348d7f43-38f6-4778-88c7-45f379471c49-c000.snappy.parquet -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/resources/delta/delta-0.1.0
+copying core/src/test/resources/delta/delta-0.1.0/part-00000-f4aeebd0-a689-4e1b-bc7a-bbb0ec59dce5-c000.snappy.parquet -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/resources/delta/delta-0.1.0
+copying core/src/test/resources/delta/delta-0.1.0/part-00001-6d252218-2632-416e-9e46-f32316ec314a-c000.snappy.parquet -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/resources/delta/delta-0.1.0
+copying core/src/test/resources/delta/delta-0.1.0/part-00001-f1cb1cf9-7a73-439c-b0ea-dcba5c2280a6-c000.snappy.parquet -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/resources/delta/delta-0.1.0
+copying core/src/test/resources/delta/delta-0.1.0/_delta_log/.00000000000000000000.json.crc -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/resources/delta/delta-0.1.0/_delta_log
+copying core/src/test/resources/delta/delta-0.1.0/_delta_log/.00000000000000000001.json.crc -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/resources/delta/delta-0.1.0/_delta_log
+copying core/src/test/resources/delta/delta-0.1.0/_delta_log/.00000000000000000002.json.crc -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/resources/delta/delta-0.1.0/_delta_log
+copying core/src/test/resources/delta/delta-0.1.0/_delta_log/.00000000000000000003.checkpoint.parquet.crc -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/resources/delta/delta-0.1.0/_delta_log
+copying core/src/test/resources/delta/delta-0.1.0/_delta_log/.00000000000000000003.json.crc -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/resources/delta/delta-0.1.0/_delta_log
+copying core/src/test/resources/delta/delta-0.1.0/_delta_log/00000000000000000000.json -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/resources/delta/delta-0.1.0/_delta_log
+copying core/src/test/resources/delta/delta-0.1.0/_delta_log/00000000000000000001.json -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/resources/delta/delta-0.1.0/_delta_log
+copying core/src/test/resources/delta/delta-0.1.0/_delta_log/00000000000000000002.json -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/resources/delta/delta-0.1.0/_delta_log
+copying core/src/test/resources/delta/delta-0.1.0/_delta_log/00000000000000000003.checkpoint.parquet -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/resources/delta/delta-0.1.0/_delta_log
+copying core/src/test/resources/delta/delta-0.1.0/_delta_log/00000000000000000003.json -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/resources/delta/delta-0.1.0/_delta_log
+copying core/src/test/resources/delta/delta-0.1.0/_delta_log/_last_checkpoint -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/resources/delta/delta-0.1.0/_delta_log
+copying core/src/test/resources/delta/delta-0.1.0/id=4/.part-00001-36c738bf-7836-479b-9cc1-7a4934207856.c000.snappy.parquet.crc -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/resources/delta/delta-0.1.0/id=4
+copying core/src/test/resources/delta/delta-0.1.0/id=4/part-00001-36c738bf-7836-479b-9cc1-7a4934207856.c000.snappy.parquet -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/resources/delta/delta-0.1.0/id=4
+copying core/src/test/resources/delta/delta-0.1.0/id=5/.part-00000-f1e0b560-ca00-409e-a274-f1ab264bc412.c000.snappy.parquet.crc -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/resources/delta/delta-0.1.0/id=5
+copying core/src/test/resources/delta/delta-0.1.0/id=5/part-00000-f1e0b560-ca00-409e-a274-f1ab264bc412.c000.snappy.parquet -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/resources/delta/delta-0.1.0/id=5
+copying core/src/test/resources/delta/delta-0.1.0/id=6/.part-00000-adb59f54-6b8f-4bfd-9915-ae26bd0f0e2c.c000.snappy.parquet.crc -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/resources/delta/delta-0.1.0/id=6
+copying core/src/test/resources/delta/delta-0.1.0/id=6/part-00000-adb59f54-6b8f-4bfd-9915-ae26bd0f0e2c.c000.snappy.parquet -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/resources/delta/delta-0.1.0/id=6
+copying core/src/test/resources/delta/history/delta-0.2.0/.part-00000-512e1537-8aaa-4193-b8b4-bef3de0de409-c000.snappy.parquet.crc -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/resources/delta/history/delta-0.2.0
+copying core/src/test/resources/delta/history/delta-0.2.0/.part-00000-7c2deba3-1994-4fb8-bc07-d46c948aa415-c000.snappy.parquet.crc -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/resources/delta/history/delta-0.2.0
+copying core/src/test/resources/delta/history/delta-0.2.0/.part-00000-b44fcdb0-8b06-4f3a-8606-f8311a96f6dc-c000.snappy.parquet.crc -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/resources/delta/history/delta-0.2.0
+copying core/src/test/resources/delta/history/delta-0.2.0/.part-00000-cb6b150b-30b8-4662-ad28-ff32ddab96d2-c000.snappy.parquet.crc -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/resources/delta/history/delta-0.2.0
+copying core/src/test/resources/delta/history/delta-0.2.0/.part-00001-185eca06-e017-4dea-ae49-fc48b973e37e-c000.snappy.parquet.crc -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/resources/delta/history/delta-0.2.0
+copying core/src/test/resources/delta/history/delta-0.2.0/.part-00001-4327c977-2734-4477-9507-7ccf67924649-c000.snappy.parquet.crc -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/resources/delta/history/delta-0.2.0
+copying core/src/test/resources/delta/history/delta-0.2.0/.part-00001-c373a5bd-85f0-4758-815e-7eb62007a15c-c000.snappy.parquet.crc -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/resources/delta/history/delta-0.2.0
+copying core/src/test/resources/delta/history/delta-0.2.0/part-00000-512e1537-8aaa-4193-b8b4-bef3de0de409-c000.snappy.parquet -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/resources/delta/history/delta-0.2.0
+copying core/src/test/resources/delta/history/delta-0.2.0/part-00000-7c2deba3-1994-4fb8-bc07-d46c948aa415-c000.snappy.parquet -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/resources/delta/history/delta-0.2.0
+copying core/src/test/resources/delta/history/delta-0.2.0/part-00000-b44fcdb0-8b06-4f3a-8606-f8311a96f6dc-c000.snappy.parquet -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/resources/delta/history/delta-0.2.0
+copying core/src/test/resources/delta/history/delta-0.2.0/part-00000-cb6b150b-30b8-4662-ad28-ff32ddab96d2-c000.snappy.parquet -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/resources/delta/history/delta-0.2.0
+copying core/src/test/resources/delta/history/delta-0.2.0/part-00001-185eca06-e017-4dea-ae49-fc48b973e37e-c000.snappy.parquet -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/resources/delta/history/delta-0.2.0
+copying core/src/test/resources/delta/history/delta-0.2.0/part-00001-4327c977-2734-4477-9507-7ccf67924649-c000.snappy.parquet -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/resources/delta/history/delta-0.2.0
+copying core/src/test/resources/delta/history/delta-0.2.0/part-00001-c373a5bd-85f0-4758-815e-7eb62007a15c-c000.snappy.parquet -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/resources/delta/history/delta-0.2.0
+copying core/src/test/resources/delta/history/delta-0.2.0/_delta_log/..00000000000000000000.json.c6b312ca-665d-46ab-93a9-9f87ad2baa92.tmp.crc -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/resources/delta/history/delta-0.2.0/_delta_log
+copying core/src/test/resources/delta/history/delta-0.2.0/_delta_log/..00000000000000000001.json.641a776e-6e56-4423-a9b0-7efc9e58826a.tmp.crc -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/resources/delta/history/delta-0.2.0/_delta_log
+copying core/src/test/resources/delta/history/delta-0.2.0/_delta_log/..00000000000000000002.json.e64807e6-437c-44c9-abd2-50e6514d236e.tmp.crc -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/resources/delta/history/delta-0.2.0/_delta_log
+copying core/src/test/resources/delta/history/delta-0.2.0/_delta_log/..00000000000000000003.json.b374eda7-fa09-48ce-b06c-56025163f6ae.tmp.crc -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/resources/delta/history/delta-0.2.0/_delta_log
+copying core/src/test/resources/delta/history/delta-0.2.0/_delta_log/.._last_checkpoint.477ba875-7a14-4e57-9973-1349c21a152c.tmp.crc -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/resources/delta/history/delta-0.2.0/_delta_log
+copying core/src/test/resources/delta/history/delta-0.2.0/_delta_log/.00000000000000000003.checkpoint.parquet.crc -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/resources/delta/history/delta-0.2.0/_delta_log
+copying core/src/test/resources/delta/history/delta-0.2.0/_delta_log/00000000000000000000.json -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/resources/delta/history/delta-0.2.0/_delta_log
+copying core/src/test/resources/delta/history/delta-0.2.0/_delta_log/00000000000000000001.json -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/resources/delta/history/delta-0.2.0/_delta_log
+copying core/src/test/resources/delta/history/delta-0.2.0/_delta_log/00000000000000000002.json -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/resources/delta/history/delta-0.2.0/_delta_log
+copying core/src/test/resources/delta/history/delta-0.2.0/_delta_log/00000000000000000003.checkpoint.parquet -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/resources/delta/history/delta-0.2.0/_delta_log
+copying core/src/test/resources/delta/history/delta-0.2.0/_delta_log/00000000000000000003.json -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/resources/delta/history/delta-0.2.0/_delta_log
+copying core/src/test/resources/delta/history/delta-0.2.0/_delta_log/_last_checkpoint -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/resources/delta/history/delta-0.2.0/_delta_log
+copying core/src/test/resources/delta/transaction_log_schema_evolvability/.part-00000-9f483b95-3ea3-44f0-b54d-73199574be15-c000.snappy.parquet.crc -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/resources/delta/transaction_log_schema_evolvability
+copying core/src/test/resources/delta/transaction_log_schema_evolvability/.part-00000-dfb1dd9a-0fe2-420e-81d5-a84004aebcee-c000.snappy.parquet.crc -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/resources/delta/transaction_log_schema_evolvability
+copying core/src/test/resources/delta/transaction_log_schema_evolvability/.part-00000-f654b1f4-e1ea-40e5-a8cd-452f7c3359d8-c000.snappy.parquet.crc -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/resources/delta/transaction_log_schema_evolvability
+copying core/src/test/resources/delta/transaction_log_schema_evolvability/.part-00001-bfb08fc5-c967-40e4-a646-c8178d8b5e21-c000.snappy.parquet.crc -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/resources/delta/transaction_log_schema_evolvability
+copying core/src/test/resources/delta/transaction_log_schema_evolvability/.part-00001-d1030238-b55d-48f8-a4d6-89ef12e9d501-c000.snappy.parquet.crc -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/resources/delta/transaction_log_schema_evolvability
+copying core/src/test/resources/delta/transaction_log_schema_evolvability/.part-00001-d5da9c60-a615-4065-a3cb-4796d86fc797-c000.snappy.parquet.crc -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/resources/delta/transaction_log_schema_evolvability
+copying core/src/test/resources/delta/transaction_log_schema_evolvability/part-00000-9f483b95-3ea3-44f0-b54d-73199574be15-c000.snappy.parquet -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/resources/delta/transaction_log_schema_evolvability
+copying core/src/test/resources/delta/transaction_log_schema_evolvability/part-00000-dfb1dd9a-0fe2-420e-81d5-a84004aebcee-c000.snappy.parquet -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/resources/delta/transaction_log_schema_evolvability
+copying core/src/test/resources/delta/transaction_log_schema_evolvability/part-00000-f654b1f4-e1ea-40e5-a8cd-452f7c3359d8-c000.snappy.parquet -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/resources/delta/transaction_log_schema_evolvability
+copying core/src/test/resources/delta/transaction_log_schema_evolvability/part-00001-bfb08fc5-c967-40e4-a646-c8178d8b5e21-c000.snappy.parquet -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/resources/delta/transaction_log_schema_evolvability
+copying core/src/test/resources/delta/transaction_log_schema_evolvability/part-00001-d1030238-b55d-48f8-a4d6-89ef12e9d501-c000.snappy.parquet -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/resources/delta/transaction_log_schema_evolvability
+copying core/src/test/resources/delta/transaction_log_schema_evolvability/part-00001-d5da9c60-a615-4065-a3cb-4796d86fc797-c000.snappy.parquet -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/resources/delta/transaction_log_schema_evolvability
+copying core/src/test/resources/delta/transaction_log_schema_evolvability/_delta_log/.00000000000000000003.json.crc -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/resources/delta/transaction_log_schema_evolvability/_delta_log
+copying core/src/test/resources/delta/transaction_log_schema_evolvability/_delta_log/.00000000000000000004.json.crc -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/resources/delta/transaction_log_schema_evolvability/_delta_log
+copying core/src/test/resources/delta/transaction_log_schema_evolvability/_delta_log/.00000000000000000005.json.crc -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/resources/delta/transaction_log_schema_evolvability/_delta_log
+copying core/src/test/resources/delta/transaction_log_schema_evolvability/_delta_log/._last_checkpoint.crc -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/resources/delta/transaction_log_schema_evolvability/_delta_log
+copying core/src/test/resources/delta/transaction_log_schema_evolvability/_delta_log/00000000000000000000.crc -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/resources/delta/transaction_log_schema_evolvability/_delta_log
+copying core/src/test/resources/delta/transaction_log_schema_evolvability/_delta_log/00000000000000000000.json -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/resources/delta/transaction_log_schema_evolvability/_delta_log
+copying core/src/test/resources/delta/transaction_log_schema_evolvability/_delta_log/00000000000000000001.crc -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/resources/delta/transaction_log_schema_evolvability/_delta_log
+copying core/src/test/resources/delta/transaction_log_schema_evolvability/_delta_log/00000000000000000001.json -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/resources/delta/transaction_log_schema_evolvability/_delta_log
+copying core/src/test/resources/delta/transaction_log_schema_evolvability/_delta_log/00000000000000000002.checkpoint.parquet -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/resources/delta/transaction_log_schema_evolvability/_delta_log
+copying core/src/test/resources/delta/transaction_log_schema_evolvability/_delta_log/00000000000000000002.crc -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/resources/delta/transaction_log_schema_evolvability/_delta_log
+copying core/src/test/resources/delta/transaction_log_schema_evolvability/_delta_log/00000000000000000002.json -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/resources/delta/transaction_log_schema_evolvability/_delta_log
+copying core/src/test/resources/delta/transaction_log_schema_evolvability/_delta_log/00000000000000000003.crc -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/resources/delta/transaction_log_schema_evolvability/_delta_log
+copying core/src/test/resources/delta/transaction_log_schema_evolvability/_delta_log/00000000000000000003.json -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/resources/delta/transaction_log_schema_evolvability/_delta_log
+copying core/src/test/resources/delta/transaction_log_schema_evolvability/_delta_log/00000000000000000004.json -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/resources/delta/transaction_log_schema_evolvability/_delta_log
+copying core/src/test/resources/delta/transaction_log_schema_evolvability/_delta_log/00000000000000000005.json -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/resources/delta/transaction_log_schema_evolvability/_delta_log
+copying core/src/test/resources/delta/transaction_log_schema_evolvability/_delta_log/_last_checkpoint -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/resources/delta/transaction_log_schema_evolvability/_delta_log
+copying core/src/test/scala/io/delta/exceptions/DeltaConcurrentExceptionsSuite.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/scala/io/delta/exceptions
+copying core/src/test/scala/io/delta/sql/DeltaExtensionAndCatalogSuite.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/scala/io/delta/sql
+copying core/src/test/scala/io/delta/sql/parser/DeltaSqlParserSuite.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/scala/io/delta/sql/parser
+copying core/src/test/scala/io/delta/tables/DeltaTableBuilderSuite.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/scala/io/delta/tables
+copying core/src/test/scala/io/delta/tables/DeltaTableSuite.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/scala/io/delta/tables
+copying core/src/test/scala/io/delta/tables/DeltaTableTestUtils.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/scala/io/delta/tables
+copying core/src/test/scala/org/apache/spark/sql/delta/ActionSerializerSuite.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/scala/org/apache/spark/sql/delta
+copying core/src/test/scala/org/apache/spark/sql/delta/ConvertToDeltaSQLSuite.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/scala/org/apache/spark/sql/delta
+copying core/src/test/scala/org/apache/spark/sql/delta/ConvertToDeltaScalaSuite.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/scala/org/apache/spark/sql/delta
+copying core/src/test/scala/org/apache/spark/sql/delta/ConvertToDeltaSuiteBase.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/scala/org/apache/spark/sql/delta
+copying core/src/test/scala/org/apache/spark/sql/delta/DelegatingLogStoreSuite.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/scala/org/apache/spark/sql/delta
+copying core/src/test/scala/org/apache/spark/sql/delta/DeleteSQLSuite.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/scala/org/apache/spark/sql/delta
+copying core/src/test/scala/org/apache/spark/sql/delta/DeleteScalaSuite.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/scala/org/apache/spark/sql/delta
+copying core/src/test/scala/org/apache/spark/sql/delta/DeleteSuiteBase.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/scala/org/apache/spark/sql/delta
+copying core/src/test/scala/org/apache/spark/sql/delta/DeltaAlterTableTests.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/scala/org/apache/spark/sql/delta
+copying core/src/test/scala/org/apache/spark/sql/delta/DeltaCommitLockSuite.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/scala/org/apache/spark/sql/delta
+copying core/src/test/scala/org/apache/spark/sql/delta/DeltaConfigSuite.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/scala/org/apache/spark/sql/delta
+copying core/src/test/scala/org/apache/spark/sql/delta/DeltaDDLSuite.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/scala/org/apache/spark/sql/delta
+copying core/src/test/scala/org/apache/spark/sql/delta/DeltaDDLUsingPathSuite.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/scala/org/apache/spark/sql/delta
+copying core/src/test/scala/org/apache/spark/sql/delta/DeltaDataFrameWriterV2Suite.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/scala/org/apache/spark/sql/delta
+copying core/src/test/scala/org/apache/spark/sql/delta/DeltaErrorsSuite.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/scala/org/apache/spark/sql/delta
+copying core/src/test/scala/org/apache/spark/sql/delta/DeltaGenerateSymlinkManifestSuite.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/scala/org/apache/spark/sql/delta
+copying core/src/test/scala/org/apache/spark/sql/delta/DeltaHistoryManagerSuite.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/scala/org/apache/spark/sql/delta
+copying core/src/test/scala/org/apache/spark/sql/delta/DeltaInsertIntoTableSuite.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/scala/org/apache/spark/sql/delta
+copying core/src/test/scala/org/apache/spark/sql/delta/DeltaLogSuite.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/scala/org/apache/spark/sql/delta
+copying core/src/test/scala/org/apache/spark/sql/delta/DeltaNotSupportedDDLSuite.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/scala/org/apache/spark/sql/delta
+copying core/src/test/scala/org/apache/spark/sql/delta/DeltaOptionSuite.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/scala/org/apache/spark/sql/delta
+copying core/src/test/scala/org/apache/spark/sql/delta/DeltaProtocolVersionSuite.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/scala/org/apache/spark/sql/delta
+copying core/src/test/scala/org/apache/spark/sql/delta/DeltaRetentionSuite.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/scala/org/apache/spark/sql/delta
+copying core/src/test/scala/org/apache/spark/sql/delta/DeltaRetentionSuiteBase.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/scala/org/apache/spark/sql/delta
+copying core/src/test/scala/org/apache/spark/sql/delta/DeltaSinkSuite.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/scala/org/apache/spark/sql/delta
+copying core/src/test/scala/org/apache/spark/sql/delta/DeltaSourceSuite.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/scala/org/apache/spark/sql/delta
+copying core/src/test/scala/org/apache/spark/sql/delta/DeltaSourceSuiteBase.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/scala/org/apache/spark/sql/delta
+copying core/src/test/scala/org/apache/spark/sql/delta/DeltaSourceTableAPISuite.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/scala/org/apache/spark/sql/delta
+copying core/src/test/scala/org/apache/spark/sql/delta/DeltaSuite.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/scala/org/apache/spark/sql/delta
+copying core/src/test/scala/org/apache/spark/sql/delta/DeltaTableCreationTests.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/scala/org/apache/spark/sql/delta
+copying core/src/test/scala/org/apache/spark/sql/delta/DeltaTestUtils.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/scala/org/apache/spark/sql/delta
+copying core/src/test/scala/org/apache/spark/sql/delta/DeltaTimeTravelSuite.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/scala/org/apache/spark/sql/delta
+copying core/src/test/scala/org/apache/spark/sql/delta/DeltaVacuumSuite.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/scala/org/apache/spark/sql/delta
+copying core/src/test/scala/org/apache/spark/sql/delta/DeltaWithNewTransactionSuite.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/scala/org/apache/spark/sql/delta
+copying core/src/test/scala/org/apache/spark/sql/delta/DescribeDeltaDetailSuite.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/scala/org/apache/spark/sql/delta
+copying core/src/test/scala/org/apache/spark/sql/delta/DescribeDeltaHistorySuite.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/scala/org/apache/spark/sql/delta
+copying core/src/test/scala/org/apache/spark/sql/delta/EvolvabilitySuite.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/scala/org/apache/spark/sql/delta
+copying core/src/test/scala/org/apache/spark/sql/delta/EvolvabilitySuiteBase.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/scala/org/apache/spark/sql/delta
+copying core/src/test/scala/org/apache/spark/sql/delta/FileNamesSuite.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/scala/org/apache/spark/sql/delta
+copying core/src/test/scala/org/apache/spark/sql/delta/GeneratedColumnCompatibilitySuite.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/scala/org/apache/spark/sql/delta
+copying core/src/test/scala/org/apache/spark/sql/delta/GeneratedColumnSuite.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/scala/org/apache/spark/sql/delta
+copying core/src/test/scala/org/apache/spark/sql/delta/HiveConvertToDeltaSuite.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/scala/org/apache/spark/sql/delta
+copying core/src/test/scala/org/apache/spark/sql/delta/HiveDeltaDDLSuite.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/scala/org/apache/spark/sql/delta
+copying core/src/test/scala/org/apache/spark/sql/delta/HiveDeltaNotSupportedDDLSuite.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/scala/org/apache/spark/sql/delta
+copying core/src/test/scala/org/apache/spark/sql/delta/LogStoreSuite.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/scala/org/apache/spark/sql/delta
+copying core/src/test/scala/org/apache/spark/sql/delta/MergeIntoAccumulatorSuite.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/scala/org/apache/spark/sql/delta
+copying core/src/test/scala/org/apache/spark/sql/delta/MergeIntoSQLSuite.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/scala/org/apache/spark/sql/delta
+copying core/src/test/scala/org/apache/spark/sql/delta/MergeIntoScalaSuite.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/scala/org/apache/spark/sql/delta
+copying core/src/test/scala/org/apache/spark/sql/delta/MergeIntoSuiteBase.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/scala/org/apache/spark/sql/delta
+copying core/src/test/scala/org/apache/spark/sql/delta/OptimisticTransactionLegacyTests.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/scala/org/apache/spark/sql/delta
+copying core/src/test/scala/org/apache/spark/sql/delta/OptimisticTransactionSuite.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/scala/org/apache/spark/sql/delta
+copying core/src/test/scala/org/apache/spark/sql/delta/OptimisticTransactionSuiteBase.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/scala/org/apache/spark/sql/delta
+copying core/src/test/scala/org/apache/spark/sql/delta/S3LikeLocalFileSystem.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/scala/org/apache/spark/sql/delta
+copying core/src/test/scala/org/apache/spark/sql/delta/SchemaValidationSuite.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/scala/org/apache/spark/sql/delta
+copying core/src/test/scala/org/apache/spark/sql/delta/UpdateSQLSuite.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/scala/org/apache/spark/sql/delta
+copying core/src/test/scala/org/apache/spark/sql/delta/UpdateScalaSuite.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/scala/org/apache/spark/sql/delta
+copying core/src/test/scala/org/apache/spark/sql/delta/UpdateSuiteBase.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/scala/org/apache/spark/sql/delta
+copying core/src/test/scala/org/apache/spark/sql/delta/schema/CaseSensitivitySuite.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/scala/org/apache/spark/sql/delta/schema
+copying core/src/test/scala/org/apache/spark/sql/delta/schema/CheckConstraintsSuite.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/scala/org/apache/spark/sql/delta/schema
+copying core/src/test/scala/org/apache/spark/sql/delta/schema/InvariantEnforcementSuite.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/scala/org/apache/spark/sql/delta/schema
+copying core/src/test/scala/org/apache/spark/sql/delta/schema/SchemaEnforcementSuite.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/scala/org/apache/spark/sql/delta/schema
+copying core/src/test/scala/org/apache/spark/sql/delta/schema/SchemaUtilsSuite.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/scala/org/apache/spark/sql/delta/schema
+copying core/src/test/scala/org/apache/spark/sql/delta/storage/LineClosableIteratorSuite.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/scala/org/apache/spark/sql/delta/storage
+copying core/src/test/scala/org/apache/spark/sql/delta/test/DeltaHiveTest.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/scala/org/apache/spark/sql/delta/test
+copying core/src/test/scala/org/apache/spark/sql/delta/test/DeltaSQLCommandTest.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/scala/org/apache/spark/sql/delta/test
+copying core/src/test/scala/org/apache/spark/sql/delta/util/AnalysisHelperSuite.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/scala/org/apache/spark/sql/delta/util
+copying core/src/test/scala/org/apache/spark/sql/delta/util/DatasetRefCacheSuite.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/core/src/test/scala/org/apache/spark/sql/delta/util
+copying dev/lint-python -> delta-spark-1.1.0-SNAPSHOT-test-foo/dev
+copying dev/tox.ini -> delta-spark-1.1.0-SNAPSHOT-test-foo/dev
+copying docs/README.md -> delta-spark-1.1.0-SNAPSHOT-test-foo/docs
+copying docs/api-docs.css -> delta-spark-1.1.0-SNAPSHOT-test-foo/docs
+copying docs/api-docs.js -> delta-spark-1.1.0-SNAPSHOT-test-foo/docs
+copying docs/api-javadocs.css -> delta-spark-1.1.0-SNAPSHOT-test-foo/docs
+copying docs/api-javadocs.js -> delta-spark-1.1.0-SNAPSHOT-test-foo/docs
+copying docs/environment.yml -> delta-spark-1.1.0-SNAPSHOT-test-foo/docs
+copying docs/generate_api_docs.py -> delta-spark-1.1.0-SNAPSHOT-test-foo/docs
+copying docs/python/Makefile -> delta-spark-1.1.0-SNAPSHOT-test-foo/docs/python
+copying docs/python/conf.py -> delta-spark-1.1.0-SNAPSHOT-test-foo/docs/python
+copying docs/python/index.rst -> delta-spark-1.1.0-SNAPSHOT-test-foo/docs/python
+copying examples/README.md -> delta-spark-1.1.0-SNAPSHOT-test-foo/examples
+copying examples/cheat_sheet/delta_lake_cheat_sheet.pdf -> delta-spark-1.1.0-SNAPSHOT-test-foo/examples/cheat_sheet
+copying examples/python/quickstart.py -> delta-spark-1.1.0-SNAPSHOT-test-foo/examples/python
+copying examples/python/quickstart_sql.py -> delta-spark-1.1.0-SNAPSHOT-test-foo/examples/python
+copying examples/python/quickstart_sql_on_paths.py -> delta-spark-1.1.0-SNAPSHOT-test-foo/examples/python
+copying examples/python/streaming.py -> delta-spark-1.1.0-SNAPSHOT-test-foo/examples/python
+copying examples/python/using_with_pip.py -> delta-spark-1.1.0-SNAPSHOT-test-foo/examples/python
+copying examples/python/utilities.py -> delta-spark-1.1.0-SNAPSHOT-test-foo/examples/python
+copying examples/scala/build.sbt -> delta-spark-1.1.0-SNAPSHOT-test-foo/examples/scala
+copying examples/scala/build/sbt -> delta-spark-1.1.0-SNAPSHOT-test-foo/examples/scala/build
+copying examples/scala/build/sbt-launch-lib.bash -> delta-spark-1.1.0-SNAPSHOT-test-foo/examples/scala/build
+copying examples/scala/build/sbt-config/repositories -> delta-spark-1.1.0-SNAPSHOT-test-foo/examples/scala/build/sbt-config
+copying examples/scala/project/build.properties -> delta-spark-1.1.0-SNAPSHOT-test-foo/examples/scala/project
+copying examples/scala/src/main/resources/log4j.properties -> delta-spark-1.1.0-SNAPSHOT-test-foo/examples/scala/src/main/resources
+copying examples/scala/src/main/scala/example/Quickstart.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/examples/scala/src/main/scala/example
+copying examples/scala/src/main/scala/example/QuickstartSQL.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/examples/scala/src/main/scala/example
+copying examples/scala/src/main/scala/example/QuickstartSQLOnPaths.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/examples/scala/src/main/scala/example
+copying examples/scala/src/main/scala/example/Streaming.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/examples/scala/src/main/scala/example
+copying examples/scala/src/main/scala/example/Utilities.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/examples/scala/src/main/scala/example
+copying examples/tutorials/saiseu19/SAISEu19 - Delta Lake Python Tutorial.py -> delta-spark-1.1.0-SNAPSHOT-test-foo/examples/tutorials/saiseu19
+copying examples/tutorials/saiseu19/SAISEu19 - Delta Lake Scala Tutorial.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/examples/tutorials/saiseu19
+copying examples/tutorials/saiseu19/readme.md -> delta-spark-1.1.0-SNAPSHOT-test-foo/examples/tutorials/saiseu19
+copying examples/tutorials/saiseu19/img/Attach-Notebook.png -> delta-spark-1.1.0-SNAPSHOT-test-foo/examples/tutorials/saiseu19/img
+copying examples/tutorials/saiseu19/img/Create-Cluster-01.png -> delta-spark-1.1.0-SNAPSHOT-test-foo/examples/tutorials/saiseu19/img
+copying examples/tutorials/saiseu19/img/Create-Cluster-02.png -> delta-spark-1.1.0-SNAPSHOT-test-foo/examples/tutorials/saiseu19/img
+copying examples/tutorials/saiseu19/img/Create-Cluster-03.png -> delta-spark-1.1.0-SNAPSHOT-test-foo/examples/tutorials/saiseu19/img
+copying examples/tutorials/saiseu19/img/Create-Cluster-04.png -> delta-spark-1.1.0-SNAPSHOT-test-foo/examples/tutorials/saiseu19/img
+copying examples/tutorials/saiseu19/img/Get-Started-DBCE-01.png -> delta-spark-1.1.0-SNAPSHOT-test-foo/examples/tutorials/saiseu19/img
+copying examples/tutorials/saiseu19/img/Get-Started-DBCE-02.png -> delta-spark-1.1.0-SNAPSHOT-test-foo/examples/tutorials/saiseu19/img
+copying examples/tutorials/saiseu19/img/Get-Started-DBCE-03.png -> delta-spark-1.1.0-SNAPSHOT-test-foo/examples/tutorials/saiseu19/img
+copying examples/tutorials/saiseu19/img/Get-Started-DBCE-04.png -> delta-spark-1.1.0-SNAPSHOT-test-foo/examples/tutorials/saiseu19/img
+copying examples/tutorials/saiseu19/img/Import-Notebook-01.png -> delta-spark-1.1.0-SNAPSHOT-test-foo/examples/tutorials/saiseu19/img
+copying examples/tutorials/saiseu19/img/Import-Notebook-02.png -> delta-spark-1.1.0-SNAPSHOT-test-foo/examples/tutorials/saiseu19/img
+copying examples/tutorials/saiseu19/img/Import-Notebook-03.png -> delta-spark-1.1.0-SNAPSHOT-test-foo/examples/tutorials/saiseu19/img
+copying examples/tutorials/saiseu19/img/Import-Notebook-04.png -> delta-spark-1.1.0-SNAPSHOT-test-foo/examples/tutorials/saiseu19/img
+copying examples/tutorials/saiseu19/img/Import-Notebook-05.png -> delta-spark-1.1.0-SNAPSHOT-test-foo/examples/tutorials/saiseu19/img
+copying examples/tutorials/saiseu19/img/Import-Notebook-06.png -> delta-spark-1.1.0-SNAPSHOT-test-foo/examples/tutorials/saiseu19/img
+copying examples/tutorials/saiseu19/img/Import-Notebook-07.png -> delta-spark-1.1.0-SNAPSHOT-test-foo/examples/tutorials/saiseu19/img
+copying examples/tutorials/saiseu19/img/Import-Notebook-08.png -> delta-spark-1.1.0-SNAPSHOT-test-foo/examples/tutorials/saiseu19/img
+copying examples/tutorials/saiseu19/img/Video-Preview.png -> delta-spark-1.1.0-SNAPSHOT-test-foo/examples/tutorials/saiseu19/img
+copying project/MimaExcludes.scala -> delta-spark-1.1.0-SNAPSHOT-test-foo/project
+copying project/build.properties -> delta-spark-1.1.0-SNAPSHOT-test-foo/project
+copying project/plugins.sbt -> delta-spark-1.1.0-SNAPSHOT-test-foo/project
+copying project/project/plugins.sbt -> delta-spark-1.1.0-SNAPSHOT-test-foo/project/project
+copying python/README.md -> delta-spark-1.1.0-SNAPSHOT-test-foo/python
+copying python/run-tests.py -> delta-spark-1.1.0-SNAPSHOT-test-foo/python
+copying python/delta/__init__.py -> delta-spark-1.1.0-SNAPSHOT-test-foo/python/delta
+copying python/delta/exceptions.py -> delta-spark-1.1.0-SNAPSHOT-test-foo/python/delta
+copying python/delta/pip_utils.py -> delta-spark-1.1.0-SNAPSHOT-test-foo/python/delta
+copying python/delta/tables.py -> delta-spark-1.1.0-SNAPSHOT-test-foo/python/delta
+copying python/delta/testing/__init__.py -> delta-spark-1.1.0-SNAPSHOT-test-foo/python/delta/testing
+copying python/delta/testing/log4j.properties -> delta-spark-1.1.0-SNAPSHOT-test-foo/python/delta/testing
+copying python/delta/testing/utils.py -> delta-spark-1.1.0-SNAPSHOT-test-foo/python/delta/testing
+copying python/delta/tests/__init__.py -> delta-spark-1.1.0-SNAPSHOT-test-foo/python/delta/tests
+copying python/delta/tests/test_deltatable.py -> delta-spark-1.1.0-SNAPSHOT-test-foo/python/delta/tests
+copying python/delta/tests/test_exceptions.py -> delta-spark-1.1.0-SNAPSHOT-test-foo/python/delta/tests
+copying python/delta/tests/test_pip_utils.py -> delta-spark-1.1.0-SNAPSHOT-test-foo/python/delta/tests
+copying python/delta/tests/test_sql.py -> delta-spark-1.1.0-SNAPSHOT-test-foo/python/delta/tests
+copying python/delta_spark.egg-info/PKG-INFO -> delta-spark-1.1.0-SNAPSHOT-test-foo/python/delta_spark.egg-info
+copying python/delta_spark.egg-info/SOURCES.txt -> delta-spark-1.1.0-SNAPSHOT-test-foo/python/delta_spark.egg-info
+copying python/delta_spark.egg-info/dependency_links.txt -> delta-spark-1.1.0-SNAPSHOT-test-foo/python/delta_spark.egg-info
+copying python/delta_spark.egg-info/requires.txt -> delta-spark-1.1.0-SNAPSHOT-test-foo/python/delta_spark.egg-info
+copying python/delta_spark.egg-info/top_level.txt -> delta-spark-1.1.0-SNAPSHOT-test-foo/python/delta_spark.egg-info
+Writing delta-spark-1.1.0-SNAPSHOT-test-foo/setup.cfg
+Creating tar archive
+removing 'delta-spark-1.1.0-SNAPSHOT-test-foo' (and everything under it)
+### Executing: pip3 install /Users/scott.sandre/delta/dist/delta_spark-1.1.0_SNAPSHOT_test_foo-py3-none-any.whl
+Processing ./dist/delta_spark-1.1.0_SNAPSHOT_test_foo-py3-none-any.whl
+Requirement already satisfied: importlib-metadata>=3.10.0 in /usr/local/lib/python3.9/site-packages (from delta-spark==1.1.0-SNAPSHOT-test-foo) (4.6.1)
+Collecting pyspark<3.2.0,>=3.1.0
+  Using cached pyspark-3.1.2-py2.py3-none-any.whl
+Requirement already satisfied: zipp>=0.5 in /usr/local/lib/python3.9/site-packages (from importlib-metadata>=3.10.0->delta-spark==1.1.0-SNAPSHOT-test-foo) (3.5.0)
+Requirement already satisfied: py4j==0.10.9 in /usr/local/lib/python3.9/site-packages (from pyspark<3.2.0,>=3.1.0->delta-spark==1.1.0-SNAPSHOT-test-foo) (0.10.9)
+Installing collected packages: pyspark, delta-spark
+Successfully installed delta-spark-1.1.0-SNAPSHOT-test-foo pyspark-3.1.2
+Test command: ['python3', '/Users/scott.sandre/delta/examples/python/using_with_pip.py']
+*** using_with_pip.py > delta version 1.1.0-SNAPSHOT-test-foo
+*** pip_utils.py > configure_spark_with_delta_pip > delta_version 1.1.0-SNAPSHOT-test-foo
+:: loading settings :: url = jar:file:/usr/local/lib/python3.9/site-packages/pyspark/jars/ivy-2.4.0.jar!/org/apache/ivy/core/settings/ivysettings.xml
+Ivy Default Cache set to: /Users/scott.sandre/.ivy2/cache
+The jars for the packages stored in: /Users/scott.sandre/.ivy2/jars
+io.delta#delta-core_2.12 added as a dependency
+:: resolving dependencies :: org.apache.spark#spark-submit-parent-8890420b-acaf-4063-8eeb-c30c6817ca18;1.0
+	confs: [default]
+	found io.delta#delta-core_2.12;1.1.0-SNAPSHOT-test-foo in local-m2-cache
+	found org.antlr#antlr4;4.8 in local-m2-cache
+	found org.antlr#antlr4-runtime;4.8 in local-m2-cache
+	found org.antlr#antlr-runtime;3.5.2 in local-m2-cache
+	found org.antlr#ST4;4.3 in local-m2-cache
+	found org.abego.treelayout#org.abego.treelayout.core;1.0.3 in local-m2-cache
+	found org.glassfish#javax.json;1.0.4 in local-m2-cache
+	found com.ibm.icu#icu4j;61.1 in local-m2-cache
+downloading file:/Users/scott.sandre/.m2/repository/io/delta/delta-core_2.12/1.1.0-SNAPSHOT-test-foo/delta-core_2.12-1.1.0-SNAPSHOT-test-foo.jar ...
+	[SUCCESSFUL ] io.delta#delta-core_2.12;1.1.0-SNAPSHOT-test-foo!delta-core_2.12.jar (3ms)
+:: resolution report :: resolve 634ms :: artifacts dl 8ms
+	:: modules in use:
+	com.ibm.icu#icu4j;61.1 from local-m2-cache in [default]
+	io.delta#delta-core_2.12;1.1.0-SNAPSHOT-test-foo from local-m2-cache in [default]
+	org.abego.treelayout#org.abego.treelayout.core;1.0.3 from local-m2-cache in [default]
+	org.antlr#ST4;4.3 from local-m2-cache in [default]
+	org.antlr#antlr-runtime;3.5.2 from local-m2-cache in [default]
+	org.antlr#antlr4;4.8 from local-m2-cache in [default]
+	org.antlr#antlr4-runtime;4.8 from local-m2-cache in [default]
+	org.glassfish#javax.json;1.0.4 from local-m2-cache in [default]
+	---------------------------------------------------------------------
+	|                  |            modules            ||   artifacts   |
+	|       conf       | number| search|dwnlded|evicted|| number|dwnlded|
+	---------------------------------------------------------------------
+	|      default     |   8   |   2   |   2   |   0   ||   8   |   1   |
+	---------------------------------------------------------------------
+
+:: problems summary ::
+:::: ERRORS
+	unknown resolver null
+
+
+:: USE VERBOSE OR DEBUG MESSAGE LEVEL FOR MORE DETAILS
+:: retrieving :: org.apache.spark#spark-submit-parent-8890420b-acaf-4063-8eeb-c30c6817ca18
+	confs: [default]
+	1 artifacts copied, 7 already retrieved (2115kB/11ms)
+21/07/29 13:18:21 WARN NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+Using Spark's default log4j profile: org/apache/spark/log4j-defaults.properties
+Setting default log level to "WARN".
+To adjust logging level use sc.setLogLevel(newLevel). For SparkR, use setLogLevel(newLevel).
+########### Create a Parquet table ##############
+########### Convert to Delta ###########
+pypi TEST foo
+########### Read table with DataFrames ###########
++---+
+| id|
++---+
+|  1|
+|  0|
+|  4|
+|  3|
+|  2|
++---+
+
+########### Read table with DeltaTable ###########
++---+
+| id|
++---+
+|  1|
+|  0|
+|  4|
+|  3|
+|  2|
++---+
+```

@@ -1,0 +1,20 @@
+#### Which Delta project/connector is this regarding?
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [x] Other (delta sharing)
+
+## Description
+(Cherry-pick of https://github.com/delta-io/delta/pull/2480 to branch-3.1)
+
+Fifth PR of https://github.com/delta-io/delta/issues/2291: Adds deletion vector support for "delta format sharing"
+- Extends PrepareDeltaScan to PrepareDeltaSharingScan, to convert DeltaSharingFileIndex to TahoeLogFileIndex.
+- Update DeltaSparkSessionExtension to add the rule of PrepareDeltaSharingScan
+- Added unit test in DeltaSharingDataSourceDeltaSuite
+
+## How was this patch tested?
+Unit Tests
+
+## Does this PR introduce _any_ user-facing changes?
+No

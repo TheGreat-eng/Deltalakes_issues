@@ -1,0 +1,1 @@
+The kernel config only has properties `TOMBSTONE_RETENTION` and `CHECKPOINT_INTERVAL`, we need support more.

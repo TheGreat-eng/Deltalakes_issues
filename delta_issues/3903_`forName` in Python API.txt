@@ -1,0 +1,3 @@
+Could we have the `forName` [method](https://github.com/delta-io/delta/blob/ee0719577fd38f61c5b9b1d55bcb577c43d4ee1b/src/main/scala/io/delta/tables/DeltaTable.scala#L659) in the Python API? 
+
+Main motivation: I have to pass the path through my code a lot, I would like to use the table name instead.

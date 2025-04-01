@@ -1,0 +1,96 @@
+## Bug
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the issue title
+For example: [BUG][Spark] Title of my issue
+-->
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [x] Other (Power BI [fn_ReadDeltaTable])
+
+### Describe the problem
+If a delta table partitioned on a field that contains round brackets, the partitions are ignored/don't show in Power BI.
+
+#### Steps to reproduce
+Create dataframe with a field that has round brackets in the value, output dataframe as delta format, partitioned by that field.
+
+```
+from pyspark.sql.types import StructType, StructField, StringType, IntegerType
+
+data2 = [
+  ("product 1", 10),
+  ("product 1 (beta)", 12),
+  ("product 3", 14),
+  ("product 4", 35),
+  ("product 4 (alpha)", 4)
+  ]
+
+schema = StructType([ \
+    StructField("product",StringType(),True), \
+    StructField("users",StringType(),True)
+  ])
+
+df = spark.createDataFrame(data = data2, schema = schema)
+df.display()
+
+destination_path = f"wasbs://test@xxx.blob.core.windows.net/pbi_connector_test"
+(
+  df.write
+    .format("delta")
+    .partitionBy("product")
+    .save(destination_path)
+)
+```
+Output:
+![image](https://github.com/delta-io/delta/assets/1459054/fab159af-f127-49d1-b627-5bf907eadfd9)
+
+Storage:
+![image](https://github.com/delta-io/delta/assets/1459054/c21d2dac-8d84-4064-9d69-6cb6a8995119)
+
+
+#### Observed results
+
+When using fn_ReadDeltaTable in Power BI, results omit partitioned field where value contains round brackets:
+
+Query:
+![image](https://github.com/delta-io/delta/assets/1459054/a092ace8-a4b3-47f5-8475-20e84b347d01)
+
+Results:
+![image](https://github.com/delta-io/delta/assets/1459054/589b8ce2-7e84-49a5-aa67-aaaba05e6b4b)
+
+
+#### Expected results
+
+Expected to see all values of "product" field.  E.g.:
+
+![image](https://github.com/delta-io/delta/assets/1459054/09232581-8afb-4ebd-a78c-3e32f147ff21)
+
+
+#### Further details
+
+Seems to be related to the URL encoding/decoding of paths.  Adding a couple of Text.Replace's in line 311 fixes the problem, but I wonder if there are other special characters affected.
+
+```
+#"Added Full_Path" = Table.AddColumn(#"Files with Stats", "Full_Path", each Text.Replace(DeltaTablePath & Text.Replace([file_name], "=", "%3D"), "/", Delimiter), Text.Type),
+
+#"Added Full_Path" = Table.AddColumn(#"Files with Stats", "Full_Path", each Text.Replace(DeltaTablePath & Text.Replace(Text.Replace(Text.Replace([file_name], "=", "%3D"), "(", "%28"), ")", "%29"), "/", Delimiter), Text.Type),
+```
+
+### Environment information
+
+* Delta Lake version: ???
+* Spark version: 3.5.0
+* Scala version: 2.12
+* Databricks version: 14.1
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [x] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute a bug fix at this time.

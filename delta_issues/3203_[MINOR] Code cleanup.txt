@@ -1,0 +1,10 @@
+1. Hiding internal private method (following up the comment)
+1. Fix to scaladoc
+
+## How was this patch tested?
+
+`sbt compile`. Waiting for the repo build to execute tests.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

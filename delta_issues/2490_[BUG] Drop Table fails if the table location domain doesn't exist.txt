@@ -1,0 +1,57 @@
+## Bug
+
+### Describe the problem
+If you try to DROP a table (and other commands), but the domain doesn't exist anymore, for example if you deleted the storage, you can't execute any command including DROP TABLE.
+DROP Table at least should work and force the table to remove the table metadata from Hive.
+	
+#### Steps to reproduce
+
+CREATE TABLE TableDeltaExternalStorage (Id INT) USING DELTA LOCATION '<URI>'
+
+Delete the storage (we need the domain to become invalid)
+
+DROP TABLE/DESCRIBE TABLE, etc
+
+#### Observed results
+
+Error
+
+```
+Error: Status code: -1 error code: null error message: InvalidAbfsRestOperationExceptionjava.net.UnknownHostException: <NONEXISTING URI>
+com.google.common.util.concurrent.AbstractFuture$Sync.getValue(AbstractFuture.java:306)
+com.google.common.util.concurrent.AbstractFuture$Sync.get(AbstractFuture.java:293)
+com.google.common.util.concurrent.AbstractFuture.get(AbstractFuture.java:116)
+com.google.common.util.concurrent.Uninterruptibles.getUninterruptibly(Uninterruptibles.java:135)
+com.google.common.cache.LocalCache$Segment.getAndRecordStats(LocalCache.java:2410)
+com.google.common.cache.LocalCache$Segment.loadSync(LocalCache.java:2380)
+com.google.common.cache.LocalCache$Segment.lockedGetOrLoad(LocalCache.java:2342)
+com.google.common.cache.LocalCache$Segment.get(LocalCache.java:2257)
+com.google.common.cache.LocalCache.get(LocalCache.java:4000)
+com.google.common.cache.LocalCache$LocalManualCache.get(LocalCache.java:4789)
+org.apache.spark.sql.delta.DeltaLog$.getDeltaLogFromCache$1(DeltaLog.scala:593)
+org.apache.spark.sql.delta.DeltaLog$.apply(DeltaLog.scala:600)
+org.apache.spark.sql.delta.DeltaLog$.forTable(DeltaLog.scala:503)
+org.apache.spark.sql.delta.catalog.DeltaTableV2.deltaLog$lzycompute(DeltaTableV2.scala:78)
+org.apache.spark.sql.delta.catalog.DeltaTableV2.deltaLog(DeltaTableV2.scala:78)
+org.apache.spark.sql.delta.catalog.DeltaTableV2.$anonfun$snapshot$3(DeltaTableV2.scala:107)
+```
+
+#### Expected results
+
+DROP TABLE should force execute after few attempts
+
+#### Further details
+
+### Environment information
+
+* Delta Lake version: 2.2.0
+* Spark version: 3.3
+* Scala version:2.12
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [ ] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [X] No. I cannot contribute a bug fix at this time.

@@ -1,0 +1,23 @@
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [X] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+Fixes an issue where `Checkpoints.findLastCompleteCheckpoint` goes into an almost infinite loop if it is passed a Checkpoint.MAX_VALUE.
+
+## How was this patch tested?
+
+UT
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

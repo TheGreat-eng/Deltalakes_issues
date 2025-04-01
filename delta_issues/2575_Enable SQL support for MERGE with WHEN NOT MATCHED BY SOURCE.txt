@@ -1,0 +1,16 @@
+## Description
+The SQL syntax for merge with WHEN NOT MATCHED BY SOURCE clauses was shipped with Spark 3.4. Now that Delta picked up Spark 3.4, we can enable SQL support and mix in SQL tests for WHEN NOT MATCHED BY SOURCE.
+
+## How was this patch tested?
+Existing tests for WHEN NOT MATCHED BY SOURCE are now run in the Merge SQL suite.
+
+## Does this PR introduce _any_ user-facing changes?
+Users can now include `WHEN NOT MATCHED BY SOURCE` clauses in merge using SQL:
+
+```
+MERGE INTO target t
+USING source s
+ON t.key = s.key
+WHEN NOT MATCHED BY SOURCE THE DELETE
+```
+The clause was already available using the Scala & Python API.

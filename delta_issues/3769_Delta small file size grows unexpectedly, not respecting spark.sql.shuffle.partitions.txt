@@ -1,0 +1,19 @@
+I want to merge DF2 into DF1. DF2 is small and has only one partition, i.e. I call DF2 = DF2.repartition(1).persist() before merging. 
+
+When I call `DF1.merge(DF2, ...).execute()` it works fine. However when I check the delta log, something unexpected happens: 
+```
+"operationMetrics":{"numTargetRowsCopied":"2253483",
+"numTargetRowsDeleted":"0",
+"numTargetFilesAdded":"21",
+"numTargetRowsInserted":"14",
+"numTargetRowsUpdated":"12",
+"numOutputRows":"2253509",
+"numSourceRows":"26",
+"numTargetFilesRemoved":"12"}}}
+```
+
+Note that `numTargetFilesAdded` is > `NumTargetFilesRemoved`. Over time, the number of files becomes unmanageable (Millions)
+
+Any advice on how to proceed? Is this happening because my spark.sql.shuffle.partitions is greater than the rows in my batch? I have `"spark.sql.shuffle.partitions":"50"`. 
+
+version 0.6.1, spark2.4.5

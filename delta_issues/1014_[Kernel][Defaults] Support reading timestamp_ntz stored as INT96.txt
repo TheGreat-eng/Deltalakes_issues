@@ -1,0 +1,28 @@
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [x] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+<!--
+- Describe what this PR changes.
+- Describe why we need the change.
+ 
+If this PR resolves an issue be sure to include "Resolves #XXX" to correctly link and close the issue upon merge.
+-->
+Resolves #2908 
+## How was this patch tested?
+
+Added a unit test that reads an INT96 column written by Spark as TIMESTAMP_NTZ
+
+## Does this PR introduce _any_ user-facing changes?
+No

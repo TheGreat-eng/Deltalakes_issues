@@ -1,0 +1,51 @@
+<!--
+Thanks for sending a pull request!  Here are some tips for you:
+  1. If this is your first time, please read our contributor guidelines: https://github.com/delta-io/delta/blob/master/CONTRIBUTING.md
+  2. If the PR is unfinished, add '[WIP]' in your PR title, e.g., '[WIP] Your PR title ...'.
+  3. Be sure to keep the PR description updated to reflect all changes.
+  4. Please write your PR title to summarize what this PR proposes.
+  5. If possible, provide a concise example to reproduce the issue for a faster review.
+  6. If applicable, include the corresponding issue number in the PR title and link it in the body.
+-->
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [x] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+<!--
+- Describe what this PR changes.
+- Describe why we need the change.
+ 
+If this PR resolves an issue be sure to include "Resolves #XXX" to correctly link and close the issue upon merge.
+-->
+
+Adds new `VariantValue` interface and `getVariant` methods to `ColumnVector` interface so column vectors consisting of `VariantValue`s can be created.
+
+In kernel-defaults, we implementthe default implementation such that it understands variants completely for now and can directly scan variants with its own `VariantColumnReader`. This is subject to change in the future to remove the `VariantColumnReader` and instead return structs from the scan.
+
+This PR also does the following
+
+* Cross compiles kernel defaults with Spark 3.5 and Spark 4.0. This is done so the tests can write variants using spark 4.0 rather than needing to manually creating and comparing against variant values
+* Allows compilation on Java 8 and Java 17 for the above.
+
+## How was this patch tested?
+
+added UTs against Spark
+
+## Does this PR introduce _any_ user-facing changes?
+
+<!--
+If yes, please clarify the previous behavior and the change this PR proposes - provide the console output, description and/or an example to show the behavior difference if possible.
+If possible, please also clarify if this is a user-facing change compared to the released Delta Lake versions or within the unreleased branches such as master.
+If no, write 'No'.
+-->

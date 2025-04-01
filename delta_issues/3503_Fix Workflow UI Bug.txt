@@ -1,0 +1,1 @@
+Fixes Github Actions Workflow UI Bug mentioned here: https://github.com/delta-io/delta/pull/798#discussion_r730151656

@@ -1,0 +1,71 @@
+## Bug
+
+#### Which Delta project/connector is this regarding?
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [x] Other (Power BI)
+
+### Describe the problem
+
+Delta table was written with ReaderVersion 2 and ColumnMapping. So, it should be possible to read with the `Power BI` function. However, when loaded with `Power BI` the records appear twice.
+
+They are correct when loaded with `Databricks` or in Python with `delta-rs`.
+
+
+#### Steps to reproduce
+
+Correct result:
+
+```python
+from deltalake import DeltaTable
+
+dt = DeltaTable("dataset")
+ds = dt.to_pyarrow_table()
+
+# print(ds.to_pandas())
+print(f"Number of rows: {len(ds.to_pandas())}")
+
+# Number of rows: 13
+
+```
+Execute the function with the dataset in the attachment in `Power BI` and you get 26 records.
+
+```M query
+let
+    Source = AzureStorage.DataLake("https://xy.dfs.core.windows.net/dataset), [HierarchicalNavigation = false]),
+    DeltaTable = fn_ReadDeltaTable(Source),
+    #"Grouped Rows" = Table.Group(DeltaTable, {}, {{"Count", each Table.RowCount(_), Int64.Type}})
+in
+    #"Grouped Rows"
+
+#"Result = 26 rows"
+```
+![powerbiresult](https://github.com/delta-io/delta/assets/7950597/1da6d943-6c51-4a93-9533-36470435042d)
+
+
+#### Observed results
+
+Duplicate values.
+
+#### Expected results
+
+Records should only appear once.
+
+
+### Environment information
+* Delta Lake version: 2.4.0
+* Spark version: 3.4.1
+* Scala version: 2.12
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [x] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute a bug fix at this time.
+
+[dataset.zip](https://github.com/delta-io/delta/files/12642820/dataset.zip)

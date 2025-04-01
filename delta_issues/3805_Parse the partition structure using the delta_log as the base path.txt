@@ -1,0 +1,3 @@
+This allows converting a location that is under a path that looks like a partition value. For example, running the convert to delta command over a path like `s3://massive-events/year=2020/` would fail because the command will try to compare the partitions above the delta log base path.
+
+Signed-off-by: Mike Dias <mike.rodrigues.dias@gmail.com>

@@ -1,0 +1,43 @@
+I use spark sql to run and occur error.
+this is log
+spark-sql> CREATE  TABLE  IF NOT EXISTS a1 (
+         >   date DATE,
+         >   eventId STRING,
+         >   eventType STRING,
+         >   data STRING)
+         > USING DELTA;
+21/08/11 18:19:39 WARN scheduler.TaskSetManager: Lost task 0.0 in stage 0.0 (TID 0) (hadoop-node-2 executor 1): java.io.FileNotFoundException: File file:/home/hdfs/spark-3.1.2-bin-hadoop2.7/spark-warehouse/a1/_delta_log/00000000000000000000.json does not exist
+It is possible the underlying files have been updated. You can explicitly invalidate the cache in Spark by running 'REFRESH TABLE tableName' command in SQL or by recreating the Dataset/DataFrame involved.
+        at org.apache.spark.sql.execution.datasources.FileScanRDD$$anon$1.org$apache$spark$sql$execution$datasources$FileScanRDD$$anon$$readCurrentFile(FileScanRDD.scala:124)
+        at org.apache.spark.sql.execution.datasources.FileScanRDD$$anon$1.nextIterator(FileScanRDD.scala:169)
+        at org.apache.spark.sql.execution.datasources.FileScanRDD$$anon$1.hasNext(FileScanRDD.scala:93)
+        at scala.collection.Iterator$$anon$10.hasNext(Iterator.scala:458)
+        at scala.collection.Iterator$$anon$10.hasNext(Iterator.scala:458)
+        at scala.collection.Iterator$$anon$10.hasNext(Iterator.scala:458)
+        at scala.collection.Iterator$$anon$11.hasNext(Iterator.scala:489)
+        at scala.collection.Iterator$$anon$10.hasNext(Iterator.scala:458)
+        at org.apache.spark.sql.catalyst.expressions.GeneratedClass$GeneratedIteratorForCodegenStage1.processNext(Unknown Source)
+        at org.apache.spark.sql.execution.BufferedRowIterator.hasNext(BufferedRowIterator.java:43)
+        at org.apache.spark.sql.execution.WholeStageCodegenExec$$anon$1.hasNext(WholeStageCodegenExec.scala:755)
+        at scala.collection.Iterator$$anon$10.hasNext(Iterator.scala:458)
+        at org.apache.spark.shuffle.sort.BypassMergeSortShuffleWriter.write(BypassMergeSortShuffleWriter.java:132)
+        at org.apache.spark.shuffle.ShuffleWriteProcessor.write(ShuffleWriteProcessor.scala:59)
+        at org.apache.spark.scheduler.ShuffleMapTask.runTask(ShuffleMapTask.scala:99)
+        at org.apache.spark.scheduler.ShuffleMapTask.runTask(ShuffleMapTask.scala:52)
+        at org.apache.spark.scheduler.Task.run(Task.scala:131)
+        at org.apache.spark.executor.Executor$TaskRunner.$anonfun$run$3(Executor.scala:497)
+        at org.apache.spark.util.Utils$.tryWithSafeFinally(Utils.scala:1439)
+        at org.apache.spark.executor.Executor$TaskRunner.run(Executor.scala:500)
+        at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
+        at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+        at java.lang.Thread.run(Thread.java:748)
+
+21/08/11 18:19:43 ERROR scheduler.TaskSetManager: Task 0 in stage 0.0 failed 4 times; aborting job
+21/08/11 18:19:43 ERROR thriftserver.SparkSQLDriver: Failed in [CREATE  TABLE  IF NOT EXISTS a1 (
+  date DATE,
+  eventId STRING,
+  eventType STRING,
+  data STRING)
+USING DELTA]
+org.apache.spark.SparkException: Job aborted due to stage failure: Task 0 in stage 0.0 failed 4 times, most recent failure: Lost task 0.3 in stage 0.0 (TID 3) (hadoop-node-3 executor 2): java.io.FileNotFoundException: File file:/home/hdfs/spark-3.1.2-bin-hadoop2.7/spark-warehouse/a1/_delta_log/00000000000000000000.json does not exist
+It is possible the underlying files have been updated. You can explicitly invalidate the cache in Spark by running 'REFRESH TABLE tableName' command in SQL or by recreating the Dataset/DataFrame involved.

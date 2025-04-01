@@ -1,0 +1,21 @@
+
+#### Which Delta project/connector is this regarding?
+
+- [X] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+Add the error classes for `DELTA_DELETION_VECTOR_NON_INCREMENTAL_UPDATE` and `DELTA_DELETION_VECTOR_OVERLAPPING_ROWS` integrity checks.
+
+
+## How was this patch tested?
+
+Existing tests.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

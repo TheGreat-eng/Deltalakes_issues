@@ -1,0 +1,17 @@
+#### Which Delta project/connector is this regarding?
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+Test only PR. Adds some basic additional tests for inserting data into tables when the Identity Column high water mark isn't already defined. Split from the PR making identity column high water mark updates more consistent: https://github.com/delta-io/delta/pull/3989
+
+## How was this patch tested?
+
+New tests pass.
+
+## Does this PR introduce _any_ user-facing changes?
+No.

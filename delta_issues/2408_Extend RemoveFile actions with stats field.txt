@@ -1,0 +1,24 @@
+<!--
+Thanks for sending a pull request!  Here are some tips for you:
+  1. If this is your first time, please read our contributor guidelines: https://github.com/delta-io/delta/blob/master/CONTRIBUTING.md
+  2. If the PR is unfinished, add '[WIP]' in your PR title, e.g., '[WIP] Your PR title ...'.
+  3. Be sure to keep the PR description updated to reflect all changes.
+  4. Please write your PR title to summarize what this PR proposes.
+  5. If possible, provide a concise example to reproduce the issue for a faster review.
+  6. If applicable, include the corresponding issue number in the PR title and link it in the body.
+-->
+
+## Description
+
+Extend the remove actions with statistics about the data in the file that is being removed from the table and that can be used to optimize queries that read the changes of older versions, e.g., Change Data Feed queries. These statistics are copied from the add action when a file is being removed.
+
+File statistics can be large and increase the size of checkpoints. However, statistics of remove actions are not needed for tombstones but only for Delta JSON files, and so are dropped from checkpoints.
+
+## How was this patch tested?
+
+- Extended existing tests for JSON (de-)serialization
+- Existing tests provide coverage regarding the fields that are stored in checkpoints.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

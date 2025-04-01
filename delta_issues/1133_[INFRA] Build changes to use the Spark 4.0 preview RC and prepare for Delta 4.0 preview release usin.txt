@@ -1,0 +1,51 @@
+#### Which Delta project/connector is this regarding?
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [X] Other (BUILD)
+
+## Description
+
+This PR makes the initial changes to prepare for the Delta 4.0 preview release on Spark 4.0 preview. This initially updates the branch to use the Spark RC3 but will need to be updated once the Spark release is finalized.
+
+I've organized the commits based on what changes they make to hopefully make this PR easier to review (I'd recommend reviewing it one commit at a time).
+
+7d20eab Makes the initial build changes to use the Spark 4.0 preview RC
+- Upgrades our version to 4.0.0-SNAPSHOT and updates Mima settings
+- Drops Scala 2.12 as it is not supported by Spark 4.0+
+  - Makes corresponding necessary changes to Kernel code
+- Makes the default sparkVersion to be "4.0.0-preview1" and adds the Spark RC repository as a resolver
+  - Also adds settings to make Kernel tests pass with Java 17
+- Changes other connector projects other than [Spark, Kernel, storage projects] to "skipReleaseSettings" as we decided for now to only release Spark, Kernel and the storage projects (due to dependency complexities with Spark and Scala versions) 
+- Comments out uniform projects as they require other dependencies that are unavailable
+- Comments out Flink as it does not support Scala 2.13
+- Updates the CI jobs for Scala and Java versions
+- Updates Spark examples to use the Spark RC
+
+896ef77 Makes fixes for unidoc to work with Kernel & Delta Spark
+- Excludes internal Scala code from the source files for javadoc.
+- Changes imports in the public classes within kernelDefaults to use the full package name inline. Without this, the javadoc compilation fails since the internal classes are filtered from the javadoc source files.
+- Adds unidoc configurations for Delta Spark with Spark master. 
+  - Note: Without the changes to `sqlDeltaImport` in `build.sbt` the scaladoc generation fails for Delta Spark with some weird shimming-related error. I can provide more details if necessary.
+
+f3fe315 Makes the necessary python changes
+- Runs the python tests as part of the `spark_master_test` job
+- Upgrades scala versions throughout for `delta-spark` artifact names
+- Fixes a mypy error brought on by the mypy version upgrade
+- Updates the `delta-spark` python and pyspark versions
+
+f4587b2 Makes changes so that the integration tests run successfully
+- Change scala versions to use 2.13
+- Removes uniform integration tests
+- Fixes `table_exists.py` which otherwise fails with  "AnalysisException doesn't have attribute `desc`"
+
+f29496b Fixes failing tests for `sharing` and `storageS3DynamoDB`
+- Upgrades the hadoop version in storage related projects to match Spark
+  - `storageS3DynamoDB` tests were failing due to mismatched hadoop versions since it relies on delta-spark as a test dependency
+- Adds Java 17 test options for `sharing`
+
+## How was this patch tested?
+
+All the CI jobs should pass. Also ran the integration tests using `--use-local` in a conda environment.

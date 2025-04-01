@@ -1,0 +1,17 @@
+## Overview
+
+This pull request introduces automatic data skipping using generated columns, resolving #880. For a partition column with a generation expression, we automatically generate a partition filter from any data filters on its generating column, when possible. This can be turned on/off using the new `DeltaSQLConf.GENERATED_COLUMN_PARTITION_FILTER_OPTIMIZION_ENABLED` with key `"generatedColumn.partitionFilterOptimization.enabled"`.
+
+## Implementation details
+
+- `trait OptimizablePartitionExpression` - rules to convert a data filter to a partition filter for a specific generation expression (of a partition column)
+
+- `GeneratedColumn.getOptimizablePartitionExpressions(schema, partitionSchema)` - uses the table's schema and partition schema to create an `OptimizablePartitionExpression` for any partition column generated from a data column
+
+- `GeneratedColumn.generatePartitionFilters(...)` - generates partition filters from provided data filters if possible
+
+- `PrepareDeltaScan` - expanded to generate partition filters from data filters if possible, and apply them to the logical plan
+
+## Testing
+
+`OptimizeGeneratedColumnSuite` includes unit tests for correct partition filter generation, and detecting conflicting transactions based on read files.

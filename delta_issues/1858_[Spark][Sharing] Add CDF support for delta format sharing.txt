@@ -1,0 +1,17 @@
+#### Which Delta project/connector is this regarding?
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [x] Other (delta sharing)
+
+## Description
+Third PR of https://github.com/delta-io/delta/issues/2291: Adds CDF support for "delta format sharing":
+- DeltaSharingDataSource with cdf query support
+- DeltaSharingCDFUtils/DeltaSharingCDFUtilsSuite
+
+## How was this patch tested?
+Unit Tests
+
+## Does this PR introduce _any_ user-facing changes?
+No

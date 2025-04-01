@@ -1,0 +1,37 @@
+<!--
+Thanks for sending a pull request!  Here are some tips for you:
+  1. If this is your first time, please read our contributor guidelines: https://github.com/delta-io/delta/blob/master/CONTRIBUTING.md
+  2. If the PR is unfinished, add '[WIP]' in your PR title, e.g., '[WIP] Your PR title ...'.
+  3. Be sure to keep the PR description updated to reflect all changes.
+  4. Please write your PR title to summarize what this PR proposes.
+  5. If possible, provide a concise example to reproduce the issue for a faster review.
+  6. If applicable, include the corresponding issue number in the PR title and link it in the body.
+-->
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+In this PR, we batch resolve `DeltaMergeActions` in `ResolveMergeInto` to avoid redundant invocations of the analyzer.
+
+For example, if we have the clause 
+```
+WHEN NOT MATCHED THEN INSERT (c1, c2) VALUES (src.c1, 22) 
+```
+Previously, we would call `resolveSingleExprOrFail` which invokes the analyzer 4 times: 1 call to resolve `c1`, 1 call to resolve `src.c1`, 1 call to resolve `c2`, and 1 call to resolve `22`. 
+With this PR, we batch the resolution of the target column name parts (`[c1, c2]`) against the target relation and the resolution of assignment expression (`[src.c1, 22]`) together. We can resolve a Merge clause with 2 calls using batching. This helps us with the analyzer performance on wide tables.
+
+## How was this patch tested?
+Existing tests pass.
+
+## Does this PR introduce _any_ user-facing changes?
+No.

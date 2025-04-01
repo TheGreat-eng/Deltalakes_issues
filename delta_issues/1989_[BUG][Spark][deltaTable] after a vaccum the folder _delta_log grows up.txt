@@ -1,0 +1,44 @@
+## Bug
+
+#### Which Delta project/connector is this regarding?
+
+- [X] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other ()
+
+### Describe the problem
+
+After vacuum operation the files (*.crc , *.json) in log folder "_delta_log" grows up, how we can clean unnecessary logs ?  
+
+#### Steps to reproduce
+
+check size of  folder "_delta_log"
+exec vaccum
+check size of  folder "_delta_log"
+
+#### Observed results
+
+delta logs grows up
+
+#### Expected results
+
+after vaccum we need to  clean also log files
+
+#### Further details
+
+
+### Environment information
+
+* Delta Lake version: default databricks
+* Spark version:3.4.1
+* Scala version: 2.12
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [ ] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [ X] No. I cannot contribute a bug fix at this time.

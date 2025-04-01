@@ -1,0 +1,73 @@
+Sample code
+```scala
+import org.apache.spark.sql.SparkSession
+
+val    spark = SparkSession
+  .builder()
+  .appName("Save parsed Data to s3 Test")
+  .master("local[*]")
+  .config("spark.driver.bindAddress", "127.0.0.1")
+  .getOrCreate()
+
+spark.sql("CREATE DATABASE helios LOCATION '/tmp/delta'")
+spark.sql("""CREATE TABLE IF NOT EXISTS  helios.bronze (
+            | _datatypeId STRING,
+            |_guid STRING,
+            |_tenantId STRING,
+            |_ingestTime STRING,
+            |data STRING
+            |)
+            |USING DELTA
+            |""".stripMargin)
+
+val columns = Seq(
+  "_datatypeId",
+  "_guid",
+  "_tenantId",
+  "_ingestTime",
+  "data"
+)
+val data = Seq(
+  (
+    "datatype1",
+    "_guid1",
+    "_tenantId1",
+    "_ingestTime1",
+    "{\"data1\": \"data1\"}"
+  ),
+  (
+    "datatype2",
+    "_guid2",
+    "_tenantId2",
+    "_ingestTime2",
+    "{\"data2\": \"data2\"}"
+  ),
+  (
+    "datatype3",
+    "_guid3",
+    "_tenantId3",
+    "_ingestTime3",
+    "{\"data3\": \"data3\"}"
+  )
+)
+
+
+spark.sql("""CREATE TABLE IF NOT EXISTS  helios.silver (
+            | _datatypeId STRING
+            |)
+            |USING delta
+            |""".stripMargin)
+
+
+val dataFrame = spark.createDataFrame(data).toDF(columns: _*)
+
+dataFrame.write.format("delta").mode("append").saveAsTable("helios.bronze")
+
+val df = spark.readStream.format("delta").table("helios.bronze")
+
+df.select("_datatypeId").writeStream.format("delta").toTable("helios.silver").processAllAvailable()
+```
+
+The above code fails with "_org.apache.spark.sql.AnalysisException: Delta does not support specifying the schema at read time._" There is no schema specified. Detailed error log attached.
+
+[delta-exception.txt](https://github.com/delta-io/delta/files/7199366/delta-exception.txt)

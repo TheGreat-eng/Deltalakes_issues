@@ -1,0 +1,4 @@
+Hi, is there a way to see the execution plan at this level? 
+e.g. `deltaTable.alias('t1').merge(update_df.alias(t2), 't1.id = t2.id').explain()`
+
+I see the example from Databricks was by creating temp view, and executed from SQL, as in spark.sql('EXPLAIN ...')

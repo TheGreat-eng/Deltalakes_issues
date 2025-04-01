@@ -1,0 +1,7 @@
+## Description
+See for #3888 for details. 
+
+Some versions of the Delta-Spark written tables with commit info containing arbitrary value types in the map of s`tring -> string`. This has existed for a while. Update the Kernel default delta commit file reader to always try to parse as a `string` if the value type is a `string` type. This is not ideal, but no other easy ways to handle this.
+
+## How was this patch tested?
+UT.

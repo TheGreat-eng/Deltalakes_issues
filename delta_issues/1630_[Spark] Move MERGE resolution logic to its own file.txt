@@ -1,0 +1,19 @@
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [X] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+Move `resolveReferencesAndSchema` that implements the core resolution logic for Delta MERGE INTO command from package `catalyst` to `delta`. `deltaMerge` should only contain plan node definition but grew over time to accumulate all of the MERGE resolution logic. We'll eventually want to split this logic into smaller, more maintainable units.
+
+## How was this patch tested?
+This a plain refactor moving code around.
+
+

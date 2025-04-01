@@ -1,0 +1,18 @@
+Greetings,
+
+We have a mix of parquet tables and delta tables. we have observed that "Show create table $table_name" is not working for delta tables.
+We have a process to replicate all the table schemas to another environment and this is failing for delta tables with below error:
+
+Is there any workaround to extract the create table statements for delta tables?
+
+Error: SHOW CREATE TABLE is not supported for v2 tables.
+org.apache.spark.sql.execution.datasources.v2.DataSourceV2Strategy.apply(DataSourceV2Strategy.scala:350)
+org.apache.spark.sql.catalyst.planning.QueryPlanner.$anonfun$plan$1(QueryPlanner.scala:63)
+scala.collection.Iterator$$anon$11.nextCur(Iterator.scala:484)
+scala.collection.Iterator$$anon$11.hasNext(Iterator.scala:490)
+scala.collection.Iterator$$anon$11.hasNext(Iterator.scala:489)
+org.apache.spark.sql.catalyst.planning.QueryPlanner.plan(QueryPlanner.scala:93)
+org.apache.spark.sql.execution.SparkStrategies.plan(SparkStrategies.scala:68)
+org.apache.spark.sql.catalyst.planning.QueryPlanner.$anonfun$plan$3(QueryPlanner.scala:78)
+scala.collection.TraversableOnce.$anonfun$foldLeft$1(TraversableOnce.scala:162)
+scala.collection.TraversableOnce.$anonfun$foldLeft$1$adapted(TraversableOnce.scala:162)

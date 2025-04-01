@@ -1,0 +1,19 @@
+#### Which Delta project/connector is this regarding?
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+In Spark master, there is now an error code for checkpointRDDBlockIdNotFoundError. Depend on that instead of regexing against a message.
+
+## How was this patch tested?
+
+Test adapted.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No.

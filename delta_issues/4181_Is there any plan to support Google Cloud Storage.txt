@@ -1,0 +1,6 @@
+Hi,
+
+Is there any plan to support Google Cloud Storage
+
+Thank you in advance
+

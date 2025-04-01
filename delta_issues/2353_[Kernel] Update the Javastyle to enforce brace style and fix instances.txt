@@ -1,0 +1,18 @@
+#### Which Delta project/connector is this regarding?
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [x] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+Updates the java checkstyle for Kernel to enforce
+- Left { braces are at the end of the line https://checkstyle.org/checks/blocks/leftcurly.html#LeftCurly
+- Right } braces are on the same line as the next block start https://checkstyle.org/checks/blocks/rightcurly.html#RightCurly
+- Fixes the import order
+
+## How was this patch tested?
+
+Checkstyle passes

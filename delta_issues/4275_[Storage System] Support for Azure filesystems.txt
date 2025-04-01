@@ -1,0 +1,3 @@
+This is the official issue for tracking the work for supporting Azure File System. 
+Delta Lake version (0.1.0) does not support Azure File Systems because the default implementation is based on Hadoop's new FileContext and AbstractFileSystem APIs (gives atomic renames for HDFS) which Azure does not support yet. The plan is to build File System based LogStore implementation. 
+

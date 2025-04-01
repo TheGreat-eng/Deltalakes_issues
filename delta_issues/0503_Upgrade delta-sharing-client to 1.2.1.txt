@@ -1,0 +1,16 @@
+#### Which Delta project/connector is this regarding?
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [X] Other (Sharing)
+
+## Description
+Upgrade delta-sharing-client to 1.2.1 in DBR master, see the changes in https://github.com/delta-io/delta-sharing/releases/tag/v1.2.1, supporting EndStreamAction, and additional logging.
+
+## How was this patch tested?
+Unit Tests
+
+## Does this PR introduce _any_ user-facing changes?
+No

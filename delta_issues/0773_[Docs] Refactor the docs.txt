@@ -1,0 +1,6 @@
+Refactor the docs to:
+* make it easy to access the documentation for each connector.
+* add Kernel docs
+
+Changes are staged at: https://docs.delta.io/0.0.2/index.html
+

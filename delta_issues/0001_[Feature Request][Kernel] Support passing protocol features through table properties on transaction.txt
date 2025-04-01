@@ -1,0 +1,38 @@
+## Feature request
+
+When a feature with the name `delta.feature.<feature>` is passed in the [TableProperties](https://github.com/delta-io/delta/blob/master/kernel/kernel-api/src/main/java/io/delta/kernel/TransactionBuilder.java#L84C22-L84C41) map, it should be added to a protocol action and removed from the map (which gets stored as metadata).
+
+#### Which Delta project/connector is this regarding?
+
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [x] Kernel
+- [ ] Other (fill in here)
+
+### Overview
+
+Today, there are some features that Kernel cannot properly set on the protocol.  Being able to pass these through TableProperties and have them set in Reader/Writer features for table is needed to be able to modify table level features.
+
+### Motivation
+
+See overview
+
+### Further details
+
+Rough steps:
+
+1. look at given properties and see if it any of them is prefixed with delta.feature
+2. extract the features out of these properties
+3. remove these properties from metadata that we are going to update
+4. update the protocol with these new features.
+
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [x] Yes. I can contribute this feature independently.
+- [ ] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.

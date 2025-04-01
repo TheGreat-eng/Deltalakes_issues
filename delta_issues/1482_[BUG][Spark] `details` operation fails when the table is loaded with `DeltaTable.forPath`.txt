@@ -1,0 +1,46 @@
+## Bug
+
+#### Which Delta project/connector is this regarding?
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+### Describe the problem
+
+The `details` operation fails on a table loaded with  `DeltaTable.forPath`. Looking at the code, this seems to be caused by the fact that that a table is loaded without a `tableIdentifier` in this context. This seems to be a conscientious decision by looking at the code: 
+
+https://github.com/delta-io/delta/blob/master/spark/src/main/scala/org/apache/spark/sql/delta/commands/DescribeDeltaDetailsCommand.scala#L200C16-L204
+
+In case this is intended this limitation for tables loaded using `forPath` should be more explicit somehow. If not (as it was the case of previous versions of delta - 2.x), I can propose a patch to allow the `details` operation to run on tables without a `tableIdentifier` but containing a path. 
+
+#### Steps to reproduce
+
+```
+val table = DeltaTable.forPath("file://tmp/table.tmp")
+table.details()
+```
+
+#### Observed results
+
+Exception: `UnresolvedPathBasedTable`  is thrown whenever the `details` operation is launched on a table loaded with  `DeltaTable.forPath`.
+
+#### Expected results
+
+The `details` operation should return a table details dataframe with an empty `tableIdentifier` and containing a table path.
+
+### Environment information
+
+* Delta Lake version: 3.1.0
+* Spark version: 3.5.1
+* Scala version: 2.12
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [x] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute a bug fix at this time.

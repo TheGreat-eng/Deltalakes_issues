@@ -1,0 +1,48 @@
+<!--
+Thanks for sending a pull request!  Here are some tips for you:
+  1. If this is your first time, please read our contributor guidelines: https://github.com/delta-io/delta/blob/master/CONTRIBUTING.md
+  2. If the PR is unfinished, add '[WIP]' in your PR title, e.g., '[WIP] Your PR title ...'.
+  3. Be sure to keep the PR description updated to reflect all changes.
+  4. Please write your PR title to summarize what this PR proposes.
+  5. If possible, provide a concise example to reproduce the issue for a faster review.
+  6. If applicable, include the corresponding issue number in the PR title and link it in the body.
+-->
+
+#### Which Delta project/connector is this regarding?
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+This PR adds a register API with managed commits.
+
+1. Initial snapshot shouldn't have CommitStore.
+
+2. Introduce concept of managedCommitTableConf. This info is unique to the table. e.g. tableId etc.
+- with this change, now configuration has 2 table properties related to managed commits:
+2.1 `managedCommitOwnerName` - name of the MC Owner
+2.2 `managedCommitOwnerConf` - configuration related to owner
+2.3 `managedCommitTableConf` - managed commit configuration related to table
+
+`2.1` and `2.2` are used to initialize CommitStore.
+`2.3` is passed as an argument to CommitStore{commit/getCommits/backfillUpto} APIs as it is needed to uniquely identify the table by the owner.
+
+3. CommitStore pre-registration support. If a table is transitioning for FS -> MC, we register with commit-store and get the `managedCommitTableConf` for it. This conf is then set in Metadata.
+
+4. This PR moves the `FS -> MC` commit (or 0th commit) to filesystem as forcing to go it via Commit Owner adds additional complexity and doesn't give any major advantage. So whenever a transition is happening, the commit goes through previous owner:
+i.e. For FS -> MC, commit goes through FS. For MC -> FS, commit goes through MC.
+
+5. This PR also introduces a `TableCommitStore` which is a helper class / simplified version of CommitStore. It takes care of passing basic things by itself. e.g. logPath, managedCommitTableMetadata, hadoopConf, logPath.
+
+
+## How was this patch tested?
+
+UTs
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

@@ -1,0 +1,67 @@
+Hello,
+
+I am following these tips and have added my partition column to the merge condition.
+https://docs.delta.io/latest/delta-update.html#performance-tuning
+
+When I merge in a set of files that has a value for the partition column that does not exist yet as a partition, I would expect that partition to be created during the upsert.
+
+Is that correct?
+
+If so, that is the not the behavior I am seeing. The merge still happens, but it seems to be just throwing it into a random existing partition.
+
+```python
+        newDataFragment = spark.read.option("mergeSchema", "true").parquet(*file_fragment_paths) \
+            .withColumn(
+                "row_number",
+                F.row_number().over(Window.partitionBy([F.col(pk) for pk in primary_keys]).orderBy(F.col('ExportTimestamp').desc()))) \
+            .filter(F.col("row_number")==1) \
+            .drop('row_number') \
+            .alias('source')
+
+        if not DeltaTable.isDeltaTable(spark, delta_path):
+            newDataFragment \
+              .write \
+              .format("delta") \
+              .partitionBy("TenantId") \
+              .save(delta_path)
+        else:
+            existingDeltaTable = DeltaTable.forPath(spark, delta_path).alias('sink')
+
+            merge_condition = ' AND '.join([
+                f"sink.TenantId = source.TenantId",
+                f"sink.TenantId = '{tenant_id}'",
+                *[ f"sink.{pk} = source.{pk}" for pk in primary_keys ]
+            ])
+
+            existingDeltaTable \
+                .merge(
+                    newDataFragment,
+                    merge_condition
+                ) \
+                .whenMatchedUpdateAll() \
+                .whenNotMatchedInsertAll() \
+                .execute()
+```
+
+I saw that you can force a repartition but that sounds expensive.
+
+```python
+path = "..."
+partition = "year = '2019'"
+numFilesPerPartition = 16
+
+(spark.read
+ .format("delta")
+ .load(path)
+ .where(partition)
+ .repartition(numFilesPerPartition)
+ .write
+ .option("dataChange", "false")
+ .format("delta")
+ .mode("overwrite")
+ .option("replaceWhere", partition)
+ .save(path))
+```
+Is there anyway to have this done automatically during the merge?
+
+Thank you!

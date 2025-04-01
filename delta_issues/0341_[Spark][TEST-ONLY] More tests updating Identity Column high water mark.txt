@@ -1,0 +1,18 @@
+#### Which Delta project/connector is this regarding?
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+Test-only PR. Add one more test for updating the identity column high water mark when it not already available.
+
+## How was this patch tested?
+
+Test-only PR.
+
+## Does this PR introduce _any_ user-facing changes?
+No.

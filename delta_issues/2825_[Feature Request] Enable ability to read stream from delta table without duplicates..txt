@@ -1,0 +1,41 @@
+## Feature request
+
+### Overview
+
+Enable the ability to read the stream from the delta table without duplicates.
+
+### Motivation
+
+While there are a big amount of technics to deal with duplicates over the stream, like Dirty Partitioning or SCD(2) or ingest from CDC events, they bring costly overhead from a CPU/Memory perspective. Especially when we talk about `big data` workload.  
+
+But there are a lot of business use cases that give the ability to separate Updates/Overwrites/Delete with Append of new data. \
+Mostly this is streams of Facts, like IoT metrics or user activity, which are always immutable and there are only a few cases when this data must be updated or deleted. 
+- Some data/table layouts require row-level deletes to apply GDPR/CCPA/Other_Regulations.
+- Update/Overwrite in 99% of cases is not business logic, but the technical implementation of reprocessing data in case fails/dirty data.
+
+As you may notice this is a pretty rare event in comparison to near real-time data ingestion.
+So in case data engineers can use data stream from append-only data, and treat all updates as an exceptional case. DE can achieve significant cost reduction over their data pipeline.
+
+So while this approach increases technical complexity.
+It is obvious that separating of AppendOnly ingestion and Reruns brings additional complexity to the system.
+But for a lot of data pipelines and business keeping cost per event
+
+P.S. [Iceberg has a similar feature](https://iceberg.apache.org/docs/latest/spark-structured-streaming/#streaming-reads). it's not really fair to compare, because Iceberg is not a transaction log and did not support CDC before version 2.0. But still, I think delta may support `append-only` streams as first-class citizens, and not only CDC.
+
+### Further details
+
+Suggested technical implementation:
+Add an `append-only` option to the delta.io stream source.
+1.  With this option, the delta source will ignore any commits except blind append. And using this `isBlindAppend` from `CommitInfo` to filter out commits which is not `blindAppend`.
+2. With this option, the delta source will ignore any commits which contain add and remove files simultaneously. 
+
+The first approach is deadly simple but will ignore some interesting cases like the `MERGE` operation which only inserts data. 
+The second approach will handle `MERGE`. But from my point of view - this can make API less concise, because people may expect that during the `OVERWRITE` operation when new data is added, this new data will be available through a stream source. Also, it's not 100% clear, what must be a behavior when DELETE and then MERGE with Only Inserts happen - this may lead to logical duplicates in some cases.
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute to the implementation of this feature?
+
+- [x] Yes. I can contribute this feature independently.
+- [ ] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.

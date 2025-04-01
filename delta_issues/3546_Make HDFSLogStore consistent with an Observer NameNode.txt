@@ -1,0 +1,3 @@
+Resolves #767
+
+Adds an `msync` call after a successful write in the HDFSLogStore. This is needed because after a write using the FileContext API, the FileSystem API, which is used for reading, is not guaranteed to be able to read the write, even from the same process. This causes issues when a transaction is committed and then the new version is immediately read. This msync on the FileSystem API forces the cached FileSystem object to update it's internal state version so that the next read is guaranteed to see the write.

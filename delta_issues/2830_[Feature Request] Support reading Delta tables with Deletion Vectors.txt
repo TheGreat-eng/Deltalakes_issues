@@ -1,0 +1,39 @@
+## Feature request
+This task is part of the Deletion Vectors support feature. The scope here is support reading Delta tables with deletion vectors (DVs) in the current master.
+
+### Overview
+Regarding the DV protocol refer to https://github.com/delta-io/delta/issues/1367. 
+
+At a high level if a Parquet file has one or more records marked for deletion (using DVs), there is a corresponding DV file in the storage that contains the indices of the records marked for deletion in the file. The DV file name is part of the `AddFile` (see [protocol](https://github.com/delta-io/delta/blob/master/PROTOCOL.md#add-file-and-remove-file)).
+
+Following are the main changes needed for this task:
+ID| Task description | PR | Status |
+|---|---|---|---|
+|1| Custom `RoaringBitmap` that is optimized for cases that usually fit within a 32-bit bitmap. Reason for adding this bitmap structure will be explained in the PR.| delta-io/delta#1486 | DONE |
+|2| Encoding/Decoding of DV to Base85 variant for storing inline in DeltaLog |delta-io/delta#1487|DONE|
+|3|Add `DeletionVectorDescriptor` to parse the `AddFile.deletionVector` (metadata describing the DV location for the file in `AddFile`)|delta-io/delta#1528|DONE|
+|4|`DeletionVectorStore` to read and write DV content to disk |delta-io/delta#1534|DONE|
+|5|`RowIndexFilter` which reads the DV contents and provides an interface to get a DV value for a given index(es)|delta-io/delta#1536|DONE|
+|6|Update [AddFile](https://github.com/delta-io/delta/blob/master/core/src/main/scala/org/apache/spark/sql/delta/actions/actions.scala#L287) and RemoveFile with a new field `deletionVector` |delta-io/delta#1560|DONE|
+|7|Planner rule to inject a Filter just after the Delta Parquet scan. This rule modifies the plan:<br>. <ul><li>Before rule: `<Parent Node> -> Delta Scan (key, value)` . Here we are reading `key`, `value` columns from the Delta table</li><li>After rule: `<Parent Node> -> Project(key, value) -> Filter (udf(__skip_row == 0) -> Delta Scan (key, value, __skip_row)`</li><li><ul><li>Here we insert a new column in Delta scan `__skip_row`. This value is populated by the Parquet reader (refer to the next change) and it contains `0` if we want to keep the row. The value here is populated by the deletion vector corresponding the Parquet file being read.</li><li>The scan created also disables Parquet file splitting and filter pushdowns, because in order to generate the `__skip_row` we need to read the rows in a file consecutively in order to generate the row index. This is a drawback we need to pay until we upgrade to latest Apache Spark which contains Parquet reader changes that automatically generate the row_index irrespective of the file splitting and filter pushdowns.</li><li>The scan created also contains a broadcast variable of Parquet File -> DV File map. The Parquet reader created uses this map to find the DV file corresponding to the Parquet file.</li><li>Filter created just filters out rows with `__skip_row` equals to 0</li><li>And at the end we have a `Project` to keep the plan node output same as before the rule is applied</li></ul></li></ul> |delta-io/delta#1560|DONE|
+|8|`DeltaParquetFileFormat.buildReaderWithPartitionValues` to add a new column `__skip_row` to the data returned by the Parquet reader. |delta-io/delta#1542|DONE|
+|9| Integration tests|||
+|10| Throw unsupported error when DELETE/MERGE/UPDATE is run on Delta table with DVs. This is temporary until we support the DV write support|delta-io/delta#1603|DONE|
+|11| Limit pushdown updates - Consider the `deletionVector.cardinality` in stats to prune the file list.|delta-io/delta#1577|DONE|
+|12| Aggregation pushdown - Consider the `deletionVector.cardinality` in stats to prune the file list.|delta-io/delta#1560|DONE|
+|13| Vacuum support - Include the DV file of the GC survived FileAction in the list of GC survived files.|delta-io/delta#1676|DONE|
+|14| Optimize support on tables with DVs |delta-io/delta#1578|DONE|
+|15| Generate manifest file - Throws error if the table has DVs|delta-io/delta#1595|DONE|
+|16| Shallow clone support on Delta tables with DVs|delta-io/delta#1733|DONE|
+|17| Restore clone support on Delta tables with DVs|delta-io/delta#1735|DONE|
+|18| Handle DVs in min/max optimize delta-io/delta#1525||LATER|
+|19| Delta checkpoint support - make sure the DV info is preserved |delta-io/delta#1576|DONE|
+|20| Check if stats recomputation on tables with DVs needs any fixes for correctness ||DONE|
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [ ] Yes. I can contribute this feature independently.
+- [x] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.

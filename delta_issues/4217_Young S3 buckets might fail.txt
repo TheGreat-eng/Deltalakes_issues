@@ -1,0 +1,5 @@
+From [AWS support page](https://aws.amazon.com/premiumsupport/knowledge-center/s3-http-307-response/): "After you create an Amazon S3 bucket, it can take up to 24 hours for the bucket name to propagate across all AWS Regions. During this time, you might receive the "307 Temporary Redirect" response for requests to regional endpoints that aren't in the same Region as the S3 bucket."
+
+Delta SDK does not seem to properly implement the temporary redirects returned by AWS.  On friday, with a new bucket, my code failed with mention of said temporary redirects in the debug logging.  Today, on monday, after not changing anything, the code seems to do fine.
+
+I am unsure how to get to the exact details of the API calls  in order to verify the exact differences between the original API call and the call after the temporary redirect.  Let me know if I can help to debug this further.

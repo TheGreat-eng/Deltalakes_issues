@@ -1,0 +1,53 @@
+## Feature request
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the issue title
+For example: [Feature Request][Spark] Title of my issue
+-->
+
+- [x] Spark
+- [x] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other
+
+### Overview
+
+<!-- Provide a high-level description of the feature request. -->
+
+I want to propose is an _encrypted delta lake_, where the data that is written to and read from file storage are encrypted _at the file format level_.
+
+### Motivation
+
+<!-- How will this feature be used? Why is it important? Which users will benefit from it? -->
+
+I want to facilitate performant analytics in a situation where compute agents (e.g., Spark) can be trusted (because they run on-prem, for example) but the underlying storage cannot (because server-side encryption is inadequate).
+
+### Further details
+
+<!--
+Use this section to include any additional information about the feature. If you have a proposal for how to implement this feature, please include it here. For implementation guidelines, please read our contributor guidelines: https://github.com/delta-io/delta/blob/master/CONTRIBUTING.md
+If there are any specific requirements for this feature that are not immediately obvious please outline them here.
+-->
+
+I think the way Iceberg does this is well-thought-out, and I propose we do the same here. Iceberg provides [an encryption API](https://github.com/apache/iceberg/tree/apache-iceberg-1.4.2/api/src/main/java/org/apache/iceberg/encryption) that defines a set of interfaces that encryption schemes adhere to, and they provide [a simple AES-GCM streaming encryption/decryption implementation](https://github.com/apache/iceberg/pull/3231) which operates on Avro data and metadata files.
+
+Because Delta Lake is a Parquet-only lakehouse format, I propose using Parquet-native encryption for data files and a manual encryption solution for metadata fiels/transaction logs. I'd want to:
+
+* Create simple traits for an encryption state manager/KMS client and associated streaming encryption/decryption operators.
+* Add hooks to the places where Delta Lake reads & writes metadata files from/to the underlying storage infrastructure.
+* Add logic and functionality for Parquet encryption to data file read/write.
+* Write a simple AES-GCM implementation to use with the new encryption API & hooks.
+* Write a straightforward key provider implementation for user-provided keys via table metadata.
+* Add some sort of hash chain to the commit log for integrity purposes
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [x] Yes. I can contribute this feature independently. I have a good number of dev hours to personally commit to this.
+- [ ] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.
+
+I'm also potentially willing to implement this functionality for `delta-rs`.

@@ -1,0 +1,4 @@
+- Tune DeltaTable.vacuum operation to delete files in parallel depending on the number of partitions instead of deleting one by one
+- Passed unit testing(org.apache.spark.sql.delta.DeltaVacuumSuite)
+- Used it to delete around 300K files on gcs using cluster with 8 workers (n1-standard-4(4CPUs,15GB)) in 10 minutes
+  and setting --conf spark.sql.sources.parallelPartitionDiscovery.parallelism=1000

@@ -1,0 +1,5 @@
+- tweak build.sbt
+- update dependencies
+- address deprecation warning
+- add scalafmt
+- add README.md

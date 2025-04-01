@@ -1,0 +1,3 @@
+Hello, 
+
+We are using versioned s3 buckets that keep non-current versions for 60 days. Our delta tables use the default `delta.logRetentionDuration` setting of 30 days. We are wondering if there is any way to restore history for `_delta_log` files that were removed after 30 days, but are still versioned in s3 ? Thank you

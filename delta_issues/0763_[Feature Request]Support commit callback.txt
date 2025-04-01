@@ -1,0 +1,2 @@
+Similar to hudi callback feature:
+https://hudi.apache.org/cn/docs/configurations/#COMMIT_CALLBACK

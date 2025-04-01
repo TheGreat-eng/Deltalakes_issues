@@ -1,0 +1,10 @@
+## Description
+
+This PR added the checkpoint file schema to `CheckpointMetadata` (stored in `_last_checkpoint`) and expose the checkpoint file schema in `Snapshot` for future improvements.
+
+## How was this patch tested?
+UTs
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

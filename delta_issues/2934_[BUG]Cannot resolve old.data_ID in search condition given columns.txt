@@ -1,0 +1,52 @@
+Hello, 
+I'm facing a issue when trying to upsert into deltatable. 
+
+### Describe the problem
+
+I'm trying to merge a data that has a columns named data, this data is XML formatted, therefore I'm extracting it and flattening columns. All these steps works flawlessly and my final data is something like:
+
+data_ID (primarykey) data_MESSAGE_NO, data_STATUS, beforeData_ID, beforeData_MESSAGE_NO, beforeData_STATUS...
+
+and so on...
+
+Worth to say that many merge works fina, but at some point it breaks (maybe because of the original data?)
+
+#### Steps to reproduce
+deltaTable = DeltaTable.forPath(self.spark, self.delta_table_s3_output_path)
+spark.sql(f"ALTER TABLE {self.delta_table_name_analytics} SET TBLPROPERTIES(delta.compatibility.symlinkFormatManifest.enabled=true)")
+spark.sql(f"ALTER TABLE {self.delta_table_name_analytics} SET TBLPROPERTIES (delta.enableChangeDataFeed = true)")
+spark.sql(f"SET {self.delta_table_name_analytics} SET TBLPROPERTIES (spark.databricks.delta.schema.autoMerge.enabled=true")
+        
+:: stream read and stream write (foreach batch)
+
+:: This is the condition string to merge this primary key
+condition_string = f"old.data_ID = updates.beforeData_ID"
+
+# For each microBatchDF
+deltaTable.alias('old') \
+            .merge(
+                source=microBatchDF.alias('updates'),
+                condition=condition_merge) \
+            .whenMatchedUpdateAll(condition='updates.headers_operation = "UPDATE"') \
+            .whenMatchedDelete(condition='updates.headers_operation = "DELETE"') \
+            .whenNotMatchedInsertAll()\
+            .execute()
+
+I have made some dummy tests trying to reproduce the error, testing with data_ID null and things like that, but not able to reproduce it.
+
+#### Observed results
+
+- Weirdly in the error message it looks like the merge is trying to find "old.data_ID" in the "updates" part, just like there is no "old" part in the merge. We tried to reinstantiate deltatable for each microbatch because maybe it was losing the reference, but it did not solve the issue
+
+#### Further details
+
+- The write usually runs for 2, 3 Microbatch until it breaks with the error..
+
+pyspark.sql.utils.AnalysisException: cannot resolve old.data_ID in search condition given columns updates.topic, updates.partition, updates.offset, updates.timestamp, updates.timestampType, updates.key, updates.data_ID, updates.data_MESSAGE_NO, updates.data_STATUS, updates.data_xml_data__corrupt_record, updates.data_xml_data__xmlns_xsi, updates.data_xml_data_header_destination, updates.data_xml_data_header_message_number, updates.data_xml_data_header_message_type, updates.data_xml_data_header_timestamp, updates.data_xml_data_telegram_characteristic__name, updates.data_xml_data_telegram_characteristic_value, updates.data_xml_data_telegram_event__VALUE, updates.data_xml_data_telegram_event__name, updates.data_PRIORITY, updates.data_T_CREATED, updates.data_T_MODIFIED, updates.data_REMARK, updates.data_MQ_MSG_ID, updates.data_DESTINATION, updates.data_SENDER, updates.beforeData_ID, updates.beforeData_MESSAGE_NO, updates.beforeData_STATUS, updates.beforeData_xml_data__corrupt_record, updates.beforeData_PRIORITY, updates.beforeData_T_CREATED, updates.beforeData_T_MODIFIED, updates.beforeData_REMARK, updates.beforeData_MQ_MSG_ID, updates.beforeData_DESTINATION, updates.beforeData_SENDER, updates.headers_operation, updates.headers_changeSequence, updates.headers_timestamp, updates.headers_streamPosition, updates.headers_transactionId, updates.headers_changeMask, updates.headers_columnMask, updates.headers_transactionEventCounter, updates.headers_transactionLastEvent, updates.year, updates.month, updates.day; line 1 pos 0
+
+### Environment information
+
+* Delta Lake version: 2.1.0
+* Spark version: 3.2.0
+* Scala version: 2.12
+* Python version: 3.9

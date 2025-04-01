@@ -1,0 +1,2 @@
+Added logic and unit tests to block queries like ``CREATE TABLE delta.`/foo` USING delta LOCATION "/bar"`` where ambiguous paths are supplied.
+Users can allow such queries by setting the `DELTA_LEGACY_ALLOW_AMBIGUOUS_PATHS` flag to true, in which case the `USING delta LOCATION "/bar"` statement will be ignored.

@@ -1,0 +1,95 @@
+## removeInternalMetadata
+
+#### delta-sharing-client_2.12-1.2.2.jar
+<!--
+Please add the component selected below to the beginning of the issue title
+For example: [BUG][Spark] Title of my issue
+-->
+
+- [x ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+### Describe the problem
+This problem apears today in a daily job created with glue and spark  using delta sharing conector for a customer what provide us a conector
+
+#### Steps to reproduce
+
+
+%worker_type G.1X
+%number_of_workers 3
+# %additional_python_modules  psycopg2-binary
+%extra_jars s3://bucket-bucket/PROD/customers_data/d1/delta_jars/delta-sharing-spark_2.12-3.2.0.jar, s3://bucket-bucket/PROD/customers_data/d1/delta_jars/delta-sharing-client_2.12-1.2.2.jar, s3://bucket-bucket/PROD/customers_data/d1/delta_jars/delta-spark_2.12-3.2.1.jar
+%%configure
+{
+    "--datalake-formats": "delta",
+    "--conf": "spark.sql.extensions=io.delta.sql.DeltaSparkSessionExtension --conf spark.sql.catalog.spark_catalog=org.apache.spark.sql.delta.catalog.DeltaCatalog --conf spark.delta.logStore.class=org.apache.spark.sql.delta.storage.S3SingleDriverLogStore --conf spark.jars.packages=org.apache.hadoop:hadoop-azure:3.3.1,io.delta:delta-core_2.12:2.2.0,io.delta:delta-sharing-spark_2.12:0.6.2",
+    }
+
+
+
+ENV = "prod"
+s3_profile_file = "s3://bucket/PROD/customers_data/d1/tiendas_delta_sharing_conn/config.share"
+profile_file = s3_profile_file
+table_url = profile_file + "#d1_api_xbrein_share.bodega_d1.dim_tiendas"
+
+#esquema y tablas donde se insertaran los datos
+target_schema = 'customer_tiendas_d1_co'
+target_hist_table = 'staging_tiendas_hist'
+target_daily_table = 'locales_propios_dinamico'
+# target_daily_table = 'daily_stores'#only for test 
+table_path = f"{s3_profile_file}#d1_api_xbrein_share.bodega_d1.dim_tiendas"
+print(table_path)
+sdf = spark.read.format("deltaSharing").load(table_path) #here the error happens
+
+#### Observed results
+
+Py4JJavaError: An error occurred while calling o276.load.
+: java.lang.NoSuchMethodError: 'org.apache.spark.sql.types.StructType org.apache.spark.sql.delta.DeltaTableUtils$.removeInternalMetadata(org.apache.spark.sql.SparkSession, org.apache.spark.sql.types.StructType)'
+	at io.delta.sharing.spark.DeltaSharingDataSource.getHadoopFsRelationForDeltaSnapshotQuery(DeltaSharingDataSource.scala:421)
+	at io.delta.sharing.spark.DeltaSharingDataSource.autoResolveBaseRelationForSnapshotQuery(DeltaSharingDataSource.scala:369)
+	at io.delta.sharing.spark.DeltaSharingDataSource.createRelation(DeltaSharingDataSource.scala:237)
+	at org.apache.spark.sql.execution.datasources.DataSource.resolveRelation(DataSource.scala:369)
+	at org.apache.spark.sql.execution.datasources.DataSource.resolveRelation(DataSource.scala:345)
+	at org.apache.spark.sql.DataFrameReader.loadV1Source(DataFrameReader.scala:278)
+	at org.apache.spark.sql.DataFrameReader.$anonfun$load$1(DataFrameReader.scala:210)
+	at scala.Option.getOrElse(Option.scala:189)
+	at org.apache.spark.sql.DataFrameReader.load(DataFrameReader.scala:210)
+	at org.apache.spark.sql.DataFrameReader.load(DataFrameReader.scala:188)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:569)
+	at py4j.reflection.MethodInvoker.invoke(MethodInvoker.java:244)
+	at py4j.reflection.ReflectionEngine.invoke(ReflectionEngine.java:374)
+	at py4j.Gateway.invoke(Gateway.java:282)
+	at py4j.commands.AbstractCommand.invokeMethod(AbstractCommand.java:132)
+	at py4j.commands.CallCommand.execute(CallCommand.java:79)
+	at py4j.GatewayConnection.run(GatewayConnection.java:238)
+	at java.base/java.lang.Thread.run(Thread.java:840)
+
+#### Expected results
+
+This work fine yesterday, but , now is failing
+
+#### Further details
+
+<!--
+Include any additional details that may be useful for diagnosing the problem here. If including tracebacks, please include the full traceback. Large logs and files should be attached.
+-->
+
+### Environment information
+
+* Delta Lake version:2.12-1.2.2.
+* Spark version:3.5.2
+* Scala version:x
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [ ] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [ x] No. I cannot contribute a bug fix at this time.

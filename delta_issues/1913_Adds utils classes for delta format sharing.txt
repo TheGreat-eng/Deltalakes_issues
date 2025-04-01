@@ -1,0 +1,18 @@
+#### Which Delta project/connector is this regarding?
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [x] Other (delta sharing)
+
+## Description
+Adds utils classes for "delta format sharing"
+- DeltaSharingUtils
+- DeltaSharingFileIndex
+- DeltaSharingLogFileSystem
+
+## How was this patch tested?
+Unit Tests
+
+## Does this PR introduce _any_ user-facing changes?
+No

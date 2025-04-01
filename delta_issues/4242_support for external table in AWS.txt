@@ -1,0 +1,7 @@
+Hi,
+users building data lake in AWS, or in other systems, use EXTERNAL TABLES quite a lot. This gives their solutions high flexibility. For example having either a personal metastore or using Glue datacatalog. 
+
+It will be great if delta support as a storage class was included for HIVE metastores as well. I think we can and do read data using HIVE or SPARK directly from DELTA write locations, but it does give us duplicates, because its just reading the parquet files.
+
+Regards,
+Gourav

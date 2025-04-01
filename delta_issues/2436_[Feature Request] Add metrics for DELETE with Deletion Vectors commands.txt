@@ -1,0 +1,16 @@
+## Feature request
+Left over task from the delta-io/1591.
+
+Currently the DELETE command doesn't add any commit metrics when DVs are generated/updated.
+
+We want at least the following two metrics to the commit info.
+
+```
+numDeletionVectorsAdded : 3
+numDeletionVectorsRemoved: 3
+```
+
+These metrics will show up in 
+```
+DESCRIBE HISTORY delta.`path/to/table`
+```

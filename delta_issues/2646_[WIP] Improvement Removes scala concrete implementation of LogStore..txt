@@ -1,0 +1,38 @@
+## Description
+This PR removes all the scala concrete implementation of LogStore and replaces them with its Java Implementation. This change is needed because we started using java LogStores a while ago, take a look at its [implementation](https://github.com/delta-io/delta/issues/951). 
+
+The Implementation removed are:
+
+- S3SingleDriverLogStore
+- AzureLogStore
+- LocalLogStore
+- HDFSLogStore
+- HadoopFileSystemLogStore (in progress)
+
+This PR Resolves #1636
+
+
+## How was this patch tested?
+I adapted and executed the following unit test:
+
+- DeltaTableSuite
+- CheckPointSuite
+- All Subclasses of LogStoreSuiteBase
+- DuplicatingListLogStoreSuite
+- DelegatingLogStoreSuite
+- DeltaCommitLockSuite
+- DeltaDataFrameHadoopOptionsSuite
+
+<!--
+If tests were added, say they were added here. Please make sure to test the changes thoroughly including negative and positive cases if possible.
+If the changes were tested in any way other than unit tests, please clarify how you tested step by step (ideally copy and paste-able, so that other reviewers can test and check, and descendants can verify in the future).
+If the changes were not tested, please explain why.
+-->
+
+## Does this PR introduce _any_ user-facing changes?
+No
+<!--
+If yes, please clarify the previous behavior and the change this PR proposes - provide the console output, description and/or an example to show the behavior difference if possible.
+If possible, please also clarify if this is a user-facing change compared to the released Delta Lake versions or within the unreleased branches such as master.
+If no, write 'No'.
+-->

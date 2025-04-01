@@ -1,0 +1,19 @@
+#### Which Delta project/connector is this regarding?
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [X] Other (Infra)
+
+## Description
+
+Separate out delta-spark python tests to their own GitHub CI
+
+## How was this patch tested?
+
+CI tests
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

@@ -1,0 +1,19 @@
+#### Which Delta project/connector is this regarding?
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+This PR changes how Column Mapping is applied to the filters that are pushed down in the Parquet reader. Before this change we would parse the identifiers before replacing the identifiers. This could cause some queries to fail, as the identifiers in the pushed down filters are not 100% guaranteed to be quoted. With this PR we avoid the parsing and instead match the unparsed identifier. If the identifier was not quoted as expected then we simply ignore the predicate. This matches how `ParquetFilters` (used by `ParquetFileFormat`) processes the identifiers in the pushed down predicates.
+
+## How was this patch tested?
+
+Existing tests
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

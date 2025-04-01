@@ -1,0 +1,7 @@
+## Description
+(Split from larger PR #2944)
+
+Adds a utility method to convert the partition value literal to Delta protocol-compliant string value.
+
+## How was this patch tested?
+UTs

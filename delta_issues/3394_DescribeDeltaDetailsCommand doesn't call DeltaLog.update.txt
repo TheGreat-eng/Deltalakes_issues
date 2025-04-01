@@ -1,0 +1,3 @@
+DescribeDeltaDetailsCommand doesn't call `DeltaLog.update` after `DeltaLog.forTable`: https://github.com/delta-io/delta/blob/1fcb1dacc8d4ec671cd499676bb61d55d343cc2a/core/src/main/scala/org/apache/spark/sql/delta/commands/DescribeDeltaDetailsCommand.scala#L79
+
+Hence it may return a stale result if `DeltaLog.forTable` returns a cached `DeltaLog`.

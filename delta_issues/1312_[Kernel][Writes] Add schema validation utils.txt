@@ -1,0 +1,7 @@
+## Description
+(Split from the larger PR #2944)
+
+These are utility to make sure the given schema when creating the table is valid (has no duplicate column names or invalid chars). The code/logic is similar to Delta-Spark/Standalone.
+
+## How was this patch tested?
+Unittests

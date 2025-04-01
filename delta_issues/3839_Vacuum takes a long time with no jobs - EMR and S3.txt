@@ -1,0 +1,19 @@
+I'm writing a lot of data into Delta lake, running on AWS EMR with S3 as storage layer. I'm using EMRFS.
+
+For performance improvements, I'm compacting and vacuuming the table every so often like so:
+```
+    spark.read.format("delta").load(s3path)
+            .repartition(num_files)
+            .write.option("dataChange", "false").format("delta").mode("overwrite").save(s3path)
+    
+    t = DeltaTable.forPath(spark, path)
+    t.vacuum(24)
+```
+
+It's then deleting 100k's of files from S3. However, the vacuum step takes an extremly long time. During this time, it appears the job is idle, however every ~5-10 minutes there will be a small task that indicates the job is alive and doing something. 
+
+[![Starting from task 16][1]][1]
+
+  [1]: https://i.stack.imgur.com/nnScu.png
+
+I've read through this post https://stackoverflow.com/questions/36524945/spark-long-delay-between-jobs.  But I don't see any options on the delta side to tune any parameters.

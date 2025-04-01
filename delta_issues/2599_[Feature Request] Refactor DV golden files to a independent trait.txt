@@ -1,0 +1,15 @@
+## Feature request
+
+### Overview
+
+... so we could move DV MERGE and DELETE tests into corresponding MERGE and DELETE suites.
+
+This FR is a follow-up of https://github.com/delta-io/delta/pull/1678.
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [x] Yes. I can contribute this feature independently.
+- [ ] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.

@@ -1,0 +1,61 @@
+Hi, we have a list of columns that we need to update which follow a naming convention like:
+
+`Attr_227e7d6a-876c-4ace-92f3-ffc3945a8ed6`
+
+where the latter is a UUID maintained by our systems. 
+
+When I try to update my table via the merge command, I get the following error:
+
+```ParseException: 
+Possibly unquoted identifier a15-71da97ac0646 detected. Please consider quoting it with back-quotes as `a15-71da97ac0646`(line 1, pos 35)
+
+== SQL ==
+source.Attr_be685ab2-75b8-440e-8a15-71da97ac0646`
+```
+
+
+Which seems to me as if something is unable to parse the column name correctly. 
+
+This is how I defined my statement  (shortened, we actually have >150 columns that follow this schema)
+``` python
+changedUpdate = {
+    "Expired_Date": "source.Expired_Date",
+    "Content_Native": "source.Content_Native",
+    "Attr_02272e10-a11e-4ba5-a596-9839102b972a": "source.Attr_02272e10-a11e-4ba5-a596-9839102b972a",
+    "Attr_04952d40-d747-4df2-ba09-f342fc1a94f2": "source.Attr_04952d40-d747-4df2-ba09-f342fc1a94f2",
+    "Attr_5c7e61de-92e5-4ff1-8520-04ed73df95e0": "source.Attr_5c7e61de-92e5-4ff1-8520-04ed73df95e0",
+    "Attr_5cee25e9-4fb7-4643-be52-19a05ef32e31": "source.Attr_5cee25e9-4fb7-4643-be52-19a05ef32e31",
+    "Attr_be685ab2-75b8-440e-8a15-71da97ac0646": "source.Attr_be685ab2-75b8-440e-8a15-71da97ac0646",
+    "Attr_bee8dce0-6fe2-4c64-b095-569f8e8f69d4": "source.Attr_bee8dce0-6fe2-4c64-b095-569f8e8f69d4",
+    "Attr_c08a022b-c21b-48d0-96a3-a57496ce4c7b": "source.Attr_c08a022b-c21b-48d0-96a3-a57496ce4c7b",
+    "Attr_c4100c8e-c9a5-4b58-8563-3c72110fee08": "source.Attr_c4100c8e-c9a5-4b58-8563-3c72110fee08",
+    "Attr_c4fa0587-5519-4f27-a01d-b40e4f5c5c61": "source.Attr_c4fa0587-5519-4f27-a01d-b40e4f5c5c61",
+    "Attr_c8f9a2e3-ed1e-4132-a591-aa2fb72dd49d": "source.Attr_c8f9a2e3-ed1e-4132-a591-aa2fb72dd49d",
+    "Attr_cd048ad3-7966-4f0e-bcfe-cd74292fd059": "source.Attr_cd048ad3-7966-4f0e-bcfe-cd74292fd059",
+    "Attr_d25ecfaf-e743-4e62-9dde-1cd9018f294d": "source.Attr_d25ecfaf-e743-4e62-9dde-1cd9018f294d",
+    "Attr_d2d2f131-20aa-4f34-9a8b-1fcd904bde5e": "source.Attr_d2d2f131-20aa-4f34-9a8b-1fcd904bde5e",
+    "Attr_d54bf424-e4c1-45c1-a7a3-aafbd5c6e2fb": "source.Attr_d54bf424-e4c1-45c1-a7a3-aafbd5c6e2fb",
+    "Attr_d599ec96-55c2-4bb9-8319-6ea21cc6319e": "source.Attr_d599ec96-55c2-4bb9-8319-6ea21cc6319e",
+    "Attr_d669fa3d-4bc0-4a0c-9788-ff16c0594640": "source.Attr_d669fa3d-4bc0-4a0c-9788-ff16c0594640",
+    "Row_Hash": "source.Row_Hash"
+ }
+
+
+(
+target.alias("target").merge(df.alias("source"), "target.Document_ID = source.Document_ID") 
+.whenMatchedUpdate("target.Row_Hash != source.Row_Hash and target.Deleted_Flag = 0", set = changedUpdate)
+.whenNotMatchedInsertAll() 
+.execute()
+)
+```
+
+
+When I delete the line in question I basically run into the next error:
+```
+AnalysisException: cannot resolve `source.Attr_d669fa3d` in UPDATE clause given columns target.`Document_ID`, .. etc.
+```
+
+which, I guess shows that the column name somehow gets truncated at the first dash? 
+
+
+Note: I don't want to use updateAll, as I have a set of columns which should stay the same/have a hardcoded value depending on the match. 

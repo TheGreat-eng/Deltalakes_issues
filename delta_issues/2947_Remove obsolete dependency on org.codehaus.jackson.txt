@@ -1,0 +1,3 @@
+`org.codehaus.jackson.annotate.JsonRawValue` is a no-op today. Remove it and dependency on `org.codehaus.jackson:jackson-core-asl` can be simply dropped as well.
+
+Signed-off-by: Patrick Marx <patrick.marx@1und1.de>

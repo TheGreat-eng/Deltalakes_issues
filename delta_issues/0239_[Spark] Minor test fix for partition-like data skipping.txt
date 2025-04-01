@@ -1,0 +1,15 @@
+#### Which Delta project/connector is this regarding?
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+Currently, we look at a query's optimized plan's expressions to get query's predicates (which we use to test data skipping). This isn't correct - it includes the projected columns in addition to the actual filters, which means that we might have incorrect validation (it might be too selective). Replace this by replacing with the split conjunctive predicates from the Filter of the query plan.
+
+## How was this patch tested?
+Test-only change.
+
+## Does this PR introduce _any_ user-facing changes?
+No

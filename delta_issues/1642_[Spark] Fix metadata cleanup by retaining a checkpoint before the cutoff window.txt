@@ -1,0 +1,30 @@
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+We delete eligible delta files only if there's a checkpoint newer than them before the cutoff window begins.
+
+Note: In rare cases where a checkpoint outside the cutoff window is already retained to account for timestamp-adjustments, we might end up retaining an extra checkpoint and some commit files with this change.
+
+
+## How was this patch tested?
+
+New UTs and update some of the existing UTs
+
+## Does this PR introduce _any_ user-facing changes?
+
+<!--
+If yes, please clarify the previous behavior and the change this PR proposes - provide the console output, description and/or an example to show the behavior difference if possible.
+If possible, please also clarify if this is a user-facing change compared to the released Delta Lake versions or within the unreleased branches such as master.
+If no, write 'No'.
+-->

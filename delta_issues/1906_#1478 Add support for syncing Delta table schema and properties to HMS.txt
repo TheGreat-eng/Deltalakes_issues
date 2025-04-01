@@ -1,0 +1,52 @@
+<!--
+Thanks for sending a pull request!  Here are some tips for you:
+  1. If this is your first time, please read our contributor guidelines: https://github.com/delta-io/delta/blob/master/CONTRIBUTING.md
+  2. If the PR is unfinished, add '[WIP]' in your PR title, e.g., '[WIP] Your PR title ...'.
+  3. Be sure to keep the PR description updated to reflect all changes.
+  4. Please write your PR title to summarize what this PR proposes.
+  5. If possible, provide a concise example to reproduce the issue for a faster review.
+  6. If applicable, include the corresponding issue number in the PR title and link it in the body.
+-->
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [X] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+<!--
+- Describe what this PR changes.
+- Describe why we need the change.
+ 
+If this PR resolves an issue be sure to include "Resolves #XXX" to correctly link and close the issue upon merge.
+-->
+Follow up for #1478.
+
+This PR adds the class `UpdateCatalog` which is used as a post commit hook and during table creation for syncing table schema and properties to HMS. The new behaviour in Delta Lake is that when `catalog.update.enabled` = `true`, the schema and properties of the Delta table will be synced to HMS during creation/replacement and whenever an update to the table updates either of the schema or properties (asynchronously, in a post-commit hook).
+
+Some new additions are:
+
+1. New Config: `catalog.update.enabled` -> Setting this to true will enable schema sync.
+2. New Config: `catalog.update.threadPoolSize` -> Controls the size of the thread pool which is used to asynchronously update the catalog.
+3. HMS-specific Quirk: Hive does not allow for the removal of the partition columns once it has been added. When sending the table schema to HMS in `UpdateCatalog`, we always send the partition columns as regular data columns to ensure that we can remove these columns on schema update. However, for tables that have been converted from parquet to Delta, the partition columns would have already been set in HMS. Since Spark always appends the partition columns to the end of the schema when it finds them in Hive, for converted tables with partitions, the column order returned by Hive will be incorrect.
+
+## How was this patch tested?
+
+<!--
+If tests were added, say they were added here. Please make sure to test the changes thoroughly including negative and positive cases if possible.
+If the changes were tested in any way other than unit tests, please clarify how you tested step by step (ideally copy and paste-able, so that other reviewers can test and check, and descendants can verify in the future).
+If the changes were not tested, please explain why.
+-->
+
+Adds multiple tests in a new suite `DeltaUpdateCatalogSuite`.
+
+Co-authored-by: dhruvarya-db <dhruv.arya@databricks.com>
+Co-authored-by: schatterjee6 <Sirsha_Chatterjee@intuit.com>

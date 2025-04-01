@@ -1,0 +1,5 @@
+## Description
+
+Remove unused class `AlterTableReplaceColumnsDeltaCommand`
+ 
+Resolves #1189

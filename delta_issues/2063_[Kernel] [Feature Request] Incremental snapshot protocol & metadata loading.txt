@@ -1,0 +1,28 @@
+## Feature request
+
+#### Which Delta project/connector is this regarding?
+Kernel
+
+### Overview
+
+Similar to https://github.com/delta-io/connectors/pull/533.
+
+When a kernel snapshot is initialized, we take the LogSegments (JSON files, checkpoint files) of the table, and parse them in reverse order until we find the latest protocol and metadata.
+
+Suppose we have already loaded snapshot `S1` and version 14, and then we want to update to the latest state of the Delta table, say Snapshot `S2` at version 19. Also suppose there is a checkpoint at version 10.
+
+Well, when we loaded `S1`, we read all jsons at versions (in order) 14, 13, 12, 11, and then we read the checkpoint at version 10. 
+
+When we are parsing the delta log files `S2`, we don't need to read _all_ the json and checkpoint files. We only need to read 19, 18, 17, 16, 15.  At that point, if we haven't found the latest metadata and protocol, then we already know what it is as of version 14 since we have S1 in memory already!
+
+### Motivation
+
+Performance boost.
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [ ] Yes. I can contribute this feature independently.
+- [ ] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [X] No. I cannot contribute this feature at this time.

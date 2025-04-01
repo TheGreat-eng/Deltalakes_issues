@@ -1,0 +1,32 @@
+<!--
+Thanks for sending a pull request!  Here are some tips for you:
+  1. If this is your first time, please read our contributor guidelines: https://github.com/delta-io/delta/blob/master/CONTRIBUTING.md
+  2. If the PR is unfinished, add '[WIP]' in your PR title, e.g., '[WIP] Your PR title ...'.
+  3. Be sure to keep the PR description updated to reflect all changes.
+  4. Please write your PR title to summarize what this PR proposes.
+  5. If possible, provide a concise example to reproduce the issue for a faster review.
+  6. If applicable, include the corresponding issue number in the PR title and link it in the body.
+-->
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [x] Other (fill in here)
+
+## Description
+
+Update delta protocol to specify remove file path must string match add file path. The current spec doesn't actually say how to compare the paths from two string actions. An implementation could choose any of the following, with very different outcomes for ambiguous cases:
+* Do a raw string comparison. Not reliable because different URI encoding libraries could choose to encode a different subset of "illegal" characters. e.g. abc vs %65bc.
+* URI-decode the strings before comparing them. Moderately expensive, but still not reliable, e.g. /path/to/table and /path//to//table refer to the same URI.
+* Construct a full URI from the string is the most expensive, and still not reliable, e.g. /path/to/table and /path/to/other/../table are not considered the same URI but some systems still treat them as the same path
+
+In practice, all Delta clients we know of just copy whatever was in add.path as remove.path, so they should anyway compare byte-equal. Many Delta clients already perform raw string comparisons.
+
+Since none of the approaches is reliable, and raw string comparisons are already used in practice, hereby we just update the spec to make that the required behavior.

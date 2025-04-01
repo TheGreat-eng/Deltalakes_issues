@@ -1,0 +1,1 @@
+As we know, Delta Lake is currently a copy on write mode, this mode is useful for write less and  read more scenarios, But it is not very friendly to write more and read less scenarios, So I want to know if there is such a plan to support read on merge mode.

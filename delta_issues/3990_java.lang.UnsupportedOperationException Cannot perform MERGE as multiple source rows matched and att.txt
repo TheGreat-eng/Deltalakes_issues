@@ -1,0 +1,81 @@
+This is my updated api
+ case "update" =>
+
+                  val updatePath = tablePath + "lake_" + accValue._1
+                  log.info("updatepath:"+updatePath)
+
+                  if (DeltaTableUtils.isDeltaTable(sparks, new Path(updatePath))) {
+
+                    val deltaTable = DeltaTable.forPath(sparks, updatePath)
+
+                    deltaTable.as("events")
+                      .merge(
+                        deltaLakeTable.as("updates"),
+                        "events.primarykey = updates.primarykey")
+                      .whenMatched().updateAll()
+                      .whenNotMatched().insertAll()
+                      .execute()
+                  }
+The update field and ID field exist in the table, and the values of the two fields are the same
+
+
+
+
+This is the error log：
+
+java.lang.UnsupportedOperationException: Cannot perform MERGE as multiple source rows matched and attempted to update the same
+target row in the Delta table. By SQL semantics of merge, when multiple source rows match
+on the same target row, the update operation is ambiguous as it is unclear which source
+should be used to update the matching target row.
+You can preprocess the source table to eliminate the possibility of multiple matches.
+Please refer to
+https://docs.delta.io/latest/delta/delta-update.html#upsert-into-a-table-using-merge
+       
+	at org.apache.spark.sql.delta.DeltaErrors$.multipleSourceRowMatchingTargetRowInMergeException(DeltaErrors.scala:444)
+	at org.apache.spark.sql.delta.commands.MergeIntoCommand.org$apache$spark$sql$delta$commands$MergeIntoCommand$$findTouchedFiles(MergeIntoCommand.scala:225)
+	at org.apache.spark.sql.delta.commands.MergeIntoCommand$$anonfun$run$1$$anonfun$apply$1$$anonfun$1.apply(MergeIntoCommand.scala:132)
+	at org.apache.spark.sql.delta.commands.MergeIntoCommand$$anonfun$run$1$$anonfun$apply$1$$anonfun$1.apply(MergeIntoCommand.scala:132)
+	at com.databricks.spark.util.DatabricksLogging$class.recordOperation(DatabricksLogging.scala:77)
+	at org.apache.spark.sql.delta.commands.MergeIntoCommand.recordOperation(MergeIntoCommand.scala:89)
+	at org.apache.spark.sql.delta.metering.DeltaLogging$class.recordDeltaOperation(DeltaLogging.scala:103)
+	at org.apache.spark.sql.delta.commands.MergeIntoCommand.recordDeltaOperation(MergeIntoCommand.scala:89)
+	at org.apache.spark.sql.delta.commands.MergeIntoCommand$$anonfun$run$1$$anonfun$apply$1.apply(MergeIntoCommand.scala:131)
+	at org.apache.spark.sql.delta.commands.MergeIntoCommand$$anonfun$run$1$$anonfun$apply$1.apply(MergeIntoCommand.scala:125)
+	at org.apache.spark.sql.delta.DeltaLog.withNewTransaction(DeltaLog.scala:396)
+	at org.apache.spark.sql.delta.commands.MergeIntoCommand$$anonfun$run$1.apply(MergeIntoCommand.scala:125)
+	at org.apache.spark.sql.delta.commands.MergeIntoCommand$$anonfun$run$1.apply(MergeIntoCommand.scala:124)
+	at com.databricks.spark.util.DatabricksLogging$class.recordOperation(DatabricksLogging.scala:77)
+	at org.apache.spark.sql.delta.commands.MergeIntoCommand.recordOperation(MergeIntoCommand.scala:89)
+	at org.apache.spark.sql.delta.metering.DeltaLogging$class.recordDeltaOperation(DeltaLogging.scala:103)
+	at org.apache.spark.sql.delta.commands.MergeIntoCommand.recordDeltaOperation(MergeIntoCommand.scala:89)
+	at org.apache.spark.sql.delta.commands.MergeIntoCommand.run(MergeIntoCommand.scala:124)
+	at io.delta.tables.DeltaMergeBuilder.execute(DeltaMergeBuilder.scala:235)
+	at wanda.modes.streaming.StructuredStreaming$$anonfun$transform$1$$anonfun$apply$4.apply(StructuredStreaming.scala:223)
+	at wanda.modes.streaming.StructuredStreaming$$anonfun$transform$1$$anonfun$apply$4.apply(StructuredStreaming.scala:184)
+	at scala.collection.TraversableLike$WithFilter$$anonfun$foreach$1.apply(TraversableLike.scala:733)
+	at scala.collection.Iterator$class.foreach(Iterator.scala:891)
+	at scala.collection.AbstractIterator.foreach(Iterator.scala:1334)
+	at scala.collection.IterableLike$class.foreach(IterableLike.scala:72)
+	at scala.collection.AbstractIterable.foreach(Iterable.scala:54)
+	at scala.collection.TraversableLike$WithFilter.foreach(TraversableLike.scala:732)
+	at wanda.modes.streaming.StructuredStreaming$$anonfun$transform$1.apply(StructuredStreaming.scala:184)
+	at wanda.modes.streaming.StructuredStreaming$$anonfun$transform$1.apply(StructuredStreaming.scala:166)
+	at org.apache.spark.sql.execution.streaming.sources.ForeachBatchSink.addBatch(ForeachBatchSink.scala:35)
+	at org.apache.spark.sql.execution.streaming.MicroBatchExecution$$anonfun$org$apache$spark$sql$execution$streaming$MicroBatchExecution$$runBatch$5$$anonfun$apply$17.apply(MicroBatchExecution.scala:534)
+	at org.apache.spark.sql.execution.SQLExecution$$anonfun$withNewExecutionId$1.apply(SQLExecution.scala:78)
+	at org.apache.spark.sql.execution.SQLExecution$.withSQLConfPropagated(SQLExecution.scala:125)
+	at org.apache.spark.sql.execution.SQLExecution$.withNewExecutionId(SQLExecution.scala:73)
+	at org.apache.spark.sql.execution.streaming.MicroBatchExecution$$anonfun$org$apache$spark$sql$execution$streaming$MicroBatchExecution$$runBatch$5.apply(MicroBatchExecution.scala:532)
+	at org.apache.spark.sql.execution.streaming.ProgressReporter$class.reportTimeTaken(ProgressReporter.scala:351)
+	at org.apache.spark.sql.execution.streaming.StreamExecution.reportTimeTaken(StreamExecution.scala:58)
+	at org.apache.spark.sql.execution.streaming.MicroBatchExecution.org$apache$spark$sql$execution$streaming$MicroBatchExecution$$runBatch(MicroBatchExecution.scala:531)
+	at org.apache.spark.sql.execution.streaming.MicroBatchExecution$$anonfun$runActivatedStream$1$$anonfun$apply$mcZ$sp$1.apply$mcV$sp(MicroBatchExecution.scala:198)
+	at org.apache.spark.sql.execution.streaming.MicroBatchExecution$$anonfun$runActivatedStream$1$$anonfun$apply$mcZ$sp$1.apply(MicroBatchExecution.scala:166)
+	at org.apache.spark.sql.execution.streaming.MicroBatchExecution$$anonfun$runActivatedStream$1$$anonfun$apply$mcZ$sp$1.apply(MicroBatchExecution.scala:166)
+	at org.apache.spark.sql.execution.streaming.ProgressReporter$class.reportTimeTaken(ProgressReporter.scala:351)
+	at org.apache.spark.sql.execution.streaming.StreamExecution.reportTimeTaken(StreamExecution.scala:58)
+	at org.apache.spark.sql.execution.streaming.MicroBatchExecution$$anonfun$runActivatedStream$1.apply$mcZ$sp(MicroBatchExecution.scala:166)
+	at org.apache.spark.sql.execution.streaming.ProcessingTimeExecutor.execute(TriggerExecutor.scala:56)
+	at org.apache.spark.sql.execution.streaming.MicroBatchExecution.runActivatedStream(MicroBatchExecution.scala:160)
+	at org.apache.spark.sql.execution.streaming.StreamExecution.org$apache$spark$sql$execution$streaming$StreamExecution$$runStream(StreamExecution.scala:279)
+	at org.apache.spark.sql.execution.streaming.StreamExecution$$anon$1.run(StreamExecution.scala:189)

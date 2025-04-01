@@ -1,0 +1,16 @@
+#### Which Delta project/connector is this regarding?
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+This PR fixes a test case about nested data updates. The test case mean to test conflicting updates, but even the first update would fail without the fix.
+
+## How was this patch tested?
+Existing Ut.
+
+## Does this PR introduce _any_ user-facing changes?
+No.

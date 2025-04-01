@@ -1,0 +1,5 @@
+Updating examples to include examples
+1.  Streaming: Streaming append and concurrent repartition using `dataChange=false` 
+2. Utilities: generating manifest files.
+
+built jar and tested locally. 

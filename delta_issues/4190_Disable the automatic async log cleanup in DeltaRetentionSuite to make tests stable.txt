@@ -1,0 +1,1 @@
+Sometimes tests in DeltaRetentionSuite fail because of the automatic async log cleanup. This PR just disables to make tests stable.

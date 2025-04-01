@@ -1,0 +1,27 @@
+## Feature request
+
+### Overview
+
+Recently, Delta performance benchmarks have been enabled to be run on GCP (https://github.com/delta-io/delta/pull/1142). However, the input data is stored in a "requester pays" S3 bucket, which is inconvenient while running GCP benchmarks since it requires the user to copy the data to a GCS bucket first, due to Hadoop shortcomings [HADOOP-14661](https://issues.apache.org/jira/browse/HADOOP-14661).
+
+### Motivation
+
+The goal is to simplify GCP benchmarks procedure by having the data in a GCS bucket and getting rid of the data copying step. 
+
+### Further details
+
+The benchmark is run using the raw TPC-DS data which has been provided as Apache Parquet files. There are two predefined datasets of different size, 1GB and 3TB, located in `s3://devrel-delta-datasets/tpcds-2.13/tpcds_sf1_parquet/` and `s3://devrel-delta-datasets/tpcds-2.13/tpcds_sf3000_parquet/`, respectively. Please keep in mind that `devrel-delta-datasets` bucket is configured as [Requester Pays](https://docs.aws.amazon.com/AmazonS3/latest/userguide/ObjectsinRequesterPaysBuckets.html) bucket, so [access requests have to be configured properly](https://docs.aws.amazon.com/AmazonS3/latest/userguide/ObjectsinRequesterPaysBuckets.html).
+
+**Unfortunately, Hadoop in versions available in Dataproc does not support *Requester Pays* feature. It will be available as of Hadoop 3.3.4 ([HADOOP-14661](https://issues.apache.org/jira/browse/HADOOP-14661)).**
+
+In consequence, before running benchmarks one need to copy the datasets to Google Storage or to copy it to a S3 bucket which is not marked as "requester-pays". 
+
+When a permanent copy of TPC-DS data is stored in Databricks' Google Storage bucket, marked as "Requester Pays", we can simplify benchmarks by reading the data directly from the GCS bucket.
+
+### Willingness to contribute
+
+Once the data is copied to a GCS bucket, I could modify benchmarks code.
+
+- [ ] Yes. I can contribute this feature independently.
+- [X] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.

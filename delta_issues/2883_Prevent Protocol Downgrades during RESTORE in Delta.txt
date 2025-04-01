@@ -1,0 +1,8 @@
+(Cherry-pick of 7e876792 for 2.1.1 release)
+
+Until now RESTORE TABLE may downgrade the protocol version of the table. This is however unsafe, as it makes time travel assume an invalid protocol version, which can lead to corrupted reads.
+
+- This changes the default behaviour to never downgrade, only upgrade the protocol version during RESTORE TABLE.
+- The old behaviour can regained with a newly introduced flag, which comes with a stern warning to always wipe the table history afterwards to prevent time travel to illegal versions.
+
+- Added test cases for the protocol downgrade with flag on/off.

@@ -1,0 +1,13 @@
+## Description
+
+This PR fixes a bug in `MergeIntoCommand` where the metric `numTargetFilesAdded` sometimes gave an unexpected value. This PR ensures that `MergeIntoCommand` only writes out new files to the target table that are non-empty (i.e. at least 1 row).
+
+Note: the value was never wrong, for example it would say that we wrote out 1 file, and we did in fact write out 1 empty file. However, there was no logical reason for us to write out an empty file with no rows.
+
+This PR also updates existing tests (which knew about this bug and so were ignored) inside of `MergeIntoMetricsBase`.
+
+## How was this patch tested?
+
+```
+build/sbt 'core/testOnly *DescribeDeltaHistorySuite -- -z "merge-metrics"'
+```

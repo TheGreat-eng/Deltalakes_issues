@@ -1,0 +1,1 @@
+The [Releases docs](https://docs.delta.io/latest/releases.html) says that Delta 0.8.0 is compatible with Spark 3.0.0 & above, but it should be `Spark 3.0.x` only

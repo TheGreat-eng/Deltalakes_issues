@@ -1,0 +1,1 @@
+How can I drop the delta table from the pyspark code by giving the path of the delta table

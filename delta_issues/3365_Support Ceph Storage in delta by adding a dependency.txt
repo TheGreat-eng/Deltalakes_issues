@@ -1,0 +1,9 @@
+Hi, we have implemented the file system with ceph rgw for delta Lake through openstack swift API. The scheme of the path is ceph, The full path is `ceph://<your cephrgw container>/<path to delta Table>` . There is no problem using s3singledriverlogstore in logstore. We talked about this before  #877, and now we have sent this function to Maven centra repository. Here are the links to SBT and Maven.
+SBT:
+`libraryDependencies += "io.github.nanhu-lab" % "hadoop-cephrgw" % "1.0.1"`	
+Maven:
+`<dependency>`
+         `       <groupId>io.github.nanhu-lab</groupId>`
+         `       <artifactId>hadoop-cephrgw</artifactId>`
+        `        <version>1.0.1</version>`
+`</dependency>`

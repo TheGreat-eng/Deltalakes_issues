@@ -1,0 +1,5 @@
+As we know, when user run query on delta table, it check for its last cached meta has passed configured value of **spark.databricks.delta.stalenessLimit**. If it is within the limit, it uses same cache and serves user query and in background update the cache asynchronusly. But if it has passed the configured value, it updates the cache synchronusly and then servs the user which adds of meta data update to query latency. 
+
+Since above event to upate the cache asynchronusly is user triggered, Can we have something which is not dependent of user trigger of meta update. It should update metacache on every scheduled interval.
+
+This really saves few seconds of time taken to read metadata and improves query latency. 

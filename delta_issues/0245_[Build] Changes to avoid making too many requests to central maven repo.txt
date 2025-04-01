@@ -1,0 +1,38 @@
+## Description
+* Google maven repo URL is changed from `https://maven-central.storage-download.googleapis.com/repos/central/data/` to `https://maven-central.storage-download.googleapis.com/maven2/`. This caused more load on the central maven repo as the google maven repo is wrong.
+* Currently we hard coded the URL to central maven repo for downloading the `sbt-launch-x.x.x.jar` as part of the build start. Change it to google maven repo which seems have better rate limits than the central maven repo. Also add the central maven repo as a backup so that we have two options. Example retrying:
+  ```
+   (base) delta2 % ./build/sbt clean package test:package
+   Attempting to fetch sbt from https://eemaven-central.storage-download.googleapis.com/maven2/org/scala-sbt/sbt-launch/1.9.9/sbt-launch-1.9.9.jar
+   Download from https://eemaven-central.storage-download.googleapis.com/maven2/org/scala-sbt/sbt-launch/1.9.9/sbt-launch-1.9.9.jar failed. Retrying from https://repo1.maven.org/maven2/org/scala-sbt/sbt-launch/1.9.9/sbt-launch-1.9.9.jar
+  Launching sbt from build/sbt-launch-1.9.9.jar
+   ```
+* Add Google repo to iceberg build so that it is attempted first before the central maven repo and also as additional backup.
+   * Testing
+      *   Without any repo changes: 
+           ```
+           (base) iceberg_src % rm -rf $HOME/.gradle/caches/
+           (base) iceberg_src % ./gradlew clean --refresh-dependencies :iceberg-core:build --info | grep Downloading | grep "mockito-core-4.0.0.jar"
+           Downloading https://repo.maven.apache.org/maven2/org/mockito/mockito-core/4.0.0/mockito-core-4.0.0.jar to /Users/venkateshwar.korukanti/.gradle/.tmp/gradle_download6315884371983156241bin
+           ```
+      * By adding google repo as a first in the list
+         ```
+         (base) iceberg_src % git diff
+         diff --git a/build.gradle b/build.gradle
+         index 12ed701..c80bbd3 100644
+         --- a/build.gradle
+         +++ b/build.gradle
+         @@ -97,6 +97,9 @@ allprojects {
+            group = "org.apache.iceberg"
+            version = projectVersion
+            repositories {
+         +    maven {
+         +      url "https://maven-central.storage-download.googleapis.com/maven2"
+         +    }
+              mavenCentral()
+              mavenLocal()
+            }
+         (base) iceberg_src % rm -rf $HOME/.gradle/caches/
+         (base) iceberg_src % ./gradlew clean --refresh-dependencies :iceberg-core:build --info | grep Downloading | grep "mockito-core-4.0.0.jar"
+         Downloading https://maven-central.storage-download.googleapis.com/maven2/org/mockito/mockito-core/4.0.0/mockito-core-4.0.0.jar to /Users/venkateshwar.korukanti/.gradle/.tmp/gradle_download7065461132604582238bin
+         ```

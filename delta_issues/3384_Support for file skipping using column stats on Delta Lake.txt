@@ -1,0 +1,17 @@
+## Overview
+This is the official issue to track interest, feature requests, and progress being made on data skipping support in Delta Lake. This issue is the second and last part to the solution of “File skipping using columns stats” as outlined on the Delta OSS 2022 H1 roadmap [here](https://github.com/delta-io/delta/issues/920).
+
+Note that a prerequisite for data skipping is per-column statistics generation. See that issue [here](https://github.com/delta-io/delta/issues/923).
+
+## Requirements
+Data Skipping is a performance optimization which uses the per-column statistics at query planning time to safely skip data files that couldn’t possibly match the given read query.
+
+Users should be able to enable/disable this feature, though if statistics do exist in the Delta log then data skipping should be used by default.
+
+## Design Sketch
+Please see the attached Google Document [here](https://docs.google.com/document/d/14Tesce--T6b6O8qqyCiFYTBx_xzp3gDPYFFpmEVDcAE/edit?usp=sharing) outlining the proposed, and subject to change, basic design sketch.
+
+## Future Work
+Data Skipping and Statistics Collection are great features to have, however they can be substantially improved by implementing some sort of data clustering. The OPTIMIZE ZORDER feature listed on the Delta Lake 2022 H1 roadmap here would provide just that: data clustering via multi-column locality-preserving space-filling curves with offline sorting. Such a feature would cluster data, narrow min-max ranges, and help maximize the number of files that can be skipped.
+
+Another future improvement would be to include LIMIT clause pushdown support. Limit Pushdown is another performance optimization for querying delta tables, which applies the limit clause in the query to prune files before collecting the metadata of these files into the driver. This should significantly reduce the latency when the delta table has a large number of files.

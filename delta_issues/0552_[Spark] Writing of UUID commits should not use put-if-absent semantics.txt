@@ -1,0 +1,22 @@
+#### Which Delta project/connector is this regarding?
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+This PR fixes the coordinated commits utils to not write UUID-based commit files with put-if-absent semantics. This is not necessary because we assume that UUID-based commit files are globally unique so we will never have concurrent writers attempting to write the same commit file.
+
+DynamoDBCommitCoordinator also now uses the utils for writing backfilled files.
+
+## How was this patch tested?
+
+Existing tests are sufficient as this only affects how a commit is
+written in the underlying storage layer but does not change any logic in
+Delta Spark.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

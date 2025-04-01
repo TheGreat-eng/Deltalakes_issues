@@ -1,0 +1,79 @@
+Hello,
+
+I'm trying to perform compaction per partition exactly as it's described in [Compact files](https://docs.delta.io/latest/best-practices.html#compact-files) from Best practices. But I constantly get the exception below.
+
+Apache Spark: 3.2.0
+Delta Lake: 1.1.0
+
+```
+java.lang.ClassCastException: class org.apache.spark.sql.catalyst.plans.logical.DeleteFromTable cannot be cast to class org.apache.spark.sql.delta.commands.DeleteCommand (org.apache.spark.sql.catalyst.plans.logical.DeleteFromTable is in unnamed module of loader 'app'; org.apache.spark.sql.delta.commands.DeleteCommand is in unnamed module of loader scala.reflect.internal.util.ScalaClassLoader$URLClassLoader @4f7bb8df)
+  at org.apache.spark.sql.delta.commands.WriteIntoDelta.removeFiles(WriteIntoDelta.scala:232)
+  at org.apache.spark.sql.delta.commands.WriteIntoDelta.write(WriteIntoDelta.scala:178)
+  at org.apache.spark.sql.delta.commands.WriteIntoDelta.$anonfun$run$1(WriteIntoDelta.scala:80)
+  at org.apache.spark.sql.delta.commands.WriteIntoDelta.$anonfun$run$1$adapted(WriteIntoDelta.scala:78)
+  at org.apache.spark.sql.delta.DeltaLog.withNewTransaction(DeltaLog.scala:198)
+  at org.apache.spark.sql.delta.commands.WriteIntoDelta.run(WriteIntoDelta.scala:78)
+  at org.apache.spark.sql.delta.sources.DeltaDataSource.createRelation(DeltaDataSource.scala:154)
+  at org.apache.spark.sql.execution.datasources.SaveIntoDataSourceCommand.run(SaveIntoDataSourceCommand.scala:45)
+  at org.apache.spark.sql.execution.command.ExecutedCommandExec.sideEffectResult$lzycompute(commands.scala:75)
+  at org.apache.spark.sql.execution.command.ExecutedCommandExec.sideEffectResult(commands.scala:73)
+  at org.apache.spark.sql.execution.command.ExecutedCommandExec.executeCollect(commands.scala:84)
+  at org.apache.spark.sql.execution.QueryExecution$$anonfun$eagerlyExecuteCommands$1.$anonfun$applyOrElse$1(QueryExecution.scala:110)
+  at org.apache.spark.sql.execution.SQLExecution$.$anonfun$withNewExecutionId$5(SQLExecution.scala:103)
+  at org.apache.spark.sql.execution.SQLExecution$.withSQLConfPropagated(SQLExecution.scala:163)
+  at org.apache.spark.sql.execution.SQLExecution$.$anonfun$withNewExecutionId$1(SQLExecution.scala:90)
+  at org.apache.spark.sql.SparkSession.withActive(SparkSession.scala:775)
+  at org.apache.spark.sql.execution.SQLExecution$.withNewExecutionId(SQLExecution.scala:64)
+  at org.apache.spark.sql.execution.QueryExecution$$anonfun$eagerlyExecuteCommands$1.applyOrElse(QueryExecution.scala:110)
+  at org.apache.spark.sql.execution.QueryExecution$$anonfun$eagerlyExecuteCommands$1.applyOrElse(QueryExecution.scala:106)
+  at org.apache.spark.sql.catalyst.trees.TreeNode.$anonfun$transformDownWithPruning$1(TreeNode.scala:481)
+  at org.apache.spark.sql.catalyst.trees.CurrentOrigin$.withOrigin(TreeNode.scala:82)
+  at org.apache.spark.sql.catalyst.trees.TreeNode.transformDownWithPruning(TreeNode.scala:481)
+  at org.apache.spark.sql.catalyst.plans.logical.LogicalPlan.org$apache$spark$sql$catalyst$plans$logical$AnalysisHelper$$super$transformDownWithPruning(LogicalPlan.scala:30)
+  at org.apache.spark.sql.catalyst.plans.logical.AnalysisHelper.transformDownWithPruning(AnalysisHelper.scala:267)
+  at org.apache.spark.sql.catalyst.plans.logical.AnalysisHelper.transformDownWithPruning$(AnalysisHelper.scala:263)
+  at org.apache.spark.sql.catalyst.plans.logical.LogicalPlan.transformDownWithPruning(LogicalPlan.scala:30)
+  at org.apache.spark.sql.catalyst.plans.logical.LogicalPlan.transformDownWithPruning(LogicalPlan.scala:30)
+  at org.apache.spark.sql.catalyst.trees.TreeNode.transformDown(TreeNode.scala:457)
+  at org.apache.spark.sql.execution.QueryExecution.eagerlyExecuteCommands(QueryExecution.scala:106)
+  at org.apache.spark.sql.execution.QueryExecution.commandExecuted$lzycompute(QueryExecution.scala:93)
+  at org.apache.spark.sql.execution.QueryExecution.commandExecuted(QueryExecution.scala:91)
+  at org.apache.spark.sql.execution.QueryExecution.assertCommandExecuted(QueryExecution.scala:128)
+  at org.apache.spark.sql.DataFrameWriter.runCommand(DataFrameWriter.scala:848)
+  at org.apache.spark.sql.DataFrameWriter.saveToV1Source(DataFrameWriter.scala:382)
+  at org.apache.spark.sql.DataFrameWriter.saveInternal(DataFrameWriter.scala:303)
+  at org.apache.spark.sql.DataFrameWriter.save(DataFrameWriter.scala:239)
+  ... 47 elided
+```
+
+The synthetic code example:
+
+```
+scala> val df = spark.range(1, 10).withColumn("y", lit(2022))
+df: org.apache.spark.sql.DataFrame = [id: bigint, y: int]
+
+scala> df.write.format("delta").partitionBy("y").save("s3a://dataplatform/temp/delta-table")
+
+$ aws s3 ls s3://dataplatform/temp/delta-table/y=2022/
+2022-02-11 12:36:26        489 part-00000-1323f161-2ce1-487c-b881-da9378902a44.c000.snappy.parquet
+2022-02-11 12:36:26        491 part-00001-01c00ef0-4953-4e11-8fc0-44ac14dd1f73.c000.snappy.parquet
+2022-02-11 12:36:26        491 part-00002-8e951ff8-f9ea-45b6-964d-02536ba820e1.c000.snappy.parquet
+
+scala> val df = spark.read.format("delta").load("s3a://dataplatform/temp/delta-table").where("y = 2022")
+df: org.apache.spark.sql.Dataset[org.apache.spark.sql.Row] = [id: bigint, y: int]
+
+scala> df.count
+res15: Long = 9
+
+scala> df.repartition(1).write.option("dataChange", "false").format("delta").mode("overwrite").option("replaceWhere", "y = 2022").save("s3a://dataplatform/temp/delta-table")
+java.lang.ClassCastException: class org.apache.spark.sql.catalyst.plans.logical.DeleteFromTable cannot be cast to class org.apache.spark.sql.delta.commands.DeleteCommand (org.apache.spark.sql.catalyst.plans.logical.DeleteFromTable is in unnamed module of loader 'app'; org.apache.spark.sql.delta.commands.DeleteCommand is in unnamed module of loader scala.reflect.internal.util.ScalaClassLoader$URLClassLoader @4f7bb8df)
+...
+
+$ aws s3 ls s3://dataplatform/temp/delta-table/y=2022/
+2022-02-11 12:41:00        520 part-00000-01d30b53-794a-46e8-aaff-eb5ab570c7b0.c000.snappy.parquet
+2022-02-11 12:36:26        489 part-00000-1323f161-2ce1-487c-b881-da9378902a44.c000.snappy.parquet
+2022-02-11 12:36:26        491 part-00001-01c00ef0-4953-4e11-8fc0-44ac14dd1f73.c000.snappy.parquet
+2022-02-11 12:36:26        491 part-00002-8e951ff8-f9ea-45b6-964d-02536ba820e1.c000.snappy.parquet
+```
+
+

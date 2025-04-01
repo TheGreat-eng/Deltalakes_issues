@@ -1,0 +1,13 @@
+## Description
+
+- Mostly minor changes (_refactoring_) to improve code readability (and ease reviewing the codebase)
+- Typo fixes
+- Doc and scaladoc fixes
+
+## How was this patch tested?
+
+`build/sbt clean package test:compile`. Waiting for the repo build to execute tests.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

@@ -1,0 +1,3 @@
+#696 tried to expose the existing `org.apache.spark.sql.delta.hooks.PostCommitHook` to the user. However, currently it is not designed for external use. For example, it exposes multiple private classes such as `OptimisticTransactionImpl` and `Action` which may be changed in any future versions.
+
+We need to design a new user facing PostCommitHook API instead.

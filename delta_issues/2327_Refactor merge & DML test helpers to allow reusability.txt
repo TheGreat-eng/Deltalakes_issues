@@ -1,0 +1,14 @@
+
+#### Which Delta project/connector is this regarding?
+
+- [X] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+This change is a plain refactor of our test helpers, gathering merge and DML test helpers outside of the existing test suites into traits that can be reused in separate suites.
+
+## How was this patch tested?
+N/A

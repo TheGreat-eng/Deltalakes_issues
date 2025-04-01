@@ -1,0 +1,15 @@
+## Description
+
+This PR blocks CDF read queries (batch, streaming) in Delta Lake whenever column mapping (CM) is enabled. We do this because CDF + CM semantics are currently undefined.
+
+## How was this patch tested?
+
+Adds a new unit test and covers cases of
+- batch read with CM, CDF disabled -> okay
+- stream read with CM, CDF disabled -> okay
+- batch read with CM, CDF enabled -> blocked
+- stream read with CM, CDF enabled -> blocked
+
+## Does this PR introduce _any_ user-facing changes?
+
+No. Not 'new' as CDF is not yet released in Delta Lake.

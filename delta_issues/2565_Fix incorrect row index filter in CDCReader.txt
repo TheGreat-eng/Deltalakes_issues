@@ -1,0 +1,16 @@
+## Description
+
+This PR fixes a bug in CDCReader, where row index filters are incorrectly flipped for insert rows.
+
+Bug description:
+when a tuple `(remove, file, dv1)` is removed and re-added with a new DV, i.e., `(add, file, dv2)`, we expect that:
+
+1. rows marked in `dv2` but not in `dv1` are deleted.
+2. rows marked in `dv1` but not in `dv2` are inserted (during restore for example).
+
+We diff two DVs to produce inline DVs and pass them to file scans.
+The bug is in how we use the inline DVs -- we wrongly used the `IfContained` filter for Item (2), and therefore all rows that are not marked in DV are being returned. The correct filter type here is `IfNotContained`, which will return all marked rows.
+
+## How was this patch tested?
+
+New test.

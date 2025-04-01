@@ -1,0 +1,16 @@
+## Description
+
+Resolves #1734
+
+It is possible that more than one concurrent reader/writers will try to fix the same incomplete entry in DynamoDB. This could result in some seeing a `FileAlreadyExistsException` when trying to copy the temp file to the delta log. We should not propagate this error to the end user since the recovery operation was successful and we can proceed. See #1734 for more details.
+
+Note, we attempt to copy a temp file in two places:
+1. As part of writing N.json [here](https://github.com/delta-io/delta/blob/master/storage-s3-dynamodb/src/main/java/io/delta/storage/BaseExternalLogStore.java#L249)
+2. In `fixDeltaLog` when performing a recovery for N-1.json as part of either a write or listFrom
+
+We only need to catch the exception in scenario (2). In scenario (1) we already catch _all_ seen errors.
+
+
+## How was this patch tested?
+
+This is hard to test without manipulating the FS + external store a lot. We could manipulate `FailingFileSystem` to throw a `FileAlreadyExistsException`.

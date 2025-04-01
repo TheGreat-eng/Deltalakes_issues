@@ -1,0 +1,5 @@
+## Description
+Loading domainMetadatas from snapshot is expensive as it involves reading checkpoints and commit files.
+
+## How was this patch tested?
+Pending tests

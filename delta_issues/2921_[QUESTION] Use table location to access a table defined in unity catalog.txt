@@ -1,0 +1,115 @@
+## Bug
+
+### Describe the problem
+DeltaTable.forPath(spark, path) inconsistency behaviour with S3 and unity catalog
+I'm working with unity catalog for the last week.
+I'm refering to delta table by path, as follwing:
+path='s3://<my_bucket_name>/silver/data/<table_name>
+DeltaTable.forPath(spark, path)
+I get an exception that "is not a Delta table"
+using the table name using: DeltaTable.forName(spark, <table_name>)
+everything works fine. both the attributes are exactly as apear on uc catalog (and data apears in S3.
+
+#### Steps to reproduce
+silver_table_name=<table_name>
+from delta.tables import *
+delta_from_name=DeltaTable.forName(spark,silver_table_name)
+table_location=delta_from_name.detail().select('location').collect()[0].location
+delta_from_path=DeltaTable.forPath(spark,table_location)
+print(delta_from_path.detail())
+
+on command:
+DeltaTable.forPath(spark,table_location)
+
+see images for two different versions (for version 10.4, also by name failed)
+databricks version 11.2
+![image](https://user-images.githubusercontent.com/5821916/192118085-35900925-02b3-4ecb-a958-8c8de5709eac.png)
+
+
+databricks version  10.4
+![image](https://user-images.githubusercontent.com/5821916/192118007-efc92ede-5633-4a0e-b8c2-170fd83c3f80.png)
+/192116659-e398dcd2-e017-4d12-a2b8-6175093ecca8.png)
+
+<!--
+Please include copy-pastable code snippets if possible.
+1. _____
+2. _____
+3. _____
+-->
+
+#### Observed results
+DeltaTable.forPath(spark,silver_table_uri)
+
+ 
+
+/databricks/spark/python/delta/[tables.py](https://tables.py/) in forPath(cls, sparkSession, path, hadoopConf)
+
+385 jsparkSession: "JavaObject" = sparkSession._jsparkSession # type: ignore[attr-defined]
+
+386
+
+--> 387 jdt = jvm.io.delta.tables.DeltaTable.forPath(jsparkSession, path, hadoopConf)
+
+388 return DeltaTable(sparkSession, jdt)
+
+389
+
+ 
+
+/databricks/spark/python/lib/py4j-0.10.9.5-src.zip/py4j/java_gateway.py in __call__(self, *args)
+
+1319
+
+1320 answer = self.gateway_client.send_command(command)
+
+-> 1321 return_value = get_return_value(
+
+1322 answer, self.gateway_client, self.target_id, [self.name](https://self.name/))
+
+1323
+
+ 
+
+/databricks/spark/python/pyspark/sql/[utils.py](https://utils.py/) in deco(*a, **kw)
+
+200 # Hide where the exception came from that shows a non-Pythonic
+
+201 # JVM exception message.
+
+--> 202 raise converted from None
+
+203 else:
+
+204 raise
+
+ 
+
+AnalysisException: `s3://.....` is not a Delta table.
+<!-- What happened?  This could be a description, log output, etc. -->
+
+#### Expected results
+
+<!-- What did you expect to happen? -->
+delta table to be created using the valid path
+#### Further details
+The behaviour is incosistent and differ between cluster versions (as seen in the snapshots
+As can be seen, same command pass on 1st command, but fail on next command. 
+<!--
+Include any additional details that may be useful for diagnosing the problem here. If including tracebacks, please include the full traceback. Large logs and files should be attached.
+-->
+![image](https://user-images.githubusercontent.com/5821916/192117642-0e0cfa29-00df-4aed-92f8-8f128b22a91b.png)
+
+### Environment information
+
+* Delta Lake version: 
+
+* Spark version: 11.2 (includes Apache Spark 3.3.0, Scala 2.12)
+* Scala version: 2.12
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [ X] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute a bug fix at this time.

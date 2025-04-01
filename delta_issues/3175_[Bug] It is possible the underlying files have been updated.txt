@@ -1,0 +1,58 @@
+## Bug
+
+### Describe the problem
+I have this setup: A AWS Glue Job `kinesis_consumer` that consumes a kinesis stream and stores the data in s3 bucket `kinesis_data`. 
+
+```
+kinesis = (
+            spark.readStream.format("kinesis")
+            .option("streamName", stream_name)
+            .option("endpointUrl", x)
+            .option("region", region)
+            .option("startingPosition", position)
+            .option("minOffsetPerTrigger", tim)
+            .load()
+
+
+stream_data.writeStream \
+                .format("delta") \
+                .outputMode("append") \
+                .trigger(processingTime="200 seconds") \
+                .option("checkpointLocation", checkpoint_location) \
+                .start(s3_target)
+        spark.streams.awaitAnyTermination()
+```
+Another Glue Job `data_exposer` is supposed to read the data from the s3 bucket `kinesis_data` and store it in a different s3 bucket `exposed_data`:
+```
+df = spark.readStream \
+                    .format("delta") \
+                    .option("ignoreDeletes", "true") \
+                    .option("startingVersion", "latest") \
+                    .load(s3_target)
+df.writeStream \
+        .format("delta") \
+        .outputMode("append") \
+        .option("ignoreChanges","true") \
+        .option("checkpointLocation", s3_chckp) \
+        .start(s3_path)
+```
+When I try to read from the `kinesis_data` with Glue Job `data_exposer` I am getting this error:
+```
+java.io.FileNotFoundException: No such file or directory 's3://kinesis-data/kinesis/_delta_log/00000000000000000016.json'
+It is possible the underlying files have been updated. You can explicitly invalidate the cache in Spark by running 'REFRESH TABLE tableName' command in SQL or by recreating the Dataset/DataFrame involved
+```
+I am assume I must have misunderstood something. Could you please tell me what am I doing wrong? 
+
+### Environment information
+
+* Delta Lake version: 1.0.0
+* Spark version: 3.1.1.
+* Scala version: 2.12
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [ ] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute a bug fix at this time.

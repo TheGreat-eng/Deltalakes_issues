@@ -1,0 +1,19 @@
+#### Which Delta project/connector is this regarding?
+
+- [X] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+Update the sanity check for non-incremental updates to throw a deletionVectorSizeMismatch instead of using `require()`.
+
+## How was this patch tested?
+
+Update existing test.
+
+## Does this PR introduce _any_ user-facing changes?
+
+Changes an exception from `IllegalArgumentException` to `DeltaChecksumException`.

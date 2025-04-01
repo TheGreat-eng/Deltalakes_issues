@@ -1,0 +1,14 @@
+## Overview
+This is the issue to track interest, feature requests, and progress being made on support for dropping column in Delta Lake, which is part of “column renaming and dropping” as outlined on the Delta OSS 2022 H1 roadmap https://github.com/delta-io/delta/issues/920.
+
+Dropping columns is a common schema evolution operation where users can drop columns from a table as a metadata-only operation. Delta currently doesn't support such an operation because Delta's column names are tied to the underlying column names in Parquet. If a column was dropped, and then users add back a column with the same name, the dropped columns will be "revived" because there is no way to distinguish between the column before the drop with the column added after the drop with the same name.  With column mapping in Delta, however, such dilemma can be resolved, because the two columns with the same name before and after the drop can be distinguished because they have different physical names.
+
+## Requirements
+- Users can drop a column from Delta as a metadata operation. In other words, dropping a column can be done without the need of rewriting any data files. 
+- Users can physically delete the dropped column data from file storage.
+
+Please see the detailed requirements [here](https://docs.google.com/document/d/1NeqRyjdPwFWXDwoYgaMs69QRGyeW-2qdZ5Da7ywoRUo/edit#heading=h.prqd98d97f8o).
+
+## Design sketch
+
+Please find the design sketch [here](https://docs.google.com/document/d/1NeqRyjdPwFWXDwoYgaMs69QRGyeW-2qdZ5Da7ywoRUo/edit#heading=h.prqd98d97f8o).

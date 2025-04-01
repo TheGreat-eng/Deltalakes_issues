@@ -1,0 +1,2 @@
+1. Can we able to create Hive table on delta to access updated snapshot . ?
+2. We know whenever the update/delete run on delta lake (by delta lake APIs) it re-process entire dataset, and update the deltaLog, so that we can get the updated snapshot. So when we do the same operation (ACID) by using Hive , it should also do the same what delta lake API does. ?

@@ -1,0 +1,32 @@
+spark 3.2.1
+scala 2.12.12
+hadoop 3.3.0
+delta 1.2.1
+
+I am running Spark with Scala in Kubernetes.
+I am running two spark streaming jobs.
+
+kafka >> job1: read stream from kafka, process, write stream to delta_table_1>> job2: read stream from delta_table_1, process, write stream to delta_table_2
+
+job1 processes stream with window 5 minutes and watermark 1 minute
+job2 processes stream with window 1 hour and watermark 5 minutes
+SparkUI of job2, Storage tab, shows:
+
+ID | RDD Name | Storage Level | Cached Partitions | Fraction Cached | Size in Memory | Size on Disk
+-- | -- | -- | -- | -- | -- | --
+15 | Delta Table State #116320 - wasbs://CONTAINER@SA1.blob.core.windows.net/TABLE1/_delta_log | Disk Memory Serialized 1x Replicated | 50 | 100% | 3.4 GiB | 0.0 B
+113 | Delta Table State #60069 - abfss://CONTAINER@SA2.dfs.core.windows.net/TABLE2/_delta_log | Disk Memory Serialized 1x Replicated | 50 | 100% | 55.8 GiB | 0.0 B
+
+ID	RDD Name	Storage Level	Cached Partitions	Fraction Cached	Size in Memory	Size on Disk
+15	[Delta Table State #116320 - wasbs://CONTAINER@SA1.blob.core.windows.net/TABLE1/_delta_log](http://localhost:4040/storage/rdd/?id=15)	Disk Memory Serialized 1x Replicated	50	100%	3.4 GiB	0.0 B
+113	[Delta Table State #60069 - abfss://CONTAINER@SA2.dfs.core.windows.net/TABLE2/_delta_log](http://localhost:4040/storage/rdd/?id=113)	Disk Memory Serialized 1x Replicated	50	100%	55.8 GiB	0.0 B
+
+The issue is that most of the batches are processesed fine but every ~30min one batch is being processes 14min and this time growth over time. I noticed the cached tables growth over time also.
+
+can I avoid this caching by spark? 
+I guess spark caches in memory latest verion of the table?
+
+when I write to table I use mode "append".
+
+
+I do partition frame by date, hour before I write it to delta table. I have tried VACUUM with RETAIN 24 hours but I do not delete any data physicaly in the delta table storage.

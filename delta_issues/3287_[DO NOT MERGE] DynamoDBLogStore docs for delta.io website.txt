@@ -1,0 +1,2 @@
+- please review the section `Amazon S3 (with multi-cluster writes)`.
+- the section `Amazon S3` is just there for context

@@ -1,0 +1,59 @@
+#### Which Delta project/connector is this regarding?
+
+- [X] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+Resolves  #3436
+
+This is the second out of the two implementations for the FSCK REPAIR TABLE command. The other implementation is available at https://github.com/delta-io/delta/pull/3499. While the first implementation only addresses missing parquet files, this implementation also addresses the problem of missing deletion vectors.
+
+While the resolution for missing parquet files remains the same, we are now also addressing the issue of missing deletion vectors. With this in mind, the implementation that includes missing DVs looks like this:
+-  Get the files that are referenced in the current delta log
+-  Using a udf, add new columns to the dataset of all files: dvPath, dvMissing, filePathMissing. 
+- Now, get the list of actions that will be committed to the delta log. In this case there are two options:
+    -  `spark.databricks.delta.fsck.fsckMissingDVsEnabled = exception` 
+        In this case we throw an exception if a missing deletion vector found in regular mode. In DRY RUN mode we report both missing DVs and missing parquet files.
+    -  `spark.databricks.delta.fsck.fsckMissingDVsEnabled = removeDV`
+       Here we attempt to fix the filesystem by also removing the missing deletion vectors from the delta log. That is, we remove addFiles that have a missing parquet file referenced, remove addFiles that have a deletion vector referenced, and add back files that ONLY have a missing deletion vector but with that deletion vector set to null. For example, assume we have the following files:
+          - A: `[parquetMissing: True, dvMissing: True]`
+                  Remove the entire entry from the delta log
+          - B: `[parquetMissing: False, dvMissing: True]`
+                  Remove the entire file from the delta log and then add it back but with the dv reference set to `NULL`
+          - C: `[parquetMissing: True, dvMissing: False]`
+                  Remove the entire entry from the delta log
+          - D: `[parquetMissing: False, dvMissing: False]`
+                  Keep the file in the delta log as is
+- After we have identified what to commit to the delta log, perform the commit and generate metrics
+- Report the results to the user
+
+## How was this patch tested?
+
+The following unit tests were added to ensure correct execution of the command
+
+- FSCK simple test one file removed
+- FSCK simple test multiple files removed
+- FSCK simple test table syntax
+- FSCK with partitions
+- FSCK clone test
+- FSCK Vacuum and restore test
+- FSCK Change DRY RUN limit
+- FSCK Make sure other files are not deleted
+- FSCK DRY RUN test
+- FSCK Call FSCK on partitions
+- FSCK verify output
+- FSCK Remove partition directory
+- FSCK special characters test
+- FSCK ignore non-404 errors in DRY RUN mode
+- FSCK no double commit with concurrent calls
+- FSCK metrics in Delta table history with missing DVs enabled = true/false
+- FSCK missing deletion vector
+
+
+## Does this PR introduce _any_ user-facing changes?
+
+Yes, it introduces the FSCK command to the user. It operates similarly to the currently available implementation of `FSCK REPAIR TABLE` available within Databricks.

@@ -1,0 +1,17 @@
+Minor refactoring to keep the names consistent with the [writer](https://github.com/delta-io/delta/blob/master/kernel/kernel-defaults/src/main/java/io/delta/kernel/defaults/internal/parquet/ParquetFileWriter.java). 
+
+[ParquetBatchReader](https://github.com/delta-io/delta/blob/master/kernel/kernel-defaults/src/main/java/io/delta/kernel/defaults/internal/parquet/ParquetBatchReader.java) -> ParquetFileReader
+
+[ParquetConverters](https://github.com/delta-io/delta/blob/master/kernel/kernel-defaults/src/main/java/io/delta/kernel/defaults/internal/parquet/ParquetConverters.java) -> ParquetColumnReaders
+(Insider this file, rename every XXConverter to XXColumnReader)
+
+[ArrayConverter](https://github.com/delta-io/delta/blob/master/kernel/kernel-defaults/src/main/java/io/delta/kernel/defaults/internal/parquet/ArrayConverter.java) -> ArraryColumnReader
+
+[MapConverter](https://github.com/delta-io/delta/blob/master/kernel/kernel-defaults/src/main/java/io/delta/kernel/defaults/internal/parquet/MapConverter.java) -> MapColumnReader
+
+[DecimalConverters](https://github.com/delta-io/delta/blob/master/kernel/kernel-defaults/src/main/java/io/delta/kernel/defaults/internal/parquet/DecimalConverters.java) -> DecimalColumnReader
+(inside this rename every XXConverter to XXColumnReader)
+
+[RowConverter](https://github.com/delta-io/delta/blob/master/kernel/kernel-defaults/src/main/java/io/delta/kernel/defaults/internal/parquet/RowConverter.java) -> RowColumnReader
+
+

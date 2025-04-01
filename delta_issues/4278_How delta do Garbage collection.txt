@@ -1,0 +1,8 @@
+Hi, delta team.
+
+We can run a new job to merge small files in hdfs which generate by our Structured Streaming application. But how can I do Garbage collection with delta?
+
+---
+I find `VACUUM` command in databricks delta document.
+but I can't find any code about Garbage collection in open source version. 
+

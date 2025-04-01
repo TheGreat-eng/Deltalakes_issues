@@ -1,0 +1,41 @@
+## Feature request
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the issue title
+For example: [Feature Request][Spark] Title of my issue
+-->
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+### Overview
+
+<!-- Provide a high-level description of the feature request. -->
+
+### Motivation
+
+<!-- How will this feature be used? Why is it important? Which users will benefit from it? -->
+Currently, we support Protocol downgrade in the form of feature removal but downgrading protocol versions is not possible. This feature request is about adding support for protocol version downgrade. This will allow reader/writers that support lower protocol versions to read the table.
+
+### Further details
+
+Protocol version downgrade should only be allowed for tables that support either reader+writer table features or writer table features. The protocol downgrade should take place when the user removes a table feature and there are no non-legacy table features left in the table. The protocol should be downgraded to the minimum reader/writer versions required to support all enabled legacy features.
+
+For example, Protocol(3, 7, readerFeatures=(DeletionVectors), writerFeatures=(DeletionVectors, ChangeDataFeed) is downgraded to Protocol(1, 4) after removing the DeletionVectors table feature.
+
+<!--
+Use this section to include any additional information about the feature. If you have a proposal for how to implement this feature, please include it here. For implementation guidelines, please read our contributor guidelines: https://github.com/delta-io/delta/blob/master/CONTRIBUTING.md
+If there are any specific requirements for this feature that are not immediately obvious please outline them here.
+-->
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [x] Yes. I can contribute this feature independently.
+- [ ] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.

@@ -1,0 +1,3 @@
+This will allow us to prepare in advance to use new APIs like data source v2.
+
+Most of the diff here is classes being moved around. There's only one significant change: the PartitionCount physical plan metadata was removed, so we have to rewrite a test to use the equivalent SQL metric instead.

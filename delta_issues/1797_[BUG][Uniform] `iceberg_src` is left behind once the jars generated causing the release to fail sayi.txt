@@ -1,0 +1,17 @@
+## Bug
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the issue title
+For example: [BUG][Spark] Title of my issue
+-->
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [x] Other (uniform)
+
+### Describe the problem
+We should clone it in the hidden directory to avoid tracking by the git or specifically ignore that.
+

@@ -1,0 +1,9 @@
+## Description
+Rename the module `kernel-default` to `kernel-defaults`.
+Rename package `io.delta.kernel` to `io.delta.kernel.defaults` in `kernel-defaults` module.
+Move non-public classes under the `io.delta.kernel.defaults.internal` package.
+
+Note: Reason for not using the `default` is because it is a keyword in Java and can't be part of the package namespace.
+
+## How was this patch tested?
+Updated the `kernel/examples` and ran the `python3 kernel/examples/run-kernel-examples.py --use-local` successfully.

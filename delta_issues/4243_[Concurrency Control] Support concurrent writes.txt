@@ -1,0 +1,7 @@
+As of 0.2.0, Delta Lake supports concurrent appends, where an append must be only adding new data to the table without reading or modifying existing data in any way.  
+
+This issue is to track the support of more types of concurrent writes in Delta Lake, where a writer can also read and modify existing data, such as overwrite, delete or update.
+
+Related issues:
+https://github.com/delta-io/delta/issues/9: Allow concurrent writes to partitions that don't interact with each other
+https://github.com/delta-io/delta/issues/23: Multi threading support on delta table

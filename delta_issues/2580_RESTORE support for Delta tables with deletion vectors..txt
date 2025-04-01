@@ -1,0 +1,5 @@
+This PR is part of the feature: Support Delta tables with deletion vectors (more details at https://github.com/delta-io/delta/issues/1485)
+
+It adds running RESTORE on a Delta table with deletion vectors. The main change is to take into consideration of the `AddFile.deletionVector` when comparing the target version being restored to and the current version to find the list of data files to add and remove.
+
+Added tests

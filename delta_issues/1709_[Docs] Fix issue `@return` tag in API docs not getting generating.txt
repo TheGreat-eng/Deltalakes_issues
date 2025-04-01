@@ -1,0 +1,13 @@
+#### Which Delta project/connector is this regarding?
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [x] Other (docs)
+
+## Description
+The current `unidoc` settings exclude the `@return` tag from the API docs. We should include it as it can contain expanded info about the returned value of the APIs. Example: [API doc](https://docs.delta.io/latest/api/java/kernel/io/delta/kernel/Scan.html#getScanFiles-io.delta.kernel.client.TableClient-) and the [code](https://github.com/delta-io/delta/blob/master/kernel/kernel-api/src/main/java/io/delta/kernel/Scan.java#L51) is generated from.
+
+## How was this patch tested?
+Manually verified locally.

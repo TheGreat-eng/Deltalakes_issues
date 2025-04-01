@@ -1,0 +1,5 @@
+1) Add read support (schema, parquet reader and type)
+2) Add partition pruning on ts_ntz type columns
+3) Add expression evaluator support in default handler for ts_ntz type columns.
+
+Close #2279

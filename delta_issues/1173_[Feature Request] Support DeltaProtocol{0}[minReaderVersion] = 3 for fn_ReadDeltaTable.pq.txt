@@ -1,0 +1,42 @@
+## Feature request
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the issue title
+For example: [Feature Request][Spark] Title of my issue
+-->
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+### Overview
+
+<!-- Provide a high-level description of the feature request. -->
+We are using fn_ReadDeltaTable to read data from Datalake to Power BI. Recently the Databrick is upgraded and the data generated become version 3. Therefore the data are not reading in because below line of code:
+
+`#"Validate ReaderVersion" = if DeltaProtocol{0}[minReaderVersion] <= 2 then #"Renamed ComplexTypes" else error Error.Record("DeltaLakeVersionNotSupported", "This Connector currently only supports DeltaLake tables up to version 2.", "minReaderVersion"),`
+
+By changing the "2" to "3" all the data reads correctly again. But I are not sure it is the right thing to do.
+
+### Motivation
+
+<!-- How will this feature be used? Why is it important? Which users will benefit from it? -->
+In the future there will be more and more users upgrade to new version. It would be beneficial to every users of fn_ReadDeltaTable.pq
+
+### Further details
+
+<!--
+Use this section to include any additional information about the feature. If you have a proposal for how to implement this feature, please include it here. For implementation guidelines, please read our contributor guidelines: https://github.com/delta-io/delta/blob/master/CONTRIBUTING.md
+If there are any specific requirements for this feature that are not immediately obvious please outline them here.
+-->
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [ ] Yes. I can contribute this feature independently.
+- [x] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.

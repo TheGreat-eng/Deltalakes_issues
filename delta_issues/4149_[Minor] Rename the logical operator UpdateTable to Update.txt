@@ -1,0 +1,1 @@
+The current `UpdateTable` has a "VerbObject" structure, which is not aligned with `Delete`. We'd better use universal naming rules for them. Another choice is `DeleteFromTable`, `UpdateTable` and `MergeIntoTable`, but I think `Delete`, `Update`, `Merge` is enough.

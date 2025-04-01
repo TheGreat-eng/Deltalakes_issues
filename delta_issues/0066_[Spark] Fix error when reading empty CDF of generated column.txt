@@ -1,0 +1,25 @@
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+This PR fixes a `PLAN_VALIDATION_FAILED_RULE_EXECUTOR` error that occurs when reading the CDF of a commit range that contains no file actions and when reading a generated column. In this case `DeltaCDFRelation.buildScan` will add a `Project` or `Filter` containing `AttributeReference`s with empty `metadata` on top of a plan where the `metadata`. This will cause `hasUniqueExprIdsForOutput` to trip, but only if the plan does not contain a `Union`, which is only the case when reading the CDF of a commit range without any file actions.
+
+The fix is to substitute the attribute references in the projections and filters entirely, instead of just patching up the expression ids. (I am not sure why I didn't simply do this in the first place.)
+
+## How was this patch tested?
+
+Modified an existing test to reproduce the error.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

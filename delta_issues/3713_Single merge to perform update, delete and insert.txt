@@ -1,0 +1,20 @@
+Context: I am performing a merge command (https://docs.delta.io/latest/delta-update.html#upsert-into-a-table-using-merge&language-java) on data in s3 stored using delta lake and I have changes that consist updates, inserts and deletes. Currently, I am using two merge commands to apply those changes. Here are how my merge commands look like
+
+```
+// deltaTable is of type - https://docs.delta.io/latest/api/java/io/delta/tables/DeltaTable.html
+// insertDf contains all the inserts and updates as spark DataFrame
+// condition string is olddata.<columnName> = newdata.<columnName> where columnName is the primary key for the data - note that my data has only one column as primary key
+// deleteDf contains all the deletes as spark DataFrame
+deltaTable!!.alias("olddata").merge(
+                            insertDf.alias("newdata"),
+                            conditionString
+                        ).whenMatched().updateAll()
+                            .whenNotMatched().insertAll().execute()
+deltaTable!!.alias("olddata").merge(
+                            deleteDf.alias("newdata"),
+                            conditionString
+                        ).whenMatched().delete().execute()
+```
+Problem: This results in the system doing two merges which drives down efficiency of my system. I am trying to figure out a way to apply all the updates in a single merge. However, the merge command only takes one data and one condition. So unless I create a condition using the value from the data and apply the inserts if the value of rows is in my insert data frame and deletes, if the value of rows is in my delete data set, I end up having to write two different merges. Am I missing something? Is there a feature request here that would help simplify applying changes to delta lake?
+
+Note that I want to avoid creating queries using data from the rows as the data is coming from customers and could be prone to sql injection. Also, the condition string in that case could be awfully large since the changes I am applying could be ~1-2GB in size.

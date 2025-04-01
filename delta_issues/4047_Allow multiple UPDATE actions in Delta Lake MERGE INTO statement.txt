@@ -1,0 +1,4 @@
+A common practice in slowly changing dimension (SCD) load patterns is to soft-delete records rather than hard delete them. This is often done by setting a flag marking the record as deleted. This is of itself is easy to achieve, however sometimes deleted records reappear in the source system and therefore need to be re-inserted (effectively a special kind of update). This requires two WHEN MATCHED clauses with different conditions and attributes to be UPDATEd. A workaround for some scenarios is using a CASE statement, but this makes the logic unintuitive and much harder to read and maintain. It would be extremely useful if we could use UPDATE more than once in a WHEN MATCHED clause.
+
+Issue discussed with @tdas on Delta Lake Slack channel where he suggested I raise this to be tracked.
+https://delta-users.slack.com/archives/CGK79PLV6/p1575927346351000

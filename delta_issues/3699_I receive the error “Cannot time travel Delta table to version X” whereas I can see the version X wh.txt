@@ -1,0 +1,26 @@
+I have a table in delta lake which has these tblproperties: 
+![image](https://user-images.githubusercontent.com/8245071/110609530-98459180-818d-11eb-8cd5-a18cef24f3e7.png)
+
+I'm trying to access a version which was there last month, the 322.
+
+When I look at the history, I can see it:
+
+![image](https://user-images.githubusercontent.com/8245071/110609509-924fb080-818d-11eb-9f58-7f79bb6fdcd6.png)
+
+But when I try to access it with such a command:
+
+```
+spark.read.format("delta").option("versionAsOf", 322).load(path)
+```
+
+I receive this error:
+
+```
+AnalysisException: Cannot time travel Delta table to version 322. Available versions: [330, 341].;
+I can't understand the problem. I think that it might be an issue.
+```
+
+I'm using the Azure Databricks platform: 7.3 LTS ML, Spark 3.0.1, Scala 2.12.
+Then I think the version of DeltaLake (according to the documentation) is  0.7.0.
+
+Thank you for your help.

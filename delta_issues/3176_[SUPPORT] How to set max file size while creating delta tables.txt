@@ -1,0 +1,45 @@
+## Bug
+
+Not a bug. but clarification question. 
+
+### Describe the problem
+May I know how to configure the max file size while creating delta tables via spark-sql? 
+
+#### Steps to reproduce
+
+lets say parquet_tbl is the input table in parquet. 
+
+spark.sql("create table delta_tbl1 using delta location 'file:/tmp/delta/tbl1' partitioned by (VendorID) TBLPROPERTIES ('delta.targetFileSize'='10485760') as select * from parquet_tbl");
+
+#### Observed results
+
+```
+Unknown configuration was specified: delta.targetFileSize
+```
+is thrown. 
+
+I came across above [config](https://docs.databricks.com/delta/table-properties.html) from databricks delta. guess its not in delta OSS. wondering, how can I achieve my requirement. I just want to set max file size that gets written as part of delta table. Is there a way to set the property while creating the table itself and so any new writes to delta will honor that? Or one has to explicitly `OPTIMIZE` at regular intervals to circumvent the small file problem in delta. any pointers would be appreciable. 
+
+#### Expected results
+
+<!-- What did you expect to happen? -->
+
+#### Further details
+
+<!--
+Include any additional details that may be useful for diagnosing the problem here. If including tracebacks, please include the full traceback. Large logs and files should be attached.
+-->
+
+### Environment information
+
+* Delta Lake version:
+* Spark version:
+* Scala version:
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [ ] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute a bug fix at this time.

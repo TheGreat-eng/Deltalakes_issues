@@ -1,0 +1,44 @@
+## Feature request
+Maybe I'm doing something wrong but for some reason running OPTIMIZE from spark sql interface doesn't seem to do anything.
+(Version 1.2.1)
+
+It would be great if the OPTIMIZE command can be run from spark SQL interface in python and would return a dataframe containing the statistics as mentioned in the documentation.
+
+Something like the following:
+
+```python
+df = spark.sql("OPTIMIZE delta.`/path/to/delta/table`")
+```
+
+### Overview
+
+return dataframe containing statistics from the OPTIMIZE command
+
+### Motivation
+
+Notebooks like Zeppelin are not used on our cloudera stack. So we need to run optimize either from the python API for DeltaTable or through the spark sql interface.
+
+### Further details
+
+According to documentation the following SQL code should be executed for file compaction (automatic resizing based on OPTIMIZATION settings):
+
+```sql
+OPTIMIZE '/path/to/delta/table' -- Optimizes the path-based Delta Lake table
+
+OPTIMIZE delta_table_name;
+
+OPTIMIZE delta.`/path/to/delta/table`;
+```
+
+futher in the documentation it is mentioned that OPTIMIZE should return a set of statistics:
+
+> OPTIMIZE returns the file statistics (min, max, total, and so on) for the files removed and the files added by the operation. Optimize stats also contains the number of batches, and partitions optimized
+
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [ ] Yes. I can contribute this feature independently.
+- [ ] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [x] No. I cannot contribute this feature at this time.

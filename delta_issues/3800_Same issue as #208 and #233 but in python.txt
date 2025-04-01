@@ -1,0 +1,26 @@
+Hi there,
+I'm working with python and running into the same error as detailed in  #233 and #208. I'm wondering if the bug was solved in schala but not python. 
+I have a test delta table with the columns 
+`id | flag | ts | data_1 | data_2 | data_3`
+I have a dataframe with updates to merge into the delta table
+
+This is my merge code
+<pre><code>old_data_delta.alias("old")\
+  .merge(
+          source = new_data.alias("new"), 
+          condition = exp("old.id = new.id")
+).whenMatchedUpdate(set = {
+  "flag" : "new.flag",
+  "data_1" : "new.data_1",
+  "data_2" : "new.data_2",
+  "data_3" : "new.data_3"
+}).execute()`</code></pre>
+
+The error I get is
+
+<pre><code>org.apache.spark.sql.AnalysisException:
+cannot resolve `old.id = new.id` in search condition given columns 
+old.`data_1`, old.`data_2`, old.`data_3`, old.`flag`, old.`id`, old.`ts`, 
+new.`data_1`, new.`data_2`, new.`data_3`, new.`flag`, new.`id`, new.`ts`;</code></pre>
+
+If I'm off base on this being a bug like it was in schala - please let me know. 

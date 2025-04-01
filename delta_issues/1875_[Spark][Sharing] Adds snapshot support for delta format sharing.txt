@@ -1,0 +1,18 @@
+#### Which Delta project/connector is this regarding?
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [x] Other (delta sharing)
+
+## Description
+Second PR of https://github.com/delta-io/delta/issues/2291: Adds snapshot support for "delta format sharing":
+- DeltaSharingDataSource with snapshot query support
+- DeltaSharingDataSourceDeltaSuite
+- DeltaSharingDataSourceDeltaTestUtils/TestClientForDeltaFormatSharing/TestDeltaSharingFileSystem
+
+## How was this patch tested?
+Unit Tests
+
+## Does this PR introduce _any_ user-facing changes?
+No

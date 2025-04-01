@@ -1,0 +1,17 @@
+## Description
+Having the API to tell if an expression is supported on a given input schema and expected data type, can make the Kernel make better decisions in splitting the given query predicate to a guaranteed predicate and a best-effort predicate. The proposed API is:
+
+```
+    /**
+     * Is the given expression evaluation supported on the data with given schema?
+     *
+     * @param inputSchema Schema of input data on which the expression is evaluated.
+     * @param expression Expression to evaluate.
+     * @param outputType Expected result data type.
+     * @return true if supported and false otherwise.
+     */
+    boolean isSupported(StructType inputSchema, Expression expression, DataType outputType);
+```
+
+## How was this patch tested?
+Unittests

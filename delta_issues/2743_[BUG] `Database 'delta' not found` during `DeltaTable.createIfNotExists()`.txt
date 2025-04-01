@@ -1,0 +1,28 @@
+Reproduction:
+
+```groovy
+    def scalaVersion = "2.12"
+    implementation "io.delta:delta-core_${scalaVersion}:2.2.0"
+    implementation "org.apache.spark:spark-sql_${scalaVersion}:3.3.1"
+```
+ 
+```java
+SparkSession.builder()
+                .master("local")
+                .appName("...")
+                .config("spark.sql.extensions", "io.delta.sql.DeltaSparkSessionExtension")
+                .config("spark.sql.catalog.spark_catalog", "org.apache.spark.sql.delta.catalog.DeltaCatalog")
+                .config("spark.ui.enabled", "false")
+                .getOrCreate();
+``` 
+
+Then when I use:
+```java
+        DeltaTable.createIfNotExists()         
+                .location(tableLocation)
+                .addColumn ...
+                .execute();
+```
+
+I get error: `org.apache.spark.sql.catalyst.analysis.NoSuchDatabaseException: Database 'delta' not found`
+Except `createIfNotExists`, all other Delta Lake features work as expected.

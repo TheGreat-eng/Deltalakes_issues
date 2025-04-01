@@ -1,0 +1,20 @@
+#### Which Delta project/connector is this regarding?
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [X] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+Adds new unit tests for timestampNtz writes. Note that most of the write functionality (creation, inserts, insert with partition columns) are already exercised by  DeltaTableWritesSuite. This PR adds a few more tests.
+
+Fixes #4103
+
+## How was this patch tested?
+
+New unit tests
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

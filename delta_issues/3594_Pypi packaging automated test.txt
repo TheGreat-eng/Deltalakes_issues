@@ -1,0 +1,92 @@
+
+## What does this change?
+Create an automated test so that the pypi delta package is installed and used in python tests every commit.
+
+## Test / Confirmation 1
+I changed the `version.sbt` version to be `version in ThisBuild := "1.1.0-SNAPSHOT-TEST"` (and did not commit those changes)
+
+That version (with the `-TEST` appended to it) was then used when executing `using_with_pip.py`
+
+```
+### Executing: pip3 install /Users/scott.sandre/delta/dist/delta_spark-1.1.0_SNAPSHOT_TEST-py3-none-any.whl
+Processing ./dist/delta_spark-1.1.0_SNAPSHOT_TEST-py3-none-any.whl
+Collecting pyspark<3.2.0,>=3.1.0
+  Using cached pyspark-3.1.2-py2.py3-none-any.whl
+Requirement already satisfied: importlib-metadata>=3.10.0 in /usr/local/lib/python3.9/site-packages (from delta-spark==1.1.0-SNAPSHOT-TEST) (4.6.1)
+Requirement already satisfied: zipp>=0.5 in /usr/local/lib/python3.9/site-packages (from importlib-metadata>=3.10.0->delta-spark==1.1.0-SNAPSHOT-TEST) (3.5.0)
+Requirement already satisfied: py4j==0.10.9 in /usr/local/lib/python3.9/site-packages (from pyspark<3.2.0,>=3.1.0->delta-spark==1.1.0-SNAPSHOT-TEST) (0.10.9)
+Installing collected packages: pyspark, delta-spark
+Successfully installed delta-spark-1.1.0-SNAPSHOT-TEST pyspark-3.1.2
+Test command: ['python3', '/Users/scott.sandre/delta/examples/python/using_with_pip.py']
+:: loading settings :: url = jar:file:/usr/local/lib/python3.9/site-packages/pyspark/jars/ivy-2.4.0.jar!/org/apache/ivy/core/settings/ivysettings.xml
+Ivy Default Cache set to: /Users/scott.sandre/.ivy2/cache
+The jars for the packages stored in: /Users/scott.sandre/.ivy2/jars
+io.delta#delta-core_2.12 added as a dependency
+:: resolving dependencies :: org.apache.spark#spark-submit-parent-0b707f56-f34e-4a63-9008-b9090b7f024c;1.0
+	confs: [default]
+	found io.delta#delta-core_2.12;1.1.0-SNAPSHOT-TEST in local-m2-cache
+	found org.antlr#antlr4;4.8 in local-m2-cache
+	found org.antlr#antlr4-runtime;4.8 in local-m2-cache
+	found org.antlr#antlr-runtime;3.5.2 in local-m2-cache
+	found org.antlr#ST4;4.3 in local-m2-cache
+	found org.abego.treelayout#org.abego.treelayout.core;1.0.3 in local-m2-cache
+	found org.glassfish#javax.json;1.0.4 in local-m2-cache
+	found com.ibm.icu#icu4j;61.1 in local-m2-cache
+downloading file:/Users/scott.sandre/.m2/repository/io/delta/delta-core_2.12/1.1.0-SNAPSHOT-TEST/delta-core_2.12-1.1.0-SNAPSHOT-TEST.jar ...
+	[SUCCESSFUL ] io.delta#delta-core_2.12;1.1.0-SNAPSHOT-TEST!delta-core_2.12.jar (4ms)
+:: resolution report :: resolve 611ms :: artifacts dl 10ms
+	:: modules in use:
+	com.ibm.icu#icu4j;61.1 from local-m2-cache in [default]
+	io.delta#delta-core_2.12;1.1.0-SNAPSHOT-TEST from local-m2-cache in [default]
+	org.abego.treelayout#org.abego.treelayout.core;1.0.3 from local-m2-cache in [default]
+	org.antlr#ST4;4.3 from local-m2-cache in [default]
+	org.antlr#antlr-runtime;3.5.2 from local-m2-cache in [default]
+	org.antlr#antlr4;4.8 from local-m2-cache in [default]
+	org.antlr#antlr4-runtime;4.8 from local-m2-cache in [default]
+	org.glassfish#javax.json;1.0.4 from local-m2-cache in [default]
+	---------------------------------------------------------------------
+	|                  |            modules            ||   artifacts   |
+	|       conf       | number| search|dwnlded|evicted|| number|dwnlded|
+	---------------------------------------------------------------------
+	|      default     |   8   |   2   |   2   |   0   ||   8   |   1   |
+	---------------------------------------------------------------------
+```
+
+## Test / Confirmation 2
+I added
+```
+// scalastyle:off println
+println("pypi TEST")
+// scalastyle:on println
+```
+to the top (constructor) of `DeltaLog.scala` (and did not commit those changes).
+
+While running the `using_with_pip.py` tests, you can see that the `println` is executed:
+```
+########### Create a Parquet table ##############
+########### Convert to Delta ###########
+pypi TEST
+########### Read table with DataFrames ###########
++---+
+| id|
++---+
+|  1|
+|  4|
+|  0|
+|  2|
+|  3|
++---+
+
+########### Read table with DeltaTable ###########
++---+
+| id|
++---+
+|  1|
+|  4|
+|  0|
+|  2|
+|  3|
++---+
+
+Therefore, this specific package version was used.
+```

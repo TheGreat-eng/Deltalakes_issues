@@ -1,0 +1,17 @@
+#### Which Delta project/connector is this regarding?
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+Currently, we try to rewrite any arbitrary expression as partition-like. To avoid having to repeatedly remove known-bad expressions, start with a whitelist (to be expanded) of known-good expressions that can safely be rewritten. 
+
+This change will fix an existing issue where partition-like filters are generated for a non-skipping eligible column. This partition-like filter will throw an analysis exception because these referenced columns aren't found in the stats. This issue was originally missed (and is a difference in behavior vs. partition filters) because partitioning isn't allowed on non-atomic types (or string types), so we missed adding this additional match.
+
+## How was this patch tested?
+See test changes.
+
+## Does this PR introduce _any_ user-facing changes?
+No.

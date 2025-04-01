@@ -1,0 +1,5 @@
+## Description
+Length can be useful when readers want to optimize (for example, in Parquet reader to find the location of metadata and seek there directly rather than making a call to the filesystem to get the size). In Kernel's case we already have the information from Delta Log. Pass the length as new argument to `FileIO.newInputFile`.
+
+## How was this patch tested?
+Existing tests.

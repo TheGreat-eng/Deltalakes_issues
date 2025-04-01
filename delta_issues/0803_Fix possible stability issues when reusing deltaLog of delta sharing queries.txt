@@ -1,0 +1,18 @@
+#### Which Delta project/connector is this regarding?
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [X] Other (delta sharing)
+
+## Description
+
+1. Add limitHint in the queryParamHashId used in delta log table path
+2. Use fileIndexId instead of customId.
+
+## How was this patch tested?
+Unit Test
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

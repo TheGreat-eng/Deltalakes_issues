@@ -1,0 +1,5 @@
+## Description
+When `icebergCompatV2` is enabled, include the partition columns in the physical data that are going to be written in the data files. `Transaction.transformLogicalData` takes care of converting the table logical data into physical data that should go into the Parquet files. One of the transformations done is removing the partition columns that are not required to be in data files for Delta. `icebergCompatV2` requires partition columns to be in data files. Update `Transaction.transformLogicalData` so that partition columns are not removed from physical data if the table has `icebergCompatV2` enabled.
+
+## How was this patch tested?
+Unit tests

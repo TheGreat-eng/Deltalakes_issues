@@ -1,0 +1,3 @@
+Update `run-integration-tests.py` to run the scala tests
+- Update scala example build file to take the version from the env variable DELTA_VERSION
+- Update run-integration-tests.py to call all scala examples with the given version injected via env variable

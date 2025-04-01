@@ -1,0 +1,29 @@
+Based off of #1785.
+
+Updates our current `test.yaml` to not run when there are only changes in `kernel/`.
+
+Adds a separate action for future `kernel/` tests. Currently this just compiles the code.
+
+### Testing
+
+I merged these changes to my own fork and created these PRs to check
+
+https://github.com/allisonport-db/delta/pull/11 Changes to `core/src/main/scala/org/apache/spark/sql/delta/Snapshot.scala`
+- https://github.com/allisonport-db/delta/actions/runs/5125555163/jobs/9218878662?pr=11
+- https://github.com/allisonport-db/delta/actions/runs/5125555163/jobs/9218878794?pr=11
+
+https://github.com/allisonport-db/delta/pull/12 Changes to `build.sbt`
+- https://github.com/allisonport-db/delta/actions/runs/5125557362/jobs/9218883935?pr=12
+- https://github.com/allisonport-db/delta/actions/runs/5125557362/jobs/9218884043?pr=12
+
+https://github.com/allisonport-db/delta/pull/13 Changes to `examples/scala/src/main/scala/example/ChangeDataFeed.scala`
+- https://github.com/allisonport-db/delta/actions/runs/5125558258/jobs/9218886849?pr=13
+- https://github.com/allisonport-db/delta/actions/runs/5125558258/jobs/9218886959?pr=13
+
+https://github.com/allisonport-db/delta/pull/14 Changes to `run-tests.py`
+- https://github.com/allisonport-db/delta/actions/runs/5125560869/jobs/9218892247?pr=14
+- https://github.com/allisonport-db/delta/actions/runs/5125560869/jobs/9218892419?pr=14
+
+https://github.com/allisonport-db/delta/pull/15 Changes to `kernel/build.sbt` (Spark tests SHOULD NOT run)
+- https://github.com/allisonport-db/delta/actions/runs/5125973036/jobs/9219853307?pr=15 (skipped)
+- https://github.com/allisonport-db/delta/actions/runs/5125973036/jobs/9219853403?pr=15 (skipped)

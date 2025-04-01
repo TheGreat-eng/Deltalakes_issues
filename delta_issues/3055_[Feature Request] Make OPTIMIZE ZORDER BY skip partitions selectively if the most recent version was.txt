@@ -1,0 +1,26 @@
+## Feature request
+
+### Overview
+
+OPTIMIZE ZODER BY let users influence the order of rows in the persisted parquet files allowing _data skipping_ on read.
+Currently every time it is executed, **all files of the delta table are written again** - even if the same OPTIMIZE (with the same ZORDER BY columns) was just executed recently.
+I'd appreciate it if the OPTIMIZE ZODER BY was "**smart**" in that regards, that if the most recent version was created by the very same OPTIMIZE, it **skips the operation for the table/partition**. 
+
+### Motivation
+
+This feature would decrease unnecessary disc writes, especially if the table/ lot of partitions often don't have "movement" (inserts, deletes, updates) in it. 
+Currently, users can manually specify on which partitions the OPTIMIZE ZORDER BY should be executed on (by specifying the WHERE statement), but this requires knowledge about the table/partitions.
+It would be very convenient, if delta itself would recognize that another OPTIMIZE on the table / some partition would not have any impact and skip it.
+
+### Further details
+
+For implementing this feature, before executing an OPTIMZIE ZODER BY delta would need to **look into the version history** and identify what was the **last operation on the table / each partition**. If it was a OPTIMIZE also the ZORDER BY columns would have to be regarded.
+If it is the same as the _new_ OPTIMZIE ZODER BY it could be skiped for the respective partitions or the entire table.
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [ ] Yes. I can contribute this feature independently.
+- [ ] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [x] No. I cannot contribute this feature at this time.

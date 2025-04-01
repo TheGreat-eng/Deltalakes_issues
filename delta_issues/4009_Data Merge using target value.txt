@@ -1,0 +1,23 @@
+I'm try to using this peace of code (Scala):
+
+`val valData = Map("ls_doc_tracking" -> s"array_union(curDelta.ls_doc_tracking, Array(newData.ls_doc_tracking))")
+        deltaTableDocument
+                .as("curDelta")
+                .merge(
+                    documentsDf.as("newData")
+                    , buildStdKeyNoTpDoc())
+                .whenNotMatched()
+                    .insertExpr(valData)
+                .whenMatched("newData.item_action = 'D'")
+                    .delete()
+                .whenMatched("newData.item_action = 'U'")
+                    .updateExpr(valData)
+                .execute()`
+
+My problem happens when I try to union two fields: Target (current Delta data) and new data (from DataFrame).
+
+How do I use "curDelta.ls_doc_tracking" (for exemple)?
+
+I need some help on this.
+
+tks

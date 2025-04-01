@@ -1,0 +1,19 @@
+#### Which Delta project/connector is this regarding?
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [X] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+Add a new `Snapshot::getTimestamp` public API.
+
+## How was this patch tested?
+
+N/A. Trivial.
+
+## Does this PR introduce _any_ user-facing changes?
+
+Yes. Adds a new `Snapshot::getTimestamp` public API.

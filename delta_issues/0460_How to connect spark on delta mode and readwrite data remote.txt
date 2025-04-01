@@ -1,0 +1,101 @@
+this is my docker-compose file: 
+
+```
+version:` '3.8'
+services:
+  spark-master:
+    image: bitnami/spark
+    container_name: spark-master
+    environment:
+      - SPARK_MODE=master
+      - SPARK_MASTER_WEBUI_PORT=8080
+      - SPARK_MASTER_PORT=7077
+      - SPARK_SUBMIT_OPTIONS=--packages io.delta:delta-spark_2.12:3.2.0
+      - SPARK_MASTER_HOST=spark-master
+    ports:
+      - 8080:8080
+      - 7077:7077
+    networks:
+      - spark-network
+    volumes:
+      - ./files:/mnt
+
+  spark-connect:
+    image: bitnami/spark
+    container_name: spark-connect
+    environment:
+      - SPARK_MODE=driver
+      - SPARK_MASTER=spark://spark-master:7077
+    ports:
+      - "15002:15002"
+    networks:
+      - spark-network
+    depends_on:
+      - spark-master
+    command: ["/bin/bash", "-c", "/opt/bitnami/spark/sbin/start-connect-server.sh --master spark://spark-master:7077 --packages org.apache.spark:spark-connect_2.12:3.5.1"]
+    volumes:
+      - ./files:/mnt
+
+  spark-worker:
+    image: bitnami/spark
+    container_name: spark-worker
+    environment:
+      - SPARK_MODE=worker
+      - SPARK_MASTER=spark://spark-master:7077
+      - SPARK_WORKER_CORES=2
+      - SPARK_WORKER_MEMORY=2G
+      - SPARK_WORKER_WEBUI_PORT=8081
+    ports:
+      - 8081:8081
+    depends_on:
+      - spark-master
+    networks:
+      - spark-network
+
+  spark-worker2:
+    image: bitnami/spark
+    container_name: spark-worker2
+    environment:
+      - SPARK_MODE=worker
+      - SPARK_MASTER=spark://spark-master:7077
+      - SPARK_WORKER_CORES=2
+      - SPARK_WORKER_MEMORY=2G
+      - SPARK_WORKER_WEBUI_PORT=8082
+    ports:
+      - 8082:8082
+    depends_on:
+      - spark-master
+    networks:
+      - spark-network
+networks:
+  spark-network:
+```
+
+I want to connect to this container for read/write data on delta mode, with this code: 
+```
+data = spark.range(0, 5)
+data.write.format("delta").save("/tmp/deltars_table")
+# Write DataFrame to Delta Lake in 'delta' format
+df.write.format("delta").mode("overwrite").save("/tmp/delta_table")
+```
+
+but get error: 
+```
+Traceback (most recent call last):
+  File "E:\PycharmProjects\delta_lake_test\delta_lake_test\main.py", line 52, in <module>
+    df.write.format("delta").mode("overwrite").save("/tmp/delta_table")
+  File "E:\PycharmProjects\delta_lake_test\delta_lake_test\.venv\lib\site-packages\pyspark\sql\connect\readwriter.py", line 601, in save
+    self._spark.client.execute_command(self._write.command(self._spark.client))
+  File "E:\PycharmProjects\delta_lake_test\delta_lake_test\.venv\lib\site-packages\pyspark\sql\connect\client\core.py", line 982, in execute_command
+    data, _, _, _, properties = self._execute_and_fetch(req)
+  File "E:\PycharmProjects\delta_lake_test\delta_lake_test\.venv\lib\site-packages\pyspark\sql\connect\client\core.py", line 1283, in _execute_and_fetch
+    for response in self._execute_and_fetch_as_iterator(req):
+  File "E:\PycharmProjects\delta_lake_test\delta_lake_test\.venv\lib\site-packages\pyspark\sql\connect\client\core.py", line 1264, in _execute_and_fetch_as_iterator
+    self._handle_error(error)
+  File "E:\PycharmProjects\delta_lake_test\delta_lake_test\.venv\lib\site-packages\pyspark\sql\connect\client\core.py", line 1503, in _handle_error
+    self._handle_rpc_error(error)
+  File "E:\PycharmProjects\delta_lake_test\delta_lake_test\.venv\lib\site-packages\pyspark\sql\connect\client\core.py", line 1539, in _handle_rpc_error
+    raise convert_exception(info, status.message) from None
+pyspark.errors.exceptions.connect.SparkConnectGrpcException: (org.apache.spark.SparkClassNotFoundException) [DATA_SOURCE_NOT_FOUND] Failed to find the data source: delta. Please find packages at `https://spark.apache.org/third-party-projects.html`.
+```
+How can I make a connection string to remote delta lake and use it from my host or server or other docker containers?

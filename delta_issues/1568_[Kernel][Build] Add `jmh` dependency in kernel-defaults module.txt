@@ -1,0 +1,1 @@
+This dependency is needed for https://github.com/delta-io/delta/pull/2701/files.

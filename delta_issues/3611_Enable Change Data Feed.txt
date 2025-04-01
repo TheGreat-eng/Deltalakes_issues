@@ -1,0 +1,10 @@
+We are developing an application for Azure Databricks. We are using DBR 8.3, which has the experimental feature of Change Data Feed.
+For testing purposes, we have a dockerized local environment with Spark 3.1.2 and spark-delta 1.0.0. When we want to create a CDF enabled table, we use:
+
+`DeltaTable.createIfNotExists(spark).tableName("TableName").addColumns(schema).location(path).property("delta.enableChangeDataFeed", "true").execute()`
+
+When we try to execute that, we receive the error:
+
+`Configuration delta.enableChangeDataFeed cannot be set. Change data feed from Delta is not yet available.`
+
+Is there anyway to enable this for local testing purposes?

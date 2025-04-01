@@ -1,0 +1,23 @@
+When we create a Delta table on Azure (using Azure Databricks or Azure Synapse) with a location that has a non-safe ASCII character in it (e.g. space character), and then we try to run an UPDATE query on the table without using predicates or using static predicates as follows:
+
+Statement that FAIL
+UPDATE unmanaged_dummy_table SET ID = ID + 10;
+UPDATE unmanaged_dummy_table SET ID = ID + 10 WHERE true;
+UPDATE unmanaged_dummy_table SET ID = ID + 10 WHERE 1=1;
+
+Statement that work
+UPDATE unmanaged_dummy_table SET ID = ID + 10 WHERE ID = ID;
+
+We received an error message which looks as follows:
+```
+Error: File (abfss://user@StorageName.dfs.core.windows.net/Osama%20Suleiman/Test_SparkTable/DeltaTable/part-00000-4cd8e691-f4b0-44bd-8ff4-e9ee71638932-c000.snappy.parquet) to be rewritten not found among candidate files:
+abfss://user@StorageName.dfs.core.windows.net/Osama Suleiman/Test_SparkTable/DeltaTable/part-00000-4cd8e691-f4b0-44bd-8ff4-e9ee71638932-c000.snappy.parquet
+abfss://user@StorageName.dfs.core.windows.net/Osama Suleiman/Test_SparkTable/DeltaTable/part-00000-7e40cddb-044c-4b50-9f5f-c09f7e76f565-c000.snappy.parquet
+org.apache.spark.sql.delta.commands.DeltaCommand.$anonfun$getTouchedFile$1(DeltaCommand.scala:156)
+scala.collection.immutable.Map$Map2.getOrElse(Map.scala:147)
+org.apache.spark.sql.delta.commands.DeltaCommand.getTouchedFile(DeltaCommand.scala:155)
+org.apache.spark.sql.delta.commands.DeltaCommand.getTouchedFile$(DeltaCommand.scala:149)
+org.apache.spark.sql.delta.commands.UpdateCommand.getTouchedFile(UpdateCommand.scala:45)
+
+As can be seen in the error, the space character was encoded into %20 in the location URI causing the comparison to fail resulting in the UPDATE command to fail.
+

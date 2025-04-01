@@ -1,0 +1,22 @@
+## Bug
+
+At present, the latest data size of the delta log is as follows, checkpointSize: 7639547
+numOfFiles: 5140110
+
+![image](https://user-images.githubusercontent.com/28140815/174976289-be7b3a7c-7b4a-4278-b86a-c19965db09ea.png)
+
+At present, the given memory size of each executor is 18G, and park.shuffle.memoryFraction=03. However, in the process of operating delta lake, structured streaming still takes time when performing delta log checkpoint, and OOM occurs frequently. I calculate that the memory provided to shuffle is completely enough for parquet now, why does this happen? Is it because of some internal reasons in delta lake?
+
+![image](https://user-images.githubusercontent.com/28140815/174976017-f22b696e-4a8c-4eba-bd52-f9a2311ed698.png)
+
+
+
+
+
+### Environment information
+
+* Delta Lake version: 1.0.1
+* Spark version: 3.1.1
+* Scala version: 2.12.8
+
+

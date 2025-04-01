@@ -1,0 +1,18 @@
+## Description
+
+This PR adds a check to `txn.commitLarge` to avoid cloning DVs to a table while disabling DV table prop:
+
+```sql
+CREATE TABLE tbl SHALLOW CLONE tbl_dv TBLPROPERTIES('delta.enableDeletionVectors'='false')
+```
+
+Before: `tbl_dv` will have DVs.
+After: the transaction will fail.
+
+## How was this patch tested?
+
+New tests.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No.

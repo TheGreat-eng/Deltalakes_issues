@@ -1,0 +1,15 @@
+See part of the code,
+
+```
+package test.com.databricks.sql.transaction.tahoe;
+
+import xxx
+
+public class DeleteJavaSuite {
+
+xxx
+```
+
+but it's under folder org/apache/spark/sql/delta.
+
+The same with `MergeIntoJavaSuite` and `UpdateJavaSuite`.

@@ -1,0 +1,18 @@
+## Feature request
+
+### Overview
+Currently Kernel doesn't have any logging mechanism in the code to trace or debug issues. This issue is to add design and add a logging framework.
+
+### Further details
+Contains notes on functionality, implementation, and testing decision questions gathered while building out the Delta Kernel. This is just to keep track of these points and not forget about them.
+
+#### Requirements
+* Provide a way to trace the path taken by the Kernel API module for debugging functionality and performance issues.
+   * Ex: Log the time before and after the call to get the schema. This helps debug any performance issues with fetching the initial schema.
+* Kernel-API module shouldn’t decide where the logs should go. It should be the responsibility of the `TableClient`, but this raises a few questions
+  * Where should the Logging API be?
+  * How can we generate a per-class Logger just like SLF4J?
+  * Or should the Kernel-API depend on SLF4J? 
+
+#### High-level tasks
+Depends on solving the above design questions

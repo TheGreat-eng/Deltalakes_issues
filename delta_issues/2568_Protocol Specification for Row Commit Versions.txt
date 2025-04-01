@@ -1,0 +1,18 @@
+## Description
+
+This PR adds the protocol specification changes for the Row Commit Versions that are proposed #1715.
+
+In particular it makes the following changes:
+- Renames the `rowIds` feature to `rowTracking`.
+- Renames the `delta.enableRowIds` property to `delta.enableRowTracking`.
+- Renames and moves the `preservedRowIds` flag in `rowIdHighWaterMark` to `delta.rowTracking.preserved` in the `tags` of `commitInfo`.
+- Refactors the specification of Row IDs
+- Adds the specification for Row Commit Versions.
+
+## How was this patch tested?
+
+n/a
+
+## Does this PR introduce _any_ user-facing changes?
+
+n/a

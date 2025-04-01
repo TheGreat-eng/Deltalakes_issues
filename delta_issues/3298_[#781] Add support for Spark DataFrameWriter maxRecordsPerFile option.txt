@@ -1,0 +1,17 @@
+Today, parquet supports the [maxRecordsPerFile](https://github.com/apache/spark/pull/16204) option to limit the max number of records written per file so that users can control the parquet file size to avoid humongous files. For example,
+
+```
+spark.range(100)
+          .write
+          .format("parquet")
+          .option("maxRecordsPerFile", 5)
+          .save(path)
+```
+
+The above code will generate 20 parquet files and each one contains 5 rows.
+
+This is missing in Delta. This PR adds the support for Delta by passing the `maxRecordsPerFile` option from Delta to ParquetFileFormat.
+
+Note: today both Delta and parquet support the SQL conf `spark.sql.files.maxRecordsPerFile` to control the file size. This PR is just adding the `DataFrameWriter` option support to mimic the parquet format behavior.
+
+Fixes #781 

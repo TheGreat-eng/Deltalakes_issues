@@ -1,0 +1,15 @@
+#### Which Delta project/connector is this regarding?
+
+- [X] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+A lot of existing tests that perform manual transactions use the Truncate Delta operation instead of ManualUpdate, which makes it harder to write invariant checks per Delta operation. This commit fixes this issue.
+
+## How was this patch tested?
+
+Existing tests.

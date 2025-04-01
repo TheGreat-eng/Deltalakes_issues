@@ -1,0 +1,1 @@
+Reverts delta-io/delta#3591

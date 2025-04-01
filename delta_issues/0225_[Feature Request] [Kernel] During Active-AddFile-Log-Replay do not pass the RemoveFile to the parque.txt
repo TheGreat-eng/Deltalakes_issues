@@ -1,0 +1,15 @@
+[ActiveAddFilesIterator.java](https://github.com/delta-io/delta/blob/master/kernel/kernel-api/src/main/java/io/delta/kernel/internal/replay/ActiveAddFilesIterator.java) is the class in Kernel responsible for replaying the delta log and figuring out which `AddFile`s are indeed active at the given version of the table (i.e. they have not been logically deleted or "tombstoned" by a `RemoveFile`).
+
+See [here](https://github.com/delta-io/delta/blob/c04cb063d0fe52062d538e20db18af63e3b72b6f/kernel/kernel-api/src/main/java/io/delta/kernel/internal/replay/ActiveAddFilesIterator.java#L127) for an explanation and summary of the reverse-log-replay logic implemented.
+
+Note that we only look at the `RemoveFile`s that are from Delta commit (`.json`) files. We do not look at any `RemoveFile`s from checkpoint (`parquet`) files. This is because: if we are looking at a given `AddFile` `X` and want to determine if `X` is still present in a version of the table, then we need to cover two cases.
+
+1. `X` was read from a `json` file. Then there may have been a `RemoveFile` later (also in a `json`) that removed it. Hence, we must keep track of `RemoveFile`s from`json` files
+2. `X` was read from a checkpoint `parquet`  file. Well, if `X` was written to the checkpoint file, then it was by definition active at that version of the table. Note that `X` still could be deleted by a `RemoveFile` later in a `.json`, just like in the case above, but there is certainly no `RemoveFile` in the checkpoint `parquet` file that removed it.
+
+This means that: we do not need to read any `RemoveFile`s when we read checkpoint `parquet` files during active-add-file-log-replay.
+
+**The feature request**: avoid passing in the `RemoveFile` as part of the read schema to the parquet reader, [here](https://github.com/delta-io/delta/blob/c04cb063d0fe52062d538e20db18af63e3b72b6f/kernel/kernel-api/src/main/java/io/delta/kernel/internal/replay/ActionsIterator.java#L207) during active-add-file-log-replay.
+
+The expected result here is: better performance when reading checkpoint files during active-add-file-log-replay.
+

@@ -1,0 +1,52 @@
+Remove timestamp partition patch as it is not effective currently
+<!--
+Thanks for sending a pull request!  Here are some tips for you:
+  1. If this is your first time, please read our contributor guidelines: https://github.com/delta-io/delta/blob/master/CONTRIBUTING.md
+  2. If the PR is unfinished, add '[WIP]' in your PR title, e.g., '[WIP] Your PR title ...'.
+  3. Be sure to keep the PR description updated to reflect all changes.
+  4. Please write your PR title to summarize what this PR proposes.
+  5. If possible, provide a concise example to reproduce the issue for a faster review.
+  6. If applicable, include the corresponding issue number in the PR title and link it in the body.
+-->
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [X ] Other Uniform
+
+## Description
+Delta-Iceberg uniform currently does not support partitioning on timestamps. There was originally patch intended to address that from the beginning of the project but it's not effective as Iceberg internally relies on long timestamp values since epoch, and the patch converts to java.sql.Timestamp; as a result the conversion currently fails with
+```
+IllegalArgumentException: Wrong class, expected java.lang.Long, but was java.sql.Timestamp, for object
+```
+
+Since this patch is essentially ineffective, I think it makes the most sense to remove it.
+This is also very important since it is required to enable us to upgrade Iceberg versions since this patch does not cleanly apply on anything after Iceberg 1.2! 
+
+ Note: I am also working towards adding this support so this gap will be closed soon.
+
+## How was this patch tested?
+Existing CI
+
+## Does this PR introduce _any_ user-facing changes?
+Technically now a user with an timestamp partitioned table will encounter a different error:
+
+Before this change the error would manifest as:
+
+```
+IllegalArgumentException: Wrong class, expected java.lang.Long, but was java.sql.Timestamp, for object: 
+```
+
+After this change the error would be 
+```
+"Unsupported type for fromPartitionString: Timestamp"
+```
+
+Considering it's unsupported, the new error change is a bit more clear. Note: I am also working towards adding this support so this gap will be closed soon.

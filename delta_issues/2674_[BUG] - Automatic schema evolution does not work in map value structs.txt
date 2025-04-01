@@ -1,0 +1,106 @@
+## Bug
+
+### Describe the problem
+
+Automatic schema evolution in delta does not allow evolution of structs inside maps
+
+#### Steps to reproduce
+This can be replicated with
+
+```
+import scala.collection.JavaConverters._
+import org.apache.spark.sql.types._
+import io.delta.tables._
+
+spark.conf.set("spark.databricks.delta.schema.autoMerge.enabled", "true")
+
+val schema = StructType(
+    StructField("id", IntegerType) ::
+    StructField(
+      "map", MapType(
+        StringType, StructType(
+          StructField("a", IntegerType) ::
+            StructField("b", IntegerType) ::
+            StructField("c", StringType) ::
+            Nil
+        )
+      )) ::
+    Nil
+)
+
+val sourceDataFrame = spark.createDataFrame(
+  Seq(
+    Row.fromSeq(
+      Seq(0, Map("key" -> Tuple3(0, 1, "a"), "key1" -> Tuple3(2, 3, "b")))
+    )).asJava, schema)
+
+sourceDataFrame.write.format("delta").mode("append").save("/delta/test")
+
+val updatedSchema = StructType(
+    StructField("id", IntegerType) ::
+    StructField(
+      "map", MapType(
+        StringType, StructType(
+          StructField("a", IntegerType) ::
+            StructField("b", IntegerType) ::
+            Nil
+        )
+      )) ::
+    Nil
+)
+
+val updatedSourceDataFrame = spark.createDataFrame(
+  Seq(
+    Row.fromSeq(
+      Seq(0, Map("key" -> Tuple2(0, 1), "key1" -> Tuple2(2, 3)))
+    )).asJava, updatedSchema)
+
+val targetDeltaTable = DeltaTable.forPath(spark, "/delta/test")
+
+targetDeltaTable.alias("t").merge(
+    updatedSourceDataFrame.alias("s"),
+    "t.id = s.id")
+  .whenMatched().updateAll()
+  .whenNotMatched().insertAll()
+  .execute()
+```
+
+<!--
+Please include copy-pastable code snippets if possible.
+1. _____
+2. _____
+3. _____
+-->
+
+#### Observed results
+
+```
+AnalysisException: cannot resolve 's.map' due to data type mismatch: cannot cast map<string,struct<a:int,b:int>> to map<string,struct<a:int,b:int,c:string>>;
+```
+
+<!-- What happened?  This could be a description, log output, etc. -->
+
+#### Expected results
+
+
+
+<!-- What did you expect to happen? -->
+No exception to be thrown and maps being correctly casted to allow evolution.
+
+
+#### Further details
+
+<!--
+Include any additional details that may be useful for diagnosing the problem here. If including tracebacks, please include the full traceback. Large logs and files should be attached.
+-->
+
+### Environment information
+DBR 12.1 LTS
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [x] Yes. I can contribute a fix for this bug independently.
+- [ ] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute a bug fix at this time.

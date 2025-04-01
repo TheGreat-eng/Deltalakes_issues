@@ -1,0 +1,9 @@
+Hi! I'm trying to show table constraints. Describe table does not show them. Can you help? 
+
+Example to reproduce:
+
+CREATE TABLE test_fb.test_table(i int,s string) 
+USING DELTA ;
+
+ALTER TABLE test_fb.test_table CHANGE COLUMN s SET NOT NULL;
+

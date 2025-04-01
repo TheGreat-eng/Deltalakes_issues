@@ -1,0 +1,9 @@
+Hello,
+
+how are you?
+
+I have a table that happens more updates than inserts, so on merge operation delta rewrites a lot of files, the merge performance is very good but when I tried read from this table with spark streaming the performance is bad because a lot of files are read.
+
+It will be a good feature if delta on spark streaming on reads the latest snapshot files.
+
+thank you so much.

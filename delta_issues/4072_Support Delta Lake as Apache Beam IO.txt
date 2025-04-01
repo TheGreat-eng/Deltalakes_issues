@@ -1,0 +1,4 @@
+Is there plans to integrate delta.io with Apache Beam?
+For example - ParquetIO is supported: https://beam.apache.org/documentation/io/built-in/
+
+Delta being **open-source** storage layer having Apache Beam I/O can help us integrate directly into beam pipelines..

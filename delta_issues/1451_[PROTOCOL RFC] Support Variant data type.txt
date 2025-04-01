@@ -1,0 +1,15 @@
+## Protocol Change Request
+
+### Description of the protocol change
+
+This change adds support for the Variant data type. The Variant data type helps processing and storing semi-structured data in a flexible and efficient way.
+
+[Design Doc](https://docs.google.com/document/d/19QWDzSMFiWnpp3t7phsAWe1qV7tMv-uqtmJDxtMgK4A/edit?usp=sharing)
+
+### Willingness to contribute
+
+The Delta Lake Community encourages protocol innovations. Would you or another member of your organization be willing to contribute this feature to the Delta Lake code base?
+
+- [x] Yes. I can contribute.
+- [ ] Yes. I would be willing to contribute with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute at this time.

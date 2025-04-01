@@ -1,0 +1,75 @@
+<!--
+Thanks for sending a pull request!  Here are some tips for you:
+  1. If this is your first time, please read our contributor guidelines: https://github.com/delta-io/delta/blob/master/CONTRIBUTING.md
+  2. If the PR is unfinished, add '[WIP]' in your PR title, e.g., '[WIP] Your PR title ...'.
+  3. Be sure to keep the PR description updated to reflect all changes.
+  4. Please write your PR title to summarize what this PR proposes.
+  5. If possible, provide a concise example to reproduce the issue for a faster review.
+  6. If applicable, include the corresponding issue number in the PR title and link it in the body.
+-->
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [x] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+<!--
+- Describe what this PR changes.
+- Describe why we need the change.
+ 
+If this PR resolves an issue be sure to include "Resolves #XXX" to correctly link and close the issue upon merge.
+-->
+
+This PR adds support for domain metadata to Delta Kernel as described in the [Delta Protocal](https://github.com/delta-io/delta/blob/master/PROTOCOL.md#domain-metadata). 
+
+In particular, it adds the following to Delta Kernel:
+- `DomainMetadata` Class
+  - Used to represent a [domain metadata action](https://github.com/delta-io/delta/blob/master/PROTOCOL.md#domain-metadata) as described in the Delta Protocol. 
+  - Includes necessary utility functions, such as creating a `DomainMetadata` instance from `Row`/`ColumnVector` and creating a action `Row` from a `DomainMetadata` instance for committing.
+
+- Transaction Support
+  - Checks for duplicate domain metadata and protocol support prior to committing them.
+  - Adds an internal `addDomainMetadata` API to `TransactionImpl` for testing purposes. In real scenarios, domain metadata will be constructed by feature-specific code within `TransactionImpl`. A future PR introducing Row Tracking will provide a concrete example of domain metadata usage in practice.
+  
+- Checkpointing
+  - Domain metadata is maintained during checkpointing.
+ 
+- Log Replay.
+  - Currently, domain metadata is lazily load in a separate pass of reply when requested. 
+  - We might want to improve this in the future by caching domain metadata during the initial Protocol & Metadata replay.
+  
+- Conflict Resolution.
+  - Two overlapping transactions conflict if they include domain metadata actions for the same metadata domain.
+  - Future features can implement custom conflict resolution logic as needed.
+  
+- Adds `domainMetadata` to `SUPPORTED_WRITER_FEATURES`
+
+## How was this patch tested?
+
+<!--
+If tests were added, say they were added here. Please make sure to test the changes thoroughly including negative and positive cases if possible.
+If the changes were tested in any way other than unit tests, please clarify how you tested step by step (ideally copy and paste-able, so that other reviewers can test and check, and descendants can verify in the future).
+If the changes were not tested, please explain why.
+-->
+Added tests covering operations involving DomainMetadata in `DomainMetadataSuite`.
+- Unit tests for committing, log replaying, checkpointing, and conflict resolution related to domain metadata. Negative tests for missing writer feature in the protocol and duplicate domain metadata actions.
+- Integration tests where a table with domain metadata is write by Spark and read by Kernel, and vice versa.
+
+## Does this PR introduce _any_ user-facing changes?
+
+<!--
+If yes, please clarify the previous behavior and the change this PR proposes - provide the console output, description and/or an example to show the behavior difference if possible.
+If possible, please also clarify if this is a user-facing change compared to the released Delta Lake versions or within the unreleased branches such as master.
+If no, write 'No'.
+-->
+ No.
+Domain metadata is currently intended for internal use by kernel developers to support specific table features. We don't plan to allow users to create their own domain metadata in the near future. So this PR only involves changes to internal APIs with no additions/modifications to public APIs.

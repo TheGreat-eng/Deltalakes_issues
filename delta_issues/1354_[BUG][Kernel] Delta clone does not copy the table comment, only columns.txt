@@ -1,0 +1,46 @@
+## Bug
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the issue title
+For example: [BUG][Spark] Title of my issue
+-->
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [x] Kernel
+- [ ] Other (fill in here)
+
+### Describe the problem
+
+Delta clone does not copy the table comment to the target table, only the comments related to the columns.
+
+#### Steps to reproduce
+
+```sql
+create or replace table test_tbl_comment(id int comment 'PK', name string) comment 'a comment';
+insert into test_tbl_comment values (1, 'Andrea'), (2, 'William');
+create or replace table test_tbl_comment_dclone deep clone test_tbl_comment;
+describe table extended test_tbl_comment_dclone;
+```
+
+#### Observed results
+
+Only the comment related to `id` column has been replicated
+
+#### Expected results
+
+The table comment should be replicated as columns
+
+### Environment information
+
+Databricks DBR 15
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [x] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute a bug fix at this time.

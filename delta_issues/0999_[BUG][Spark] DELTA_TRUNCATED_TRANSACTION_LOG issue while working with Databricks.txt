@@ -1,0 +1,273 @@
+## Bug
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the issue title
+For example: [BUG][Spark] Title of my issue
+-->
+
+- [X] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+### Describe the problem
+I am using delta tables in Databricks. I have a Databricks job scheduled to load data to a table. The job was working without any issues. But suddenly I faced the following error on 5th June. I changed the table's name as a stop-gap solution but the same error occurred on 19th June. 
+```
+DeltaFileNotFoundException: [DELTA_TRUNCATED_TRANSACTION_LOG] s3://<S3 bucket >/_delta_log/00000000000000000000.json: Unable to reconstruct state at version 2 as the transaction log has been truncated due to manual deletion or the log retention policy (delta.logRetentionDuration=30 days) and checkpoint retention policy (delta.checkpointRetentionDuration=2 days)
+com.databricks.sql.transaction.tahoe.DeltaFileNotFoundException: [DELTA_TRUNCATED_TRANSACTION_LOG] s3://sagerx-enterprisedata-dev-useast1-commercial/raw/databases/commercial_raw/veeva_network_addr_temp_table_v2/_delta_log/00000000000000000000.json: Unable to reconstruct state at version 2 as the transaction log has been truncated due to manual deletion or the log retention policy (delta.logRetentionDuration=30 days) and checkpoint retention policy (delta.checkpointRetentionDuration=2 days)
+	at com.databricks.sql.transaction.tahoe.DeltaErrorsBase.logFileNotFoundException(DeltaErrors.scala:807)
+	at com.databricks.sql.transaction.tahoe.DeltaErrorsBase.logFileNotFoundException$(DeltaErrors.scala:793)
+	at com.databricks.sql.transaction.tahoe.DeltaErrors$.logFileNotFoundException(DeltaErrors.scala:3323)
+	at com.databricks.sql.transaction.tahoe.SnapshotManagement.$anonfun$validateDeltaVersions$1(SnapshotManagement.scala:246)
+	at com.databricks.sql.transaction.tahoe.SnapshotManagement.$anonfun$validateDeltaVersions$1$adapted(SnapshotManagement.scala:235)
+	at scala.Option.foreach(Option.scala:407)
+	at com.databricks.sql.transaction.tahoe.SnapshotManagement.validateDeltaVersions(SnapshotManagement.scala:235)
+	at com.databricks.sql.transaction.tahoe.SnapshotManagement.$anonfun$getLogSegmentForVersion$2(SnapshotManagement.scala:341)
+	at com.databricks.spark.util.FrameProfiler$.record(FrameProfiler.scala:94)
+	at com.databricks.sql.transaction.tahoe.metering.DeltaLogging.recordFrameProfile(DeltaLogging.scala:294)
+	at com.databricks.sql.transaction.tahoe.metering.DeltaLogging.recordFrameProfile$(DeltaLogging.scala:292)
+	at com.databricks.sql.transaction.tahoe.DeltaLog.recordFrameProfile(DeltaLog.scala:92)
+	at com.databricks.sql.transaction.tahoe.SnapshotManagement.getLogSegmentForVersion(SnapshotManagement.scala:266)
+	at com.databricks.sql.transaction.tahoe.SnapshotManagement.getLogSegmentForVersion$(SnapshotManagement.scala:260)
+	at com.databricks.sql.transaction.tahoe.DeltaLog.getLogSegmentForVersion(DeltaLog.scala:92)
+	at com.databricks.sql.transaction.tahoe.SnapshotManagementEdge.getLogSegmentForVersion(SnapshotManagementEdge.scala:92)
+	at com.databricks.sql.transaction.tahoe.SnapshotManagementEdge.getLogSegmentForVersion$(SnapshotManagementEdge.scala:72)
+	at com.databricks.sql.transaction.tahoe.DeltaLog.getLogSegmentForVersion(DeltaLog.scala:92)
+	at com.databricks.sql.transaction.tahoe.SnapshotManagement.getLogSegmentFrom(SnapshotManagement.scala:105)
+	at com.databricks.sql.transaction.tahoe.SnapshotManagement.getLogSegmentFrom$(SnapshotManagement.scala:101)
+	at com.databricks.sql.transaction.tahoe.DeltaLog.getLogSegmentFrom(DeltaLog.scala:92)
+	at com.databricks.sql.transaction.tahoe.SnapshotManagementEdge.$anonfun$getSnapshotAtInit$5(SnapshotManagementEdge.scala:469)
+	at scala.Option.orElse(Option.scala:447)
+	at com.databricks.sql.transaction.tahoe.SnapshotManagementEdge.$anonfun$getSnapshotAtInit$1(SnapshotManagementEdge.scala:469)
+	at com.databricks.spark.util.FrameProfiler$.record(FrameProfiler.scala:94)
+	at com.databricks.sql.transaction.tahoe.metering.DeltaLogging.recordFrameProfile(DeltaLogging.scala:294)
+	at com.databricks.sql.transaction.tahoe.metering.DeltaLogging.recordFrameProfile$(DeltaLogging.scala:292)
+	at com.databricks.sql.transaction.tahoe.DeltaLog.recordFrameProfile(DeltaLog.scala:92)
+	at com.databricks.sql.transaction.tahoe.SnapshotManagementEdge.getSnapshotAtInit(SnapshotManagementEdge.scala:453)
+	at com.databricks.sql.transaction.tahoe.SnapshotManagementEdge.getSnapshotAtInit$(SnapshotManagementEdge.scala:452)
+	at com.databricks.sql.transaction.tahoe.DeltaLog.getSnapshotAtInit(DeltaLog.scala:92)
+	at com.databricks.sql.transaction.tahoe.SnapshotManagement.$init$(SnapshotManagement.scala:77)
+	at com.databricks.sql.transaction.tahoe.DeltaLog.<init>(DeltaLog.scala:99)
+	at com.databricks.sql.transaction.tahoe.DeltaLog$.$anonfun$apply$5(DeltaLog.scala:1079)
+	at org.apache.spark.sql.catalyst.plans.logical.AnalysisHelper$.allowInvokingTransformsInAnalyzer(AnalysisHelper.scala:400)
+	at com.databricks.sql.transaction.tahoe.DeltaLog$.$anonfun$apply$4(DeltaLog.scala:1070)
+	at com.databricks.sql.transaction.tahoe.metering.DeltaLogging.withOperationTypeTag(DeltaLogging.scala:225)
+	at com.databricks.sql.transaction.tahoe.metering.DeltaLogging.withOperationTypeTag$(DeltaLogging.scala:212)
+	at com.databricks.sql.transaction.tahoe.DeltaLog$.withOperationTypeTag(DeltaLog.scala:740)
+	at com.databricks.sql.transaction.tahoe.metering.DeltaLogging.$anonfun$recordDeltaOperationInternal$2(DeltaLogging.scala:164)
+	at com.databricks.spark.util.FrameProfiler$.record(FrameProfiler.scala:94)
+	at com.databricks.sql.transaction.tahoe.metering.DeltaLogging.recordFrameProfile(DeltaLogging.scala:294)
+	at com.databricks.sql.transaction.tahoe.metering.DeltaLogging.recordFrameProfile$(DeltaLogging.scala:292)
+	at com.databricks.sql.transaction.tahoe.DeltaLog$.recordFrameProfile(DeltaLog.scala:740)
+	at com.databricks.sql.transaction.tahoe.metering.DeltaLogging.$anonfun$recordDeltaOperationInternal$1(DeltaLogging.scala:163)
+	at com.databricks.logging.UsageLogging.$anonfun$recordOperation$1(UsageLogging.scala:573)
+	at com.databricks.logging.UsageLogging.executeThunkAndCaptureResultTags$1(UsageLogging.scala:669)
+	at com.databricks.logging.UsageLogging.$anonfun$recordOperationWithResultTags$4(UsageLogging.scala:687)
+	at com.databricks.logging.UsageLogging.$anonfun$withAttributionContext$1(UsageLogging.scala:426)
+	at scala.util.DynamicVariable.withValue(DynamicVariable.scala:62)
+	at com.databricks.logging.AttributionContext$.withValue(AttributionContext.scala:216)
+	at com.databricks.logging.UsageLogging.withAttributionContext(UsageLogging.scala:424)
+	at com.databricks.logging.UsageLogging.withAttributionContext$(UsageLogging.scala:418)
+	at com.databricks.spark.util.PublicDBLogging.withAttributionContext(DatabricksSparkUsageLogger.scala:27)
+	at com.databricks.logging.UsageLogging.withAttributionTags(UsageLogging.scala:472)
+	at com.databricks.logging.UsageLogging.withAttributionTags$(UsageLogging.scala:455)
+	at com.databricks.spark.util.PublicDBLogging.withAttributionTags(DatabricksSparkUsageLogger.scala:27)
+	at com.databricks.logging.UsageLogging.recordOperationWithResultTags(UsageLogging.scala:664)
+	at com.databricks.logging.UsageLogging.recordOperationWithResultTags$(UsageLogging.scala:582)
+	at com.databricks.spark.util.PublicDBLogging.recordOperationWithResultTags(DatabricksSparkUsageLogger.scala:27)
+	at com.databricks.logging.UsageLogging.recordOperation(UsageLogging.scala:573)
+	at com.databricks.logging.UsageLogging.recordOperation$(UsageLogging.scala:542)
+	at com.databricks.spark.util.PublicDBLogging.recordOperation(DatabricksSparkUsageLogger.scala:27)
+	at com.databricks.spark.util.PublicDBLogging.recordOperation0(DatabricksSparkUsageLogger.scala:68)
+	at com.databricks.spark.util.DatabricksSparkUsageLogger.recordOperation(DatabricksSparkUsageLogger.scala:150)
+	at com.databricks.spark.util.UsageLogger.recordOperation(UsageLogger.scala:68)
+	at com.databricks.spark.util.UsageLogger.recordOperation$(UsageLogger.scala:55)
+	at com.databricks.spark.util.DatabricksSparkUsageLogger.recordOperation(DatabricksSparkUsageLogger.scala:109)
+	at com.databricks.spark.util.UsageLogging.recordOperation(UsageLogger.scala:429)
+	at com.databricks.spark.util.UsageLogging.recordOperation$(UsageLogger.scala:408)
+	at com.databricks.sql.transaction.tahoe.DeltaLog$.recordOperation(DeltaLog.scala:740)
+	at com.databricks.sql.transaction.tahoe.metering.DeltaLogging.recordDeltaOperationInternal(DeltaLogging.scala:162)
+	at com.databricks.sql.transaction.tahoe.metering.DeltaLogging.recordDeltaOperation(DeltaLogging.scala:152)
+	at com.databricks.sql.transaction.tahoe.metering.DeltaLogging.recordDeltaOperation$(DeltaLogging.scala:142)
+	at com.databricks.sql.transaction.tahoe.DeltaLog$.recordDeltaOperation(DeltaLog.scala:740)
+	at com.databricks.sql.transaction.tahoe.DeltaLog$.createDeltaLog$1(DeltaLog.scala:1070)
+	at com.databricks.sql.transaction.tahoe.DeltaLog$.$anonfun$apply$7(DeltaLog.scala:1109)
+	at com.databricks.unity.EmptyHandle$.runWith(UCSHandle.scala:128)
+	at com.databricks.sql.transaction.tahoe.DeltaLog$.$anonfun$apply$6(DeltaLog.scala:1109)
+	at com.google.common.cache.LocalCache$LocalManualCache$1.load(LocalCache.java:4724)
+	at com.google.common.cache.LocalCache$LoadingValueReference.loadFuture(LocalCache.java:3522)
+	at com.google.common.cache.LocalCache$Segment.loadSync(LocalCache.java:2315)
+	at com.google.common.cache.LocalCache$Segment.lockedGetOrLoad(LocalCache.java:2278)
+	at com.google.common.cache.LocalCache$Segment.get(LocalCache.java:2193)
+	at com.google.common.cache.LocalCache.get(LocalCache.java:3932)
+	at com.google.common.cache.LocalCache$LocalManualCache.get(LocalCache.java:4721)
+	at com.databricks.sql.transaction.tahoe.DeltaLog$.getDeltaLogFromCache$1(DeltaLog.scala:1107)
+	at com.databricks.sql.transaction.tahoe.DeltaLog$.apply(DeltaLog.scala:1123)
+	at com.databricks.sql.transaction.tahoe.DeltaLog$.apply(DeltaLog.scala:998)
+	at com.databricks.sql.transaction.tahoe.DeltaLog$.apply(DeltaLog.scala:965)
+	at com.databricks.sql.transaction.tahoe.DeltaLog$.forTable(DeltaLog.scala:918)
+	at com.databricks.sql.transaction.tahoe.catalog.DeltaCatalog.$anonfun$createDeltaTable$13(DeltaCatalog.scala:296)
+	at scala.Option.map(Option.scala:230)
+	at com.databricks.sql.transaction.tahoe.catalog.DeltaCatalog.$anonfun$createDeltaTable$1(DeltaCatalog.scala:293)
+	at com.databricks.spark.util.FrameProfiler$.record(FrameProfiler.scala:94)
+	at com.databricks.sql.transaction.tahoe.metering.DeltaLogging.recordFrameProfile(DeltaLogging.scala:294)
+	at com.databricks.sql.transaction.tahoe.metering.DeltaLogging.recordFrameProfile$(DeltaLogging.scala:292)
+	at com.databricks.sql.transaction.tahoe.catalog.DeltaCatalog.recordFrameProfile(DeltaCatalog.scala:117)
+	at com.databricks.sql.transaction.tahoe.catalog.DeltaCatalog.com$databricks$sql$transaction$tahoe$catalog$DeltaCatalog$$createDeltaTable(DeltaCatalog.scala:158)
+	at com.databricks.sql.transaction.tahoe.catalog.DeltaCatalog$StagedDeltaTableV2.$anonfun$commitStagedChanges$1(DeltaCatalog.scala:1121)
+	at com.databricks.spark.util.FrameProfiler$.record(FrameProfiler.scala:94)
+	at com.databricks.sql.transaction.tahoe.metering.DeltaLogging.recordFrameProfile(DeltaLogging.scala:294)
+	at com.databricks.sql.transaction.tahoe.metering.DeltaLogging.recordFrameProfile$(DeltaLogging.scala:292)
+	at com.databricks.sql.transaction.tahoe.catalog.DeltaCatalog.recordFrameProfile(DeltaCatalog.scala:117)
+	at com.databricks.sql.transaction.tahoe.catalog.DeltaCatalog$StagedDeltaTableV2.commitStagedChanges(DeltaCatalog.scala:1080)
+	at org.apache.spark.sql.execution.datasources.v2.V2CreateTableAsSelectBaseExec.$anonfun$writeToTable$2(WriteToDataSourceV2Exec.scala:674)
+	at org.apache.spark.util.Utils$.tryWithSafeFinallyAndFailureCallbacks(Utils.scala:1546)
+	at org.apache.spark.sql.execution.datasources.v2.V2CreateTableAsSelectBaseExec.$anonfun$writeToTable$1(WriteToDataSourceV2Exec.scala:661)
+	at com.databricks.spark.util.FrameProfiler$.record(FrameProfiler.scala:94)
+	at org.apache.spark.sql.execution.datasources.v2.V2CreateTableAsSelectBaseExec.writeToTable(WriteToDataSourceV2Exec.scala:679)
+	at org.apache.spark.sql.execution.datasources.v2.V2CreateTableAsSelectBaseExec.writeToTable$(WriteToDataSourceV2Exec.scala:655)
+	at org.apache.spark.sql.execution.datasources.v2.AtomicReplaceTableAsSelectExec.writeToTable(WriteToDataSourceV2Exec.scala:210)
+	at org.apache.spark.sql.execution.datasources.v2.AtomicReplaceTableAsSelectExec.run(WriteToDataSourceV2Exec.scala:268)
+	at org.apache.spark.sql.execution.datasources.v2.V2CommandExec.$anonfun$result$2(V2CommandExec.scala:48)
+	at org.apache.spark.sql.execution.SparkPlan.runCommandWithAetherOff(SparkPlan.scala:178)
+	at org.apache.spark.sql.execution.SparkPlan.runCommandInAetherOrSpark(SparkPlan.scala:189)
+	at org.apache.spark.sql.execution.datasources.v2.V2CommandExec.$anonfun$result$1(V2CommandExec.scala:48)
+	at com.databricks.spark.util.FrameProfiler$.record(FrameProfiler.scala:94)
+	at org.apache.spark.sql.execution.datasources.v2.V2CommandExec.result$lzycompute(V2CommandExec.scala:47)
+	at org.apache.spark.sql.execution.datasources.v2.V2CommandExec.result(V2CommandExec.scala:45)
+	at org.apache.spark.sql.execution.datasources.v2.V2CommandExec.executeCollect(V2CommandExec.scala:56)
+	at org.apache.spark.sql.execution.QueryExecution$$anonfun$$nestedInanonfun$eagerlyExecuteCommands$1$1.$anonfun$applyOrElse$4(QueryExecution.scala:358)
+	at org.apache.spark.sql.catalyst.QueryPlanningTracker$.withTracker(QueryPlanningTracker.scala:166)
+	at org.apache.spark.sql.execution.QueryExecution$$anonfun$$nestedInanonfun$eagerlyExecuteCommands$1$1.$anonfun$applyOrElse$3(QueryExecution.scala:358)
+	at org.apache.spark.sql.execution.SQLExecution$.$anonfun$withNewExecutionId0$9(SQLExecution.scala:387)
+	at org.apache.spark.sql.execution.SQLExecution$.withSQLConfPropagated(SQLExecution.scala:691)
+	at org.apache.spark.sql.execution.SQLExecution$.$anonfun$withNewExecutionId0$1(SQLExecution.scala:276)
+	at org.apache.spark.sql.SparkSession.withActive(SparkSession.scala:1175)
+	at org.apache.spark.sql.execution.SQLExecution$.withNewExecutionId0(SQLExecution.scala:163)
+	at org.apache.spark.sql.execution.SQLExecution$.withNewExecutionId(SQLExecution.scala:628)
+	at org.apache.spark.sql.execution.QueryExecution$$anonfun$$nestedInanonfun$eagerlyExecuteCommands$1$1.$anonfun$applyOrElse$2(QueryExecution.scala:357)
+	at org.apache.spark.sql.execution.QueryExecution$.withInternalError(QueryExecution.scala:1097)
+	at org.apache.spark.sql.execution.QueryExecution$$anonfun$$nestedInanonfun$eagerlyExecuteCommands$1$1.$anonfun$applyOrElse$1(QueryExecution.scala:353)
+	at org.apache.spark.sql.execution.QueryExecution.org$apache$spark$sql$execution$QueryExecution$$withMVTagsIfNecessary(QueryExecution.scala:312)
+	at org.apache.spark.sql.execution.QueryExecution$$anonfun$$nestedInanonfun$eagerlyExecuteCommands$1$1.applyOrElse(QueryExecution.scala:350)
+	at org.apache.spark.sql.execution.QueryExecution$$anonfun$$nestedInanonfun$eagerlyExecuteCommands$1$1.applyOrElse(QueryExecution.scala:334)
+	at org.apache.spark.sql.catalyst.trees.TreeNode.$anonfun$transformDownWithPruning$1(TreeNode.scala:477)
+	at org.apache.spark.sql.catalyst.trees.CurrentOrigin$.withOrigin(origin.scala:83)
+	at org.apache.spark.sql.catalyst.trees.TreeNode.transformDownWithPruning(TreeNode.scala:477)
+	at org.apache.spark.sql.catalyst.plans.logical.LogicalPlan.org$apache$spark$sql$catalyst$plans$logical$AnalysisHelper$$super$transformDownWithPruning(LogicalPlan.scala:39)
+	at org.apache.spark.sql.catalyst.plans.logical.AnalysisHelper.transformDownWithPruning(AnalysisHelper.scala:343)
+	at org.apache.spark.sql.catalyst.plans.logical.AnalysisHelper.transformDownWithPruning$(AnalysisHelper.scala:339)
+	at org.apache.spark.sql.catalyst.plans.logical.LogicalPlan.transformDownWithPruning(LogicalPlan.scala:39)
+	at org.apache.spark.sql.catalyst.plans.logical.LogicalPlan.transformDownWithPruning(LogicalPlan.scala:39)
+	at org.apache.spark.sql.catalyst.trees.TreeNode.transformDown(TreeNode.scala:453)
+	at org.apache.spark.sql.execution.QueryExecution.$anonfun$eagerlyExecuteCommands$1(QueryExecution.scala:334)
+	at org.apache.spark.sql.catalyst.plans.logical.AnalysisHelper$.allowInvokingTransformsInAnalyzer(AnalysisHelper.scala:400)
+	at org.apache.spark.sql.execution.QueryExecution.eagerlyExecuteCommands(QueryExecution.scala:334)
+	at org.apache.spark.sql.execution.QueryExecution.commandExecuted$lzycompute(QueryExecution.scala:271)
+	at org.apache.spark.sql.execution.QueryExecution.commandExecuted(QueryExecution.scala:268)
+	at org.apache.spark.sql.Dataset.<init>(Dataset.scala:289)
+	at org.apache.spark.sql.Dataset$.$anonfun$ofRows$2(Dataset.scala:127)
+	at org.apache.spark.sql.SparkSession.withActive(SparkSession.scala:1175)
+	at org.apache.spark.sql.SparkSession.$anonfun$withActiveAndFrameProfiler$1(SparkSession.scala:1182)
+	at com.databricks.spark.util.FrameProfiler$.record(FrameProfiler.scala:94)
+	at org.apache.spark.sql.SparkSession.withActiveAndFrameProfiler(SparkSession.scala:1182)
+	at org.apache.spark.sql.Dataset$.ofRows(Dataset.scala:116)
+	at org.apache.spark.sql.SparkSession.$anonfun$sql$4(SparkSession.scala:954)
+	at org.apache.spark.sql.SparkSession.withActive(SparkSession.scala:1175)
+	at org.apache.spark.sql.SparkSession.sql(SparkSession.scala:942)
+	at org.apache.spark.sql.SparkSession.sql(SparkSession.scala:977)
+	at org.apache.spark.sql.SparkSession.sql(SparkSession.scala:1010)
+	at org.apache.spark.sql.SQLContext.sql(SQLContext.scala:696)
+	at com.databricks.backend.daemon.driver.DriverLocal$DbClassicStrategy.executeSQLQuery(DriverLocal.scala:277)
+	at com.databricks.backend.daemon.driver.DriverLocal.executeSQLSubCommand(DriverLocal.scala:367)
+	at com.databricks.backend.daemon.driver.DriverLocal.$anonfun$executeSql$1(DriverLocal.scala:388)
+	at scala.collection.immutable.List.map(List.scala:293)
+	at com.databricks.backend.daemon.driver.DriverLocal.executeSql(DriverLocal.scala:383)
+	at com.databricks.backend.daemon.driver.JupyterDriverLocal.repl(JupyterDriverLocal.scala:970)
+	at com.databricks.backend.daemon.driver.DriverLocal.$anonfun$execute$29(DriverLocal.scala:1108)
+	at com.databricks.unity.EmptyHandle$.runWith(UCSHandle.scala:128)
+	at com.databricks.backend.daemon.driver.DriverLocal.$anonfun$execute$24(DriverLocal.scala:1099)
+	at com.databricks.logging.UsageLogging.$anonfun$withAttributionContext$1(UsageLogging.scala:426)
+	at scala.util.DynamicVariable.withValue(DynamicVariable.scala:62)
+	at com.databricks.logging.AttributionContext$.withValue(AttributionContext.scala:216)
+	at com.databricks.logging.UsageLogging.withAttributionContext(UsageLogging.scala:424)
+	at com.databricks.logging.UsageLogging.withAttributionContext$(UsageLogging.scala:418)
+	at com.databricks.backend.daemon.driver.DriverLocal.withAttributionContext(DriverLocal.scala:88)
+	at com.databricks.logging.UsageLogging.withAttributionTags(UsageLogging.scala:472)
+	at com.databricks.logging.UsageLogging.withAttributionTags$(UsageLogging.scala:455)
+	at com.databricks.backend.daemon.driver.DriverLocal.withAttributionTags(DriverLocal.scala:88)
+	at com.databricks.backend.daemon.driver.DriverLocal.execute(DriverLocal.scala:1044)
+	at com.databricks.backend.daemon.driver.DriverWrapper.$anonfun$tryExecutingCommand$2(DriverWrapper.scala:786)
+	at scala.util.Try$.apply(Try.scala:213)
+	at com.databricks.backend.daemon.driver.DriverWrapper.$anonfun$tryExecutingCommand$1(DriverWrapper.scala:778)
+	at com.databricks.backend.daemon.driver.DriverWrapper.$anonfun$tryExecutingCommand$3(DriverWrapper.scala:818)
+	at com.databricks.logging.UsageLogging.executeThunkAndCaptureResultTags$1(UsageLogging.scala:669)
+	at com.databricks.logging.UsageLogging.$anonfun$recordOperationWithResultTags$4(UsageLogging.scala:687)
+	at com.databricks.logging.UsageLogging.$anonfun$withAttributionContext$1(UsageLogging.scala:426)
+	at scala.util.DynamicVariable.withValue(DynamicVariable.scala:62)
+	at com.databricks.logging.AttributionContext$.withValue(AttributionContext.scala:216)
+	at com.databricks.logging.UsageLogging.withAttributionContext(UsageLogging.scala:424)
+	at com.databricks.logging.UsageLogging.withAttributionContext$(UsageLogging.scala:418)
+	at com.databricks.backend.daemon.driver.DriverWrapper.withAttributionContext(DriverWrapper.scala:72)
+	at com.databricks.logging.UsageLogging.withAttributionTags(UsageLogging.scala:472)
+	at com.databricks.logging.UsageLogging.withAttributionTags$(UsageLogging.scala:455)
+	at com.databricks.backend.daemon.driver.DriverWrapper.withAttributionTags(DriverWrapper.scala:72)
+	at com.databricks.logging.UsageLogging.recordOperationWithResultTags(UsageLogging.scala:664)
+	at com.databricks.logging.UsageLogging.recordOperationWithResultTags$(UsageLogging.scala:582)
+	at com.databricks.backend.daemon.driver.DriverWrapper.recordOperationWithResultTags(DriverWrapper.scala:72)
+	at com.databricks.backend.daemon.driver.DriverWrapper.tryExecutingCommand(DriverWrapper.scala:818)
+	at com.databricks.backend.daemon.driver.DriverWrapper.executeCommandAndGetError(DriverWrapper.scala:685)
+	at com.databricks.backend.daemon.driver.DriverWrapper.executeCommand(DriverWrapper.scala:730)
+	at com.databricks.backend.daemon.driver.DriverWrapper.$anonfun$runInnerLoop$1(DriverWrapper.scala:560)
+	at scala.runtime.java8.JFunction0$mcV$sp.apply(JFunction0$mcV$sp.java:23)
+	at com.databricks.logging.UsageLogging.$anonfun$withAttributionContext$1(UsageLogging.scala:426)
+	at scala.util.DynamicVariable.withValue(DynamicVariable.scala:62)
+	at com.databricks.logging.AttributionContext$.withValue(AttributionContext.scala:216)
+	at com.databricks.logging.UsageLogging.withAttributionContext(UsageLogging.scala:424)
+	at com.databricks.logging.UsageLogging.withAttributionContext$(UsageLogging.scala:418)
+	at com.databricks.backend.daemon.driver.DriverWrapper.withAttributionContext(DriverWrapper.scala:72)
+	at com.databricks.backend.daemon.driver.DriverWrapper.runInnerLoop(DriverWrapper.scala:560)
+	at com.databricks.backend.daemon.driver.DriverWrapper.runInner(DriverWrapper.scala:482)
+	at com.databricks.backend.daemon.driver.DriverWrapper.run(DriverWrapper.scala:290)
+	at java.lang.Thread.run(Thread.java:750)
+```
+There was no manual deletion of the log files. I am creating the table as a temporary table and dropping it after using it to load data to a final table. I checked numerous times that the drop statement clears the folder related to the table from s3. I am not sure why this inconsistency had occurred. please help.
+
+#### Steps to reproduce
+I could not recreate the situation using Databricks interactive cluster, since the reason is mostly unknown to me. I used Databricks AI assistance, but it wasn't helpful.
+<!--
+Please include copy-pastable code snippets if possible.
+1. _____
+2. _____
+3. _____
+-->
+
+#### Observed results
+
+<!-- What happened?  This could be a description, log output, etc. -->
+
+#### Expected results
+
+<!-- What did you expect to happen? -->
+
+#### Further details
+
+<!--
+Include any additional details that may be useful for diagnosing the problem here. If including tracebacks, please include the full traceback. Large logs and files should be attached.
+-->
+
+### Environment information
+
+* Delta Lake version:
+* Spark version:
+* Scala version:
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [X] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute a bug fix at this time.

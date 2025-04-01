@@ -1,0 +1,1 @@
+Hi, since Azure HDInsight only support up to Spark 3.1.2, & we want to use Optimize Table command only In Scala code, can we use 1.2.0 on Spark 3.1.2? What issues we may encounter if we use this combination?

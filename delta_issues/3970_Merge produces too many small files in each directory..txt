@@ -1,0 +1,29 @@
+Hi, 
+
+I am not sure I am allowed to put on a question here. If not, please understand me.
+
+I am currently examining whether we could use delta for our data repository. I have followed use cases in the tutorial and found out there are a few to make clear before I start using it.
+
+One of which is that when I combine new data into an existing one with a merge command, it ends up with too many files in each directory. 
+
+The delta table I intend to use is partitioned by 'dt', 'dept' and is going to be accessed by presto backed by Hive Metastore.
+
+Before this, I normally use 'DISTRIBUTE BY' that reorganizes data according to the partition spec so that the data that belongs to the same partition is guaranteed to go to a single writer task. This leads to reducing the number of files in each partition directory. 
+
+With delta, it doesn't seem to allow me to take this approach because there might not be any way to repartition data before inserting when I use a Merge command. The number of files to be generated is determined by 'spark.sql.shuffle.partition' after joining new data with old data. 
+
+Is there any way to handle this? Or any workaround?
+
+Thank you.
+Jaehong.
+
+
+
+
+
+
+
+
+
+
+

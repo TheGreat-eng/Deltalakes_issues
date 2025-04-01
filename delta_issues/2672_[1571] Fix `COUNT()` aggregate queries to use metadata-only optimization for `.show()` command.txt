@@ -1,0 +1,11 @@
+## Description
+
+Resolves delta-io/delta#1571. Previously, metadata-only aggregate pushdown was only working for `COUNT(*)` queries when you were collecting the result, as opposed to calling `.show()`. This PR fixes that bug.
+
+## How was this patch tested?
+
+Added a UT that captures the optimized logical plan and checks that it is using the LocalRelation created by OptimizeMetadataOnlyDeltaQuery.
+
+Also did a performance test locally. Created a table with 100M rows and 100K files and ran the query `sql("SELECT COUNT(*) FROM <delta-table>").show()`
+- master took ms ~161 seconds.
+- this PR took ~16 seconds. Thus, this is a ~10x improvement.

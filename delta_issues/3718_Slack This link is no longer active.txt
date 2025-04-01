@@ -1,0 +1,5 @@
+Hi ! 
+
+The delta lake Slack link [Register here](https://delta-users.slack.com/join/shared_invite/zt-auesqgi8-~Euf18vybLdQkFCaSDjJ9Q#/) (found [here](https://github.com/delta-io/delta#community)) is "no longer active".
+Is it replaced by another one ? If so, what is the new link ?
+Thank you :)

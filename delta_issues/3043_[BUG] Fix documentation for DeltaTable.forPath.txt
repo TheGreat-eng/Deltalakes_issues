@@ -1,0 +1,4 @@
+## Bug
+Currently the [doc](https://github.com/delta-io/delta/blob/master/core/src/main/scala/io/delta/tables/DeltaTable.scala#L621) for `DeltaTable.forPath` says `Create a DeltaTable for the data at the given `path`.`. This is not correct. This API just instantiates the `DeltaTable` representing the path. 
+
+Also we need to clarify what it means when there is no table exists at the given path.

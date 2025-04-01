@@ -1,0 +1,43 @@
+I have a PySpark Dataframe with some column transforms that look like that:
+
+```python
+df.withColumn('offices', F.array(
+  F.struct(
+    F.col('OfficeAddress').alias('office_address'),
+    F.col('OfficeEmail').alias('office_email'),
+    F.col('OfficeName').alias('office_corporate_name'),
+    F.col('OfficePhone').alias('office_phone_number')
+  )
+))
+```
+
+The transform itself works fine with the correct output, however, when used in a pipeline utilizing MERGE, it fails and throws the following confusing error:
+
+> pyspark.sql.utils.AnalysisException: cannot resolve 'transform(new_data.agent_offices, lambdafunction(new_data.agent_offices[namedlambdavariable()], namedlambdavariable(), namedlambdavariable()))' due to data type mismatch: cannot cast array<struct<office_address:string,office_email:string,office_corporate_name:string,office_phone_number:string>> to array<struct<office_address:string,office_email:string,office_corporate_name:string,office_phone_number:string>>;
+
+The types are exactly the same and it says cannot cast T to T.
+
+The MERGE code looks something like that:
+
+```python
+def upsert_data(df, batch_id):
+  delta_table = DeltaTable.forPath(spark, TABLE_PATH)
+  deduped_df = df.withColumn('row_number', F.row_number().over(Window.partitionBy(F.col('id')).orderBy(F.col('timestamp').desc()))) \
+                 .where('row_number = 1') \
+                 .drop('row_number')
+  delta_table.alias('data') \
+       .merge(deduped_df.alias('new_data'), 'data.id = new_data.id') \
+       .whenMatchedUpdateAll('data.timestamp < new_data.timestamp') \
+       .whenNotMatchedInsertAll() \
+       .execute()
+
+df.writeStream \
+  .format('delta') \
+  .trigger(once=True) \
+  .option('checkpointLocation', CHECKPOINT_PATH) \
+  .foreachBatch(upsert_data) \
+  .outputMode('update') \
+  .start()
+```
+
+Happens on Databricks Runtime 9.1 LTS, 10.1 & 10.2 Beta

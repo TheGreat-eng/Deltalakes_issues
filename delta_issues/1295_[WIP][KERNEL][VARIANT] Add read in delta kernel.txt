@@ -1,0 +1,43 @@
+<!--
+Thanks for sending a pull request!  Here are some tips for you:
+  1. If this is your first time, please read our contributor guidelines: https://github.com/delta-io/delta/blob/master/CONTRIBUTING.md
+  2. If the PR is unfinished, add '[WIP]' in your PR title, e.g., '[WIP] Your PR title ...'.
+  3. Be sure to keep the PR description updated to reflect all changes.
+  4. Please write your PR title to summarize what this PR proposes.
+  5. If possible, provide a concise example to reproduce the issue for a faster review.
+  6. If applicable, include the corresponding issue number in the PR title and link it in the body.
+-->
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [x] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+Adds variant read support and support to make reading variant columns convenient by allowing connectors to read variant column vectors as structs and handling converting the struct column vectors to variant column vectors within the kernel
+
+This is done by introducing a "variant_coalesce" engine function that is used to transform scanned struct column vectors to variant column vectors. When shredding is implemented, "variant_coalesce" can be extended to rebuild shredded variants.
+
+This PR also does the following
+* Cross compiles kernel defaults with Spark 3.5 and Spark 4.0. This is done so the tests can write variants using spark 4.0.
+* Allows compilation on Java 8 and Java 17 for the above.
+
+## How was this patch tested?
+
+Added UTs
+
+## Does this PR introduce _any_ user-facing changes?
+
+<!--
+If yes, please clarify the previous behavior and the change this PR proposes - provide the console output, description and/or an example to show the behavior difference if possible.
+If possible, please also clarify if this is a user-facing change compared to the released Delta Lake versions or within the unreleased branches such as master.
+If no, write 'No'.
+-->

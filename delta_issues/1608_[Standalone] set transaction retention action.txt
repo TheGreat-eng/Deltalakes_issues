@@ -1,0 +1,38 @@
+Signed-off-by: Zafer Sahin <zsahin@vectra.ai>
+
+<!--
+Thanks for sending a pull request!  Here are some tips for you:
+  1. If this is your first time, please read our contributor guidelines: https://github.com/delta-io/delta/blob/master/CONTRIBUTING.md
+  2. If the PR is unfinished, add '[WIP]' in your PR title, e.g., '[WIP] Your PR title ...'.
+  3. Be sure to keep the PR description updated to reflect all changes.
+  4. Please write your PR title to summarize what this PR proposes.
+  5. If possible, provide a concise example to reproduce the issue for a faster review.
+  6. If applicable, include the corresponding issue number in the PR title and link it in the body.
+-->
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [ ] Spark
+- [x] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+
+- Expiry of set transactions exists in spark [code](https://github.com/delta-io/delta/blob/79c848f1f555e07c5d2ff368627d1414424cbef5/connectors/standalone/src/main/scala/io/delta/standalone/internal/actions/InMemoryLogReplay.scala#L4) but missing in standalone. This change adds this feature to the standalone module.
+- This feature prevents snapshot to read redundant constantly growing transactions.
+ 
+Resolves #2342
+
+
+## How was this patch tested?
+New unit tests are added
+
+## Does this PR introduce _any_ user-facing changes?
+Delta tables can benefit from "TRANSACTION_ID_RETENTION_DURATION" property for Standalone usage same functionality as being used by Spark.

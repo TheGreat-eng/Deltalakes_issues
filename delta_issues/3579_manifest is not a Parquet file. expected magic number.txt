@@ -1,0 +1,23 @@
+Hi, I have a delta table integrated with the AWS Glue data catalog. 
+
+When running a query against the table via spark, I am getting the following error:
+
+<code>
+FileReadException: Error while reading file s3://.. _symlink_format_manifest/manifest
+
+Caused by: RuntimeException: .../manifest is not a Parquet file. expected magic number at tail`
+</code>
+
+And the integrated spectrum table is generating a 
+
+<code>
+ S3ServiceException:The specified key does not exist.,Status 404,Error NoSuchKey
+</code>
+
+Furthermore, not all partitions are added after attempting to generate the manifests even though there are files in the partition.
+
+Related issues #365
+
+I ran the Spark SQL on a Databricks Cluster with runtime: 8.1 - Apache Spark 3.1.1 and Delta 1.0.0
+
+Please let me know if i can supply more details.

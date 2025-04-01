@@ -1,0 +1,18 @@
+## Description
+Extend the existing Python Delta Table API to expose WHEN NOT MATCHED BY SOURCE clause in merge commands.
+Support for the clause was introduced in https://github.com/delta-io/delta/pull/1511 using the Scala Delta Table API, this patch extends the Python API to support the new clause.
+
+See corresponding feature request: https://github.com/delta-io/delta/issues/1364
+
+## How was this patch tested?
+Adding python tests covering WHEN NOT MATCHED BY SOURCE to test_deltatable.py.
+
+## Does this PR introduce _any_ user-facing changes?
+The extended API for NOT MATCHED BY SOURCE mirrors existing clauses (MATCHED/NOT MATCHED).
+Usage:
+```
+        dt.merge(source, "key = k")
+            .whenNotMatchedBySourceDelete(condition="value > 0")
+            .whenNotMatchedBySourceUpdate(set={"value": "value + 0"})
+            .execute()
+```

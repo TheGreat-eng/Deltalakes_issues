@@ -1,0 +1,23 @@
+#### Which Delta project/connector is this regarding?
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+This PR updates the ensureLogDirectoryExist method to optimistically handle directory creation by attempting to create the directory before checking its existence. This is efficient because we're assuming it's more likely that the directory doesn't exist and it saves an filesystem existence check in that case.
+
+Cloud Hadoop implementations are expected to throw org.apache.hadoop.fs.FileAlreadyExistsException if the file already exists. e.g. [S3AFileSystem.java](https://github.com/apache/hadoop/blob/fc166d3aec7c95110a8cd4ef6ce1fbf4955107e5/hadoop-tools/hadoop-aws/src/main/java/org/apache/hadoop/fs/s3a/S3AFileSystem.java#L3763)
+
+Unix-based File Systems are expected to throw java.nio.file.FileAlreadyExistsException if the file already exists.
+
+To cover all bases, including unforeseen file systems, it retains a final existence check for exceptions outside these specific cases, ensuring robustness without compromising functionality.
+
+## How was this patch tested?
+
+Existing UTs
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

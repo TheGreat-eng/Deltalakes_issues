@@ -1,0 +1,5 @@
+## Description
+Delta [IcebergCompatV2](https://github.com/delta-io/delta/blob/master/PROTOCOL.md#iceberg-compatibility-v2) requires each `add` action added to the Delta Log contain `numRecords` in statistics. This PR adds the change to enforce the check as part of `Transaction.generateAppendActions`. 
+
+## How was this patch tested?
+Unit tests.

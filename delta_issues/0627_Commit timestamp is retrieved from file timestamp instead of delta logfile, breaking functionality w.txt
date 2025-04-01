@@ -1,0 +1,5 @@
+https://github.com/delta-io/delta/blob/93eef1112fce9c766aec504f26f09d53bbcabb03/connectors/standalone/src/main/scala/io/delta/standalone/internal/DeltaHistoryManager.scala#L202
+
+Since the timestamp is retrieved from the file timestamp, when doing a full restore (moving files) or moving the `_delta_log` contents. The timestamps will all share the same value, breaking the functionality of restoring to a point in time.
+
+Could this be changed to the commit timestamp that is available in the actual log file?

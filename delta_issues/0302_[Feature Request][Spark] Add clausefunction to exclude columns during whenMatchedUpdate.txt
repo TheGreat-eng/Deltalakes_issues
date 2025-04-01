@@ -1,0 +1,21 @@
+## Feature request
+
+### Overview
+
+In a table with 100+ columns during update we've to manually specify in update condition to input all required columns rather excluding one or two. Eg: CREATE_TS need not be updated during update.
+
+### Motivation
+
+It will be used in all merge scripts where specific columns to be excluded
+
+### Further details
+
+This feature is now available in delta-rs(https://github.com/delta-io/delta-rs/pull/3098). Can this be added to deltalake as well so that it can be used in Databricks too. 
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [ ] Yes. I can contribute this feature independently.
+- [*] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.

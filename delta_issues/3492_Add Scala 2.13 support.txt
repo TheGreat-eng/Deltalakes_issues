@@ -1,0 +1,8 @@
+Most of changes are caused by the following two breaking changes in Scala.
+
+- scala.Seq[+A] is now an alias for scala.collection.immutable.Seq[A] (instead of scala.collection.Seq[A]). Note that this also changes the type of Scala varargs methods.
+- mapValues and filterKeys now return a MapView instead of a Map.
+
+The fix is just adding `toSeq` and `toMap`.
+
+See https://docs.scala-lang.org/overviews/core/collections-migration-213.html for more details.

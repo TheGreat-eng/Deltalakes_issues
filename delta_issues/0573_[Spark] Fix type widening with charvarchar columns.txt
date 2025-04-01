@@ -1,0 +1,22 @@
+
+## Description
+Using type widening on a table that contains a char/varchar column causes the following reads to fail with `DELTA_UNSUPPORTED_TYPE_CHANGE_IN_SCHEMA`:
+```
+CREATE TABLE t (a VARCHAR(10), b INT);
+ALTER TABLE t SET TBLPROPERTIES ('delta.enableTypeWidening' = 'true');
+ALTER TABLE t ALTER COLUMN b TYPE LONG;
+
+SELECT * FROM t;
+[DELTA_UNSUPPORTED_TYPE_CHANGE_IN_SCHEMA] Unable to operate on this table because an unsupported type change was applied. Field cut was changed from VARCHAR(10) to STRING`
+```
+
+Type changes are recorded in the table metadata and a check on read ensures that all type changes are supported by the current implementation as attempting to read data after an unsupported type change could lead to incorrect results.
+CHAR/VARCHAR columns are sometimes stripped down to STRING internally, for that reason, ALTER TABLE incorrectly identify that column `a` type changed to STRING and records it in the type widening metadata.
+
+The read check in turn doesn't recognize that type change as one of the supported widening type changes (which doesn't include changes to string columns).
+
+Fix:
+1. Never record char/varchar/string type changes in the type widening metadata
+2. Never record unsupported type changes in the type widening metadata and log an assertion instead.
+3. Don't fail on char/varchar/string type changes in the type widening metadata if such type change slips through 1. This will prevent failing in case a non-compliant implementation still record a char/varchar/string type change.
+4. Provide a table property to bypass the check if a similar issue happens again in the future.

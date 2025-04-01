@@ -1,0 +1,13 @@
+
+## Description
+
+(Cherry-pick of 4932956ae52f7a1211999f5364b6f9e1875d183a to branch-2.3)
+
+Add config to run MERGE source materialization eagerly.
+Add a new config that that controls whether the MERGE source is materialized eagerly or lazily.
+New config is set to eager by default to avoid suspected determinism issues with lazy materialization.
+
+## How was this patch tested?
+
+Run most sensitive tests with both eager and lazy settings, the rest only with the default to not blow up the CI time unnecessarily.
+

@@ -1,0 +1,18 @@
+#### Which Delta project/connector is this regarding?
+- [X] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+Change Rarquet and DV file names to use in testing mode a name prefix that contains special chars. This provides good coverage of handling special characters in paths for all Delta code.
+
+## How was this patch tested?
+
+Test-only PR. Updated existing tests that were incorrectly handling paths.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

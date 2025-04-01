@@ -1,0 +1,1 @@
+Removes some archaic terminology from the codebase in the interest of making Delta more inclusive. There is more work to be done as in some cases no alternative APIs exist in Spark, but this is a small step forward.

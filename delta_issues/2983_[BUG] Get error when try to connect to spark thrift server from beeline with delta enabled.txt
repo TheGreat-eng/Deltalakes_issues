@@ -1,0 +1,28 @@
+I run the following command to start a spark thrift server:
+```bash
+./sbin/start-thriftserver.sh \
+--packages io.delta:delta-core_2.13:2.0.0 \
+--conf "spark.sql.extensions=io.delta.sql.DeltaSparkSessionExtension" \
+--conf "spark.sql.catalog.spark_catalog=org.apache.spark.sql.delta.catalog.DeltaCatalog" \
+--hiveconf hive.server2.thrift.bind.host=0.0.0.
+```
+And this is part of the log output:
+```vim
+2022-08-11 19:15:03,529 INFO service.AbstractService: Service:ThriftBinaryCLIService is started.
+2022-08-11 19:15:03,557 INFO thrift.ThriftCLIService: Starting ThriftBinaryCLIService on port 10000 with 5...500 worker threads
+2022-08-11 19:15:03,557 INFO service.AbstractService: Service:HiveServer2 is started.
+2022-08-11 19:15:03,558 INFO thriftserver.HiveThriftServer2: HiveThriftServer2 started
+```
+But when I try to connect to the spark thrift server by beeline:
+I got some error, as following
+```bash
+beeline> !connect jdbc:hive2://0.0.0.0:10000
+Connecting to jdbc:hive2://0.0.0.0:10000
+Enter username for jdbc:hive2://0.0.0.0:10000: 
+Enter password for jdbc:hive2://0.0.0.0:10000: 
+22/08/11 19:18:38 [main]: WARN jdbc.HiveConnection: Failed to connect to 0.0.0.0:10000
+Error: Could not open client transport with JDBC Uri: jdbc:hive2://0.0.0.0:10000: Can't overwrite cause with java.lang.ClassNotFoundException: org.apache.spark.sql.delta.catalog.DeltaCatalog (state=08S01,code=0)
+```
+Looks like it is caused by delta package is not found by beeline, but I have already add it when I start the spark thrift server.
+Does anyone meet this problems before and has some insights or possible solutions?
+Thanks

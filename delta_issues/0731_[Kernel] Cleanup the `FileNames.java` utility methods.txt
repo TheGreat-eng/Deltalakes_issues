@@ -1,0 +1,8 @@
+Some of the utility methods in [FileNames.java](https://github.com/delta-io/delta/blob/master/kernel/kernel-api/src/main/java/io/delta/kernel/internal/util/FileNames.java#L57) take strings and some `Path`s. For string input, it is either the file name or the file path. It is confusing and can easily cause bugs. Unify all APIs to take `Path` (we anyway create Path in all places when the utility methods are used)
+
+Also, avoid using finding the `/` to figure out the file name. This could be risky. Instead rely on the `Path`.
+```
+    final int slashIdx = path.lastIndexOf(Path.SEPARATOR); <-- avoid this.
+    final String name = path.substring(slashIdx + 1);
+    return Long.parseLong(name.split("\\.")[0]);
+```

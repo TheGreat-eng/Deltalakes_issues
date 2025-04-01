@@ -1,0 +1,30 @@
+## Feature request
+Support metadata-only query optimization on delta sharing tables
+
+#### Which Delta project/connector is this regarding?
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [X] Other (delta sharing)
+
+### Overview
+
+Support metadata-only query optimization for queries on delta sharing tables, to speed up the queries and avoid reading all data from pre-signed urls.
+
+### Motivation
+
+Performance: to speed up the queries.
+Egress cost: avoid reading all data from pre-signed urls.
+
+### Further details
+
+This is an optimization for queries on delta tables, delta sharing needs to catch up. For queries like "SELECT count(*) from <table>".
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [ ] Yes. I can contribute this feature independently.
+- [X] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.

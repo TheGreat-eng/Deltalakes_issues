@@ -1,0 +1,14 @@
+See the project plan at #1105.
+
+This PR introduces a key class used for CDF and CDC in DeltaLake: `CDCReader`. As the class docs say,
+
+```
+The basic abstraction here is the CDC type column defined by [[CDCReader.CDC_TYPE_COLUMN_NAME]].
+When CDC is enabled, our writer will treat this column as a special partition column even though
+it's not part of the table. Writers should generate a query that has two types of rows in it:
+the main data in partition CDC_TYPE_NOT_CDC and the CDC data with the appropriate CDC type value.
+```
+
+We also add `CDCReaderSuite` which tests very basic functionality of the CDCReader.
+
+We also update `DelayedCommitProtocol` to understand and handle cases when CDC is enabled. For example, it knows to keep track of the added CDC files during a write, and how to properly partition CDC data from main table data.

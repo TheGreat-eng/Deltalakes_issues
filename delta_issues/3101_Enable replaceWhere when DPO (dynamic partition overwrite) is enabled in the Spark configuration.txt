@@ -1,0 +1,14 @@
+### Description
+
+This PR changes how `replaceWhere` and DPO interact with each other.
+
+Current behavior:
+- DPO + replaceWhere always throws an error
+
+Behavior in this PR:
+- DPO in spark session configuration + replaceWhere = data overwritten according to replaceWhere
+- DPO as DataFrameWriter option + replaceWhere = throw error
+
+### Testing
+
+Updates and adds a test to `DeltaSuite`.

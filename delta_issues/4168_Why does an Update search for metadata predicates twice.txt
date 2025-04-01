@@ -1,0 +1,9 @@
+I was reading through [UpdateCommand.scala](https://github.com/delta-io/delta/blob/master/src/main/scala/org/apache/spark/sql/delta/commands/UpdateCommand.scala) to get some background for implementing #121 and got lost in some logic. Is there some guarantee that is only provided if the metadata predicates are checked multiple times?
+
+**Here is my understanding...**
+
+In the method `performUpdate()`, there is an explicit call to [DeltaTableUtils.splitMetadataAndDataPredicates()](https://github.com/delta-io/delta/blob/master/src/main/scala/org/apache/spark/sql/delta/DeltaTable.scala#L144). 
+
+However, on the next line, [nested in the filterFiles()](https://github.com/delta-io/delta/blob/master/src/main/scala/org/apache/spark/sql/delta/OptimisticTransaction.scala#L214) call, with the newly separated metadataPredicates, that same `splitMetadataAndDataPredicates()` call is done. 
+
+ https://github.com/delta-io/delta/blob/master/src/main/scala/org/apache/spark/sql/delta/commands/UpdateCommand.scala#L77-L79

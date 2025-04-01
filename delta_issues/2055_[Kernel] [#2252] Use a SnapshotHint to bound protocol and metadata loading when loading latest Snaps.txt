@@ -1,0 +1,43 @@
+#### Which Delta project/connector is this regarding?
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [X] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+Resolves #2252
+
+TLDR: this PR increase the performance of multiple `getLatestSnapshot` calls against the same `Table` instance by an average of 8x, and on most commits 34x. It stores some small state in memory, and bounds the computation of future Snapshots.
+
+This PR creates a `SnapshotHint` class. `Snapshot` instances, whenever they decide to load their latest protocol and metadata, will create a new hint and register it with the `SnapshotManager`. `SnapshotManager` will then pass _the latest hint_ to future `Snapshot`s it loads (via the `getLatestSnapshot` API).
+
+When future `Snapshot`s then go to load their latest protocol and metadata (suppose they are loading version 17, and the latest checkpoint is at version 10, and the hint is at version 15), then they can bound their computation and JSON reading/loading, since they need only read JSONs 17 and 16. After they, they can use the hint to know the latest protocol and metadata as of version 15.
+
+## How was this patch tested?
+
+New test suite, `LogReplayMetricsSuite` that tests these edge cases quite well.
+
+Also, tested the performance locally myself:
+
+I tested this against a table with 1M+ add files. I tested master first, and then tested my PR, which was strictly reading a (slightly) larger table.
+
+The test setup was:
+- get the latest snapshot with kernel. get the schema and version. record how long it takes to do this
+- write to the table with spark
+- repeat 20 times.
+
+Master results (milliseconds):
+- (747, 292, 294, 282, 279, 287, 278, 269, 279, 278, 272, 278, 279, 275, 279, 262, 273, 284, 281, 267, 277)
+- average after 1st commit: 278
+
+My PR (milliseconds):
+- (783, 8, 7, 7, 8, 7, 10, 7, 287, 9, 7, 7, 7, 8, 7, 8, 7, 8, 286, 10, 8)
+- average after 1st commit: 35, median is 9
+- why does it spike up to 287ms? on every 10th commit we read, we are reading the parquet file. we can optimize this away to read the JSON file and then use the hint.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

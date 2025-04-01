@@ -1,0 +1,7 @@
+KMS encrypted bucket gives 403
+
+```
+  df.write.format("delta").save(s"s3a://$s3BucketName/$tableName")
+
+java.nio.file.AccessDeniedException: s3a://bucket/table/_delta_log: innerMkdirs on s3a://bucket/table/_delta_log: com.amazonaws.services.s3.model.AmazonS3Exception: Access Denied (Service: Amazon S3; Status Code: 403; Error Code: AccessDenied; 
+```

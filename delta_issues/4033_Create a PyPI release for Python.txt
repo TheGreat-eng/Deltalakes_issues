@@ -1,0 +1,7 @@
+Could you please release the Python API via the [Python Package Index (PyPI)](https://pypi.org/)
+
+It would help adoption and development flows to be able to install via `pip` instead of having to copy the source tree into projects.
+
+Since the API seems compatible, this would be especially useful for developers testing and linting locally while running against the Databricks API.
+
+Thank you.

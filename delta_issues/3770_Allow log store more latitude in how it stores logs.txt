@@ -1,0 +1,15 @@
+This PR extends the LogStore trait to allow implementers more flexibility in how the LogStore stores data. Specifically, it decouples the precise filename of a delta log file from the relevant information: version, file type etc.
+
+
+
+Changes in this PR:
+
+* A case class which holds the relevant file properties
+
+* a parser which creates file properties classes from filenames
+
+* scaffolding to change the parser impl in the same manner that the LogStore impl is changed
+
+* a new method on the LogStore to similarly control the checkpoint file as this currently does not pass through the LogStore interface
+
+Signed-off-by: Ryan Murray <rymurr@gmail.com>

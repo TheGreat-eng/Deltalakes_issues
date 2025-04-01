@@ -1,0 +1,32 @@
+## Feature request
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the issue title
+For example: [Feature Request][Spark] Title of my issue
+-->
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [x] Kernel
+- [ ] Other (fill in here)
+
+### Overview
+
+<!-- Provide a high-level description of the feature request. -->
+If a writer's protocol version supports [column mapping](https://github.com/delta-io/delta/blob/master/PROTOCOL.md#column-mapping) and the relevant column mapping property `delta.columnMapping.mode` is set, support updating the schema of the table with the necessary field-metadata (i.e adding `delta.columnMapping.id` or `delta.columnMapping.name` as needed). 
+
+### Motivation
+
+<!-- How will this feature be used? Why is it important? Which users will benefit from it? -->
+
+Adding this feature will allow for writers to turn on column-mapping for a table if it wasn't before. Having column-mapping is also a protocol requirement to support features like [Iceberg compatibility v2](https://github.com/delta-io/delta/blob/master/PROTOCOL.md#iceberg-compatibility-v2)
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [ ] Yes. I can contribute this feature independently.
+- [ ] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.

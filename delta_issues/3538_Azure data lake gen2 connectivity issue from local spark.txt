@@ -1,0 +1,9 @@
+Delta works fine for reading/ writing locally in a azure VM, however, when we try to connect to Azure Data Lake Gen2 as per the delta documentation, we are getting this exception as below. Kindly assist.
+
+![image](https://user-images.githubusercontent.com/21185078/132322623-02258e7e-0bf9-4216-9220-358001707ba8.png)
+
+![image](https://user-images.githubusercontent.com/21185078/132322888-b823317d-87ca-45a6-9030-1ae62283e8ab.png)
+
+![image](https://user-images.githubusercontent.com/21185078/132323141-7f9e9436-a828-41b6-b728-0bc7fb631bdd.png)
+
+_Originally posted by @kumaran-chandrababu in https://github.com/delta-io/delta/issues/771#issuecomment-914158122_

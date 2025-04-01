@@ -1,0 +1,1 @@
+https://github.com/delta-io/delta/blob/fc81d1247d66cc32e454e985f0cfc81447f897b6/connectors/flink/src/main/java/io/delta/flink/sink/internal/committer/DeltaGlobalCommitter.java#L542

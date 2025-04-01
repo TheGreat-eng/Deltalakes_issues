@@ -1,0 +1,1 @@
+`bash -l {0}` only reports errors for the last command executed. We return to the [default](https://docs.github.com/en/actions/learn-github-actions/workflow-syntax-for-github-actions#exit-codes-and-error-action-preference) which is is `bash -e`.

@@ -1,0 +1,70 @@
+The delta table of the partition, mapped to hive, cannot be retrieved by presto. It is empty. What is the reason
+
+delta file list
+[root@node2 ~]# hdfs dfs -ls /apps/delta_data/common_prod/com_question_answer
+Found 373 items
+drwxr-xr-x   - hdfs hadoop          0 2019-12-30 23:58 /apps/delta_data/common_prod/com_question_answer/_delta_log
+drwxr-xr-x   - root hadoop          0 2019-12-31 00:22 /apps/delta_data/common_prod/com_question_answer/_symlink_format_manifest
+drwxr-xr-x   - hdfs hadoop          0 2019-12-30 23:58 /apps/delta_data/common_prod/com_question_answer/cd_part=2018-12-20
+drwxr-xr-x   - hdfs hadoop          0 2019-12-30 23:58 /apps/delta_data/common_prod/com_question_answer/cd_part=2018-12-21
+drwxr-xr-x   - hdfs hadoop          0 2019-12-30 23:58 /apps/delta_data/common_prod/com_question_answer/cd_part=2018-12-25
+drwxr-xr-x   - hdfs hadoop          0 2019-12-30 23:58 /apps/delta_data/common_prod/com_question_answer/cd_part=2018-12-26
+drwxr-xr-x   - hdfs hadoop          0 2019-12-30 23:58 /apps/delta_data/common_prod/com_question_answer/cd_part=2018-12-27
+drwxr-xr-x   - hdfs hadoop          0 2019-12-30 23:58 /apps/delta_data/common_prod/com_question_answer/cd_part=2018-12-28
+drwxr-xr-x   - hdfs hadoop          0 2019-12-30 23:58 /apps/delta_data/common_prod/com_question_answer/cd_part=2018-12-29
+drwxr-xr-x   - hdfs hadoop          0 2019-12-30 23:57 /apps/delta_data/common_prod/com_question_answer/cd_part=2019-01-01
+drwxr-xr-x   - hdfs hadoop          0 2019-12-30 23:57 /apps/delta_data/common_prod/com_question_answer/cd_part=2019-01-02
+drwxr-xr-x   - hdfs hadoop          0 2019-12-30 23:57 /apps/delta_data/common_prod/com_question_answer/cd_part=2019-01-0
+
+
+`scala> spark.read.format("delta").load("/apps/delta_data/common_prod/com_question_answer").limit(5).show()
++-------+---------+----------+---------+-----------+---------+----------+--------------------+--------------------+---------+-------------------+-------------------+----------+
+|     id|tenant_id|channel_id|submit_id|question_id|option_id|option_key|        option_value|              answer|is_delete|        create_time|        update_time|   cd_part|
++-------+---------+----------+---------+-----------+---------+----------+--------------------+--------------------+---------+-------------------+-------------------+----------+
+|5535781|        1|      null|   472145|      13178|    50316|         2|        服务热情周到|                null|        0|2019-08-10 17:39:02|2019-08-10 17:39:02|2019-08-10|
+|5485399|        1|      null|   465652|      13178|    50320|         6|            性价比高|味道不错，一直光顾。|        0|2019-08-10 11:31:18|2019-08-10 11:31:18|2019-08-10|
+|5472313|        1|      null|   464002|      13178|    50318|         4|            方便快捷|                null|        0|2019-08-10 08:42:17|2019-08-10 08:42:17|2019-08-10|
+|5496616|        1|      null|   467150|      13184|    50335|         1|https://jyj-image...|https://jyj-image...|        0|2019-08-10 12:19:43|2019-08-10 12:19:43|2019-08-10|
+|5494352|        1|      null|   466848|      13184|    50335|         1|https://jyj-image...|https://jyj-image...|        0|2019-08-10 12:09:40|2019-08-10 12:09:40|2019-08-10|
++-------+---------+----------+---------+-----------+---------+----------+--------------------+--------------------+---------+-------------------+-------------------+----------+`
+
+hive sql
+
+`CREATE EXTERNAL TABLE ods_xl_db.`common_prod_com_question_answer` (
+  `id` bigint,
+  `tenant_id` bigint,
+  `channel_id` bigint,
+  `submit_id` bigint,
+  `question_id` bigint,
+  `option_id` bigint,
+  `option_key` STRING,
+  `option_value` STRING,
+  `answer` STRING,
+  `is_delete` tinyint,
+  `create_time` timestamp,
+  `update_time` timestamp 
+)
+PARTITIONED BY (`cd_part` STRING) 
+ROW FORMAT SERDE 'org.apache.hadoop.hive.ql.io.parquet.serde.ParquetHiveSerDe'
+STORED AS INPUTFORMAT 'org.apache.hadoop.hive.ql.io.SymlinkTextInputFormat'
+OUTPUTFORMAT 'org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat'
+LOCATION '/apps/delta_data/common_prod/com_question_answer/_symlink_format_manifest/';`
+
+`presto:ods_xl_db> select * from common_prod_com_question_answer limit 10;
+ id | tenant_id | channel_id | submit_id | question_id | option_id | option_key | option_value | answer | is_delete | create_time | update_time | cd_part 
+----+-----------+------------+-----------+-------------+-----------+------------+--------------+--------+-----------+-------------+-------------+---------
+(0 rows)
+
+Query 20191230_163636_00269_pyimx, FINISHED, 1 node
+Splits: 1 total, 1 done (100.00%)
+0:00 [0 rows, 0B] [0 rows/s, 0B/s]
+`
+MSCK REPAIR TABLE Error
+
+`hive (default)> MSCK REPAIR TABLE ods_xl_db.`common_prod_com_question_answer`;
+FAILED: Execution Error, return code 1 from org.apache.hadoop.hive.ql.exec.DDLTask
+`
+
+What is the reason? thank you
+
+

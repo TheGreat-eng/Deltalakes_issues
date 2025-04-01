@@ -1,0 +1,1 @@
+Apache Spark has the ability to drop and rename columns, this should be supported within the Delta.  Reference issue #731. 

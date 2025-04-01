@@ -1,0 +1,11 @@
+## Description
+Address following shortcomings of schema evolution tests in MERGE:
+- Tests ignore the nullability of fields when validating the schema of the table after evolution, which prevents checking for nullability of specific fields.
+
+- For struct evolution tests, a result schema can be passed but this schema is only used to parse the result data and not to validate the schema of the table after evolution.
+
+## How was this patch tested?
+Updated tests
+
+## Does this PR introduce _any_ user-facing changes?
+No, test-only

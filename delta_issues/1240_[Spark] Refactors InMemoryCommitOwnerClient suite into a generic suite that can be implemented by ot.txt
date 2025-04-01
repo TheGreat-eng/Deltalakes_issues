@@ -1,0 +1,21 @@
+#### Which Delta project/connector is this regarding?
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+This PR refactors the existing InMemoryCommitOwnerClientSuite into a generic suite, CommitOwnerClientImplSuiteBase. This base suite can be extended by CommitOwnerClient implementations to run the basic set of tests provided by the base suite. This is to make it easier for CommitOwnerClient implementations to get test coverage in the future.
+
+It also adds an implementation of the suite for the InMemoryCommitOwnerClient with two different backfilling batch sizes (1 and 5).
+
+## How was this patch tested?
+
+Ensured that the newly introduced suites pass.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

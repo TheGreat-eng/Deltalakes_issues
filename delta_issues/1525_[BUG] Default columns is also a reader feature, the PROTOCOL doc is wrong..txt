@@ -1,0 +1,20 @@
+The docs here correctly state that enabling Default Columns will prevent older versions without the Default Column feature from reading the table: https://docs.delta.io/3.1.0/delta-default-columns.html
+The PROTOCOL doc conflicts with the above. I tested and confirmed that Default Columns is a table feature that requires the reader to support.
+
+Signed-off-by: Miles Cole <m.w.c.360@gmail.com>
+
+#### Which Delta project/connector is this regarding?
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+Documentation needs updating
+
+## How was this patch tested?
+Just documentation
+
+## Does this PR introduce _any_ user-facing changes?
+No

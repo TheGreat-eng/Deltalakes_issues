@@ -1,0 +1,12 @@
+`numUpdatedRows` can overflow integer when update a large table.
+```
+java.lang.NumberFormatException: For input string: "4029988707"
+at java.lang.NumberFormatException.forInputString(NumberFormatException.java:65)
+at java.lang.Integer.parseInt(Integer.java:583)
+at java.lang.Integer.parseInt(Integer.java:615)
+at scala.collection.immutable.StringLike$class.toInt(StringLike.scala:272)
+at scala.collection.immutable.StringOps.toInt(StringOps.scala:29)
+at org.apache.spark.sql.delta.DeltaOperations$Update.transformMetrics(DeltaOperations.scala:190)
+at org.apache.spark.sql.delta.files.SQLMetricsReporting$class.getMetricsForOperation(SQLMetricsReporting.scala:62)
+at org.apache.spark.sql.delta.OptimisticTransaction.getMetricsForOperation(OptimisticTransaction.scala:80)
+```

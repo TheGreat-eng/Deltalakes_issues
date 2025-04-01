@@ -1,0 +1,5 @@
+Please specify the required JDK for compiling the delta repo. I tried with java 19, and sbt did not boot up. With java 11, it does build, albeit with quite some warnings. I would feel more comfortable if the README specified the jdk.
+
+build/sbt compile seems to work with java 8, java 11, java 17.
+
+build/sbt compile fails with java 18 and java 19.

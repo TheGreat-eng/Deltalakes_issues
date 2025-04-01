@@ -1,0 +1,1 @@
+I haven't found it after searching for a long time. May I ask how the versions of delta lake and spark correspond. Spark 2.3.4 Which version of delta lake should be used

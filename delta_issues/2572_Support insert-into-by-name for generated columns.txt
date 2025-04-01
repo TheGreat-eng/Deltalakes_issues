@@ -1,0 +1,15 @@
+## Description 
+
+Spark 3.4 no longer requires users to provide _all_ columns in insert-by-name queries. This means Delta can now support omitting generated columns from the column list in such queries.
+
+This test adds support for this and adds some additional tests related to the changed by-name support.
+
+Resolves delta-io/delta#1215
+
+## How was this patch tested?
+
+Adds unit tests.
+
+## Does this PR introduce _any_ user-facing changes?
+
+Yes. Users will be able to omit generated columns from the column list when inserting by name.

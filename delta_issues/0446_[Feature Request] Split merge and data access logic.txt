@@ -1,0 +1,69 @@
+## Feature request
+
+#### Which Delta project/connector is this regarding?
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+### Overview
+
+Hi!
+
+Currently `merge` in python delta API does two things:
+1. It executes business logic based on merge conditions
+2. It writes changes to s3/fs etc — data access
+
+And it makes impossible to write good (fast & cheap) tests.
+
+---
+
+Currently an average piece of code looks like this:
+
+```python
+def doSomething(DeltaTable deltaTable, DataFrame newDedupedLogs) -> void:
+
+    deltaTable.alias("logs") \
+        .merge( \
+            newDedupedLogs.alias("newDedupedLogs"),  \
+            "logs.uniqueId = newDedupedLogs.uniqueId"  \
+        ) \
+        .whenNotMatchedInsertAll() \
+        .execute()  # note: it does save data right here
+```
+
+To test it we have only one option for now — it is to write integration tests which write data to s3/fs. 
+It is very slow and expensive.
+
+---
+
+It would be nice to split these responsibilities and make it possible to merge without saving data.
+The code could look like this basically:
+
+```python
+def doSomething(DataFrame target, DataFrame source) -> DataFrame:
+    return DeltaTable \
+        .merge( \ # note: static helper method
+            target.alias("logs"),  \
+            source.alias("newDedupedLogs"),  \
+            "logs.uniqueId = newDedupedLogs.uniqueId" \
+        )
+        .whenNotMatchedInsertAll()  \
+        .execute() # note: it returns DataFrame
+```
+
+And this code could be tested without handling 'side effects' like data access.
+
+### Motivation
+
+It is important cuz makes testing cheaper and faster.
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [ ] Yes. I can contribute this feature independently.
+- [ ] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [x] No. I cannot contribute this feature at this time.

@@ -1,0 +1,8 @@
+## Description
+Upgrade the Spark dependency version to 3.3.0. Following are the major changes:
+* Test fixes to change the expected error message
+* `VacuumCommand`: Update the parallel delete to first check if there are entries before trying to `reduce`.
+* Update the `LogicalPlan` used to represent the create or replace command in `DeltaTableBuilder`
+* Spark ersion upgrade in build and test setup scripts
+
+Fixes delta-io/delta#1217

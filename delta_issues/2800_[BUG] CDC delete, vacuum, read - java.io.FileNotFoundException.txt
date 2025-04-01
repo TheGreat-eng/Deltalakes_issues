@@ -1,0 +1,33 @@
+## Bug
+
+Created delta table and saved in google cloud storage. 
+```
+df.write.format("delta").partitionBy("g","p").option("delta.enableChangeDataFeed", "true").mode("append").save(path)
+```
+inserted data in versions 1-4 and deleted data in version 5. Ran vacuum command.  Tried to read data.
+```
+spark.read.format("delta")
+.option("readChangeFeed", "true")
+  .option("startingVersion", 3)
+  .load(path)
+```
+
+#### Observed results
+
+Caused by: java.io.FileNotFoundException: File not found: gs://xxx/yyy.snappy.parquet 
+It is possible the underlying files have been updated. You can explicitly invalidate the cache in Spark by running 'REFRESH TABLE tableName' command in SQL or by recreating the Dataset/DataFrame involved.
+
+#### Expected results
+
+I expected to see all the data inserted starting version 3
+
+#### Further details
+
+I deleted the cluster and tried to read again. Same issue. Why is it looking for the vacuumed files?
+Note that spark.read.format("delta").load(path) loads all the data from versions 1-4 minus deleted data. Looks like a CDC bug
+### Environment information
+
+* Delta Lake version: 2.1.0
+* Spark version: 3.3.0
+* Scala version: 2.12.14
+

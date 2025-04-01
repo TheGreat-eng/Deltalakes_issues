@@ -1,0 +1,70 @@
+`spark: version 2.4.0.cloudera2`
+`delta:  io.delta:delta-core_2.11:0.5.0`
+
+Hi, I ran into an issue when I tried to load files in Delta format. Those files were written as delta format by a streaming job and this issue suddenly appeared yesterday. For testing purposes, I tried to load those files in parquet format and it works fine. 
+
+
+```
+val inputDF = spark.read.format("delta").load("s3a://dev-warehouse/databases/logs/sample")
+```
+
+```
+[Stage 0:=======================================>                   (2 + 1) / 3]20/04/24 16:55:47 WARN scheduler.TaskSetManager: Lost task 0.0 in stage 0.0 (TID 0, hadoop-slave60.local, executor 1): java.lang.RuntimeException: Unable to create Parquet converter for data type "timestamp" whose Parquet type is optional int64 timestamp
+	at org.apache.spark.sql.execution.datasources.parquet.ParquetRowConverter.org$apache$spark$sql$execution$datasources$parquet$ParquetRowConverter$$newConverter(ParquetRowConverter.scala:319)
+	at org.apache.spark.sql.execution.datasources.parquet.ParquetRowConverter$$anonfun$7.apply(ParquetRowConverter.scala:188)
+	at org.apache.spark.sql.execution.datasources.parquet.ParquetRowConverter$$anonfun$7.apply(ParquetRowConverter.scala:185)
+	at scala.collection.TraversableLike$$anonfun$map$1.apply(TraversableLike.scala:234)
+	at scala.collection.TraversableLike$$anonfun$map$1.apply(TraversableLike.scala:234)
+	at scala.collection.mutable.ResizableArray$class.foreach(ResizableArray.scala:59)
+	at scala.collection.mutable.ArrayBuffer.foreach(ArrayBuffer.scala:48)
+	at scala.collection.TraversableLike$class.map(TraversableLike.scala:234)
+	at scala.collection.AbstractTraversable.map(Traversable.scala:104)
+	at org.apache.spark.sql.execution.datasources.parquet.ParquetRowConverter.<init>(ParquetRowConverter.scala:185)
+	at org.apache.spark.sql.execution.datasources.parquet.ParquetRowConverter.org$apache$spark$sql$execution$datasources$parquet$ParquetRowConverter$$newConverter(ParquetRowConverter.scala:313)
+	at org.apache.spark.sql.execution.datasources.parquet.ParquetRowConverter$$anonfun$7.apply(ParquetRowConverter.scala:188)
+	at org.apache.spark.sql.execution.datasources.parquet.ParquetRowConverter$$anonfun$7.apply(ParquetRowConverter.scala:185)
+	at scala.collection.TraversableLike$$anonfun$map$1.apply(TraversableLike.scala:234)
+	at scala.collection.TraversableLike$$anonfun$map$1.apply(TraversableLike.scala:234)
+	at scala.collection.mutable.ResizableArray$class.foreach(ResizableArray.scala:59)
+	at scala.collection.mutable.ArrayBuffer.foreach(ArrayBuffer.scala:48)
+	at scala.collection.TraversableLike$class.map(TraversableLike.scala:234)
+	at scala.collection.AbstractTraversable.map(Traversable.scala:104)
+	at org.apache.spark.sql.execution.datasources.parquet.ParquetRowConverter.<init>(ParquetRowConverter.scala:185)
+	at org.apache.spark.sql.execution.datasources.parquet.ParquetRecordMaterializer.<init>(ParquetRecordMaterializer.scala:43)
+	at org.apache.spark.sql.execution.datasources.parquet.ParquetReadSupport.prepareForRead(ParquetReadSupport.scala:106)
+	at parquet.hadoop.InternalParquetRecordReader.initialize(InternalParquetRecordReader.java:178)
+	at parquet.hadoop.ParquetRecordReader.initializeInternalReader(ParquetRecordReader.java:201)
+	at parquet.hadoop.ParquetRecordReader.initialize(ParquetRecordReader.java:145)
+	at org.apache.spark.sql.execution.datasources.parquet.ParquetFileFormat$$anonfun$buildReaderWithPartitionValues$1.apply(ParquetFileFormat.scala:438)
+	at org.apache.spark.sql.execution.datasources.parquet.ParquetFileFormat$$anonfun$buildReaderWithPartitionValues$1.apply(ParquetFileFormat.scala:351)
+	at org.apache.spark.sql.execution.datasources.FileScanRDD$$anon$1.org$apache$spark$sql$execution$datasources$FileScanRDD$$anon$$readCurrentFile(FileScanRDD.scala:124)
+	at org.apache.spark.sql.execution.datasources.FileScanRDD$$anon$1.nextIterator(FileScanRDD.scala:177)
+	at org.apache.spark.sql.execution.datasources.FileScanRDD$$anon$1.hasNext(FileScanRDD.scala:101)
+	at org.apache.spark.sql.catalyst.expressions.GeneratedClass$GeneratedIteratorForCodegenStage1.processNext(Unknown Source)
+	at org.apache.spark.sql.execution.BufferedRowIterator.hasNext(BufferedRowIterator.java:43)
+	at org.apache.spark.sql.execution.WholeStageCodegenExec$$anonfun$13$$anon$1.hasNext(WholeStageCodegenExec.scala:636)
+	at scala.collection.Iterator$$anon$11.hasNext(Iterator.scala:409)
+	at scala.collection.Iterator$$anon$11.hasNext(Iterator.scala:409)
+	at scala.collection.Iterator$$anon$12.hasNext(Iterator.scala:440)
+	at scala.collection.Iterator$$anon$11.hasNext(Iterator.scala:409)
+	at org.apache.spark.sql.catalyst.expressions.GeneratedClass$GeneratedIteratorForCodegenStage3.processNext(Unknown Source)
+	at org.apache.spark.sql.execution.BufferedRowIterator.hasNext(BufferedRowIterator.java:43)
+	at org.apache.spark.sql.execution.WholeStageCodegenExec$$anonfun$13$$anon$1.hasNext(WholeStageCodegenExec.scala:636)
+	at scala.collection.Iterator$$anon$11.hasNext(Iterator.scala:409)
+	at org.apache.spark.shuffle.sort.BypassMergeSortShuffleWriter.write(BypassMergeSortShuffleWriter.java:125)
+	at org.apache.spark.scheduler.ShuffleMapTask.runTask(ShuffleMapTask.scala:99)
+	at org.apache.spark.scheduler.ShuffleMapTask.runTask(ShuffleMapTask.scala:55)
+	at org.apache.spark.scheduler.Task.run(Task.scala:121)
+	at org.apache.spark.executor.Executor$TaskRunner$$anonfun$10.apply(Executor.scala:408)
+	at org.apache.spark.util.Utils$.tryWithSafeFinally(Utils.scala:1405)
+	at org.apache.spark.executor.Executor$TaskRunner.run(Executor.scala:414)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+	at java.lang.Thread.run(Thread.java:748)
+```
+
+
+Could this issue be caused by some corrupted timestamp records in table history? 
+
+
+Thanks for your help!

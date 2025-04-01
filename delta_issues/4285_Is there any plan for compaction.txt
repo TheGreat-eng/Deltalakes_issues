@@ -1,0 +1,1 @@
+Compaction is very important when working with stream jobs.  So the delta community have any plan for compaction?  The core team will implement it or just wait third-party to contribute?

@@ -1,0 +1,23 @@
+## Feature request
+Save data with a user-specified compression codec (like `zstd`) when using `deltaTable.optimize().executeCompaction()`.
+### Overview
+Currently the default compression format is `snappy `when one wants to compact the data with the built-in function `optimize()`. There is no option for users to choose the compression format at this point.
+
+### Motivation
+in specific use cases favoring compression ratio to speeds or the other way round, there exists a need to use different compression formats such as `zstd `and `lzo`.  This request is to offer the feature of allowing the user to input a certain compression format after using `compaction()`.
+<!-- How will this feature be used? Why is it important? Which users will benefit from it? -->
+
+### Further details
+
+<!--
+Use this section to include any additional information about the feature. If you have a proposal for how to implement this feature, please include it here. For implementation guidelines, please read our contributor guidelines: https://github.com/delta-io/delta/blob/master/CONTRIBUTING.md
+If there are any specific requirements for this feature that are not immediately obvious please outline them here.
+-->
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [ ] Yes. I can contribute this feature independently.
+- [ ] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.

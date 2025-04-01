@@ -1,0 +1,1 @@
+Given that now we have support for writing into DV tables and table utility operations as part of the delta-io/delta#1485 and delta-io/delta#1591, we should remove the check.

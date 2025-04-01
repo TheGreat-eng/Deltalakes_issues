@@ -1,0 +1,109 @@
+## Bug
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the issue title
+For example: [BUG][Spark] Title of my issue
+-->
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+### Describe the problem
+
+Failed to create a delta table with Uniform v2 enabled.
+
+#### Steps to reproduce
+
+Run this SQL
+```
+CREATE TABLE dev_landing.wangyi.accounts (
+  UID STRING,
+  created STRING,
+  createdTimestamp BIGINT,
+  data STRUCT<other_account_exists: STRING, gender: STRING, birthDay: INT, birthMonth: INT, birthYear: INT, city: STRING, do_not_delete: BOOLEAN, email: STRING, firstName: STRING, first_visit_bright: STRING, first_visit_buienradar: STRING, first_visit_rtlboulevard: STRING, first_visit_rtlnieuws: STRING, first_visit_rtlnl: STRING, first_visit_rtlxl: STRING, first_visit_rtlz: STRING, first_visit_vl: STRING, gigyaImportJob: STRING, lastName: STRING, longUID: STRING, middleName: STRING, privacy_original: STRING, privacy_v_2: STRING, redirectUrl: STRING, rtlid_key: STRING, subscribe: BOOLEAN, terms_vl: STRING, terms: STRING>,
+  emails STRUCT<unverified: ARRAY<STRING>, verified: ARRAY<STRING>>,
+  identities ARRAY<STRUCT<address: STRING, age: BIGINT, allowsLogin: BOOLEAN, birthDay: BIGINT, birthMonth: BIGINT, birthYear: BIGINT, city: STRING, education: ARRAY<STRING>, email: STRING, favorites: STRUCT<books: ARRAY<STRING>, movies: ARRAY<STRING>, music: ARRAY<STRING>, television: ARRAY<STRING>>, firstName: STRING, gender: STRING, isExpiredSession: BOOLEAN, isLoginIdentity: BOOLEAN, languages: STRING, lastName: STRING, lastUpdated: STRING, lastUpdatedTimestamp: BIGINT, likes: ARRAY<STRING>, locale: STRING, mappedProviderUIDs: ARRAY<STRUCT<apiKey: STRING, providerUID: STRING>>, name: STRING, nickname: STRING, oldestDataUpdated: STRING, oldestDataUpdatedTimestamp: BIGINT, photoURL: STRING, provider: STRING, providerUID: STRING, thumbnailURL: STRING, verified: STRING, work: ARRAY<STRING>, zip: STRING>>,
+  isActive BOOLEAN,
+  isRegistered BOOLEAN,
+  isVerified BOOLEAN,
+  lastLogin STRING,
+  lastLoginLocation STRUCT<coordinates: STRUCT<lat: DOUBLE, lon: DOUBLE>, country: STRING>,
+  lastLoginTimestamp BIGINT,
+  lastUpdated STRING,
+  lastUpdatedTimestamp BIGINT,
+  lockedUntil STRING,
+  loginIDs STRUCT<emails: ARRAY<STRING>, unverifiedEmails: ARRAY<STRING>>,
+  loginProvider STRING,
+  oldestDataUpdated STRING,
+  oldestDataUpdatedTimestamp BIGINT,
+  password STRUCT<created: STRING, hash: STRING, hashSettings: STRUCT<algorithm: STRING, rounds: BIGINT, salt: STRING>>,
+  profile STRUCT<address: STRING, age: BIGINT, birthDay: BIGINT, birthMonth: BIGINT, birthYear: BIGINT, city: STRING, email: STRING, firstName: STRING, gender: STRING, lastName: STRING, locale: STRING, name: STRING, nickname: STRING, photoURL: STRING, thumbnailURL: STRING, zip: STRING>,
+  regSource STRING,
+  registered STRING,
+  registeredTimestamp BIGINT,
+  socialProviders STRING,
+  verified STRING,
+  verifiedTimestamp BIGINT,
+  meta_file_date DATE,
+  meta_exec_time TIMESTAMP,
+  event_date string)
+USING delta
+PARTITIONED BY (event_date)
+TBLPROPERTIES (
+  'delta.enableIcebergCompatV2' = 'true',
+'delta.universalFormat.enabledFormats' = 'iceberg')
+```
+
+#### Observed results
+
+An error message thrown:
+```
+com.databricks.backend.common.rpc.SparkDriverExceptions$SQLExecutionException: java.lang.IllegalArgumentException: Cannot create identity partition sourced from different field in schema: event_date
+	at shaded1.databricks.org.apache.iceberg.relocated.com.google.common.base.Preconditions.checkArgument(Preconditions.java:220)
+	at shaded1.databricks.org.apache.iceberg.PartitionSpec$Builder.checkAndAddPartitionName(PartitionSpec.java:373)
+	at shaded1.databricks.org.apache.iceberg.PartitionSpec$Builder.add(PartitionSpec.java:560)
+	at shaded1.databricks.org.apache.iceberg.TableMetadata.updateSpecSchema(TableMetadata.java:673)
+	at shaded1.databricks.org.apache.iceberg.TableMetadata.access$3300(TableMetadata.java:48)
+	at shaded1.databricks.org.apache.iceberg.TableMetadata$Builder.lambda$setCurrentSchema$0(TableMetadata.java:973)
+	at shaded1.databricks.org.apache.iceberg.relocated.com.google.common.collect.Iterators$6.transform(Iterators.java:829)
+	at shaded1.databricks.org.apache.iceberg.relocated.com.google.common.collect.TransformedIterator.next(TransformedIterator.java:52)
+	at shaded1.databricks.org.apache.iceberg.relocated.com.google.common.collect.Iterators.addAll(Iterators.java:367)
+	at shaded1.databricks.org.apache.iceberg.relocated.com.google.common.collect.Lists.newArrayList(Lists.java:146)
+	at shaded1.databricks.org.apache.iceberg.relocated.com.google.common.collect.Lists.newArrayList(Lists.java:132)
+	at shaded1.databricks.org.apache.iceberg.TableMetadata$Builder.setCurrentSchema(TableMetadata.java:973)
+	at shaded1.databricks.org.apache.iceberg.TableMetadata$Builder.setCurrentSchema(TableMetadata.java:952)
+	at shaded1.databricks.org.apache.iceberg.TableMetadata.updateSchema(TableMetadata.java:515)
+	at shaded1.databricks.org.apache.iceberg.SetSchemaImpl.commit(SetSchemaImpl.java:42)
+	at com.databricks.sql.transaction.tahoe.iceberg.IcebergConversionTransaction.commit(IcebergConversionTransaction.scala:331)
+	at com.databricks.sql.transaction.tahoe.iceberg.IcebergConverter.$anonfun$convertSnapshot$2(IcebergConverter.scala:353)
+	at com.databricks.sql.util.ThreadLocalTagger.withTag(QueryTagger.scala:62)
+	at com.databricks.sql.util.ThreadLocalTagger.withTag$(QueryTagger.scala:59)
+```
+
+#### Expected results
+
+A delta table with UniForm v2 successfully created
+
+#### Further details
+
+When I try to create a table without nested LIST/MAP field, it works.
+I am using Azure Databricks with Databricks Runtime 14.3 LTS 
+
+### Environment information
+
+* Delta Lake version: 3.1 
+* Databricks Runtime: 14.3 LTS 
+* Spark version: 3.5
+* Scala version: 2.12
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [ ] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [x] No. I cannot contribute a bug fix at this time.

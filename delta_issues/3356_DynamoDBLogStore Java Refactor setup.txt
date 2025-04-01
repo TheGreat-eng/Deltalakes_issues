@@ -1,0 +1,2 @@
+- create dynamodbLogStore SBT module
+- create basic skeleton for java implementation

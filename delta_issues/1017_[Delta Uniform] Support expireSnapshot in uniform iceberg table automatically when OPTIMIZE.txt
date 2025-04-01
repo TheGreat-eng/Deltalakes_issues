@@ -1,0 +1,11 @@
+## Description
+**_Issue_**: the current uniform iceberg table doesn't have a mechanism to cleanup old manifest/manifest list files, which adds great storage maintenance overhead
+**_Proposed_**: when `OPTIMIZE` is running on uniform delta table, it will trigger the `expireSnapshot` operation on corresponding iceberg table to do cleanup on manifests. The `OPTIMIZE` is chosen as the trigger since it's recommended to run frequently on delta table and iceberg's `expireSnapshot` is also recommended to run frequently (once every day) 
+
+## How was this patch tested?
+Manually tested 
+<!--
+If tests were added, say they were added here. Please make sure to test the changes thoroughly including negative and positive cases if possible.
+If the changes were tested in any way other than unit tests, please clarify how you tested step by step (ideally copy and paste-able, so that other reviewers can test and check, and descendants can verify in the future).
+If the changes were not tested, please explain why.
+-->

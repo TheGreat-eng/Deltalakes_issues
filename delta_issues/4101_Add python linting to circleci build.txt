@@ -1,0 +1,1 @@
+Shamelessly stolen from https://github.com/apache/spark/blob/master/dev/lint-python

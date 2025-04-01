@@ -1,0 +1,19 @@
+#### Which Delta project/connector is this regarding?
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+Delta conflict detection widens non-deterministic expressions before applying them to the changes of the winning transaction. Unfortunately, user defined functions are marked as deterministic by default and customers need to mark them as deterministic. This can result in actually non-deterministic UDFs incorrectly being treated as deterministic. This commit makes conflict detection widen all UDFs to prevent customers from shooting themselves in the foot.
+
+## How was this patch tested?
+
+Existing tests.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

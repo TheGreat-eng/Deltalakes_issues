@@ -1,0 +1,3 @@
+Resolves https://github.com/delta-io/delta/issues/810
+
+Added a repartition to the parallel delete step of vacuum to avoid being affected by AQE being enabled. The number of partitions is added as a new config and defaults to `spark.sql.shuffle.partitions`.

@@ -1,0 +1,23 @@
+#### Which Delta project/connector is this regarding?
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [X] Other (Infra)
+
+## Description
+
+I'd like to do some data science using the GitHub REST API on our PR runtimes. Unfortunately, using the GitHub CHECKs API (https://docs.github.com/en/rest/checks/runs?apiVersion=2022-11-28#list-check-runs-for-a-git-reference), I only get the name of the individual check (task). Getting the name of the parent workflow requires an additional API call.
+
+This PR adds a name for the parent GitHub workflow in each workflow task. This will help my data science be able to identify each test.
+
+Without this change, I will see tasks results like `test (2.12.18, 2): completed, cancelled, 2024-08-15T23:36:12Z` and `test (2.12.18): completed, success, 2024-08-15T22:34:13Z` but won't be able to tell which spark workflow (latest, master) they were for.
+
+## How was this patch tested?
+
+CI tests.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

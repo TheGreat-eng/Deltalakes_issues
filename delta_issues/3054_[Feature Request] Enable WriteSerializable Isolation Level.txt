@@ -1,0 +1,24 @@
+## Feature request
+
+### Overview
+
+The codebase for delta shows 2 isolation levels: Serializable and WriteSerializable
+However in OSS Delta the default isolation level is Serializable, and this cannot be changed.
+I would like to make this configurable and support WriteSerializable isolation level.
+
+### Motivation
+
+Of the two isolation levels i would say generally WriteSerializable is the mode useful. Serializable is too restrictive. For example with Serializable it it not safe to write to 2 unrelated partitions in parallel.
+
+In Databricks platform on aws and azure the default level is WriteSerializable.
+
+After WriteSerializable has been enabled in OSS Delta we should probably make it also the default in a future pullreq.
+
+### Further details
+
+It is not clear to me why the isolation level is not exposed in OSS Delta? Perhaps there is a good reason for it? Can someone explain?
+
+### Willingness to contribute
+
+We already made the changes in-house to open this up and i can contribute this.
+However we might have missed a good reason why it is not safe to expose this? Waiting for comments on this first.

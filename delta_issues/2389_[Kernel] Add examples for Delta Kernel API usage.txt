@@ -1,0 +1,53 @@
+## Description
+Adds an example project that shows how to read a Delta table using the Kernel APIs. The sample program can also be used as a command line to read the Delta table.
+
+Single threaded reader
+
+```
+java io.delta.kernel.examples.SingleThreadedTableReader \
+    --table=file:<repo-dir>/connectors/golden-tables/src/main/resources/golden/data-reader-primitives \
+    --columns=as_int,as_long
+    --limit=5
+
+              as_int|             as_long
+                null|                null
+                   0|                   0
+                   1|                   1
+                   2|                   2
+                   3|                   3
+```
+
+Multi-threaded reader (simulating a distributed execution environment)
+```
+java io.delta.kernel.examples.MultiThreadedTableReader
+    --table=file:<repo-dir>/connectors/golden-tables/src/main/resources/golden/data-reader-primitives \
+    --columns=as_int,as_long
+    --limit=20
+    --parallelism=5
+
+              as_int|             as_long
+                null|                null
+                   0|                   0
+                   1|                   1
+                   2|                   2
+                   3|                   3
+```
+
+
+## How was this patch tested?
+Manual testing
+
+```
+Usage: java io.delta.kernel.examples.SingleThreadedTableReader [-c <arg>] [-l <arg>] -t <arg>
+   -c,--columns <arg>   Comma separated list of columns to read from the table. Ex. --columns=id,name,address
+   -l,--limit <arg>     Maximum number of rows to read from the table (default 20).
+  -t,--table <arg>     Fully qualified table path
+ ```
+
+```
+ Usage: java io.delta.kernel.examples.MultiThreadedTableReader [-c <arg>] [-l <arg>] [-p <arg>] -t <arg>
+    -c,--columns <arg>       Comma separated list of columns to read from the table. Ex. --columns=id,name,address
+    -l,--limit <arg>         Maximum number of rows to read from the table (default 20).
+    -p,--parallelism <arg>   Number of parallel readers to use (default 3).
+    -t,--table <arg>         Fully qualified table path
+```

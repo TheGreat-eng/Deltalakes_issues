@@ -1,0 +1,20 @@
+Hi,
+
+I am having problems with the Automatic Schema Evolution for merges with delta tables.
+
+I have a certain Delta table in my data lake with around 330 columns (the target table) and I want to upsert some new records into this delta table. The thing is that this 'source' table has some extra columns that aren't present in the target Delta table. I use the following code for the merge in Databricks:
+
+```
+spark.conf.set("spark.databricks.delta.schema.autoMerge.enabled ","true")
+from delta.tables import *
+deltaTarget = DeltaTable.forPath(spark, pathInDataLake)
+deltaTarget.alias('target').merge(df.alias('source'), mergeStatement).whenMatchedUpdateAll().whenNotMatchedInsertAll().execute()
+```
+
+While the documentation on [Automatic schema evolution](https://docs.databricks.com/delta/delta-update.html#merge-schema-evolution) indicates that the schema will be changed when using .whenMatchedUpdateAll() and .whenNotMatchedInsertAll(), this piece of code gives the following error:
+
+AnalysisException: cannot resolve `new_column` in UPDATE clause given columns `[list of columns in the target table]`.
+
+I have the impression that I had this issue in the past but was able to solve it then with the `spark.conf.set("spark.databricks.delta.schema.autoMerge.enabled ","true")` setting.
+
+Am I missing something to make the automatic schema evolution work?

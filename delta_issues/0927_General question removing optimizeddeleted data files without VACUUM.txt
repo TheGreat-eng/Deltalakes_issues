@@ -1,0 +1,7 @@
+I have a general question regarding whether it's advisable or not to remove files that have been removed via OPTIMIZE or DELETE without running VACUUM. 
+
+We are running pyspark jobs on databricks and have delta external tables. Because the tables are external, data is not automatically removed after OPTIMIZE or DELETE queries are run. 
+
+We are writing automation that would detect where there are many left over files no longer in use in our tables. The choice is between running a full VACUUM or doing targeted deletes of files that are identified as removed in the `_delta_log`. 
+
+Would anyone be able to advise whether we might encounter issues doing the data deletion without VACUUM? Thank you

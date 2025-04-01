@@ -1,0 +1,8 @@
+## Context
+This PR is part of delta-io/delta#1783. 
+
+## Description 
+It adds the Delta table state reconstruction and end-2-end API implementation.
+
+## How was this patch tested?
+Integration tests with different types of Delta tables.

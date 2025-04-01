@@ -1,0 +1,12 @@
+Recently I was trying updating my application to Apache 3.0 + delta table 0.7.0 relying over Scala 2.12. I have started facing this issue during the update process. Any clues? Does it refer to some bug in the library?
+
+```
+ERROR yarn.ApplicationMaster: User class threw exception: java.lang.AbstractMethodError: Receiver class org.apache.spark.sql.delta.sources.DeltaDataSource does not define or inherit an implementation of the resolved method abstract getTable(Lorg/apache/spark/sql/util/CaseInsensitiveStringMap;)Lorg/apache/spark/sql/connector/catalog/Table; of interface org.apache.spark.sql.connector.catalog.TableProvider.
+java.lang.AbstractMethodError: Receiver class org.apache.spark.sql.delta.sources.DeltaDataSource does not define or inherit an implementation of the resolved method abstract getTable(Lorg/apache/spark/sql/util/CaseInsensitiveStringMap;)Lorg/apache/spark/sql/connector/catalog/Table; of interface org.apache.spark.sql.connector.catalog.TableProvider.
+	at org.apache.spark.sql.DataFrameReader.$anonfun$load$1(DataFrameReader.scala:220)
+	at scala.Option.map(Option.scala:230)
+	at org.apache.spark.sql.DataFrameReader.load(DataFrameReader.scala:206)
+	at org.apache.spark.sql.DataFrameReader.load(DataFrameReader.scala:190)
+	at io.delta.tables.DeltaTable$.forPath(DeltaTable.scala:635)
+	at io.delta.tables.DeltaTable.forPath(DeltaTable.scala)
+```

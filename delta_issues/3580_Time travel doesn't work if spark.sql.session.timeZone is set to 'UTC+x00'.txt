@@ -1,0 +1,5 @@
+Spark configuration spark.sql.session.timeZone 'UTC+xx:00' works, but spark.sql.session.timeZone 'UTC+x:00' does not.
+
+![1628165040](https://user-images.githubusercontent.com/41602171/128346852-74721391-b9a2-4060-a68d-ee09abbfd721.png)
+
+![image](https://user-images.githubusercontent.com/41602171/128347046-72d60e96-487b-4f1d-bcfd-f44abc1b5812.png)

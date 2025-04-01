@@ -1,0 +1,7 @@
+## Description
+Currently the disabling of writing operations on DV tables added as part of #1603 is not complete. It allows following few updates:
+* VACUUM can proceed if the logging is disabled - fix to always check for DV enabled table before running the VACUUM
+* DVs can be enabled using table property `'delta.feature.deletionVectors'='supported'`. Consider this table property when checking for DV presence in tables
+
+## How was this patch tested?
+Added tests.

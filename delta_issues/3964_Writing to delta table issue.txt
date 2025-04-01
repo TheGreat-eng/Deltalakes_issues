@@ -1,0 +1,108 @@
+Hi,
+
+I ran on Microsoft Azure cloud platform with Spark 2.4.5 with DBR 6.4 I have 168 cores with 1.5 TB memory. My data frame has more than 3.5 billions of records and I am trying to write to Microsoft blob storage but failed after multiple efforts.
+
+First, I tried to write the entire data frame into delta format and here is the error message:
+
+```python
+
+org.apache.spark.SparkException: Job aborted.
+---------------------------------------------------------------------------
+Py4JJavaError                             Traceback (most recent call last)
+<command-836684818555582> in <module>
+----> 1 gse_harp_mip.write.format("delta").mode("overwrite").save("/mnt/mi-sa-armor/data/delta/prod")
+
+/databricks/spark/python/pyspark/sql/readwriter.py in save(self, path, format, mode, partitionBy, **options)
+    737             self._jwrite.save()
+    738         else:
+--> 739             self._jwrite.save(path)
+    740 
+    741     @since(1.4)
+
+/databricks/spark/python/lib/py4j-0.10.7-src.zip/py4j/java_gateway.py in __call__(self, *args)
+   1255         answer = self.gateway_client.send_command(command)
+   1256         return_value = get_return_value(
+-> 1257             answer, self.gateway_client, self.target_id, self.name)
+   1258 
+   1259         for temp_arg in temp_args:
+
+/databricks/spark/python/pyspark/sql/utils.py in deco(*a, **kw)
+     61     def deco(*a, **kw):
+```
+
+Then, I tried to slice the entire data frame into 10 pieces and write the first chunk and append the remaining nine. Here is the error message:
+
+```python
+com.databricks.backend.common.rpc.ExecutionSequenceNotFound
+	at com.databricks.spark.chauffeur.ExecutionLogMap.$anonfun$getOrThrow$1(ExecutionLog.scala:82)
+	at scala.Option.getOrElse(Option.scala:189)
+	at com.databricks.spark.chauffeur.ExecutionLogMap.getOrThrow(ExecutionLog.scala:82)
+	at com.databricks.spark.chauffeur.ChauffeurState.process(ChauffeurState.scala:692)
+	at com.databricks.spark.chauffeur.Chauffeur.com$databricks$spark$chauffeur$Chauffeur$$getExecutionStatus(Chauffeur.scala:222)
+	at com.databricks.spark.chauffeur.Chauffeur$$anon$1$$anonfun$receive$1.applyOrElse(Chauffeur.scala:291)
+	at com.databricks.spark.chauffeur.Chauffeur$$anon$1$$anonfun$receive$1.applyOrElse(Chauffeur.scala:252)
+	at com.databricks.rpc.ServerBackend.$anonfun$internalReceive$2(ServerBackend.scala:52)
+	at com.databricks.rpc.ServerBackend$$anonfun$commonReceive$1.applyOrElse(ServerBackend.scala:79)
+	at com.databricks.rpc.ServerBackend$$anonfun$commonReceive$1.applyOrElse(ServerBackend.scala:79)
+	at com.databricks.rpc.ServerBackend.$anonfun$internalReceive$1(ServerBackend.scala:48)
+	at com.databricks.logging.UsageLogging.$anonfun$recordOperation$4(UsageLogging.scala:428)
+	at com.databricks.logging.UsageLogging.$anonfun$withAttributionContext$1(UsageLogging.scala:238)
+	at scala.util.DynamicVariable.withValue(DynamicVariable.scala:62)
+	at com.databricks.logging.UsageLogging.withAttributionContext(UsageLogging.scala:233)
+	at com.databricks.logging.UsageLogging.withAttributionContext$(UsageLogging.scala:230)
+	at com.databricks.rpc.ServerBackend.withAttributionContext(ServerBackend.scala:15)
+	at com.databricks.logging.UsageLogging.withAttributionTags(UsageLogging.scala:275)
+	at com.databricks.logging.UsageLogging.withAttributionTags$(UsageLogging.scala:268)
+	at com.databricks.rpc.ServerBackend.withAttributionTags(ServerBackend.scala:15)
+	at com.databricks.logging.UsageLogging.recordOperation(UsageLogging.scala:409)
+	at com.databricks.logging.UsageLogging.recordOperation$(UsageLogging.scala:336)
+	at com.databricks.rpc.ServerBackend.recordOperation(ServerBackend.scala:15)
+	at com.databricks.rpc.ServerBackend.internalReceive(ServerBackend.scala:47)
+	at com.databricks.rpc.JettyServer$RequestManager.$anonfun$handleRPC$2(JettyServer.scala:563)
+	at scala.util.Try$.apply(Try.scala:213)
+	at com.databricks.rpc.JettyServer$RequestManager.handleRPC(JettyServer.scala:563)
+	at com.databricks.rpc.JettyServer$RequestManager.handleRequestAndRespond(JettyServer.scala:489)
+	at com.databricks.rpc.JettyServer$RequestManager.$anonfun$handleHttp$4(JettyServer.scala:301)
+	at scala.runtime.java8.JFunction0$mcV$sp.apply(JFunction0$mcV$sp.java:23)
+	at com.databricks.logging.UsageLogging.$anonfun$withAttributionContext$1(UsageLogging.scala:238)
+	at scala.util.DynamicVariable.withValue(DynamicVariable.scala:62)
+	at com.databricks.logging.UsageLogging.withAttributionContext(UsageLogging.scala:233)
+	at com.databricks.logging.UsageLogging.withAttributionContext$(UsageLogging.scala:230)
+	at com.databricks.rpc.JettyServer$.withAttributionContext(JettyServer.scala:166)
+	at com.databricks.logging.UsageLogging.withAttributionTags(UsageLogging.scala:275)
+	at com.databricks.logging.UsageLogging.withAttributionTags$(UsageLogging.scala:268)
+	at com.databricks.rpc.JettyServer$.withAttributionTags(JettyServer.scala:166)
+	at com.databricks.rpc.JettyServer$RequestManager.handleHttp(JettyServer.scala:290)
+	at com.databricks.rpc.JettyServer$RequestManager.doPost(JettyServer.scala:202)
+	at javax.servlet.http.HttpServlet.service(HttpServlet.java:707)
+	at com.databricks.rpc.HttpServletWithPatch.service(HttpServletWithPatch.scala:33)
+	at javax.servlet.http.HttpServlet.service(HttpServlet.java:790)
+	at org.eclipse.jetty.servlet.ServletHolder.handle(ServletHolder.java:848)
+	at org.eclipse.jetty.servlet.ServletHandler.doHandle(ServletHandler.java:585)
+	at org.eclipse.jetty.servlet.ServletHandler.doScope(ServletHandler.java:515)
+	at org.eclipse.jetty.server.handler.ScopedHandler.handle(ScopedHandler.java:141)
+	at org.eclipse.jetty.server.handler.HandlerWrapper.handle(HandlerWrapper.java:134)
+	at org.eclipse.jetty.server.Server.handle(Server.java:539)
+	at org.eclipse.jetty.server.HttpChannel.handle(HttpChannel.java:333)
+	at org.eclipse.jetty.server.HttpConnection.onFillable(HttpConnection.java:251)
+	at org.eclipse.jetty.io.AbstractConnection$ReadCallback.succeeded(AbstractConnection.java:283)
+	at org.eclipse.jetty.io.FillInterest.fillable(FillInterest.java:108)
+	at org.eclipse.jetty.io.ssl.SslConnection.onFillable(SslConnection.java:259)
+	at org.eclipse.jetty.io.AbstractConnection$ReadCallback.succeeded(AbstractConnection.java:283)
+	at org.eclipse.jetty.io.FillInterest.fillable(FillInterest.java:108)
+	at org.eclipse.jetty.io.SelectChannelEndPoint$2.run(SelectChannelEndPoint.java:93)
+	at org.eclipse.jetty.util.thread.strategy.ExecuteProduceConsume.executeProduceConsume(ExecuteProduceConsume.java:303)
+	at org.eclipse.jetty.util.thread.strategy.ExecuteProduceConsume.produceConsume(ExecuteProduceConsume.java:148)
+	at org.eclipse.jetty.util.thread.strategy.ExecuteProduceConsume.run(ExecuteProduceConsume.java:136)
+	at org.eclipse.jetty.util.thread.QueuedThreadPool.runJob(QueuedThreadPool.java:671)
+	at org.eclipse.jetty.util.thread.QueuedThreadPool$2.run(QueuedThreadPool.java:589)
+	at java.lang.Thread.run(Thread.java:748)
+```
+
+Do you know what's really going on here? My syntax is quite simple and stardard:
+
+```python
+a.write.format("delta").mode("overwrite").save("/mnt/delta/prod")
+```
+
+Is there any way to potentially fix this issue?

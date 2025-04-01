@@ -1,0 +1,66 @@
+## Bug
+
+### Describe the problem
+I tested this exact code on 10 different `dt` and 3 failed with the following error. I don't know what could possibly cause this if the other 7 dates worked as expected.
+#### Steps to reproduce
+
+<!--
+Please include copy-pastable code snippets if possible.
+1. _____
+2. _____
+3. _____
+-->
+```
+dbutils.widgets.text('dt', '', 'dt: yyyy-MM-dd')
+# 2022-05-18
+
+silver_df = spark.sql(f"""
+    select data:id::int as id
+        , data:name::string as user_name
+        , substring(data:location::string, 0, 100) as country_name
+        , data:updated_at::string as updated_at
+        , to_date(data:updated_at::string) as dt
+        , dt as processed_dt
+    from bronze.{table_name}
+    where dt = '{dt}'
+    qualify row_number() over(partition by id order by updated_at desc) = 1
+    """)
+
+(
+    silver_df
+    .write
+    .format('delta')
+    .partitionBy('dt', 'processed_dt')
+    .mode('overwrite')
+    .option('replaceWhere', f"processed_dt == '{dt}'")
+    .saveAsTable(f"{database}.{table_name}")
+)
+```
+
+#### Observed results
+`AnalysisException: Data written out does not match replaceWhere 'processed_dt == '2022-05-18''.`
+<!-- What happened?  This could be a description, log output, etc. -->
+
+#### Expected results
+
+<!-- What did you expect to happen? -->
+
+#### Further details
+
+<!--
+Include any additional details that may be useful for diagnosing the problem here. If including tracebacks, please include the full traceback. Large logs and files should be attached.
+-->
+
+### Environment information
+
+* Delta Lake version: 
+* Spark version: `3.2.1`
+* Scala version: `2.12`
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [ ] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute a bug fix at this time.

@@ -1,0 +1,1 @@
+Currently `LogReplay` [stores a reference](https://github.com/delta-io/delta/blob/master/kernel/kernel-api/src/main/java/io/delta/kernel/internal/replay/LogReplay.java#L118) to `Engine` instance. We shouldn't store a reference and always get as part of the call which needs something from the `LogReplay`.

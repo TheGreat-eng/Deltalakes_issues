@@ -1,0 +1,21 @@
+#### Which Delta project/connector is this regarding?
+
+- [X] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+Make DeltaSQLTestUtils use a default prefix for temporary directories that contains special chars and provides test coverage for URL-encoding of paths. In addition, update all Delta suites to inherit from DeltaSQLTestUtils instead of SQLTestUtils to use the temp dir overrides.
+
+Finally, update a bunch of tests to correctly handle tests with special chars. A number of tests require further investigation and potential code fixes and will be handled in follow-up commits.
+
+## How was this patch tested?
+
+Test-only PR.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

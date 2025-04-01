@@ -1,0 +1,20 @@
+Hello. During some example cases we were running, in order to identify how Databricks treats possible wrong actions we could make, we noticed that merge doesn't fail while inserting different data type values from the ones in the corresponding table. Please find the example below:
+
+Target table schema
+![merge1](https://user-images.githubusercontent.com/118174584/201636669-d9317eb1-f736-47d0-83a1-c9c3a48ddbe8.jpg)
+
+
+View used to update target table
+Here you can see that we accidentally inserted the Status values in the Eff_Dt column (Date data type)
+![merge2](https://user-images.githubusercontent.com/118174584/201636674-b7d25822-7181-4a72-8525-e790e804bfcd.jpg)
+
+
+Merge along with the success result
+![merge3](https://user-images.githubusercontent.com/118174584/201636677-ef8c6d39-72cd-4ec4-b511-f1dbb8d51749.jpg)
+
+Target table after the result
+![merge5](https://user-images.githubusercontent.com/118174584/201636682-12693c3c-4fd6-4eb0-b090-68c8d01b76e6.jpg)
+
+You can see that rows 10 & 11 inserted in the table without failing but with null value in EFF_DT (date type while we tried to insert string values). We would expect the merge to fail and not complete any of the DML actions. Moreover, we noticed that in this case in the identity column, id #9 was skipped.
+
+ 

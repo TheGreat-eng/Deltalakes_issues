@@ -1,0 +1,68 @@
+## Bug
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the issue title
+For example: [BUG][Spark] Title of my issue
+-->
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+### Describe the problem
+Empty string `""` values in a partitioning column are alway converted to `NULL` and cannot be distinguished anymore from "real" `NULL` values
+
+#### Steps to reproduce
+1. create a new delta table partitioned by a text column
+```
+CREATE TABLE test_empty
+USING DELTA
+PARTITIONED BY (text_col)
+AS 
+SELECT 'abc' as text_col, 1 as val  UNION ALL
+SELECT '' as text_col, 1 as val     UNION ALL
+SELECT NULL as text_col, 1 as val
+```
+3. query the new delta table, original empty string value now shows up under `NULL`
+```
+SELECT text_col, count(1)
+FROM test_empty
+GROUP BY text_col
+```
+
+#### Observed results
+```
+text_col	count(1)
+abc	        1
+null	        2
+```
+#### Expected results
+```
+text_col	count(1)
+abc	        1
+                1
+null	        1
+```
+
+<!-- What did you expect to happen? -->
+
+#### Further details
+The problem is already described and explained for Spark here https://kb.databricks.com/data/null-empty-strings
+But as Delta Lake stores the partitioning values in the log I do not see a reason, why we should not be able to separate empty strings from NULL
+
+### Environment information
+
+* Delta Lake version: 2.2.0
+* Spark version: 3.3.2 / DBR 12.2 LTS
+* Scala version: 2.12
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [ ] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [x ] No. I cannot contribute a bug fix at this time.

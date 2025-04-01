@@ -1,0 +1,35 @@
+I'm trying to write a process that would run at some specified interval (once a day, for example) and rewrite partitions with many files into fewer files.
+
+The simple approach would be to just compact all of the partitions, as demonstrated in the following snippet:
+```python
+(spark
+ .read
+ .format("delta")
+ .load("/path/to/table")
+ .coalesce(1)
+ .write
+ .format("delta")
+ .mode("overwrite")
+ .option("dataChange", "false")
+ .save("/path/to/table"))
+```
+
+ However, it might be too costly of an operation since I have many partitions in the table, and some of them may not have had new files written to them since the last compaction, so I'll be rewriting them for nothing. I'd like to be able to count the number of actual files in the table's partitions, so that I could modify my process to only rewrite those that passed a certain threshold (say, over 100 files):
+```python
+(spark
+ .read
+ .format("delta")
+ .load("/path/to/table")
+ .where(filter_relevant_partitions)
+ .coalesce(1)
+ .write
+ .format("delta")
+ .mode("overwrite")
+ .option("replaceWhere", filter_relevant_partitions)
+ .option("dataChange", "false")
+ .save("/path/to/table"))
+```
+
+My problem is how to get those numbers so that I could filter the relevant partitions. Simply counting the number of files in the partition directories in HDFS won't do, since some of them are irrelevant due to update and delete operations on the table, and my deleted files retention is longer than my compaction process interval, so running `vacuum` before won't clear those out for me. I tried looking at the table's `describe detail` output, but it only shows the number of files in the entire table (not by partition). I also tried looking at the table's history and following the series of operations to determine the count, but I still couldn't come up with a file count per partition. I'm currently looking at the transaction log to see if I get compute the counts from there, but it feels like I might be going too deep and overlooking a simpler approach.
+
+Is there any way to achieve what I'm trying to do, other than replaying the transaction log? 

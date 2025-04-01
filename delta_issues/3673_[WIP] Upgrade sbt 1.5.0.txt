@@ -1,0 +1,9 @@
+All the following work fine:
+
+* `build/sbt compile`
+* `build/sbt package`
+* `build/sbt test`
+
+**NOTE**: The missing piece is building javadoc that seems to confuse sbt with errors that should not be marked as such. I'm working on it and hence `WIP` marker.
+
+Signed-off-by: Jacek Laskowski <jacek@japila.pl>

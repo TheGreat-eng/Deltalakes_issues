@@ -1,0 +1,5 @@
+## Description
+This is a Parquet writer-only change. 
+
+## How was this patch tested?
+Added a column of timestamp_ntz to the existing golden tables, which are read and written by the tests.

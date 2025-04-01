@@ -1,0 +1,10 @@
+The vacuum() command doesn’t add a JSON file to the _delta_log/ directory.  I’m getting this error message when trying to display a version that’s no longer accessible after a vacuum (I’m doing this intentionally to see the error message):
+
+```
+[info]   org.apache.spark.SparkException: Job aborted due to stage failure: Task 0 in stage 1645.0 failed 1 times, most recent failure: Lost task 0.0 in stage 1645.0 (TID 21123, localhost, executor driver): java.io.FileNotFoundException: File file:/Users/powers/Documents/code/my_apps/yello-taxi/tmp/vacuum_example/part-00000-618d3c69-3d1b-402c-818f-9d3995b5639f-c000.snappy.parquet does not exist
+[info] It is possible the underlying files have been updated. You can explicitly invalidate the cache in Spark by running 'REFRESH TABLE tableName' command in SQL or by recreating the Dataset/DataFrame involved.
+[info]   Cause: java.io.FileNotFoundException: File file:/Users/powers/Documents/code/my_apps/yello-taxi/tmp/vacuum_example/part-00000-618d3c69-3d1b-402c-818f-9d3995b5639f-c000.snappy.parquet does not exist
+[info] It is possible the underlying files have been updated. You can explicitly invalidate the cache in Spark by running 'REFRESH TABLE tableName' command in SQL or by recreating the Dataset/DataFrame involved.
+```
+
+Maybe we could have the vacuum command write out a JSON file to the transaction log and give a descriptive error message when the user tries to access a version that’s no longer accessible?  Something like “Version 0 of the Delta lake is no longer accessible because XYZ file was deleted from the filesystem with the vacuum command”. 

@@ -1,0 +1,13 @@
+## Description
+(Stacked on top of #3289 and #3290 )
+
+Currently, Kernel uses a mix of path (file system path) or URI (in string format) in API interfaces, which causes confusion and bugs. 
+
+Context: 
+Path refers to a file system path which could have some characters that should be escaped when converted to URI
+E.g. path: `s3:/bucket/path to file/`, URI for the same path: `s3:/bucket/path%20to%20file/`
+
+Make it uniform everywhere to just use the paths (file system path).
+
+## How was this patch tested?
+Additional tests with table path containing spaces.

@@ -1,0 +1,21 @@
+#### Which Delta project/connector is this regarding?
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [x] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+Moves `checkArgument` methods from `DefautKernelUtils` to `Preconditions` class to clean up the code.
+
+Resolves #2148
+
+## How was this patch tested?
+
+Existing tests suffice.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

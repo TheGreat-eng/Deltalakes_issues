@@ -1,0 +1,62 @@
+## Bug
+
+#### Which Delta project/connector is this regarding?
+
+- [ ] Spark
+- [ ] Standalone
+- [x] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+### Describe the problem
+
+The Flink Kubernetes Operator [Autoscaler](https://nightlies.apache.org/flink/flink-kubernetes-operator-docs-release-1.7/docs/custom-resource/autoscaler/) relies on a Source to expose a [standardised set of metrics](https://cwiki.apache.org/confluence/display/FLINK/FLIP-33%3A+Standardize+Connector+Metrics) in order to scale Flink jobs automatically.  
+When a Flink streaming job is deployed, the job does not autoscale because these metrics do not appear to be exposed by the Flink Delta connector.  
+
+#### Steps to reproduce
+
+Deploy a Flink job using the Kubernetes Operator and enable autoscaling in the Flink configuration:
+`job.autoscaler.enabled: "true"`.
+
+The streaming Flink job consists of a Delta Source in continuous mode:
+
+```
+DeltaSource
+    .forContinuousRowData(new Path(jobArgs.deltaSourceGcsBucket), conf)
+    .startingVersion(jobArgs.startVersion)
+    .build
+```
+
+Records are buffered and written to an analytics database.
+
+#### Observed results
+
+The Flink Kubernetes operator does not scale the job and emits a warning message:
+```
+[ScalingMetricCollector][WARN] pendingRecords metric for cbc3... could not be found. 
+Either a legacy source or an idle source. Assuming no pending records.
+```
+
+#### Expected results
+
+The ScalingMetricCollector is able to extract the number of pending files / records from the Delta source in order to dynamically scale up the resources allocated to the Job in Kubernetes.  This relies on the Delta source exposing the standardised metrics correctly.
+
+#### Further details
+
+[Flink Kubernetes Operator - Autoscaler](https://nightlies.apache.org/flink/flink-kubernetes-operator-docs-release-1.7/docs/custom-resource/autoscaler/)
+[FLIP-33 - Standardize Connector Metrics](https://cwiki.apache.org/confluence/display/FLINK/FLIP-33%3A+Standardize+Connector+Metrics)
+[FLIP-27 - Refactor Source Interface](https://cwiki.apache.org/confluence/display/FLINK/FLIP-27%3A+Refactor+Source+Interface)
+### Environment information
+
+* Delta Lake version: 3.1.0
+* Spark version: N/A
+* Flink version: 1.18.1
+* Scala version: 2.12.18
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [x] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute a bug fix at this time.

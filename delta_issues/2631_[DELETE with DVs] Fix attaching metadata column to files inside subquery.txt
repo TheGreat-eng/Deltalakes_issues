@@ -1,0 +1,28 @@
+## Description
+
+We found that the metadata column won't be attached to the file source for query plans generated from temp views created by `SELECT`., for example
+```scala
+sql("CREATE TEMP VIEW v AS SELECT * FROM tab")
+sql("DELETE FROM v WHERE key = 1 AND value = 5")
+```
+corresponding to
+```scala
+'Project [key#599, value#600, __delta_internal_row_index#785L, '_metadata.file_path AS filePath#792]
++- SubqueryAlias v
+   +- Project [cast(key#601 as int) AS key#599, cast(value#602 as int) AS value#600, __delta_internal_row_index#785L]
+      +- Project [key#601, value#602, __delta_internal_row_index#785L]
+         +- SubqueryAlias spark_catalog.default.tab
+            +- Relation default.tab[key#601,value#602,__delta_internal_row_index#785L] parquet
+```
+
+When being executed, the above query plan will fail with an error message `_metadata column does not exist`. The possible reason is because of multiple levels of projection, which hides the `_metadata` column from the underlying file scan.
+
+This PR fixes the above issue by attaching the metadata column before sending it to the analyzer. The root issue, however, should be hidden in the Spark library which is hard to fix.
+
+## How was this patch tested?
+
+Adapting existing tests.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No.

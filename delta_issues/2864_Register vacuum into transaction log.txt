@@ -1,0 +1,11 @@
+## Description
+
+When execute `Vacuum`, this pr will help to track which files have been deleted, and commit this info to the `_delta_log` direcotry.
+
+## How was this patch tested?
+
+this patch can be tested by UT. Or check the vacuum commit info after execute `vacuum` command.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

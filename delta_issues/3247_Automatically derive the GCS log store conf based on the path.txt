@@ -1,0 +1,8 @@
+## Feature request
+Make GCSLogStore be the default LogStore implementation for the `.gs` scheme. This is similar to how we do for Azure and S3 [here](https://github.com/delta-io/delta/blob/master/core/src/main/scala/org/apache/spark/sql/delta/storage/DelegatingLogStore.scala#L153).
+
+### Overview
+Update `DelegatingLogStore` to default to `GCSLogStore` for GCS schemes.
+
+### Motivation
+It avoids another config for the user.

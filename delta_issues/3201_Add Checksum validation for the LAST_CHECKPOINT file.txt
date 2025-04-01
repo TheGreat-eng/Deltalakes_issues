@@ -1,0 +1,3 @@
+We should have Checksum validation for the LAST_CHECKPOINT file.
+
+This is needed to prevent scenarios like SplitReads which might occur when concurrent readers and writers are involved - a reader might read half content from old LAST_CHECKPOINT and remaining half from new LAST_CHECKPOINT and it will end up using it if it is valid json.

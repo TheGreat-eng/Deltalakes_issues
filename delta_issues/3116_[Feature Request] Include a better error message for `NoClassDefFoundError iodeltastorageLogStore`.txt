@@ -1,0 +1,20 @@
+## Feature request
+
+### Overview
+
+Depending on your environment and its internet access, the `delta-storage` dependency might not be properly included with `delta-lake` during execution.
+
+Several users have already encountered this (#1103 , #1152). Including a better error message, with steps to resolve the issue, would be helpful.
+
+### Motivation
+
+Make it easier for users to fix the rare problem of `delta-storage` dependency not being downloaded.
+
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [x] Yes. I can contribute this feature independently.
+- [ ] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.

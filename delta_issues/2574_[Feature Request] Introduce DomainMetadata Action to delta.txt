@@ -1,0 +1,88 @@
+## Feature request
+
+### Overview
+
+<!-- Provide a high-level description of the feature request. -->
+We propose to introduce a new Action type called **DomainMetadata**.  In a nutshell, **DomainMetadata** allows specifying configurations (string key/value pairs) per metadata domain, and a custom conflict handler can be registered to a metadata domain. More details can be found in the design doc [here](https://docs.google.com/document/d/16MHP7P78cq9g8SWhAyfgFlUe-eH0xhnMAymgBVR1fCA/edit?usp=sharing).
+
+### Motivation
+
+<!-- How will this feature be used? Why is it important? Which users will benefit from it? -->
+There are new scenarios where a Delta feature needs to store some information in the Delta log, and the information can change over time, requiring proper conflict handling.
+
+There are a couple of ways to implement this:
+- **Store the information in Metadata action** (Metadata.configuration), and update the Metadata [conflict checker](https://github.com/delta-io/delta/blob/d6d3e6545a95e4221e214454d25cca64666f5578/core/src/main/scala/org/apache/spark/sql/delta/ConflictChecker.scala#L175) to handle specific use cases.
+Currently in Delta, if a winning transaction contains Metadata, the current transaction always conflicts. In this option, we can extend the conflict checker to add custom logic that allows  Metadata updates for a specific Delta feature.
+- **Introduce a new Action** for a new Delta feature that requires custom conflict handling.
+For example, the Delta clustering feature can introduce a clustering-specific Action such as ClusteringMetadata.
+
+If we evaluate the pros and cons of each approach:
+Approach | Pros | Cons
+-- | -- | --
+Store the information in Metadata action. | No protocol upgrade is needed. | The conflict handler for Metadata action can become complex quickly as more Delta features piggyback on this.
+Introduce a new Action type for a new Delta feature. | A clean way to separate the concern for a specific Delta feature. | A new writer feature is required for each new Action.A potential wide-schema problem as new Delta features introduce new Action types for the same purpose.
+
+**There is no clear winner; neither approach scales well in the long term**. Thus, we need a generic Action type that can support this scenario and that can address the shortcomings of the aforementioned approaches.
+
+### Further details
+#### Requirements
+- **Provide a clean way to package conflict domain configurations and conflict handler**: A conflict handler is registered per conflict domain, providing a clean way to separate out the conflict handling logic. This solves the issue where the Metadata conflict handler can easily become hard to maintain if more Delta features rely on it.
+- **Provide a generalized way to introduce new conflict domains:** A Delta feature no longer needs to introduce a new Action for a new conflict domain, solving issues such as wide-schema problems, etc.
+
+#### Design Sketch
+We propose to introduce a new Action type called DomainMetadata. In a nutshell, DomainMetadata allows specifying configurations (string key/value pairs) per metadata domain, and a custom conflict handler can be registered to a metadata domain. The conflict handler for a domain is triggered only when both winning and current transactions contain the same conflict domain name; otherwise, the transaction goes through without conflict, the opposite of the current Metadata behavior.
+
+There are two types of metadata domains:
+1. **User-controlled metadata domains** have names that start with anything other than the delta. prefix. Any Delta client implementation can modify these metadata domains, and can allow users to modify them arbitrarily.
+2. **System-controlled metadata domains** have names that start with the delta. prefix. Only Delta client implementations are allowed to modify the metadata for system-controlled domains. A Delta client implementation should only update metadata for system-controlled domains that it knows about and understands. System-controlled metadata domains are used by various table features and each table feature may impose additional semantics on the metadata domains it uses.
+
+The following table summarizes the detail:
+
+Consideration | User-controlled conflict domains | System-controlled conflict domains
+-- | -- | --
+What keys can be used in the configuration? | Any keys outside the reserved delta.* namespace | Any keys inside the reserved delta.* namespace
+Characteristics of conflict handlers | User can register conflict handling for a given conflict domain | A default implementation is provided; no concurrent changes for the same key are allowed.
+
+DomainMetadata Usage
+DomainMetadata allows specifying configurations (string key/value pairs) per domain:
+```
+case class DomainMetadata(
+  domain: String,
+  configuration: Map[String, String],
+  tombstoned: Boolean) extends Action
+
+// For example, deltaFeatureX can use this as the following:
+val domainMetadata = DomainMetadata(
+  "deltaFeatureX",
+  Map("delta.deltaFeatureX.value1" -> "colA, colB",
+    "delta.deltaFeatureX.value2" -> "x:00001,y:00002"), false)
+```
+And the default conflict handler:
+```
+// md = DomainMetadata
+// WT = Winning Transaction
+// CT = Current Transaction
+def defaultHandler(mdFromWT: DomainMetadata, mdFromCT: DomainMetadata)
+  : DomainMetadata = {
+  // If deltaFeatureX keys didn't change, we can try to merge the k-d tree.
+  throw new io.delta.exceptions.ConcurrentTransactionException("Conflicted DomainMetadata actions detected for domain deltaFeatureX")
+}
+```
+#### Log Replay for DomainMetadata
+When the current state of the table is constructed, domain configurations are created as Map[String, DomainMetadata] where the key is the domain name and the value is the latest DomainMetadata that belongs to the domain name. When tombstoned is true it marks earlier versions logically deleted and the domain object is removed from the above map if it exists.
+
+<!--
+Use this section to include any additional information about the feature. If you have a proposal for how to implement this feature, please include it here. For implementation guidelines, please read our contributor guidelines: https://github.com/delta-io/delta/blob/master/CONTRIBUTING.md
+If there are any specific requirements for this feature that are not immediately obvious please outline them here.
+-->
+
+
+
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [X] Yes. I can contribute this feature independently.
+- [ ] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.

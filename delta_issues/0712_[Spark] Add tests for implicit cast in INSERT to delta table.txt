@@ -1,0 +1,18 @@
+
+## Description
+Add tests covering implicit casting when inserting into a Delta table.
+Covers various insert API:
+- Dataframe V1, V2, SQL, streaming
+- Append vs. Overwrite
+- Position-based vs. name-based
+
+Changes:
+- Move test abstraction to run insert using various APIs out of `TypeWideningInsertSchemaEvolutionSuite` and into its own trait to allow reusability.
+- Add streaming write to the set of insert APIs that are covered by that abstraction.
+- Add implicit casting tests for insert.
+
+
+## How was this patch tested?
+Test-only
+## Does this PR introduce _any_ user-facing changes?
+No

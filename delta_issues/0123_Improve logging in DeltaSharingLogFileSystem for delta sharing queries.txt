@@ -1,0 +1,16 @@
+#### Which Delta project/connector is this regarding?
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [X] Other (Delta Sharing)
+
+## Description
+Improve logging in DeltaSharingLogFileSystem for delta sharing queries 
+
+## How was this patch tested?
+Unit Tests
+
+
+## Does this PR introduce _any_ user-facing changes?
+No

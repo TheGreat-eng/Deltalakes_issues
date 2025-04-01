@@ -1,0 +1,21 @@
+I'm using Databricks runtime 6.2 on Azure Databricks.
+
+According to https://docs.databricks.com/delta/delta-streaming.html#append-mode there are two modes to stream into an existing table.
+
+In both options, the parquet files are written, but only the first option creates new files in delta_logs.
+The seconds option does **not** update the delta_logs!
+
+```python
+(spark
+ .readStream
+ .format("kafka")
+ .option(...)                           # .. lots of settings
+ .load()
+ .writeStream
+#  .format("delta")                     # option-1: working
+ .outputMode("append") 
+ .option('checkpointLocation', '/mnt/delta/sample/_checkpoints/etl-from-kafka')
+#  .start("/mnt/delta/raw_json")        # option-1: working
+ .table('sample.raw_json')              # option-2: no delta_log
+)
+```

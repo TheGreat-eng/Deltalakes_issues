@@ -1,0 +1,25 @@
+
+
+#### Which Delta project/connector is this regarding?
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+Fix time travel utility method for ICT.
+
+DeltaHistoryManager modified the in-commit-timestamp to custom values for testing specific scenarios. This is done by getting the delta file from the snapshot's logsegment and modifying its content.
+
+Sometimes the Snapshot might be pointing to UUID files - in such cases we should also modify the timestamp in backfilled commit.json file.
+
+## How was this patch tested?
+
+Existing UTs
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

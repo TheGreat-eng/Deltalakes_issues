@@ -1,0 +1,19 @@
+#### Which Delta project/connector is this regarding?
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+After https://github.com/apache/spark/pull/48211 this test needs to use a separate Dataframe object for the failing / succeeding test case, because LazyTry will cache the error of the failing case.
+
+## How was this patch tested?
+
+Running the test on Spark master.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No.

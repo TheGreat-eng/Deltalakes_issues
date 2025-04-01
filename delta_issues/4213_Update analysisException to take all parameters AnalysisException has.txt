@@ -1,0 +1,1 @@
+AnalysisException takes line, startPosition, and cause as constructor parameters in addition to message and plan -- this change updates analysisException to accept those as well. 

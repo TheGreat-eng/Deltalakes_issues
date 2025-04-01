@@ -1,0 +1,56 @@
+<!--
+Thanks for sending a pull request!  Here are some tips for you:
+  1. If this is your first time, please read our contributor guidelines: https://github.com/delta-io/delta/blob/master/CONTRIBUTING.md
+  2. If the PR is unfinished, add '[WIP]' in your PR title, e.g., '[WIP] Your PR title ...'.
+  3. Be sure to keep the PR description updated to reflect all changes.
+  4. Please write your PR title to summarize what this PR proposes.
+  5. If possible, provide a concise example to reproduce the issue for a faster review.
+  6. If applicable, include the corresponding issue number in the PR title and link it in the body.
+-->
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+<!--
+- Describe what this PR changes.
+- Describe why we need the change.
+ 
+If this PR resolves an issue be sure to include "Resolves #XXX" to correctly link and close the issue upon merge.
+-->
+Currently, when Deletion Vectors are enabled we disable predicate pushdown and splitting in scans. This is because we rely on a custom row index column which is constructed in the executors and cannot not handle splits and predicates. These restrictions can now be lifted by relying instead on `metadata.row_index` which was exposed recently after relevant [work](https://issues.apache.org/jira/browse/SPARK-37980) was concluded.
+
+Overall, this PR adds predicate pushdown and splits support as follows:
+
+1. Replaces `__delta_internal_is_row_deleted` with `_metadata.row_index`.
+2. Adds a new implementation of `__delta_internal_is_row_deleted` that is based on `_metadata.row_index`.
+3. `IsRowDeleted` filter is now non deterministic to allow predicate pushdown.
+
+Furthermore, it includes previous relevant [work](https://github.com/delta-io/delta/pull/2576) to remove the UDF from `IsRowDeleted` filter. 
+
+## How was this patch tested?
+
+<!--
+If tests were added, say they were added here. Please make sure to test the changes thoroughly including negative and positive cases if possible.
+If the changes were tested in any way other than unit tests, please clarify how you tested step by step (ideally copy and paste-able, so that other reviewers can test and check, and descendants can verify in the future).
+If the changes were not tested, please explain why.
+-->
+Added new suites.
+
+## Does this PR introduce _any_ user-facing changes?
+<!--
+If yes, please clarify the previous behavior and the change this PR proposes - provide the console output, description and/or an example to show the behavior difference if possible.
+If possible, please also clarify if this is a user-facing change compared to the released Delta Lake versions or within the unreleased branches such as master.
+If no, write 'No'.
+-->
+No.

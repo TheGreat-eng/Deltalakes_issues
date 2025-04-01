@@ -1,0 +1,22 @@
+This is a modified PR from the original PR https://github.com/delta-io/delta/pull/114 by @tomasbartalos (kudos, it was a very good PR!). This PR tracks transaction changes at a finer granularity (no new columns required in RemoveFile action) thus allowing more concurrent operations to succeed.
+
+closes delta-io/delta#228 and delta-io/delta#72
+
+## What changes were proposed in this pull request?
+
+This PR improves the conflict detection logic in OptTxn using the following strategy. 
+- OptTxn tracks two additional things 
+  - All the partitions read by the query using the OptTxn
+  - All the files read by the query
+- When committing a txn, it checks this txn's actions against the actions of concurrently committed txns using the following strategy:
+  1. If any of the concurrently added files are in the partitions read by this txn, then fail because this txn should have read them. 
+      -It’s okay for files to have been removed from the partitions read by this txn as long as this txn never read those files. This is checked by the next rule.
+  2. If any of the files read by this txn have already been removed by concurrent txns, then fail.
+  3. If any of the files removed by this txn have already been removed by concurrent txns, then fail.
+- In addition, I have made another change where setting `dataChange` to `false` in all the actions (enabled by #223) will ensure the txn will not conflict with any other concurrent txn based on predicates.
+
+## How was this patch tested?
+Tests written by @tomasbartalos in the original PR. Some tests were changed because some scenarios that were blocked in the original PR are now allowed, thanks to more granular and permissive conflict detection logic. Some test names tweaked to ensure clarity.
+
+Co-authored-by: Tathagata Das <tathagata.das1565@gmail.com>
+Co-authored-by: Tomas Bartalos <tomas.bartalos@nike.sk>

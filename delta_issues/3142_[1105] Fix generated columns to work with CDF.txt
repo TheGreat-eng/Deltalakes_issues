@@ -1,0 +1,3 @@
+See the project plan at https://github.com/delta-io/delta/issues/1105.
+
+CDF and Generated Columns would throw an error together since we were dropping CDC columns when generating our generated columns. This PR fixes it and adds a test.

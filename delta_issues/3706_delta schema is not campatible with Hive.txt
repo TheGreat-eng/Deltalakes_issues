@@ -1,0 +1,65 @@
+spark version:3.0.1
+hive version: 2.3.7
+delta version: 0.7.0
+
+
+I test this refer: https://docs.delta.io/latest/delta-batch.html#create-a-table
+
+config:
+```
+spark.sql.extensions	io.delta.sql.DeltaSparkSessionExtension	
+spark.sql.catalog.spark_catalog	org.apache.spark.sql.delta.catalog.DeltaCatalog
+```
+
+I create a delta table with spark sql below:
+
+```
+CREATE  TABLE default.sales_1 (
+  id STRING,
+  brand STRING,  
+  name STRING,   
+  phone STRING,
+  date_id STRING
+) USING delta
+PARTITIONED BY (date_id)
+LOCATION 'hdfs://adhnamenode/path/to/sales_delta'
+```
+
+Then I execute a hive sql on beeline: 
+```
+show create table sales_1
+```
+
+It shows below which is not right.
+
+```
++----------------------------------------------------+
+|                   createtab_stmt                   |
++----------------------------------------------------+
+| CREATE EXTERNAL TABLE `sales_1`(                   |
+|   `col` array<string> COMMENT 'from deserializer') |
+| ROW FORMAT SERDE                                   |
+|   'org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe'  |
+| WITH SERDEPROPERTIES (                             |
+|   'path'='hdfs://adhnamenode/path/to/sales_delta')  |
+| STORED AS INPUTFORMAT                              |
+|   'org.apache.hadoop.mapred.SequenceFileInputFormat'  |
+| OUTPUTFORMAT                                       |
+|   'org.apache.hadoop.hive.ql.io.HiveSequenceFileOutputFormat' |
+| LOCATION                                           |
+|   'hdfs://adhnamenode/withwinds/hive/warehouse/sales_1-__PLACEHOLDER__' |
+| TBLPROPERTIES (                                    |
+|   'spark.sql.create.version'='3.0.1',              |
+|   'spark.sql.partitionProvider'='catalog',         |
+|   'spark.sql.sources.provider'='delta',            |
+|   'spark.sql.sources.schema.numParts'='1',         |
+|   'spark.sql.sources.schema.part.0'='{"type":"struct","fields":[]}',  |
+|   'transient_lastDdlTime'='1612495665')            |
++----------------------------------------------------+
+```
+
+
+Any suggestion?
+
+
+

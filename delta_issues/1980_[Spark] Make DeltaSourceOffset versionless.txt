@@ -1,0 +1,16 @@
+#### Which Delta project/connector is this regarding?
+- [X] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+The DeltaSourceOffset still has a version, but it's supposed to always be VERSION_3. This turned out to not always be the case. Furthermore, it was not guaranteed that all use cases would use the new BASE_INDEX, as some of them still used a hardcoded -1. This PR removes the concept of a version from DeltaSourceOffset and makes it entirely versionless. The versioning is retained in the serialized form where it belongs.
+
+## How was this patch tested?
+
+Existing unit tests.
+## Does this PR introduce _any_ user-facing changes?
+
+No

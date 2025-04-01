@@ -1,0 +1,6 @@
+## Description
+
+It was brought up in delta-oss slack channel 
+https://delta-users.slack.com/archives/CJ70UCSHM/p1626443655490700 
+
+Remove merge.maxInsertCount as it's not used

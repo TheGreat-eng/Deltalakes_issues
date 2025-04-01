@@ -1,0 +1,53 @@
+## Bug
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the issue title
+For example: [BUG][Spark] Title of my issue
+-->
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [x] Other (Hive)
+
+### Describe the problem
+
+https://github.com/delta-io/delta/tree/master/connectors/hive/README.md says:
+
+> This project is a library to make Hive read Delta tables. The project provides a uber JAR delta-hive-assembly_<scala_version>-<delta_connectors_version>.jar to use in Hive. You can use either Scala 2.11, 2.12 or 2.13. Release JARs for versions <= 0.6.0 are available in the deprecated delta-io/connectors repository [releases](https://github.com/delta-io/connectors/releases) page. Newer JARs are available in the delta-io/delta [releases](https://github.com/delta-io/delta/releases) page, starting at version 3.0. Please download the uber JAR for the corresponding Scala version you would like to use.
+
+However, https://github.com/delta-io/delta/releases/tag/v3.0.0 doesn't provide uber JARs for the Hive connector the way https://github.com/delta-io/connectors/releases/tag/v0.6.0 did. The uber JAR isn't published to Maven Central either, only the slim delta-hive is.
+
+#### Steps to reproduce
+
+1. Go to https://github.com/delta-io/delta/releases/tag/v3.0.0 and try to locate delta-hive-assembly_2.12-3.0.0.jar
+
+#### Observed results
+
+No pre-built JAR found
+
+#### Expected results
+
+A hyperlink to an uber JAR for the Hive connector to Delta Lake 3.0.0
+
+#### Further details
+
+<!--
+Include any additional details that may be useful for diagnosing the problem here. If including tracebacks, please include the full traceback. Large logs and files should be attached.
+-->
+
+### Environment information
+
+* Delta Lake version: 3.0.0
+* Spark version: N/A
+* Scala version: 2.12, 2.13
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [ ] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [x] No. I cannot contribute a bug fix at this time.

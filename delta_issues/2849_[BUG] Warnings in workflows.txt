@@ -1,0 +1,17 @@
+## Bug
+
+### Describe the problem
+
+The workflows shows a bunch of warnings, which I believe is related to the old version of actions/setup-java and relate to https://github.blog/changelog/2022-10-11-github-actions-deprecating-save-state-and-set-output-commands/.
+
+#### Steps to reproduce
+
+See https://github.com/delta-io/delta/actions/runs/3341337972.
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [x] Yes. I can contribute a fix for this bug independently.
+- [ ] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute a bug fix at this time.

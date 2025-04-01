@@ -1,0 +1,20 @@
+#### Which Delta project/connector is this regarding?
+
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [X] Other (fill in here)
+
+## Description
+
+Fix index to contain correct reference to `delta-default-columns` instead of `delta-column-defaults` and include default replacements.
+
+## How was this patch tested?
+
+N/A
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

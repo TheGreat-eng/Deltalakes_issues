@@ -1,0 +1,11 @@
+This PR is part of https://github.com/delta-io/delta/issues/1134.
+
+This PR adds `MultiDimClustering` which makes use of the [`range_partition_id`](https://github.com/delta-io/delta/pull/1137) and [`interleave_bits`](https://github.com/delta-io/delta/pull/1149) to transform the layout of the data in Z-order clustering. Detailed design details are [here](https://docs.google.com/document/d/1TYFxAUvhtYqQ6IHAZXjliVuitA5D1u793PMnzsH_3vs/edit?usp=sharing).
+
+Following are the two new options to control the clustering
+
+- DeltaSQLConf.OPTIMIZE_ZORDERBY_NUM_RANGE_IDS - This controls the domain of rangeId values to be interleaved. The bigger, the better granularity, but at the expense of performance (more data gets sampled).
+
+- DeltaSQLConf.OPTIMIZE_ZORDERBY_ADD_NOISE - Whether or not a random byte should be added as a suffix to the interleaved bits when computing the Z-order values for multi dimensional clustering. This can help deal with skew, but may have a negative impact on overall min/max skipping effectiveness.
+
+Unit tests are added.

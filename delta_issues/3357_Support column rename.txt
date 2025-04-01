@@ -1,0 +1,12 @@
+## Overview
+This is the issue to track interest, feature requests, and progress being made on support for renaming column names in Delta Lake, which is part of “column renaming and dropping” as outlined on the Delta OSS 2022 H1 roadmap [here](https://github.com/delta-io/delta/issues/920).
+
+Column rename is a common schema evolution operation where users can change the name of a column as a metadata-only operation. Delta currently doesn't support such an operation because Delta's column names are tied to the underlying column names in Parquet, so to rename a column, Delta would need to rewrite the underlying Parquet files to change the column names. The end goal for this issue is to support column renaming as a metadata-only operation in Delta.
+
+## Requirements
+Users can rename a column in Delta as a metadata operation. In other words, the operation will only make changes to the Delta log and will not touch the Parquet files. After a column is renamed, all existing Delta operations and API behaviors should not be impacted.
+
+Please see the detailed requirements [here](https://docs.google.com/document/d/1NeqRyjdPwFWXDwoYgaMs69QRGyeW-2qdZ5Da7ywoRUo/edit#heading=h.prqd98d97f8o).
+
+## Design Sketch
+Please see the detailed design sketch [here](https://docs.google.com/document/d/1NeqRyjdPwFWXDwoYgaMs69QRGyeW-2qdZ5Da7ywoRUo/edit#heading=h.prqd98d97f8o).

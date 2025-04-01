@@ -1,0 +1,15 @@
+#### Which Delta project/connector is this regarding?
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [X] Other (fill in here)
+
+## Description
+Fix link to type widening and add managed commits to the list.
+
+## How was this patch tested?
+N/A
+
+## Does this PR introduce _any_ user-facing changes?
+No

@@ -1,0 +1,19 @@
+A common pattern used in merge is to dedup new data with data in the delta table in the following way. 
+```
+MERGE INTO target
+USING source
+ON condition
+WHEN NOT MATCHED THEN INSERT ....
+```
+So there is no update clause, only insert clause, so ideally only new files (containing new non-matching data from source) should be added to the table (i.e. append-only). However, the current implementation of the merge does not optimize this case. This leads to the following problems. 
+
+1. Target delta table files containing data that matches the source data are unnecessarily rewritten. This hurts performance. 
+
+2. Since the files are deleted and added in the commit, the downstream streaming queries cannot treat the table as append-only data which they should be able to as we are only append deduplicated data. This makes it hard to build pipelines that dedup data.
+
+3. Merge's default semantics is to fail when multiple source keys match the same target key because update action becomes ambiguous -- its not clear which source row should be used to update the target row. However, in an insert-only merge, this is not ambiguous. Hence, this should be allowed.
+
+The proposed solution is to optimize this case by performing an anti-join on the source data to insert the data. This will 
+1. do only one pass on the data making it faster.
+2. not modify any existing file, only append new files, thus allowing downstream streaming queries to read deduped data.
+3. allow the source to have multiple keys and unambiguously insert them

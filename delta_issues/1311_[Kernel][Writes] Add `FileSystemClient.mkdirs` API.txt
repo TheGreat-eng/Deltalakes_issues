@@ -1,0 +1,4 @@
+## Description
+(Split from larger PR #2944)
+
+This API allows the creation of an initial delta log directory when the table is created.

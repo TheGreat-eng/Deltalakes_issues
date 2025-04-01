@@ -1,0 +1,1 @@
+Today Delta requires a Spark cluster to run. However, Delta is actually a storage format but happens to use Spark to process its logs. The user should be able to use Delta in other engines. The goal of this issue is to create a shaded version of the Delta library to help integration with other JVM based engines (presto, hive, etc).

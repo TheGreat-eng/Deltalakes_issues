@@ -1,0 +1,25 @@
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [X] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+This PR introduces `CollatedPredicate` as a new type of `Predicate` for comparing strings in collated fashion. The `DefaultEngine` will only support the default collation (SPARK.UTF8_BINARY), meaning `ExpressionHandler` should be implemented for using any other collation.
+
+## How was this patch tested?
+
+Tests added to `CollatedPredicateSuite` and `DefaultExpressionEvaluatorSuite`.
+Tests for file pruning will be added in the next PR, as modifying `DataSkippingPredicate` is required.
+Currently, `DataSkippingPredicate` is just a regular `Predicate`, but it needs to be updated to also include information about collation.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No.

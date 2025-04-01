@@ -1,0 +1,3 @@
+Work in progress PR for adding DeltaTable Python APIs and tests. 
+
+A lot of the work has been originally done by @ZhitongDB so massive shout out to him.

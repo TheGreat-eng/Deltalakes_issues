@@ -1,0 +1,3 @@
+Add a column name mapping mode in Delta, which allows Delta to use different names in the table schema and in the underlying Parquet files. This is a building block for issues #957 and #958. 
+
+GitOrigin-RevId: d968e4c31a3757900011444b7dea08d14736d7c0

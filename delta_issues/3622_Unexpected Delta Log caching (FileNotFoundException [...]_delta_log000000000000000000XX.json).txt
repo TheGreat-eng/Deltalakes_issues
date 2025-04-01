@@ -1,0 +1,128 @@
+Hi everyone,
+We are running a spark workload on AWS with Spark 3.0.1 and Delta Lake 0.8.0 on a long running EMR Cluster.
+Our Spark application handles multiple streaming queries which are reading cdc events from kafka and writing them to S3.
+Some useful context informations: 
+ - Streaming queries, within the same spark application, are independent of each other (reading/writing from different kafka topics/S3 paths).
+ - Output Delta Tables have 7 days logRetentionDuration
+
+What we are experiencing:
+1) Run the spark application and stop it at the end of the day.
+2) A week later (after the 7 days of logRetention) the application is restarted.
+3) When a StreamingQuery writes a log checkpoint ( `doLogCleanup `in `MetaDataCleanup `is called ) old logs are removed from S3.
+4) Next operation/batch performed by the streaming query we receive the following error :
+
+```
+Caused by: java.io.FileNotFoundException: No such file or directory 's3://[...]/_delta_log/000000000000000000XX.json'
+It is possible the underlying files have been updated. You can explicitly invalidate the cache in Spark by running 'REFRESH TABLE tableName' command in SQL or by recreating the Dataset/DataFrame involved
+```
+
+It looks like the application is still trying to access an old log, which was deleted because of logRetentionDuration. 
+May it be related to a cached Delta Log?  
+
+Thanks
+
+Complete Driver stacktrace:
+```
+	at org.apache.spark.scheduler.DAGScheduler.failJobAndIndependentStages(DAGScheduler.scala:2215)
+	at org.apache.spark.scheduler.DAGScheduler.$anonfun$abortStage$2(DAGScheduler.scala:2164)
+	at org.apache.spark.scheduler.DAGScheduler.$anonfun$abortStage$2$adapted(DAGScheduler.scala:2163)
+	at scala.collection.mutable.ResizableArray.foreach(ResizableArray.scala:62)
+	at scala.collection.mutable.ResizableArray.foreach$(ResizableArray.scala:55)
+	at scala.collection.mutable.ArrayBuffer.foreach(ArrayBuffer.scala:49)
+	at org.apache.spark.scheduler.DAGScheduler.abortStage(DAGScheduler.scala:2163)
+	at org.apache.spark.scheduler.DAGScheduler.$anonfun$handleTaskSetFailed$1(DAGScheduler.scala:1013)
+	at org.apache.spark.scheduler.DAGScheduler.$anonfun$handleTaskSetFailed$1$adapted(DAGScheduler.scala:1013)
+	at scala.Option.foreach(Option.scala:407)
+	at org.apache.spark.scheduler.DAGScheduler.handleTaskSetFailed(DAGScheduler.scala:1013)
+	at org.apache.spark.scheduler.DAGSchedulerEventProcessLoop.doOnReceive(DAGScheduler.scala:2395)
+	at org.apache.spark.scheduler.DAGSchedulerEventProcessLoop.onReceive(DAGScheduler.scala:2344)
+	at org.apache.spark.scheduler.DAGSchedulerEventProcessLoop.onReceive(DAGScheduler.scala:2333)
+	at org.apache.spark.util.EventLoop$$anon$1.run(EventLoop.scala:49)
+	at org.apache.spark.scheduler.DAGScheduler.runJob(DAGScheduler.scala:815)
+	at org.apache.spark.SparkContext.runJob(SparkContext.scala:2099)
+	at org.apache.spark.SparkContext.runJob(SparkContext.scala:2120)
+	at org.apache.spark.SparkContext.runJob(SparkContext.scala:2139)
+	at org.apache.spark.SparkContext.runJob(SparkContext.scala:2164)
+	at org.apache.spark.rdd.RDD.$anonfun$collect$1(RDD.scala:1004)
+	at org.apache.spark.rdd.RDDOperationScope$.withScope(RDDOperationScope.scala:151)
+	at org.apache.spark.rdd.RDDOperationScope$.withScope(RDDOperationScope.scala:112)
+	at org.apache.spark.rdd.RDD.withScope(RDD.scala:388)
+	at org.apache.spark.rdd.RDD.collect(RDD.scala:1003)
+	at org.apache.spark.sql.execution.SparkPlan.executeCollect(SparkPlan.scala:390)
+	at org.apache.spark.sql.Dataset.collectFromPlan(Dataset.scala:3676)
+	at org.apache.spark.sql.Dataset.$anonfun$collect$1(Dataset.scala:2980)
+	at org.apache.spark.sql.Dataset.$anonfun$withAction$1(Dataset.scala:3667)
+	at org.apache.spark.sql.catalyst.QueryPlanningTracker$.withTracker(QueryPlanningTracker.scala:104)
+	at org.apache.spark.sql.execution.SQLExecution$.withTracker(SQLExecution.scala:227)
+	at org.apache.spark.sql.execution.SQLExecution$.executeQuery$1(SQLExecution.scala:107)
+	at org.apache.spark.sql.execution.SQLExecution$.$anonfun$withNewExecutionId$6(SQLExecution.scala:132)
+	at org.apache.spark.sql.catalyst.QueryPlanningTracker$.withTracker(QueryPlanningTracker.scala:104)
+	at org.apache.spark.sql.execution.SQLExecution$.withTracker(SQLExecution.scala:227)
+	at org.apache.spark.sql.execution.SQLExecution$.$anonfun$withNewExecutionId$5(SQLExecution.scala:132)
+	at org.apache.spark.sql.execution.SQLExecution$.withSQLConfPropagated(SQLExecution.scala:248)
+	at org.apache.spark.sql.execution.SQLExecution$.$anonfun$withNewExecutionId$1(SQLExecution.scala:131)
+	at org.apache.spark.sql.SparkSession.withActive(SparkSession.scala:764)
+	at org.apache.spark.sql.execution.SQLExecution$.withNewExecutionId(SQLExecution.scala:68)
+	at org.apache.spark.sql.Dataset.withAction(Dataset.scala:3665)
+	at org.apache.spark.sql.Dataset.collect(Dataset.scala:2980)
+	at org.apache.spark.sql.delta.PartitionFiltering.$anonfun$filesForScan$2(PartitionFiltering.scala:38)
+	at org.apache.spark.sql.delta.util.DeltaProgressReporter.withJobDescription(DeltaProgressReporter.scala:53)
+	at org.apache.spark.sql.delta.util.DeltaProgressReporter.withStatusCode(DeltaProgressReporter.scala:32)
+	at org.apache.spark.sql.delta.util.DeltaProgressReporter.withStatusCode$(DeltaProgressReporter.scala:27)
+	at org.apache.spark.sql.delta.Snapshot.withStatusCode(Snapshot.scala:55)
+	at org.apache.spark.sql.delta.PartitionFiltering.filesForScan(PartitionFiltering.scala:38)
+	at org.apache.spark.sql.delta.PartitionFiltering.filesForScan$(PartitionFiltering.scala:27)
+	at org.apache.spark.sql.delta.Snapshot.filesForScan(Snapshot.scala:55)
+	at org.apache.spark.sql.delta.OptimisticTransactionImpl.filterFiles(OptimisticTransaction.scala:334)
+	at org.apache.spark.sql.delta.OptimisticTransactionImpl.filterFiles$(OptimisticTransaction.scala:333)
+	at org.apache.spark.sql.delta.OptimisticTransaction.filterFiles(OptimisticTransaction.scala:81)
+	at org.apache.spark.sql.delta.commands.MergeIntoCommand.$anonfun$findTouchedFiles$1(MergeIntoCommand.scala:340)
+	at org.apache.spark.sql.delta.commands.MergeIntoCommand.recordMergeOperation(MergeIntoCommand.scala:678)
+	at org.apache.spark.sql.delta.commands.MergeIntoCommand.findTouchedFiles(MergeIntoCommand.scala:325)
+	at org.apache.spark.sql.delta.commands.MergeIntoCommand.$anonfun$run$2(MergeIntoCommand.scala:284)
+	at org.apache.spark.sql.delta.commands.MergeIntoCommand.$anonfun$run$2$adapted(MergeIntoCommand.scala:267)
+	at org.apache.spark.sql.delta.DeltaLog.withNewTransaction(DeltaLog.scala:188)
+	at org.apache.spark.sql.delta.commands.MergeIntoCommand.$anonfun$run$1(MergeIntoCommand.scala:267)
+	at scala.runtime.java8.JFunction0$mcV$sp.apply(JFunction0$mcV$sp.java:23)
+	at com.databricks.spark.util.DatabricksLogging.recordOperation(DatabricksLogging.scala:77)
+	at com.databricks.spark.util.DatabricksLogging.recordOperation$(DatabricksLogging.scala:67)
+	at org.apache.spark.sql.delta.commands.MergeIntoCommand.recordOperation(MergeIntoCommand.scala:199)
+	at org.apache.spark.sql.delta.metering.DeltaLogging.recordDeltaOperation(DeltaLogging.scala:103)
+	at org.apache.spark.sql.delta.metering.DeltaLogging.recordDeltaOperation$(DeltaLogging.scala:89)
+	at org.apache.spark.sql.delta.commands.MergeIntoCommand.recordDeltaOperation(MergeIntoCommand.scala:199)
+	at org.apache.spark.sql.delta.commands.MergeIntoCommand.run(MergeIntoCommand.scala:265)
+	at io.delta.tables.DeltaMergeBuilder.$anonfun$execute$1(DeltaMergeBuilder.scala:239)
+	at org.apache.spark.sql.delta.util.AnalysisHelper.improveUnsupportedOpError(AnalysisHelper.scala:60)
+	at org.apache.spark.sql.delta.util.AnalysisHelper.improveUnsupportedOpError$(AnalysisHelper.scala:48)
+	at io.delta.tables.DeltaMergeBuilder.improveUnsupportedOpError(DeltaMergeBuilder.scala:123)
+	at io.delta.tables.DeltaMergeBuilder.execute(DeltaMergeBuilder.scala:228)
+	[ ... our application calls ...]
+	at org.apache.spark.sql.execution.streaming.sources.ForeachBatchSink.addBatch(ForeachBatchSink.scala:36)
+	at org.apache.spark.sql.execution.streaming.MicroBatchExecution.$anonfun$runBatch$16(MicroBatchExecution.scala:572)
+	at org.apache.spark.sql.catalyst.QueryPlanningTracker$.withTracker(QueryPlanningTracker.scala:104)
+	at org.apache.spark.sql.execution.SQLExecution$.withTracker(SQLExecution.scala:227)
+	at org.apache.spark.sql.execution.SQLExecution$.executeQuery$1(SQLExecution.scala:107)
+	at org.apache.spark.sql.execution.SQLExecution$.$anonfun$withNewExecutionId$6(SQLExecution.scala:132)
+	at org.apache.spark.sql.catalyst.QueryPlanningTracker$.withTracker(QueryPlanningTracker.scala:104)
+	at org.apache.spark.sql.execution.SQLExecution$.withTracker(SQLExecution.scala:227)
+	at org.apache.spark.sql.execution.SQLExecution$.$anonfun$withNewExecutionId$5(SQLExecution.scala:132)
+	at org.apache.spark.sql.execution.SQLExecution$.withSQLConfPropagated(SQLExecution.scala:248)
+	at org.apache.spark.sql.execution.SQLExecution$.$anonfun$withNewExecutionId$1(SQLExecution.scala:131)
+	at org.apache.spark.sql.SparkSession.withActive(SparkSession.scala:764)
+	at org.apache.spark.sql.execution.SQLExecution$.withNewExecutionId(SQLExecution.scala:68)
+	at org.apache.spark.sql.execution.streaming.MicroBatchExecution.$anonfun$runBatch$15(MicroBatchExecution.scala:570)
+	at org.apache.spark.sql.execution.streaming.ProgressReporter.reportTimeTaken(ProgressReporter.scala:352)
+	at org.apache.spark.sql.execution.streaming.ProgressReporter.reportTimeTaken$(ProgressReporter.scala:350)
+	at org.apache.spark.sql.execution.streaming.StreamExecution.reportTimeTaken(StreamExecution.scala:69)
+	at org.apache.spark.sql.execution.streaming.MicroBatchExecution.runBatch(MicroBatchExecution.scala:570)
+	at org.apache.spark.sql.execution.streaming.MicroBatchExecution.$anonfun$runActivatedStream$2(MicroBatchExecution.scala:223)
+	at scala.runtime.java8.JFunction0$mcV$sp.apply(JFunction0$mcV$sp.java:23)
+	at org.apache.spark.sql.execution.streaming.ProgressReporter.reportTimeTaken(ProgressReporter.scala:352)
+	at org.apache.spark.sql.execution.streaming.ProgressReporter.reportTimeTaken$(ProgressReporter.scala:350)
+	at org.apache.spark.sql.execution.streaming.StreamExecution.reportTimeTaken(StreamExecution.scala:69)
+	at org.apache.spark.sql.execution.streaming.MicroBatchExecution.$anonfun$runActivatedStream$1(MicroBatchExecution.scala:191)
+	at org.apache.spark.sql.execution.streaming.ProcessingTimeExecutor.execute(TriggerExecutor.scala:57)
+	at org.apache.spark.sql.execution.streaming.MicroBatchExecution.runActivatedStream(MicroBatchExecution.scala:185)
+	at org.apache.spark.sql.execution.streaming.StreamExecution.org$apache$spark$sql$execution$streaming$StreamExecution$$runStream(StreamExecution.scala:334)
+	at org.apache.spark.sql.execution.streaming.StreamExecution$$anon$1.run(StreamExecution.scala:245)
+```

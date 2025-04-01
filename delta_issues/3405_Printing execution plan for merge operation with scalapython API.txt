@@ -1,0 +1,20 @@
+Attempted to replicate the same way DataSet api in spark creates the explain plan. 
+
+Usage pattern:
+
+```scala
+DeltaTable.forPath(spark, tempPath)
+        .merge(source, "key1 = key2")
+        .whenMatched().updateExpr(Map("key1" -> "key2", "value1" -> "value2"))
+        .whenNotMatched().insertExpr(Map("key1" -> "key2", "value1" -> "value2"))
+```
+
+Output:
+
+```
+== Physical Plan ==
+Execute MergeIntoCommand
+   +- MergeIntoCommand Project [_1#468 AS key2#473, _2#469 AS value2#474], Relation [key1#477,value1#478] parquet, Delta[version=0, ... :/private/var/folders/gy/dy_2wchs6wz7223r9nzckf980000gq/T/spark-5bd85319-3f6e-491e-9c6b-2cd52ce9481f], (key1#477 = key2#473), [Update [actions: [`key1` = key2#473, `value1` = value2#474]]], [Insert [actions: [`key1` = key2#473, `value1` = value2#474]]], StructType(StructField(key1,IntegerType,true), StructField(value1,IntegerType,true))
+```
+
+This PR attempts to create explain command to address #893.

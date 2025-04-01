@@ -1,0 +1,22 @@
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [x] Other (Spec Doc)
+
+## Description
+
+The current example inlined Deletion Vector in PROTOCOL.md does not work. When trying to read a table with this deletion vector in spark, this is the error:
+
+24/02/12 09:34:59 WARN TaskSetManager: Lost task 2.0 in stage 11.0 (TID 159) (10.0.0.160 executor driver): TaskKilled (Stage cancelled: Job aborted due to stage failure: Task 0 in stage 11.0 failed 1 times, most recent failure: Lost task 0.0 in stage 11.0 (TID 157) (10.0.0.160 executor driver): java.io.IOException: Unexpected RoaringBitmapArray magic number -791463580
+
+This PR replaces it with an inlined deletion vector that does work.
+
+
+## How was this patch tested?
+
+Tested loading the example DV in spark and in some rust code using the roaring crate.
+
+## Does this PR introduce _any_ user-facing changes?
+
+Documentation.

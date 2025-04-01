@@ -1,0 +1,6 @@
+While digging into the DeltaLog code, I realized that there's some code that can be refactored, and that's the main goal of this Pull request.
+
+1.  I have removed some unused imports
+2. removed an unused method
+3. remove an unnecessary variable
+4. convert some code to Single abstract methods

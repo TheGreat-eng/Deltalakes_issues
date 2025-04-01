@@ -1,0 +1,17 @@
+## Bug
+Following the docs, i.e.
+```
+spark.delta.logstore.s3.impl=io.delta.storage.S3DynamoDBLogStore
+io.delta.storage.S3DynamoDBLogStore.ddb.tableName=<my_table_name>
+io.delta.storage.S3DynamoDBLogStore.ddb.region=<my_region>
+```
+
+doesn't seem to work. There are two problems
+
+1. incorrect logstore scheme conf key. should be `spark.delta.logStore.s3.impl`
+2. Looking at the code, there is a config mismatch. The docs say `io.delta.storage.S3DynamoDBLogStore.$key` but the code is using `io.delta.storage.$key`. The integration tests also seem to be incorrectly configured.
+
+Thus, there are two next steps:
+
+1. Current workaround. Use scheme conf key `spark.delta.logStore.s3.impl` and conf prefix `io.delta.storage.$key`, e.g. `io.delta.storage.$key.ddb.tableName`.
+2. Update the docs and update the code to match the docs. This should be added in Delta Lake 1.2.1.

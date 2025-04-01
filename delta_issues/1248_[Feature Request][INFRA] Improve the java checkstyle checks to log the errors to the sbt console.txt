@@ -1,0 +1,25 @@
+## Feature request
+
+#### Which Delta project/connector is this regarding?
+
+- [ ] Spark
+- [X] Standalone
+- [X] Flink
+- [X] Kernel
+- [ ] Other (fill in here)
+
+### Overview
+
+When we upgraded our `sbt` version we were forced to upgrade our the sbt java checkstyle plug in https://github.com/delta-io/delta/pull/3019. This upgrade means that the java checkstyle errors are no longer logged to the sbt console. Fixing errors requires looking at the `$projectName/target/checkstyle-report.xml` and `$projectName/target/checkstyle-test-report.xml`. This is a poor dev workflow, and much inferior to the previous state where the errors would be printed to the console.
+
+### Further details
+
+We can add our own reading of the checkstyle reports and logging to console as part of our sbt build. For inspiration, we can look at the code that was used in the former sbt checkstyle plugin here https://github.com/etsy/sbt-checkstyle-plugin/blob/master/src/main/scala/com/etsy/sbt/checkstyle/Checkstyle.scala#L70-L97
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [ ] Yes. I can contribute this feature independently.
+- [ ] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [X] No. I cannot contribute this feature at this time.

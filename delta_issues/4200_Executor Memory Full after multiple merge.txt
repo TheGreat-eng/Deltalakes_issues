@@ -1,0 +1,14 @@
+Hi
+
+I am doing merges on several tables.
+when I create a new spark context for each merge, this works fine.
+
+however, when I use the same spark context for sequential merges, the executor memory 
+is full and the process breaks.
+
+```
+ ERROR YarnScheduler: Lost executor 14 on host: Container killed by YARN for exceeding memory limits. 10 GB on 9 GB
+```
+how to  release of the executor memory between merges ? 
+
+thanks

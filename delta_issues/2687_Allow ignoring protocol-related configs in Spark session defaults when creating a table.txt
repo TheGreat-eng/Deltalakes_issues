@@ -1,0 +1,17 @@
+## Description
+
+This PR introduces a Spark SQL config `delta.ignoreProtocolDefaults` that affects `CREATE TABLE` and `REPLACE AS` commands to ignore protocol-related Spark session defaults, including:
+
+- `spark.databricks.delta.properties.defaults.minReaderVersion`
+- `spark.databricks.delta.properties.defaults.minWriterVersion`
+- configs with keys start with `spark.databricks.delta.properties.defaults.feature.`
+
+When these session defaults are ignored, the user must specify the protocol versions and table features manually, or the table will get a min protocol that satisfies its metadata. For example, an empty table will get `Protocol(1, 1)`, regardless of the default protocol version `(1, 2)`.
+
+## How was this patch tested?
+
+New tests.
+
+## Does this PR introduce _any_ user-facing changes?
+
+Yes, see the previous section.

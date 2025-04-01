@@ -1,0 +1,7 @@
+The goal of this PR to to support dynamic partition overwrite mode on writes to delta.
+
+To enable this on a per write add `.option("partitionOverwriteMode", "dynamic")`. It can also be set per sparkSession in the SQL Config using `.config("spark.sql.sources.partitionOverwriteMode", "dynamic")`.
+
+Some limitations of this pullreq:
+Dynamic partition overwrite mode in combination with replaceWhere is not supported. If both are set this will result in an error.
+The SQL `INSERT OVERWRITE` syntax does not yet support dynamic partition overwrite. For this more changes will be needed to be made to `org.apache.spark.sql.delta.catalog.DeltaTableV2` and related classes.

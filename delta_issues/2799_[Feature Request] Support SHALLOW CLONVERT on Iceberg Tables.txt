@@ -1,0 +1,33 @@
+## Feature request
+
+### Overview
+
+As a followup to the SHALLOW CLONE [support](https://github.com/delta-io/delta/pull/1505) for Delta Lake, it would be great if we could enable SHALLOW CLONE on an Iceberg table as well. This will be a CLONVERT (CLONE + CONVERT) operation, in which we will create a Delta catalog table with files pointing to the original Iceberg table in one transaction.
+
+### Motivation
+
+1. It allows users to quickly experiment with Delta Lake without modifying the original Iceberg table's data.
+2. It simplifies the user flow by combining a Delta catalog table creation with an Iceberg conversion.
+
+### Further details
+Similar to SHALLOW CLONE, it will work as follows:
+
+1. Clone a Iceberg catalog table (after the setup [here](https://iceberg.apache.org/docs/latest/getting-started/))
+
+```
+CREATE TABLE [IF NOT EXISTS] delta SHALLOW CLONE iceberg.db.table [TBLPROPERTIES clause] [LOCATION path]
+```
+
+2. Clone a path-based Iceberg table
+
+```
+CREATE TABLE [IF NOT EXISTS] delta SHALLOW CLONE iceberg.`/path/to/iceberg/table`[TBLPROPERTIES clause] [LOCATION path]
+```
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [X] Yes. I can contribute this feature independently.
+- [ ] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.

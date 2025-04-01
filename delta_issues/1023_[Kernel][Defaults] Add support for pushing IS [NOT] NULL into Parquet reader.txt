@@ -1,0 +1,5 @@
+## Description
+Allows pushing down predicates `IS NULL` and `IS NOT NULL` into the default Parquet reader. Helps prune the number of row groups read based on the predicates.
+
+## How was this patch tested?
+Unit tests

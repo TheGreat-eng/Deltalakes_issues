@@ -1,0 +1,35 @@
+## Protocol Change Request
+
+### Description of the protocol change
+
+This RFC proposes a new ReaderWriter feature called _**vacuumProtocolCheck**_ which makes sure that Vacuum do reader and writer protocol checks.
+
+
+### Motivation
+
+Vacuum today doesn’t do Writer Protocol check in all cases. It unintentionally performs the check in some clouds (azure/gcp) where we [make a commit](https://github.com/delta-io/delta/blob/c12ef3b34b497e3499c8c17ad6c43dff9274e286/spark/src/main/scala/org/apache/spark/sql/delta/commands/VacuumCommand.scala#L347) corresponding to Vacuum start and end operation.  But in AWS, Vacuum skips the check as the vacuum logging is disabled. This problem doesn’t exist for Read Protocol check as Vacuum always performs it in the beginning as part of snapshot creation.
+
+The missing Writer protocol check causes backward compatibility issues for various Writer only features e.g. [Managed Commit](https://github.com/delta-io/delta/issues/2598) where the commit discovery has changed. Due to this, an older Delta Client could run a Vacuum command and may wrongly delete in-use files and corrupt the table.
+
+### Design
+
+Please find the detailed design here: https://docs.google.com/document/d/15o8WO2T0vN21S5JG-FT_ZNhXFCWyh0i9tqhr9kBmZpE/edit
+
+At high level, the new ReaderWriter feature _**vacuumProtocolCheck**_  will control following:
+
+1. A delta reader doesn’t need to understand/change anything new.
+2. A delta writer could support this feature by adoption one of the options:
+   - Option-1: Affirm that it doesn’t support Vacuum operation: This option could be used in external Delta connectors which already do not support Vacuum e.g. Flink etc. 
+   - Option-2: Make sure the Vacuum implementation makes a Writer protocol check before deleting any files.
+   - Option-3: Refuse to run VACUUM operation on tables that have the feature enabled (but other reads and writes can still proceed normally). Discouraged because it would likely take more work to conditionally block VACUUM  than to just perform the write protocol check.
+
+
+### Willingness to contribute
+
+The Delta Lake Community encourages protocol innovations. Would you or another member of your organization be willing to contribute this feature to the Delta Lake code base?
+
+- [x] Yes. I can contribute.
+- [ ] Yes. I would be willing to contribute with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute at this time.
+
+

@@ -1,0 +1,38 @@
+## Feature request
+
+### Overview
+
+Allows users to create a Delta table that includes a period when using back ticks in the table DDL. Current error message when trying to create a table with a period:
+
+Error in SQL statement: AnalysisException:`schema.name_of_table` is not a valid name for tables/databases. Valid names only contain alphabet characters, numbers and _.
+
+** Back ticks are not shown in the text above, but the table name contains back ticks.
+
+
+### Motivation
+
+This feature will simplify migrations and allow a separation of namespaces similar to schemas in traditional databases. Projects that are migrating tables from traditional databases will be allowed to use the same names for the tables. Using an underscore to replace the period is not acceptable, because some table names already contain the underscore and it would not provide a distinction between namespaces.
+
+Common examples of how this could be useful:
+
+ - CREATE TABLE `bronze.product`
+ - CREATE TABLE `silver.product`
+ - CREATE TABLE `inventory.warehouse_location`
+** Back ticks are not shown in the text above, but the table name contains back ticks.
+ 
+I believe the best example is to facilitate the migration from other databases to Delta lake.
+
+### Further details
+
+<!--
+Use this section to include any additional information about the feature. If you have a proposal for how to implement this feature, please include it here. For implementation guidelines, please read our contributor guidelines: https://github.com/delta-io/delta/blob/master/CONTRIBUTING.md
+If there are any specific requirements for this feature that are not immediately obvious please outline them here.
+-->
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [ ] Yes. I can contribute this feature independently.
+- [x ] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.

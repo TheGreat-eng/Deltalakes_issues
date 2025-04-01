@@ -1,0 +1,3 @@
+Made following updates to the integration test
+- Added test for pypi package, both main pypi and testpypi
+- Added support for providing staging maven repo for testing staged maven release artifacts

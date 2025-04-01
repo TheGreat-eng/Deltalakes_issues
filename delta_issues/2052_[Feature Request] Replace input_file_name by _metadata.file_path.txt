@@ -1,0 +1,28 @@
+## Feature request
+
+#### Which Delta project/connector is this regarding?
+- [X] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+### Overview
+
+Replace input_file_name by _metadata.file_path
+
+https://github.com/search?q=repo%3Adelta-io%2Fdelta%20input_file_name&type=code
+
+### Motivation
+
+input_file_name  is deprecated: https://docs.databricks.com/en/sql/language-manual/functions/input_file_name.html
+
+### Further details
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [ ] Yes. I can contribute this feature independently.
+- [ ] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [X] No. I cannot contribute this feature at this time.

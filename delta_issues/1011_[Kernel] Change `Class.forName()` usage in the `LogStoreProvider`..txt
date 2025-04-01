@@ -1,0 +1,8 @@
+## Description
+
+Look for the `LogStore` class more broadly in the class loader than just the thread local's class loader. The thread context class loader requires the Thread local variables to have the `LogStore` in it, but this class loader may not have all the dependencies wired up.
+
+## How was this patch tested?
+Not tested yet.
+
+Fixes https://github.com/delta-io/delta/issues/3299.

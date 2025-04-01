@@ -1,0 +1,8 @@
+Hi,
+I am using isDeltaTable to decide to convert or not. However, it hits an error on the same path that convertToDelta and forPath are able to read. It is complaining of an illegal character. I realized a %60 is added at the end of my path in the error message.
+
+![image](https://user-images.githubusercontent.com/3591686/127681405-35e72bbc-9fbf-493c-94ad-23dab8f42b4b.png)
+
+I am using python 3.8.5, spark 3.1.2 and get delta as an package using `sparkConf.set("spark.jars.packages", "io.delta:delta-core_2.12:1.0.0")`.
+Regards,
+Shahram

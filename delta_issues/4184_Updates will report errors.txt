@@ -1,0 +1,12 @@
+
+    deltaTable.as("t")
+            .merge(
+              sparkSql.as("s"),
+              "s._row_key = t._row_key")
+            .whenMatched().updateAll()
+            .whenNotMatched().insertAll()
+            .execute()
+
+Why is my update wrong?
+
+Caused by: java.lang.UnsupportedOperationException: Cannot perform MERGE as multiple source rows matched and attempted to update the same target row in the Delta table

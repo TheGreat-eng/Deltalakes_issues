@@ -1,0 +1,55 @@
+              > > WARN HiveExternalCatalog: Couldn't find corresponding Hive SerDe for data source provider delta. Persisting data source table <table_name> into Hive metastore in Spark SQL specific format, which is NOT compatible with Hive.
+> 
+> Please ignore this error. This is just saying you cannot use Hive to query this table. As long as you are using Spark, it should be fine.
+
+**It appears that this error should not be disregarded.
+We encountered significant traffic issues related to this last Friday.**
+Here are the details:
+1. We are using Delta as the storage layer and Hive 3.x as the metastore.
+2. We obtained a dataframe with a complex structure as follows:
+```scala
+import org.apache.spark.sql.types._
+import org.apache.spark.sql.Row
+import org.apache.spark.sql.SparkSession
+
+val innerStruct = StructType(Array(
+  StructField("image", StringType),
+  StructField("content", StringType)
+))
+
+val outerStruct = StructType(Array(
+  StructField("some_detail", innerStruct)
+))
+
+val schema = StructType(Array(
+  StructField("detail", outerStruct)
+))
+
+val data = Seq(
+  Row(Row(Row("image_example", "content_text_example")))
+)
+
+val df = spark.createDataFrame(
+  spark.sparkContext.parallelize(data),
+  schema
+)
+
+df.write.format("delta").save("s3://path")
+```
+
+We then created a delta table:
+```SQL
+CREATE TABLE test.test_table_name USING delta LOCATION 's3://path'
+```
+However, we ended up with a record in the Hive metastore database `sds` with a `Location` row like:
+
+```TXT
+hdfs://[our-emr-cluster-id]/xxxxx/yyy
+```
+instead of `s3://path`!
+This is a significant issue because when you want to release the current cluster and create a new one, you will encounter a major bug!
+You might think that your data and computing resources are separated, but you will find that the metastore still refers to the old, released cluster!
+I sincerely hope to receive a response from the community on this issue.
+
+_Originally posted by @caoergou in https://github.com/delta-io/delta/issues/85#issuecomment-1733651415_
+            

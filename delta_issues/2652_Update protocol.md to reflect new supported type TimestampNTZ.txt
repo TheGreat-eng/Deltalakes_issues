@@ -1,0 +1,12 @@
+
+
+## Description
+- This change(653253545a97f224bb123b8fa2f3d67e7bff3852) added support for Timestamp without timezone data type via a table feature.
+- This PR updated the protocol spec to reflect these changes
+
+
+## How was this patch tested?
+- no test as this is a protocol doc update.
+
+## Does this PR introduce _any_ user-facing changes?
+- no

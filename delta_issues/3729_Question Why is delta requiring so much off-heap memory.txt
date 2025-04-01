@@ -1,0 +1,15 @@
+Hello, after writing my dataset, the jobs fails while delta metadata processing.
+
+- Env: Dataproc
+- Delta-lake version: 0.6.1
+- Executor-Memory: 11G (memory-overhead 1,1G)
+- Executor-cores: 4 
+- yarn.nodemanager.vmem-check-enabled = false
+ 
+<img width="1427" alt="Screenshot 2021-01-26 at 12 21 51" src="https://user-images.githubusercontent.com/43953326/105839154-598abc00-5fd1-11eb-887e-e82e3df006f9.png">
+
+My questions: 
+- Any recommandations for the value of `spark.yarn.executor.memoryOverhead` ?
+- Is this normal? Are you aware of similar problems?
+
+Thanks you in Advance

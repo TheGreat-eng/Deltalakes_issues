@@ -1,0 +1,24 @@
+This is a stacked PR. Please view this PR's diff here:
+
+- https://github.com/scottsand-db/delta/compare/delta_kernel_cc_3...delta_kernel_cc_4
+
+#### Which Delta project/connector is this regarding?
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [X] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+Add new `InMemoryCommitCoordinatorClient` used for testing. Note: this is not yet tested. That will come later. This is the exact same client test implementation as in delta-storage, but this doesn't use hadoop or logstore and instead uses the engine APIs. Note that the underlying engine of course needs to correctly implement those APIs.
+
+Adds new `FileSystemClient` APIs, like `getFileStatus`, `exists`, `copy`
+
+## How was this patch tested?
+
+Coming later.
+
+## Does this PR introduce _any_ user-facing changes?
+
+Yes. See above.

@@ -1,0 +1,25 @@
+## Feature request
+
+### Overview
+
+Sister ticket to https://github.com/delta-io/delta/issues/1349. 
+
+Currently streaming read is completely blocked on column mapping enabled tables, it is understood that since Delta uses the latest snapshot schema to read historical data batches, and with the abilities to drop and rename columns via column mapping, the latest schema might not have been compatible with the past data batches anymore. 
+
+However, it would be great at least for now to enable streaming read for folks that have not used drop or rename but with column mapping enabled to, for example, use arbitrary column names. 
+
+### Motivation
+
+To enable some use cases of streaming read for column mapping enabled tables without violating the latest schema read constraint.
+
+### Further details
+
+After this PR, if a user has not renamed/dropped column, streaming read from a column mapping enabled table should not have any problems.
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [x] Yes. I can contribute this feature independently.
+- [ ] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.

@@ -1,0 +1,5 @@
+i'm a newer to delta, When I read Conditional update without overwrite
+In this chapter, I found in IDEA that the expr method can not be resovled, and the comma is missing at the end of the code.
+![image](https://user-images.githubusercontent.com/21170229/65425131-da670000-de3f-11e9-8db6-e523c8c5842a.png)
+
+![image](https://user-images.githubusercontent.com/21170229/65424493-46e0ff80-de3e-11e9-932f-24b2710ab3ec.png)

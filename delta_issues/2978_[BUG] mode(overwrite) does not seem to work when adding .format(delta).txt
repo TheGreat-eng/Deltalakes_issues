@@ -1,0 +1,76 @@
+## Bug
+
+### Describe the problem
+It seems that when writing a dataframe with "overwrite" mode and "delta" format to a file the data is not completely overwritten. 
+
+#### Steps to reproduce
+```
+object QuickStart {
+  def main(args: Array[String]): Unit = {
+    val spark = SparkSession
+      .builder()
+      .appName("Quickstart")
+      .master("local[1]")
+      .config("spark.sql.extensions", "io.delta.sql.DeltaSparkSessionExtension")
+      .config(
+        "spark.sql.catalog.spark_catalog",
+        "org.apache.spark.sql.delta.catalog.DeltaCatalog"
+      )
+      .getOrCreate()
+
+    val file = new File("/tmp/delta-table")
+    if (file.exists()) FileUtils.deleteDirectory(file)
+
+    // Create a table
+    println("Creating a table")
+    val path = file.getCanonicalPath
+    var data = spark.range(0, 5)
+    data.write.mode("overwrite").format("delta").save(path)
+    data.write.mode("overwrite").format("delta").save(path)
+    spark.read.load(path).show(truncate=false)
+  }
+}
+```
+#### Observed results
+When displaying the dataframe, I get 10 records instead of the expected 5 (df=spark.range(0,5)):
++---+
+|id |
++---+
+|0  |
+|0  |
+|1  |
+|1  |
+|2  |
+|2  |
+|3  |
+|3  |
+|4  |
+|4  |
++---+
+#### Expected results
++---+
+|id |
++---+
+|0  |
+|1  |
+|2  |
+|3  |
+|4  |
++---+
+
+#### Further details
+When leaving out the .format("delta"), I do get the expected results.
+
+### Environment information
+
+* Delta Lake version: 1.1.0 and 2.0.0
+* Spark version: 3.2.1
+* Scala version: 2.12.10
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [X] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute a bug fix at this time.

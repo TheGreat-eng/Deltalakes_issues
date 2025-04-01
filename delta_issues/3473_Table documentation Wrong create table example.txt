@@ -1,0 +1,5 @@
+- The create table if not exists is in the wrong order
+- Documentation URL: [https://docs.delta.io/latest/delta-batch.html#create-a-table](https://docs.delta.io/latest/delta-batch.html#create-a-table)
+![error](https://user-images.githubusercontent.com/9269845/143099966-c82802e3-8097-46d5-bc0c-285dbbb6f8ad.png)
+ 
+It should be CREATE TABLE IF NOT EXISTS

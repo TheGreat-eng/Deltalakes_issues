@@ -1,0 +1,1 @@
+Previously DeltaTable was only taking `Dataset[Row]` as the parameter. And was trying to figure out the DeltaLog via the analyzed plan. Moved to a cleaner approach where we pass the DeltaLog as well as a parameter.

@@ -1,0 +1,82 @@
+## Description
+
+See the original data loss scenario at #1410, also [this comment in the code explains the problem scenario further](https://github.com/delta-io/delta/pull/1416/commits/5ef0035fd210b3065e64b5f8a9adff41854b98be#diff-50c09f154175b53894ded5fe6a722f12129ab3742afc7612f56fd6eebfe3487dR52-R80).
+
+The existing code had the following bugs and we add the following fixes
+- the copy `T(N)` into `N.json` code path in `BaseExternalLogStore` was using `overwrite=true`. This can overwrite existing files and cause data loss. This PR sets `overwrite=false`.
+- when "acknowledging" the commit and writing to the external store entry `E(N, complete=true, commitTime=now)`, this let any underlying TTL infra clean up that commit **right away**, because our docs specified that the TTL key was the `commitTime` attribute. Instead, we need to add some delay (this PR uses 1 hour) after which the entry can be TTLd and cleaned up. This gives enough time that any future `fileSystem.exists(path)` call will return true and we don't run into any mutual exclusion issues. This PR also renamed this field to `expireTime`.
+- in general, we were not short-circuiting early if `overwrite=false` and path already exists. This PR now does that.
+
+## How was this patch tested?
+
+Added new unit tests. Also, updated integration tests.
+
+Ran integration tests with
+```
+# 1. Created DDB table
+aws dynamodb create-table \
+    --region us-west-2 \
+    --table-name scott_test_2022_10_07_000 \
+    --attribute-definitions AttributeName=tablePath,AttributeType=S \
+                            AttributeName=fileName,AttributeType=S \
+    --key-schema AttributeName=tablePath,KeyType=HASH \
+                AttributeName=fileName,KeyType=RANGE \
+    --provisioned-throughput ReadCapacityUnits=5,WriteCapacityUnits=5
+
+# 2. Enabled TTL on that table
+aws dynamodb update-time-to-live \
+  --region us-west-2 \
+  --table-name scott_test_2022_10_07_000 \
+  --time-to-live-specification "Enabled=true, AttributeName=expireTime"
+
+# 3. Configured test params
+export DELTA_CONCURRENT_WRITERS=20
+export DELTA_NUM_ROWS=50
+export DELTA_DYNAMO_TABLE_NAME=scott_test_2022_10_07_000
+
+# 4. Ran integration test
+./run-integration-tests.py --use-local \
+    --run-storage-s3-dynamodb-integration-tests \
+    --dbb-packages org.apache.hadoop:hadoop-aws:3.3.1 \
+    --dbb-conf io.delta.storage.credentials.provider=com.amazonaws.auth.profile.ProfileCredentialsProvider \
+               spark.hadoop.fs.s3a.aws.credentials.provider=com.amazonaws.auth.profile.ProfileCredentialsProvider
+```
+
+## Does this PR introduce _any_ user-facing changes?
+
+Users will need to modify any existing TTL settings to use the new field of `expireTime` instead of the old field `commitTime`.
+
+## Migrating from old TTL attribute `commitTime` to new TTL attribute `expireTime`
+### Enabling TTL for the first time
+If TTL is not enabled but you would like to enabled it, perform
+```
+aws dynamodb update-time-to-live \
+  --region <region> \
+  --table-name <table-name> \
+  --time-to-live-specification "Enabled=true, AttributeName=expireTime"
+```
+You may wish to clean up old, existing entries, too. It is safe to clean up any entry **older than an hour** with attribute `commitTime` set. Any entry with this attribute set will already be completed and written to the file system. Since it is older than an hour, the new fixes in this PR will mean we no longer need DynamoDB to provide the mutual exclusion during the write.
+
+### Changing TTL from `commitTime` attribute to the new `expireTime` attribute
+[As the DDB docs say](https://docs.aws.amazon.com/amazondynamodb/latest/developerguide/time-to-live-ttl-before-you-start.html)
+> You cannot reconfigure TTL to look for a different attribute. You must disable TTL, and then reenable TTL with the new attribute going forward.
+
+so first disable the current TTL attribute
+```
+aws dynamodb update-time-to-live \
+  --region <region> \
+  --table-name <table-name> \
+  --time-to-live-specification "Enabled=false, AttributeName=commitTime"
+```
+and then enable the new TTL attribute
+```
+aws dynamodb update-time-to-live \
+  --region <region> \
+  --table-name <table-name> \
+  --time-to-live-specification "Enabled=true, AttributeName=expireTime"
+```
+
+After this, you can perform the same cleanup as described above, for all entries older than an hour with a `commitTime` attribute set.
+
+
+

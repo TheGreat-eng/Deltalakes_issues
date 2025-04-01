@@ -1,0 +1,23 @@
+## Feature request
+
+### Overview
+
+Delta should provide the possibility to refresh the manifest files for selected partition subsets.
+
+### Motivation
+
+There are Delta tables where multiple writers are concurrently writing new data to separate partitions, and I would like every writer to be able to refresh only the manifests of the partitions they’re working on.
+
+### Further details
+
+I imagine this should work with a similar syntax: 
+
+`deltaTable.generate("symlink_format_manifest").where("partitionColumn = 'partition_X'")`
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [ ] Yes. I can contribute this feature independently.
+- [ ] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [x] No. I cannot contribute this feature at this time.

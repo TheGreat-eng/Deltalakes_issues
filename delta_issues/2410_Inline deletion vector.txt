@@ -1,0 +1,8 @@
+Hi,
+
+When taking a look at the protocol, there is an example for an inline deletion vector:
+"wi5b=000010000siXQKl0rr91000f55c8Xg0@@D72lkbi5=-{L"
+
+When looking at it, the deletion vector doesn't seem to have the outlined magic number (1681511376 vs the protocol which states it should be 1681511377) and has a different format. I'm wondering if the deletion vector is valid and if so how it can be decoded?
+
+Thanks!

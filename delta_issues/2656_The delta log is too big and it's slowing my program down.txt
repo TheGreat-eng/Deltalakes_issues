@@ -1,0 +1,6 @@
+The checkpoint.parquet file size of one of my delta tables had reached 118M, which caused my spark program to process each batch slowly. One of the job that merged transaction logs was executed for 1min each time.
+
+Is this a normal phenomenon? Is this checkpoint.parquet arriving so big?
+In addition, I tried to expand the parallelism processing of this file slice, but the spark parameter setting did not take effect.
+![image](https://user-images.githubusercontent.com/43332998/227129814-0c525a88-345f-465a-b4aa-6da9d9fae5ff.png)
+![image](https://user-images.githubusercontent.com/43332998/227129930-803f29d4-291d-48df-ae75-77a4d615c1f0.png)

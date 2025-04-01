@@ -1,0 +1,38 @@
+## Bug
+Confusing documentation around repartitionBeforeWrite.enabled under [Performance Tuning](https://docs.delta.io/latest/delta-update.html#performance-tuning)
+
+### Describe the problem
+The latest documentation talks about the small files issue and then explains how repartition can be enabled giving the impression that it is currently disabled. However, as per [Delta Release 1.1.0](https://github.com/delta-io/delta/releases/tag/v1.1.0) it is automatically enabled by default for **MERGE** operations.
+
+#### Steps to reproduce
+We tested it for the **MERGE** operation where the spark delta lake job was repartitioning the output by default. This job took much more time to complete (10x approx) as it had 3 coalesced tasks (executors) that would write the data. The problem is exacerbated by the fact that the Environment Tab in Spark UI (Spark History UI) does not show the delta lake properties (like it shows for spark) and hence there is no way of knowing whether the property is set or not
+
+When we set the property `spark.databricks.delta.merge.repartitionBeforeWrite.enabled` to false, the repartition did not take place and we got the desired no. of partitions(files)
+
+
+#### Observed results
+
+**Before (When repartition is enabled by default)**
+<img width="406" alt="before" src="https://user-images.githubusercontent.com/31132555/199691634-410e1fc4-a639-4b49-8896-d04838258202.png">
+
+**After (when we disabled it)**
+<img width="394" alt="after" src="https://user-images.githubusercontent.com/31132555/199691712-876684a1-a091-498c-befc-0c29b6ddc091.png">
+
+Relevant parts of the DAGs are pointed out here which helped in achieving our use case 
+
+
+#### Expected results
+
+The documentation should be fixed to reflect that it is enabled by default. If we want we can disable it. 
+
+#### Further details
+
+Additionally, is there a way to show the **delta lake properties used by the delta spark job on the Spark UI?** That would be really helpful. If there is any configuration already existing, can you point me to the documentation?
+
+### Environment information
+
+* Delta Lake version: 2.0
+* Spark version: 3.3
+
+### Willingness to contribute
+- [x] Yes. We would be willing to contribute a fix for this bug with guidance from the Delta Lake community.

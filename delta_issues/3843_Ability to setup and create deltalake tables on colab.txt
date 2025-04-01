@@ -1,0 +1,1 @@
+Hi. I have been able to use pyspark on colab. However, unable to setup delta lake on colab. Any suggestions would be helpful. Probably demands an enhancement or is there a workaround?

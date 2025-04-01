@@ -1,0 +1,14 @@
+## Description
+
+- Adds more instructions to integration_tests/dynamodb_logstore.py 
+-  Fixes some whitespace issues in the same file
+
+I ran those tests to better understand how the dynamodb logstore works, and I added some more instructions based on the steps I took for the setup.
+ 
+## How was this patch tested?
+
+Ran the integration tests.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No.

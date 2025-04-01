@@ -1,0 +1,17 @@
+Delta Error Log 09/09/2024 04:56:28 p. m.
+
+File Name: C:\Users\Zero\AppData\Roaming\delta_core\error_logs\ERROR_LOG_82588152.9382.txt
+HResult: -2147467259
+Exception Data: System.Collections.ListDictionaryInternal
+Causing Func: GetModuleInfos
+Target Site: System.Diagnostics.ModuleInfo[] GetModuleInfos(Int32, Boolean)
+Outer Exception Message: Los procesos de 32 bits no pueden tener acceso a los módulos de un proceso de 64 bits.
+Outer Exception Source: System
+
+
+Exception as String: System.ComponentModel.Win32Exception (0x80004005): Los procesos de 32 bits no pueden tener acceso a los módulos de un proceso de 64 bits.
+   en System.Diagnostics.NtProcessManager.GetModuleInfos(Int32 processId, Boolean firstModuleOnly)
+   en System.Diagnostics.NtProcessManager.GetFirstModuleInfo(Int32 processId)
+   en System.Diagnostics.Process.get_MainModule()
+   en Delta.XWindow.Inject()
+   en Delta.XWindow.Button_Click_7(Object sender, RoutedEventArgs e)

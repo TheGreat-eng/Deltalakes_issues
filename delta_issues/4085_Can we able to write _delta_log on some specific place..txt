@@ -1,0 +1,5 @@
+Can we able to write _delta_log on some specific place. 
+Lets say I want to keep my processed data here  :"/delta-table/year/month/day".  
+and I need my _delta_log should be on common place like "/delta-table/_delta_log".
+
+Is it possible to do like that. ?

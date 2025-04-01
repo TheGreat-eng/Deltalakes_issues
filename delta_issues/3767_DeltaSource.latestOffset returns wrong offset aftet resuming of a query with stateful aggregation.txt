@@ -1,0 +1,157 @@
+Hi,
+
+I'm running a spark streaming process with DeltaLake table as a source.
+
+I observe that DeltaSource.latestOffset calculates wrong current Offset value when the following (pre-)conditions hold:
+
+Current batch id = N
+Latest commit in the DL table = C
+
+1. No data to process for batch N, but need to release state from the N-1
+2. Latest offset file N is written to the checkpoint location 
+3. Offset in file N-1 is the same as in file N (due to the 1.) and it looks like this: {"sourceVersion":1,"reservoirId":"A","reservoirVersion":K,"index":-1,"isStartingVersion":false}, where K=C+1 (again, due to 1.).
+4. Micro-batch does not succeed (e.g., killed by K8s due to OOM error, or terminated from external scheduler, etc.)
+5. Sparkapp is restarted again and use the same checkpoint data
+
+After restart of the app, private [var previousOffset = null](https://github.com/delta-io/delta/blob/60c65a10ff69e90cd6be92254f536d008fc526a9/src/main/scala/org/apache/spark/sql/delta/sources/DeltaSource.scala#L99) and [getStartingOffset(AdmissionLimits(limit))](https://github.com/delta-io/delta/blob/60c65a10ff69e90cd6be92254f536d008fc526a9/src/main/scala/org/apache/spark/sql/delta/sources/DeltaSource.scala#L209) will be returned by DeltaSource.latestOffset method.
+
+As a consequence, streaming process will reprocess almost all data from the source DL table.
+
+Here is a small example to demonstrate described behavior:
+```export TMP_FOLDER=$(uuidgen)
+mkdir $TMP_FOLDER && cd $TMP_FOLDER
+export SPARK_HOME=$HOME/software/spark-3.0.1-bin/
+
+$HOME/software/spark-3.0.1-bin/bin/spark-shell --jars $HOME/.cache/coursier/v1/https/repo1.maven.org/maven2/io/delta/delta-core_2.12/0.7.0/delta-core_2.12-0.7.0.jar --master=local
+
+// directories
+val workDir = s"file://${sys.env.getOrElse("HOME","")}/${sys.env.getOrElse("TMP_FOLDER","tmp")}"
+val inDir = s"${workDir}/input"
+val cpDir = s"${workDir}/checkpoint"
+val outDir = s"${workDir}/output"
+
+import org.apache.hadoop.fs.Path
+
+val fs = new Path(workDir).getFileSystem(spark.sparkContext.hadoopConfiguration)
+
+Seq(inDir,cpDir,outDir).map(new Path(_)).foreach(fs.delete(_))
+
+//write into DL table 
+sc.parallelize(Seq(1,5)).toDF.repartition(1).write.format("delta").mode("append").save(inDir)
+sc.parallelize(Seq(5,10)).toDF.repartition(1).write.format("delta").mode("append").save(inDir)
+
+import org.apache.spark.sql.streaming.Trigger
+
+//do stateful transformation
+val query = spark.readStream.format("delta").option("maxFilesPerTrigger","1").load(inDir).withColumn("systime", current_timestamp()).
+withWatermark("systime", "0 milliseconds").
+groupBy("systime").
+max("value").writeStream.
+format("csv").
+option("checkpointLocation",cpDir).
+trigger(Trigger.ProcessingTime("5 seconds")).
+outputMode("append").
+start(outDir)
+
+query.awaitTermination(20000)
+
+sc.parallelize(Seq(10,15)).toDF.write.format("delta").mode("append").save(inDir)
+
+query.awaitTermination(20000)
+query.stop
+println("Done")
+
+spark.read.format("csv").load(outDir).sort("_c0").show(100,false)
+
+//emulate that the last micro-batch was interrupted (i.e. it did not release state of the previous micro-batch). 
+//it might happen due to redeployment or OOMError and consequent restart
+val lastCommit = fs.listStatus(new Path(s"${cpDir}/commits")).map(_.getPath.toString).sorted.last
+
+fs.delete(new Path(lastCommit))
+
+sc.parallelize(Seq(15,20)).toDF.write.format("delta").mode("append").save(inDir)
+
+val query = spark.readStream.format("delta").option("maxFilesPerTrigger","1").load(inDir).withColumn("systime", current_timestamp()).
+withWatermark("systime", "0 milliseconds").
+groupBy("systime").
+max("value").writeStream.
+format("csv").
+option("checkpointLocation",cpDir).
+trigger(Trigger.ProcessingTime("5 seconds")).
+outputMode("append").
+start(outDir)
+
+query.awaitTermination(40000)
+query.stop
+
+spark.read.format("csv").load(outDir).sort("_c0").show(100,false)
+
+spark.read.format("text").
+load(fs.listStatus(new Path(s"${cpDir}/offsets")).
+map(_.getPath.toString):_*).
+withColumn("filename",input_file_name()).sort("filename")
+.drop("filename").show(100,false)
+```
+
+Sample output of the `spark.read...` commands:
+```
+
+//after println("Done")
++-----------------------------+---+
+|_c0                          |_c1|
++-----------------------------+---+
+|2020-11-11T12:35:55.046+01:00|5  |
+|2020-11-11T12:36:02.864+01:00|10 |
+|2020-11-11T12:36:14.999+01:00|15 |
++-----------------------------+---+
+
+//the latest two
+
++-----------------------------+---+
+|_c0                          |_c1|
++-----------------------------+---+
+|2020-11-11T12:35:55.046+01:00|5  |
+|2020-11-11T12:36:02.864+01:00|10 |
+|2020-11-11T12:36:14.999+01:00|15 |
+|2020-11-11T12:36:51.097+01:00|20 |
+|2020-11-11T12:36:58.811+01:00|10 |
+|2020-11-11T12:37:03.537+01:00|15 |
+|2020-11-11T12:37:08.076+01:00|20 |
++-----------------------------+---+
+
++----------------------------------------------------------------------------------------------------------------------------------+
+|value                                                                                                                             |
++----------------------------------------------------------------------------------------------------------------------------------+
+|{"batchWatermarkMs":0,"batchTimestampMs":1605094555046,"conf":{...}                                                               |
+|v1                                                                                                                                |
+|{"sourceVersion":1,"reservoirId":"98a8d498-3854-4c79-abb8-5c8166794e97","reservoirVersion":1,"index":0,"isStartingVersion":true}  |
+|{"batchWatermarkMs":1605094555046,"batchTimestampMs":1605094562864,"conf":{...}                                                   |
+|v1                                                                                                                                |
+|{"sourceVersion":1,"reservoirId":"98a8d498-3854-4c79-abb8-5c8166794e97","reservoirVersion":1,"index":1,"isStartingVersion":true}  |
+|{"sourceVersion":1,"reservoirId":"98a8d498-3854-4c79-abb8-5c8166794e97","reservoirVersion":1,"index":1,"isStartingVersion":true}  |
+|v1                                                                                                                                |
+|{"batchWatermarkMs":1605094562864,"batchTimestampMs":1605094569432,"conf":{...}                                                   |
+|{"batchWatermarkMs":1605094562864,"batchTimestampMs":1605094574999,"conf":{...}                                                   |
+|{"sourceVersion":1,"reservoirId":"98a8d498-3854-4c79-abb8-5c8166794e97","reservoirVersion":3,"index":-1,"isStartingVersion":false}|
+|v1                                                                                                                                |
+|{"batchWatermarkMs":1605094574999,"batchTimestampMs":1605094580026,"conf":{...}                                                   |
+|v1                                                                                                                                |
+|{"sourceVersion":1,"reservoirId":"98a8d498-3854-4c79-abb8-5c8166794e97","reservoirVersion":3,"index":-1,"isStartingVersion":false}|
+|{"batchWatermarkMs":1605094574999,"batchTimestampMs":1605094611097,"conf":{...}                                                   |
+|{"sourceVersion":1,"reservoirId":"98a8d498-3854-4c79-abb8-5c8166794e97","reservoirVersion":3,"index":0,"isStartingVersion":true}  |
+|v1                                                                                                                                |
+|v1                                                                                                                                |
+|{"batchWatermarkMs":1605094611097,"batchTimestampMs":1605094618811,"conf":{...}                                                   |
+|{"sourceVersion":1,"reservoirId":"98a8d498-3854-4c79-abb8-5c8166794e97","reservoirVersion":3,"index":1,"isStartingVersion":true}  |
+|{"batchWatermarkMs":1605094618811,"batchTimestampMs":1605094623537,"conf":{...}                                                   |
+|v1                                                                                                                                |
+|{"sourceVersion":1,"reservoirId":"98a8d498-3854-4c79-abb8-5c8166794e97","reservoirVersion":3,"index":2,"isStartingVersion":true}  |
+|{"sourceVersion":1,"reservoirId":"98a8d498-3854-4c79-abb8-5c8166794e97","reservoirVersion":3,"index":3,"isStartingVersion":true}  |
+|{"batchWatermarkMs":1605094623537,"batchTimestampMs":1605094628076,"conf":{...}                                                   |
+|v1                                                                                                                                |
+|v1                                                                                                                                |
+|{"batchWatermarkMs":1605094628076,"batchTimestampMs":1605094632595,"conf":{...}                                                   |
+|{"sourceVersion":1,"reservoirId":"98a8d498-3854-4c79-abb8-5c8166794e97","reservoirVersion":3,"index":3,"isStartingVersion":true}  |
++----------------------------------------------------------------------------------------------------------------------------------+
+``` 
+

@@ -1,0 +1,3 @@
+See the comment here: https://github.com/delta-io/delta/pull/1939#discussion_r1289224490
+
+According to the PROTOCOL, the path in AddFile can be relative or absolute. Do we need to make the paths absolute before comparing? Is there case where the AddFile contains relative path, but the absolute path in RemoveFile?

@@ -1,0 +1,23 @@
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [X] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+This fixes an issue where inconsistently using case-insensitive column names with schema evolution and generated columns can trigger an assertion during analysis.
+If `new_column` is a column present in the source and not the target of a MERGE operation and the target contains a generated column, the following INSERT clause will fail as `NEW_column` and `new_column` are wrongly considered different column names when computing the final schema after evolution:
+
+```
+WHEN NOT MATCHED  THEN INSERT (NEW_column) VALUES (source.new_column);
+```
+
+## How was this patch tested?
+Added tests for schema evolution, generated column to cover case-(in)sensitive column names.

@@ -1,0 +1,13 @@
+Signed-off-by: Felipe Pessoto <felipepessoto@hotmail.com>
+
+## Description
+
+Fix an error message with incorrect instructions.
+
+## How was this patch tested?
+
+Tested locally, the old code example doesn't even compile.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

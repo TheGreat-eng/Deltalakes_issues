@@ -1,0 +1,146 @@
+## Description
+
+- `DynamoDBLogStore` renamed to `S3DynamoDBLogStore`
+- `delta-storage-dynamodb` artifact renamed to `delta-storage-s3-dynamodb`
+- `delta-storage` artifact name now has no scala version, and pom has no scala dependency
+- `delta-storage-s3-dynamodb` artifact name now has no scala version, and pom has no scala dependency
+- `io.delta.storage` scaladocs now contain only the `io.delta.storage` Java APIs
+- NO CHANGE: `io.delta.storage` java APIs docs include only `LogStore.java` and `CloseableIterator.java`
+- updated integration tests for new folder and new artifact name
+- java artifacts are only generated when using scala 2.12 ... we do NOT double publish them / double generate the jars. e.g. `build/sbt '++2.13.5 publishM2' does not generate these jars
+
+
+## How was this patch tested?
+
+### Artifact Names and POMs
+Ran `build/sbt publishM2` locally.
+
+#### delta-storage published correctly
+```
+[info] 	published delta-storage to file:/Users/scott.sandre/.m2/repository/io/delta/delta-storage/1.2.0-SNAPSHOT/delta-storage-1.2.0-SNAPSHOT.pom
+[info] 	published delta-storage to file:/Users/scott.sandre/.m2/repository/io/delta/delta-storage/1.2.0-SNAPSHOT/delta-storage-1.2.0-SNAPSHOT.jar
+[info] 	published delta-storage to file:/Users/scott.sandre/.m2/repository/io/delta/delta-storage/1.2.0-SNAPSHOT/delta-storage-1.2.0-SNAPSHOT-sources.jar
+[info] 	published delta-storage to file:/Users/scott.sandre/.m2/repository/io/delta/delta-storage/1.2.0-SNAPSHOT/delta-storage-1.2.0-SNAPSHOT-javadoc.jar
+
+// pom.xml
+<?xml version='1.0' encoding='UTF-8'?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>io.delta</groupId>
+    <artifactId>delta-storage</artifactId>
+    <packaging>jar</packaging>
+    <description>delta-storage</description>
+    <version>1.2.0-SNAPSHOT</version>
+    <licenses>
+        <license>
+            <name>Apache-2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+    <name>delta-storage</name>
+    <organization>
+        <name>io.delta</name>
+    </organization>
+    <url>https://delta.io/</url>
+    <scm>
+        <url>git@github.com:delta-io/delta.git</url>
+        <connection>scm:git:git@github.com:delta-io/delta.git</connection>
+    </scm>
+    <developers>
+        ...
+    </developers>
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-common</artifactId>
+            <version>3.3.1</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+</project>
+```
+
+#### delta-storage-s3-dynamodb published correctly
+```
+[info] 	published delta-storage-s3-dynamodb to file:/Users/scott.sandre/.m2/repository/io/delta/delta-storage-s3-dynamodb/1.2.0-SNAPSHOT/delta-storage-s3-dynamodb-1.2.0-SNAPSHOT.pom
+[info] 	published delta-storage-s3-dynamodb to file:/Users/scott.sandre/.m2/repository/io/delta/delta-storage-s3-dynamodb/1.2.0-SNAPSHOT/delta-storage-s3-dynamodb-1.2.0-SNAPSHOT.jar
+[info] 	published delta-storage-s3-dynamodb to file:/Users/scott.sandre/.m2/repository/io/delta/delta-storage-s3-dynamodb/1.2.0-SNAPSHOT/delta-storage-s3-dynamodb-1.2.0-SNAPSHOT-sources.jar
+[info] 	published delta-storage-s3-dynamodb to file:/Users/scott.sandre/.m2/repository/io/delta/delta-storage-s3-dynamodb/1.2.0-SNAPSHOT/delta-storage-s3-dynamodb-1.2.0-SNAPSHOT-javadoc.jar
+
+// pom.xml
+<?xml version='1.0' encoding='UTF-8'?>
+<project xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>io.delta</groupId>
+    <artifactId>delta-storage-s3-dynamodb</artifactId>
+    <packaging>jar</packaging>
+    <description>delta-storage-s3-dynamodb</description>
+    <version>1.2.0-SNAPSHOT</version>
+    <licenses>
+        <license>
+            <name>Apache-2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+    <name>delta-storage-s3-dynamodb</name>
+    <organization>
+        <name>io.delta</name>
+    </organization>
+    <url>https://delta.io/</url>
+    <scm>
+        <url>git@github.com:delta-io/delta.git</url>
+        <connection>scm:git:git@github.com:delta-io/delta.git</connection>
+    </scm>
+    <developers>
+        ...
+    </developers>
+    <dependencies>
+        <dependency>
+            <groupId>io.delta</groupId>
+            <artifactId>delta-storage</artifactId>
+            <version>1.2.0-SNAPSHOT</version>
+        </dependency>
+        <dependency>
+            <groupId>io.delta</groupId>
+            <artifactId>delta-core_2.12</artifactId>
+            <version>1.2.0-SNAPSHOT</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.amazonaws</groupId>
+            <artifactId>aws-java-sdk</artifactId>
+            <version>1.7.4</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+</project>
+```
+
+#### other artifacts still generate correctly
+```
+ls /Users/scott.sandre/.m2/repository/io/delta
+delta-contribs_2.12       delta-core_2.12           delta-storage             delta-storage-s3-dynamodb
+```
+
+### Javadocs and Scaladocs
+Ran `build/sbt unidoc` locally.
+
+#### Javadocs BEFORE
+![image](https://user-images.githubusercontent.com/59617782/161815044-c0b7b650-bcc4-4bb1-9bb4-c90a3c943ff4.png)
+
+#### Javadocs AFTER
+- *Note*: the `:: Developer API ::` tag isn't working here ... but it's not working on branch-1.1 master either for me locally ... so I don't think this is an issue
+![image](https://user-images.githubusercontent.com/59617782/161815083-4869cb2f-b259-4b51-8ed4-04c7e24add2c.png)
+
+
+#### Scaladocs BEFORE
+![image](https://user-images.githubusercontent.com/59617782/161814589-37ecb600-6f9a-47ab-be21-2ce69d9a47dc.png)
+
+#### Scaladocs AFTER
+![image](https://user-images.githubusercontent.com/59617782/161869888-08678416-4081-488c-b919-becb63d86874.png)
+
+
+### Integration Tests
+- also re-ran integration tests (to test the new artifact name, with no scala version)

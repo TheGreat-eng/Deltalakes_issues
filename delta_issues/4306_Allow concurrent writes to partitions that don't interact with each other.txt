@@ -1,0 +1,31 @@
+I have a use case where I would like to update multiple partitions of data at the same time but the partitions are totally separate and do not interact with each other. 
+
+For example, I would like to run these queries concurrently (which would be very useful in the case of backfills):
+
+```scala
+spark.read.parquet("s3://jim/dataset/v1/valid-records")
+  .filter(col("event_date") === lit("2019-01-01"))
+  .write
+  .partitionBy("event_date")
+  .format("delta")
+  .mode(SaveMode.Overwrite)
+  .option("replaceWhere", "event_date == '2019-01-01'")
+  .save("s3://calvin/delta-experiments")
+```
+
+```scala
+spark.read.parquet("s3://jim/dataset/v1/valid-records")
+  .filter(col("event_date") === lit("2019-01-02"))
+  .write
+  .partitionBy("event_date")
+  .format("delta")
+  .mode(SaveMode.Overwrite)
+  .option("replaceWhere", "event_date == '2019-01-02'")
+  .save("s3://calvin/delta-experiments")
+```
+
+So the data above being written as delta belongs to two separate partitions which do not interact with each other. According to the Delta documentation and what I experience is a `com.databricks.sql.transaction.tahoe.ProtocolChangedException: The protocol version of the Delta table has been changed by a concurrent update. Please try the operation again.`
+
+Would you support this use-case where you can update partitions concurrently that do not interact with each other? 
+
+Parquet seems to allow this just fine (without any corruption if you turn on dynamic partitioning with `spark.sql.sources.partitionOverwriteMode`). This is a very valid use case if you adhere to Maxime Beauchemin's technique of [immutable table partitions](https://medium.com/@maximebeauchemin/functional-data-engineering-a-modern-paradigm-for-batch-data-processing-2327ec32c42a).

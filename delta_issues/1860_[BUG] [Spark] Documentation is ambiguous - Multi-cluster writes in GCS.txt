@@ -1,0 +1,58 @@
+## Bug
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the issue title
+For example: [BUG][Spark] Title of my issue
+-->
+
+- [X] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+### Describe the problem
+**Multi-Cluster Write Issue on GCS with delta-lake v1.0.1**
+We had two delta lake jobs from different spark clusters (basically a multi-cluster setup), both of them updating the same delta table but operating on completely different partitions. We found that both of them committed the same delta version which resulted in overwriting the Delta Version Log by one job which was already written by the other. This is a similar issue alluded to by @dennyglee in the blog post for AWS S3: https://delta.io/blog/2022-05-18-multi-cluster-writes-to-delta-lake-storage-in-s3/
+
+#### Observed results
+
+We checked various documentation from both GCP and Delta Lake:
+- https://cloud.google.com/storage/docs/consistency
+- https://docs.delta.io/latest/delta-storage.html#google-cloud-storage
+- https://cloud.google.com/blog/products/data-analytics/getting-started-with-new-table-formats-on-dataproc/
+
+Many of them claim that the 3 guarantees of atomic visibility, mutual exclusion, and consistent listing are already supported by GCP, and hence, no separate `LogStore` implementation is required. However, if that was the case then the issue should not have happened with v1.0. Finally, we stumbled upon a conversation on issue #294 which clarifies that GCS does not support the issue, and PR #560 was raised in v2.0.0 to solve the issue.
+
+We then turned to the documentation for help with the matter. The [GCS](https://docs.delta.io/latest/delta-storage.html#google-cloud-storage) section of the documentation seem to be ambiguous.
+
+- Our conclusion from the blogs and issues is that Multi-Cluster writes for GCS work only beyond v2.0 and do not work for v1.0. Is this analysis correct?
+- It states that
+
+> For Delta Lake 1.2.0 and below, you must explicitly configure the LogStore implementation for the scheme gs. as spark.delta.logStore.gs.impl=io.delta.storage.GCSLogStore. 
+
+ - - However, the GCSLogStore class was only introduced in v2.0.0, then how would it resolve the class in a version lower than that? In fact when we launched a job with delta v1.0.1 and passed the above config, it threw a `java.lang.ClassNotFoundException: io.delta.storage.GCSLogStore`
+
+- It further states `Include the JAR for gcs-connector in the classpath`. We checked in our classpath for the `gcs-connector` jar and indeed it was present. But, that did not prevent the issue.
+
+#### Expected results
+
+1. First of all, we would like to know if our analysis is correct or are there any gaps in what we understood?
+2. For AWS S3 there is a clear warning for Muli-Cluster writes and a suggestion to use DynamoDB. If our analysis is correct, then a similar warning should be clearly stated in the documentation that Multi-Cluster write for GCS only works beyond v2.0.0.
+3. Furthermore, even if this analysis is incorrect, there should be some clear documentation around multi-cluster writes on GCS in general as there are a lot of ambiguous blogs that gives the impression that GCS supports multi-cluster writes with Delta Lake regardless of the version. From Delta Lake's end, there is just the one issue #294  which talks about it. Since this can cause data loss in production, at least there should be a warning pertaining to it.
+4. If the `GCSLogStore` argument is correct, then that configuration should either be removed or fixed to show the correct version
+
+### Environment information
+
+* Delta Lake version: `io.delta:delta-core_2.12:1.0.1`
+* Spark version: `3.1.3`
+* Scala version: `2.12`
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [x] Yes. I can contribute a fix for this bug independently.
+- [ ] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute a bug fix at this time.

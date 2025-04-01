@@ -1,0 +1,35 @@
+<!--
+Thanks for sending a pull request!  Here are some tips for you:
+  1. If this is your first time, please read our contributor guidelines: https://github.com/delta-io/delta/blob/master/CONTRIBUTING.md
+  2. If the PR is unfinished, add '[WIP]' in your PR title, e.g., '[WIP] Your PR title ...'.
+  3. Be sure to keep the PR description updated to reflect all changes.
+  4. Please write your PR title to summarize what this PR proposes.
+  5. If possible, provide a concise example to reproduce the issue for a faster review.
+  6. If applicable, include the corresponding issue number in the PR title and link it in the body.
+-->
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [X] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+In preparation for a Spark 4.0 preview release branch (which will only support Scala 2.13) make the necessary changes to Kernel to reduce the later diff.
+- Support Scala 2.13
+- Avoid java doc missing import errors since we exclude any `internal/` files from the javadoc source files. For some reason this starts failing in https://github.com/delta-io/delta/pull/3122 but not before.
+
+## How was this patch tested?
+
+https://github.com/delta-io/delta/pull/3122 and existing tests.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No.

@@ -1,0 +1,103 @@
+## Bug
+
+### Describe the problem
+
+(originally reported by @Yatharth Maheshwari in Slack https://delta-users.slack.com/archives/CJ70UCSHM/p1659941865587999)
+
+Delta MERGE & UPDATE operations both produce CDF rows when no data has changed.
+
+The result is technically correct, but writing equivalent pre/post CDF rows is confusing for users to interpret, can ripple downstream, and may add unnecessary overhead.
+
+#### Steps to reproduce
+
+```
+import spark.implicits._
+
+val target_data = Seq(
+    (0,"data"),
+    (1,"data"),
+    (2,"data")
+)
+
+target_data.toDF("id","data").write.format("delta").saveAsTable("target")
+
+val source_dataDF = Seq(
+    (0, null),
+    (1, null),
+    (2, null)
+).toDF("id","data")
+
+spark.sql("""ALTER TABLE target SET TBLPROPERTIES (delta.enableChangeDataCapture = true);""")
+
+val dt = DeltaTable.forName("target")
+
+dt.as("target")
+  .merge(
+      source_dataDF.as("source"),
+      "target.id = source.id")
+  .whenMatched
+  .update(
+      Map(
+          "data" -> when(
+            col("source.data").isNull,
+            col("target.data")
+          ).otherwise(
+            col("source.data")
+          )
+      ))
+  .execute()
+
+// (for UPDATE operation)
+//dt.update(
+//  col("data") === "data",
+//  Map("data" -> col("data"))
+//)
+
+spark.read.format("delta")
+  .option("readChangeFeed", "true")
+  .option("startingVersion", 1)
+  .table("target")
+  .show()
+```
+
+#### Observed results
+
+For both MERGE & UPDATE in the above code snippet, the table changes output is:
+
+```
++---+----+----------------+---------------+--------------------+
+| id|data|    _change_type|_commit_version|   _commit_timestamp|
++---+----+----------------+---------------+--------------------+
+|  0|data| update_preimage|              2|2022-08-09 09:09:...|
+|  0|data|update_postimage|              2|2022-08-09 09:09:...|
+|  1|data| update_preimage|              2|2022-08-09 09:09:...|
+|  1|data|update_postimage|              2|2022-08-09 09:09:...|
+|  2|data| update_preimage|              2|2022-08-09 09:09:...|
+|  2|data|update_postimage|              2|2022-08-09 09:09:...|
++---+----+----------------+---------------+--------------------+
+```
+
+#### Expected results
+
+1. No CDF rows should be output
+
+#### Further details
+
+Fundamentally, today's implementation does not consider the _result_ of evaluating the actions within MERGE. The [expressions evaluated at runtime](https://github.com/delta-io/delta/blob/master/core/src/main/scala/org/apache/spark/sql/delta/commands/MergeIntoCommand.scala#L965) (`preImageOutput` and `postImageOutput`) are based only on [the existence of the relevant clause (`DeltaMergeIntoUpdateClause`) and if `cdcEnabled` is true. ](https://github.com/delta-io/delta/blob/master/core/src/main/scala/org/apache/spark/sql/delta/commands/MergeIntoCommand.scala#L629-L641)
+
+There could be an argument for keeping the CDF output as it is because it's useful to know that an operation tried but did not change the data. If this is the case, we should explicitly call this out in the documentation.
+
+A closely related and known issue is that the underlying files are also rewritten even if data does not change.
+
+### Environment information
+* Delta Lake version: io.delta::delta-core:2.0.0
+* Spark version: org.apache.spark::spark-sql:3.2.2
+* Scala version: 2.12.5
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [x] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute a bug fix at this time.

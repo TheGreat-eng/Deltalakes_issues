@@ -1,0 +1,5 @@
+ I got a issue when I executed the MERGE Command and in the conditon clause I compare a value with null value.
+The merge not understood this as different, my workaround for this problem was use the coalesce in the merge condition replacing null for the value of data type of the compare, exemple: coalesce ( columnInt , 0)  OR  coalesce (columnString , '')
+
+Someone have this same issue ?  
+

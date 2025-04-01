@@ -1,0 +1,9 @@
+## Description
+Minor cleanups + additional logging.
+
+* Pass the cause exception to `KernelException`, so that it is visible to the caller
+* Add logging when the LogStore can't be created.
+* Convert `RuntimeException` to `KernelException` when an invalid schema JSON string is received.
+
+## How was this patch tested?
+Existing tests

@@ -1,0 +1,66 @@
+## Bug
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the issue title
+For example: [BUG][Spark] Title of my issue
+-->
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+### Describe the problem
+
+Using latest pyspark from conda-forge (pyspark 3.5.1) and latest delta (3.2.1) fails when reading delta format:
+
+Exception in thread "main" java.lang.NoSuchMethodError: 'org.apache.spark.sql.catalyst.expressions.ExpressionSet org.apache.spark.sql.catalyst.expressions.ExpressionSet.$plus$plus(scala.collection.GenTraversableOnce)'
+	at org.apache.spark.sql.delta.stats.DeltaScan.filtersUsedForSkipping$lzycompute(DeltaScan.scala:92)
+	at org.apache.spark.sql.delta.stats.DeltaScan.filtersUsedForSkipping(DeltaScan.scala:92)
+	at org.apache.spark.sql.delta.stats.DeltaScan.allFilters$lzycompute(DeltaScan.scala:93)
+	at org.apache.spark.sql.delta.stats.DeltaScan.allFilters(DeltaScan.scala:93)
+...
+
+Delta 3.2.0 works with spark 3.51. Also using scala 2.13 artifacts works.
+
+#### Steps to reproduce
+Set up an environment in python using pyspark 3.5.1 and delta 3.2.1 or set up a jvm environment with same versions using the 2.12-scala builds. Run:
+spark.read.format("delta").load("path to delta files").show()
+
+<!--
+Please include copy-pastable code snippets if possible.
+1. _____
+2. _____
+3. _____
+-->
+
+#### Observed results
+
+An exception is thrown:
+Exception in thread "main" java.lang.NoSuchMethodError: 'org.apache.spark.sql.catalyst.expressions.ExpressionSet org.apache.spark.sql.catalyst.expressions.ExpressionSet.$plus$plus(scala.collection.GenTraversableOnce)'
+	at org.apache.spark.sql.delta.stats.DeltaScan.filtersUsedForSkipping$lzycompute(DeltaScan.scala:92)
+	at org.apache.spark.sql.delta.stats.DeltaScan.filtersUsedForSkipping(DeltaScan.scala:92)
+	at org.apache.spark.sql.delta.stats.DeltaScan.allFilters$lzycompute(DeltaScan.scala:93)
+	at org.apache.spark.sql.delta.stats.DeltaScan.allFilters(DeltaScan.scala:93)
+
+#### Expected results
+
+Output of data frame shown.
+
+#### Further details
+
+It looks like the combination of scala 2.12 builds of spark 3.5.1 and delta 3.2.1 is the only combination causing the exception. Scala 2.13 builds of the same version works fine. Spark 3.5.1 and delta 3.2.0 work fine. Spark 3.5.3 and delta 3.2.1 works fine.
+
+### Environment information
+
+* Delta Lake version: 3.2.1
+* Spark version: 3.5.1
+* Scala version: 2.12
+
+### Willingness to contribute
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [ ] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [x] No. I cannot contribute a bug fix at this time.

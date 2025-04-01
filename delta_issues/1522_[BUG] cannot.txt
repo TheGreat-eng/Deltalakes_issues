@@ -1,0 +1,81 @@
+## Bug
+
+#### Which Delta project/connector is this regarding?
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+### Describe the problem
+
+As of Spark 3.4.0, native support for 3-layer-namespaces for tables was added into SQL API
+
+[3-layer-namespace Ticket](https://issues.apache.org/jira/browse/SPARK-39235)
+[Spark 3.4.0 release notes](https://spark.apache.org/releases/spark-release-3-4-0.html)
+
+However  when trying to use this with `DeltaTable`  you get an error
+
+#### Steps to reproduce
+
+```
+DeltaTable
+  .createIfNotExists(spark)
+  .tableName("spark_catalog.some_database.some_table")
+  .addColumn("id", "long", nullable = false)
+  .execute()
+```
+
+
+#### Observed results
+
+
+```
+[PARSE_SYNTAX_ERROR] Syntax error at or near '.'.(line 1, pos 25)
+
+== SQL ==
+spark_catalog.some_database.some_table
+-------------------------^^^
+
+org.apache.spark.sql.catalyst.parser.ParseException: 
+[PARSE_SYNTAX_ERROR] Syntax error at or near '.'.(line 1, pos 25)
+
+== SQL ==
+spark_catalog.some_database.some_table
+-------------------------^^^
+
+	at org.apache.spark.sql.catalyst.parser.ParseException.withCommand(parsers.scala:257)
+	at org.apache.spark.sql.catalyst.parser.AbstractParser.parse(parsers.scala:98)
+	at org.apache.spark.sql.execution.SparkSqlParser.parse(SparkSqlParser.scala:54)
+	at org.apache.spark.sql.catalyst.parser.AbstractSqlParser.parseTableIdentifier(AbstractSqlParser.scala:41)
+	at io.delta.sql.parser.DeltaSqlParser.parseTableIdentifier(DeltaSqlParser.scala:146)
+	at io.delta.tables.DeltaTableBuilder.$anonfun$execute$1(DeltaTableBuilder.scala:316)
+	at org.apache.spark.sql.SparkSession.withActive(SparkSession.scala:900)
+	at org.apache.spark.sql.delta.DeltaTableUtils$.withActiveSession(DeltaTable.scala:491)
+	at io.delta.tables.DeltaTableBuilder.execute(DeltaTableBuilder.scala:306)
+```
+
+#### Expected results
+
+For it to create a `some_table` table in the `some_database` database of the `spark_catalog` session catalog, 
+
+#### Further details
+
+The root cause seems to be that the core spark parser does not support catalogs. this throws the same error
+
+spark.sessionState.sqlParser.parseTableIdentifier("spark_catalog.some_database.some_table")
+
+### Environment information
+
+* Delta Lake version:  3.1.0
+* Spark version: 2.5.1
+* Scala version: 2.12
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [x] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute a bug fix at this time.

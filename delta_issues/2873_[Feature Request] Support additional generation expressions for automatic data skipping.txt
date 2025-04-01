@@ -1,0 +1,21 @@
+### Overview
+For partition columns that are generated columns, we are able to automatically generate partition filters when we see a data filter on its generating columns. Right now we automatically generate these for a small subset of possible generation expressions (defined [here](https://github.com/delta-io/delta/blob/master/core/src/main/scala/org/apache/spark/sql/delta/optimizablePartitionExpressions.scala).)
+
+### Details
+
+We can add support for additional expressions. Here are[ the supported generation expressions](https://github.com/delta-io/delta/blob/master/core/src/main/scala/org/apache/spark/sql/delta/SupportedGenerationExpressions.scala) in Delta.
+
+A few specific expressions that would make sense to add include:
+
+- Ceil: https://github.com/delta-io/delta/issues/1443
+- Floor: https://github.com/delta-io/delta/issues/1444
+- TruncDate: https://github.com/delta-io/delta/issues/1446
+- TruncTimestamp: https://github.com/delta-io/delta/issues/1445
+
+These are just a few, feel free to comment or create a new sub-issue for any additional expressions you think would be beneficial.
+
+### What to update?
+
+- [optimizablePartitionExpressions](https://github.com/delta-io/delta/blob/master/core/src/main/scala/org/apache/spark/sql/delta/optimizablePartitionExpressions.scala)
+- [GeneratedColumn.getOptimizablePartitionExpressions](https://github.com/delta-io/delta/blob/master/core/src/main/scala/org/apache/spark/sql/delta/GeneratedColumn.scala#L317)
+- [OptimizeGeneratedColumnSuite](https://github.com/delta-io/delta/blob/master/core/src/test/scala/org/apache/spark/sql/delta/perf/OptimizeGeneratedColumnSuite.scala)

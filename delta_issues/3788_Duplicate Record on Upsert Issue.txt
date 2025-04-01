@@ -1,0 +1,10 @@
+Just to give the background, we use AWS EMR to run Spark and use pyspark code for running the Delta code and save the file on S3.
+We have been using Delta Lake to ingest data from Oracle in AWS S3 in an incremental fashion. But recently, we have discovered that Delta, is creating some duplicate id’s after the merge. We also checked oracle and found that the ID’s are auto increment Primary Keys. Could you please help us debug the issue?
+Below is code snippet from our Merge Logic:
+```
+delta_table.alias("current").merge(
+    new_df.alias("new"), "current.ID = new.ID"
+).whenMatchedUpdateAll().whenNotMatchedInsertAll().execute()
+```
+
+I can share the entire logic that we have if its needed. But any guidance would be really helpful.

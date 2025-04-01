@@ -1,0 +1,39 @@
+#### Which Delta project/connector is this regarding?
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+This change introduces the `typeWidening` delta table feature, allowing to widen the type of existing columns and fields in a delta table using the `ALTER TABLE CHANGE COLUMN TYPE` or `ALTER TABLE REPLACE COLUMNS` commands.
+
+The table feature is introduced as `typeWidening-dev` during implementation and is available in testing only.
+
+For now, only byte -> short -> int are supported. Other changes will require support in the Spark parquet reader that will be introduced in Spark 4.0
+
+
+Type widening feature request: https://github.com/delta-io/delta/issues/2622
+Type Widening protocol RFC: https://github.com/delta-io/delta/pull/2624
+
+## How was this patch tested?
+A new test suite `DeltaTypeWideningSuite` is created, containing:
+- `DeltaTypeWideningAlterTableTests`: Covers applying supported and unsupported type changes on partitioned columns, non-partitioned columns and nested fields
+- `DeltaTypeWideningTableFeatureTests`: Covers adding the `typeWidening` table feature
+
+
+## Does this PR introduce _any_ user-facing changes?
+The table feature is available in testing only, there's no user-facing changes as of now.
+
+The type widening table feature will introduce the following changes:
+- Adding the `typeWidening` via a table property:
+```
+ALTER TABLE t SET TBLPROPERTIES (‘delta.enableTypeWidening' = true)
+```
+- Apply a widening type change:
+```
+ALTER TABLE t CHANGE COLUMN int_col TYPE long
+```
+
+Note: both ALTER TABLE commands reuse the existing syntax for setting a table property and applying a type change, no new SQL syntax is being introduced by this feature.

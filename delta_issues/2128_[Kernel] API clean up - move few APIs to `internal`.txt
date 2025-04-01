@@ -1,0 +1,7 @@
+## Description
+Move unneeded classes from `io.delta.kernel.utils` into `io.delta.kernel.internal.util`
+
+Also move `io.delta.kernel.fs.FileStatus` class to `io.delta.kernel.utils`.
+
+## How was this patch tested?
+Ran the integration test/examples.

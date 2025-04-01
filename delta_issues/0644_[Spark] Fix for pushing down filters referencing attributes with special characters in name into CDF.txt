@@ -1,0 +1,23 @@
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+This PR fixes the push down of filters into CDF. Previously this would cause a parsing exception to be thrown if the filter referenced an attribute with at least one special character in the name. This is due to having to turn the `Filter`s back into `Expression`s. We avoid this by extending `CatalystScan` instead, which avoids the `Expression` to `Filter` to `Expression` roundtrip.
+
+## How was this patch tested?
+
+Added a new test
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

@@ -1,0 +1,13 @@
+Hello,
+
+I have delta tables organized hierarchically like this `/raw/[source system]/[year]/[month]/[day]/[delta table]` and I would have like to read a month worth of data using a wildcard path like this:
+```python
+df = spark.read.format("delta").load("/raw/source/2020/12/*/table")
+```
+
+but I get the following exception:
+```
+AnalysisException: `/raw/source/2020/12/*/table` is not a Delta table.;
+```
+
+ Am I doing something wrong or is this feature not supported (yet) ?

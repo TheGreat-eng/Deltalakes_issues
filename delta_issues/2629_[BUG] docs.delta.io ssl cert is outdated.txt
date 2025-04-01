@@ -1,0 +1,35 @@
+## Bug
+
+### Describe the problem
+
+docs cert is out
+
+#### Steps to reproduce
+
+1.  Open docs website https://docs.delta.io
+
+#### Observed results
+
+![image](https://user-images.githubusercontent.com/3431813/230413863-858b7cb9-eff4-4859-a6b1-abb72e38ea8a.png)
+
+#### Expected results
+
+Updated cert
+
+#### Further details
+
+N/A
+
+### Environment information
+
+* Delta Lake version: N/A
+* Spark version: N/A
+* Scala version: N/A
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [ ] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [x] No. I cannot contribute a bug fix at this time.

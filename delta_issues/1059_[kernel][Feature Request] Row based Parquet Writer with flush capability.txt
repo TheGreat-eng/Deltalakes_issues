@@ -1,0 +1,30 @@
+## Feature request
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the issue title
+For example: [Feature Request][Spark] Title of my issue
+-->
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [x] Kernel
+- [ ] Other (fill in here)
+
+### Overview
+
+Delta Kernel Default Engine's parquet writer accepts FilteredColumnarBatch. Is there any plan to have a Row based parquet writer? 
+For example org.apache.parquet.hadoop.ParquetWriter writes row by row and flushes the data to parquet file if a threshold is reached(rowGroupSize). This setting is to make sure we don't hit out of JVM heap space. Is there any similar mechanism while using Delta Kernel's Default parquet writer?
+
+### Further details
+
+As a workaround I tried to use org.apache.parquet.hadoop.ParquetWriter to write to parquet files and use Delta Kernel to commit. But to use apache ParquetWriter we have to convert StructType to MessageType for which ParquetSchemaUtils.toParquetSchema needs to be exposed publicly. Delta-standalone has ParquetSchemaConverter but kernel doesn't have a publicly accessible converter. 
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [ ] Yes. I can contribute this feature independently.
+- [ ] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.

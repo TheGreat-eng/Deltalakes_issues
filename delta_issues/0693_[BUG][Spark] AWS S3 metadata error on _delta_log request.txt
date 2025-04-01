@@ -1,0 +1,63 @@
+## Bug
+
+#### Which Delta project/connector is this regarding?
+
+Delta 3.2.0
+Spark 3.2.5
+
+### Describe the problem
+
+I noticed in my Instana tracing app that metadata is requested on AWS S3 /_delta_log. This fails with a 400 client exception and is retried multiple times, causing unnecessary delay and false alarms. 
+
+```
+Not Found (Service: Amazon S3; Status Code: 404; Error Code: 404 Not Found;
+```
+
+After some time the code gives up and continues with the normal code path.
+
+
+#### Observed results
+
+Swallowed stacktraces and delays in responses 
+
+```
+getObjectMetadata in in com.amazonaws.services.s3.AmazonS3Client:1383
+lambda$getObjectMetadata$11 in in org.apache.hadoop.fs.s3a.S3AFileSystem:2665
+retryUntranslated in in org.apache.hadoop.fs.s3a.Invoker:468
+getObjectMetadata in in org.apache.hadoop.fs.s3a.S3AFileSystem:2653
+s3GetFileStatus in in org.apache.hadoop.fs.s3a.S3AFileSystem:3724
+innerGetFileStatus in in org.apache.hadoop.fs.s3a.S3AFileSystem:3652
+lambda$exists$34 in in org.apache.hadoop.fs.s3a.S3AFileSystem:4636
+invokeTrackingDuration in in org.apache.hadoop.fs.statistics.impl.IOStatisticsBinding:547
+lambda$trackDurationOfOperation$5 in in org.apache.hadoop.fs.statistics.impl.IOStatisticsBinding:528
+trackDuration in in org.apache.hadoop.fs.statistics.impl.IOStatisticsBinding:449
+trackDurationAndSpan in in org.apache.hadoop.fs.s3a.S3AFileSystem:2480
+exists in in org.apache.hadoop.fs.s3a.S3AFileSystem:4634
+listFromInternal in in io.delta.storage.S3SingleDriverLogStore:201
+listFrom in in io.delta.storage.S3SingleDriverLogStore:306
+listFrom in in org.apache.spark.sql.delta.storage.LogStoreAdaptor:452
+listFrom in in org.apache.spark.sql.delta.storage.DelegatingLogStore:127
+listFrom in in org.apache.spark.sql.delta.SnapshotManagement:86
+listFrom$ in in org.apache.spark.sql.delta.SnapshotManagement:85
+listFrom in in org.apache.spark.sql.delta.DeltaLog:74
+listFromOrNone in in org.apache.spark.sql.delta.SnapshotManagement:103
+listFromOrNone$ in in org.apache.spark.sql.delta.SnapshotManagement:99
+listFromOrNone in in org.apache.spark.sql.delta.DeltaLog:74
+listFromFileSystemInternal in in org.apache.spark.sql.delta.SnapshotManagement:113
+$anonfun$listDeltaCompactedDeltaAndCheckpointFiles$2 in in org.apache.spark.sql.delta.SnapshotManagement:158
+getOrElse in in scala.Option:201
+```
+
+#### Expected results
+
+No failure or delays
+
+### Environment information
+
+* Delta Lake version: 3.2.0
+* Spark version: 3.5.2
+* Scala version: 2.13.12
+
+### Willingness to contribute
+
+Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.

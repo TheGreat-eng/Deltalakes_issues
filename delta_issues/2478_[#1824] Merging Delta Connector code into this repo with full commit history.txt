@@ -1,0 +1,8 @@
+## Description
+
+In this PR, I am merging the entire codebase of Delta Connectors repository into the connectors/ subdirectory. I have maintained full commit history up to current connectors master (https://github.com/delta-io/connectors/commit/47ae5a3540d3e9400b8140e460b74e09343b0497).
+
+This is the first step the process to unify these 2 repos. See #1824.
+
+## How was this patch tested?
+Not yet tested. The test infra is unable to handle a diff of this large size. I am just merging the code. I have ensured that all the changes in this PR are in the connectors/ directory (which did not exist before) and therefore will not affect any existing code. I plan to merge this PR and then make follow up PRs to get it integrated in the main build and tested.

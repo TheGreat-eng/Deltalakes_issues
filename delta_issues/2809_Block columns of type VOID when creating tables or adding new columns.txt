@@ -1,0 +1,8 @@
+We currently allow creating columns of type VOID for which the behavior is undefined. We should block adding such columns going forward.
+
+Off the top of my head these are currently possible ways to add a void column (we should check these in tests)
+- create/replace/.. table (SQL)
+- Delta Table API
+- DataFrameWriter
+- alter table add column (SQL)
+- adding a column via schema evolution

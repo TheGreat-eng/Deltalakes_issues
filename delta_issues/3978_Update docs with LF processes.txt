@@ -1,0 +1,1 @@
+This PR updates our docs to discuss the new process for accepting commits under the Linux foundation.

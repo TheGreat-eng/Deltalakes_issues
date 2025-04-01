@@ -1,0 +1,15 @@
+## Protocol Change Request
+
+### Description of the protocol change
+
+The proposed protocol change adds a small extension to the Column Mapping feature. It tracks whether a column name has been dropped or renamed during the history of the table. This allows using the (logical) name of a column as the physical name of a column, while still ensuring that all physical names are unique. This helps with the disablement of Column Mapping proposed in https://github.com/delta-io/delta/issues/2481, as in this case it is no longer required to rewrite the table, and it simply suffices to change the mode to none.
+
+### Willingness to contribute
+
+The Delta Lake Community encourages protocol innovations. Would you or another member of your organization be willing to contribute this feature to the Delta Lake code base?
+
+- [x] Yes. I can contribute.
+- [ ] Yes. I would be willing to contribute with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute at this time.
+
+

@@ -1,0 +1,11 @@
+### What changes were proposed in this pull request?
+Use file system APIs for log reads.
+Throw a better error message for writes
+
+### How was this patch tested?
+Added a couple of tests in the HDFSLogStoreSuite
+
+
+closes https://github.com/delta-io/delta/issues/347
+
+GitOrigin-RevId: 0e532a46e1195392be7a60563d38f47c84c8147f

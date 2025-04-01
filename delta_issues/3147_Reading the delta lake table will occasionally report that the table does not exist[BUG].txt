@@ -1,0 +1,12 @@
+When I indirectly read the data in the table, the reading fails occasionally, and the error is that the table does not exist.
+
+But in fact, this table has always existed. When using the delta1.0.0 version, this problem often occurred when using the DeltaTable.isDeltaTable method. Later, this method was avoided from the business level, and the delta lake was upgraded to 1.0.1. However, when reading, the problem of unrecognized table still occurs occasionally.
+
+The data is stored on azure datalake storage gen2, and a connection is established with delta lake through hadoop-azure. I don't know if it is an internal problem of delta lake, resulting in occasional unrecognized tables.
+
+At present, through the spark.read().format("delta").load() method, will there be an error that the table cannot be recognized
+
+
+- Delta Lake version: 1.0.1
+- Spark version: 3.1.1
+- Scala version: 2.12.2

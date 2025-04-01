@@ -1,0 +1,3 @@
+Existing writers may delete old JSON log entries if there are newer checkpoints.
+
+Fixes #888.

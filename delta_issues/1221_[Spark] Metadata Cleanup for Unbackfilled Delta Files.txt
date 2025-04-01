@@ -1,0 +1,20 @@
+#### Which Delta project/connector is this regarding?
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+Unbackfilled deltas eligible for deletion:
+- Version <= max(backfilled-delta-deleted-versions)
+
+## How was this patch tested?
+
+Unit tests
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

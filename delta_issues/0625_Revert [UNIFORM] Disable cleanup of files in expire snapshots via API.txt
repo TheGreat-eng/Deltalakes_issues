@@ -1,0 +1,18 @@
+#### Which Delta project/connector is this regarding?
+Uniform
+
+## Description
+This reverts commit b51b5b45595e46748339e42dbb0792e8b485a234.
+disabling the cleanExpiredFiles API technically prevents removal manifests/manifest lists and users may not be running orphan file removal, so for those users manifests/manifest list may never be cleaned up. For now we can revert this patch to preserve the original behavior of just preventing data file removal so storage can be reclaimed via manifest/manifest list cleanup during uniform commits.
+
+## How was this patch tested?
+
+<!--
+If tests were added, say they were added here. Please make sure to test the changes thoroughly including negative and positive cases if possible.
+If the changes were tested in any way other than unit tests, please clarify how you tested step by step (ideally copy and paste-able, so that other reviewers can test and check, and descendants can verify in the future).
+If the changes were not tested, please explain why.
+-->
+
+## Does this PR introduce _any_ user-facing changes?
+
+This reverts to cleaning up unreachable manifests/manifest lists during background commits, not really a direct user facing change.

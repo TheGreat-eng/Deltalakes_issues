@@ -1,0 +1,13 @@
+## Description
+
+There was a broken link in `PROTOCOL.md` file. It is the link titled `Delta Sink for Apache Spark's Structured Streaming` inside **Transaction Identifiers** section. 
+
+The fix is a simple change in the URL to point to the right source file.
+
+## How was this patch tested?
+
+It is a markdown update hence no tests included.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No.

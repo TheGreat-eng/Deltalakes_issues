@@ -1,0 +1,18 @@
+#### Which Delta project/connector is this regarding?
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+This PR uncomment valid `assume`s in `DeltaTableCreationTests.scala`. The tests should be skipped on Windows.
+
+## How was this patch tested?
+
+Manually.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No, test-only.

@@ -1,0 +1,3 @@
+I'm using spark stream to append data to delta table,but i need only the latest data(data of latest file recieved in each partition). As stream doesn't support overwrite, is there any work around? Can we keep only the latest files in each partition and vacuum rest.
+Is there any way to use overwrite in spark stream?
+Urgent help needed

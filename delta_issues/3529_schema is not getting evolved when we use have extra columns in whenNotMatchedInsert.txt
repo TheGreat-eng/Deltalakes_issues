@@ -1,0 +1,19 @@
+while doing scd type 2 we need to update the record content before inserting it to the table, so we are calling some function before inserting into the table, but if there is some schema change in the new record which is getting inserted, then this below error is thrown,
+
+`cannot resolve `col5` in INSERT clause given columns existing.`col1`, existing.`col2`, existing.`col3`, existing.`col4`
+`
+
+
+Code:-
+```
+builder = SparkSession.builder.appName("quickstart")\
+         .config("spark.sql.extensions", "io.delta.sql.DeltaSparkSessionExtension")\
+         .config("spark.sql.catalog.spark_catalog", "org.apache.spark.sql.delta.catalog.DeltaCatalog")\
+         .config("spark.databricks.delta.schema.autoMerge.enabled","true")
+
+deltaTable.alias("existing")\
+    .merge(df.alias("new"), "existing.col1 = new.col2")\
+    .whenMatchedUpdateAll()\
+    .whenNotMatchedInsert(values = getValues())\
+    .execute()
+```

@@ -1,0 +1,23 @@
+Adding ConcurrentDomainMetadataException to correctly indicate conflicting domains as compared to ConcurrentTransactionException.
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+ConcurrentTransactionException did not correctly indicate the problem as it was intended to be used during SetTransaction. By making a new typed error we collect additional information about the conflicting operation in the context of the exception.
+
+## How was this patch tested?
+`build/sbt compile && build/sbt test`
+
+## Does this PR introduce _any_ user-facing changes?
+
+Exceptions will now indicate ConcurrentDomainMetadataException rather than ConcurrentTransactionException with domain info in the string message. 

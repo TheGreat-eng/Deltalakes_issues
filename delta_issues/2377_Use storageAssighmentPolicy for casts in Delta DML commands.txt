@@ -1,0 +1,19 @@
+#### Which Delta project/connector is this regarding?
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+Follow spark.sql.storeAssignmentPolicy instead of spark.sql.ansi.enabled for casting behaviour in Delta UPDATE and MERGE. This will by default error out at runtime when an overflow happens because the default for storeAssignmentPolicy ins ANSI while ANSI is not enabled by default.
+
+## How was this patch tested?
+
+Tests for casting behavior added
+
+## Does this PR introduce _any_ user-facing changes?
+
+The UPDATE and MERGE command will error out by default if a cast that is on the write path overflows. The spark.databricks.delta.updateMergeLegacyCasting.enabled can be used to revert to the old behaviour.

@@ -1,0 +1,17 @@
+## Feature request
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the issue title
+For example: [Feature Request][Spark] Title of my issue
+-->
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [x] Kernel
+- [ ] Other (fill in here)
+
+### Overview
+
+Implement the function [here](https://github.com/delta-io/delta/blob/master/kernel/kernel-api/src/main/java/io/delta/kernel/internal/replay/LogReplay.java#L242) which can be based off of the Spark implementation [here](https://github.com/delta-io/delta/blob/4f9c8b9cc294ec7b321847115bf87909c356bc5a/spark/src/main/scala/org/apache/spark/sql/delta/Snapshot.scala#L430)

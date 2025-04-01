@@ -1,0 +1,18 @@
+#### Which Delta project/connector is this regarding?
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+Improve performance of listDeltaCompactedDeltaAndCheckpointFilesWithCommitStore by making parallel calls to both the file-system and a commit-store (if available), reconciles the results to account for concurrent backfill operations and potentially makes another list call on the file-system to ensure a comprehensive list of file statuses.
+
+## How was this patch tested?
+
+UTs
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

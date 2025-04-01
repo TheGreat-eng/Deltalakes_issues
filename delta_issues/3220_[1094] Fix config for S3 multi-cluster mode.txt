@@ -1,0 +1,23 @@
+## Problem Description
+- problem 1: there was a mismatch between the config params in the documentation (`io.delta.storage.S3DynamoDBLogStore.ddb.tableName`) and the config params actually used in the code + in the integration test (`io.delta.storage.ddb.tableName`).
+- solution 1: include the `S3DynamoDBLogStore` string in the config in the code.
+- problem 2: the `io.delta.storage` prefix didn't work when specified using `--conf`. they DID work using `spark.conf.set()` or `SparkSession.builder.config()` but not with `--conf`.
+- solution 2: we now allow 2 prefixes.
+  - `spark.io.delta.storage.S3DynamoDBLogStore.$key.....` this will work all contexts (`--conf`, `spark.conf.set()`, etc).
+  - `io.delta.storage.S3DynamoDBLogStore.$key`. this is the original prefix. this will be able to be used by delta-standalone and flink and hive. they just use hadoopConfs and don't need to have prefix starting with `spark`
+
+## PR Description
+- resolves https://github.com/delta-io/delta/issues/1094
+- update config for S3 multi-cluster mode (i.e. S3DynamoDBLogStore) to match the public documentation. the configs were missing the string literal `S3DynamoDBLogStore` from the conf prefix
+- now supports 2 confs. `spark.io.delta.storage.S3DynamoDBLogStore.$key` and `io.delta.storage.S3DynamoDBLogStore.$key`.
+
+## How was this patch tested?
+
+- added unit test for the 2 new confs
+- ran integration test using existing + new s3 table, and using existing + new ddb table
+- ran manual tests using locally published jars on pyspark + spark-shell + spark-submit (spark-submit via integration test)
+- tested using `--conf` as well as `spark.conf.set` as well as `SparkSession.builder.config()`
+
+## Does this PR introduce _any_ user-facing changes?
+
+Not really, just fixes a just-released, experimental LogStore config key

@@ -1,0 +1,61 @@
+<!--
+Thanks for sending a pull request!  Here are some tips for you:
+  1. If this is your first time, please read our contributor guidelines: https://github.com/delta-io/delta/blob/master/CONTRIBUTING.md
+  2. If the PR is unfinished, add '[WIP]' in your PR title, e.g., '[WIP] Your PR title ...'.
+  3. Be sure to keep the PR description updated to reflect all changes.
+  4. Please write your PR title to summarize what this PR proposes.
+  5. If possible, provide a concise example to reproduce the issue for a faster review.
+  6. If applicable, include the corresponding issue number in the PR title and link it in the body.
+-->
+[Spark] Implement [optimized write](https://github.com/delta-io/delta/issues/1158).
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+Optimized write is an optimization that repartitions and rebalances data before writing them out to a Delta table. Optimized writes improve file size as data is written and benefit subsequent reads on the table.
+
+This PR introduces a new `DeltaOptimizedWriterExec` exec node. It's responsible for executing the shuffle (`HashPartitioning` based on the table's partition columns) and rebalancing afterwards. More specifically, the number of shuffle partitions is controlled by two new knobs:
+
+- `spark.databricks.delta.optimizeWrite.numShuffleBlocks` (default=50,000,000), which controls "maximum number of shuffle blocks to target";
+- `spark.databricks.delta.optimizeWrite.maxShufflePartitions` (default=2,000), which controls "max number of output buckets (reducers) that can be used by optimized writes".
+
+After repartitioning, the blocks are then sorted in ascending order by size and bin-packed into appropriately-sized bins for output tasks. The bin size is controlled by the following new knob:
+
+- `spark.databricks.delta.optimizeWrite.binSize` (default=512MiB).
+
+Note that this knob is based on the in-memory size of row-based shuffle blocks. So the final output Parquet size is usually smaller than the bin size due to column-based encoding and compression.
+
+The whole optimized write feature can be controlled in the following ways, in precedence order from high to low (i.e. each option takes precedence over any successive ones):
+
+1. The `optimizeWrite` Delta option in DataFrameWriter (default=None), e.g. `spark.range(0, 100).toDF().write.format("delta").option("optimizedWrite", "true").save(...)`;
+1. The `spark.databricks.delta.optimizeWrite.enabled` Spark session setting (default=None).
+1. The `delta.autoOptimize.optimizeWrite` table property (default=None);
+
+Optimized write is **DISABLED** by default.
+
+Fixes #1158 
+
+## How was this patch tested?
+
+Unit tests: `OptimizedWritesSuite` and`BinPackingUtilsSuite`.
+
+## Does this PR introduce _any_ user-facing changes?
+
+<!--
+If yes, please clarify the previous behavior and the change this PR proposes - provide the console output, description and/or an example to show the behavior difference if possible.
+If possible, please also clarify if this is a user-facing change compared to the released Delta Lake versions or within the unreleased branches such as master.
+If no, write 'No'.
+-->
+
+Yes. Please see the [Description](#Description) for details.

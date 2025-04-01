@@ -1,0 +1,38 @@
+When execute `merge` with udf by pyspark, the following exception is raised:
+
+`Caused by: java.lang.UnsupportedOperationException: Cannot evaluate expression: <lambda>(input[0, string, true])
+        at org.apache.spark.sql.catalyst.expressions.Unevaluable.eval(Expression.scala:304)
+        at org.apache.spark.sql.catalyst.expressions.Unevaluable.eval$(Expression.scala:303)
+        at org.apache.spark.sql.catalyst.expressions.PythonUDF.eval(PythonUDF.scala:52)
+        at org.apache.spark.sql.catalyst.expressions.InterpretedUnsafeProjection.apply(InterpretedUnsafeProjection.scala:90)
+        at org.apache.spark.sql.delta.commands.MergeIntoCommand$JoinedRowProcessor.processRow$1(MergeIntoCommand.scala:703)
+        at org.apache.spark.sql.delta.commands.MergeIntoCommand$JoinedRowProcessor.$anonfun$processPartition$6(MergeIntoCommand.scala:713)
+        at scala.collection.Iterator$$anon$10.next(Iterator.scala:459)
+        at scala.collection.Iterator$$anon$12.hasNext(Iterator.scala:512)
+        at scala.collection.Iterator$$anon$10.hasNext(Iterator.scala:458)
+        at scala.collection.Iterator$$anon$10.hasNext(Iterator.scala:458)
+        at org.apache.spark.sql.catalyst.expressions.GeneratedClass$GeneratedIteratorForCodegenStage5.processNext(Unknown Source)
+        at org.apache.spark.sql.execution.BufferedRowIterator.hasNext(BufferedRowIterator.java:43)
+        at org.apache.spark.sql.execution.WholeStageCodegenExec$$anon$1.hasNext(WholeStageCodegenExec.scala:755)
+        at org.apache.spark.sql.execution.datasources.FileFormatWriter$.$anonfun$executeTask$1(FileFormatWriter.scala:277)
+        at org.apache.spark.util.Utils$.tryWithSafeFinallyAndFailureCallbacks(Utils.scala:1473)
+        at org.apache.spark.sql.execution.datasources.FileFormatWriter$.executeTask(FileFormatWriter.scala:286)`
+
+
+
+The test code is shown below:
+
+```from delta.tables import *
+from pyspark.sql.types import *
+from pyspark.sql.functions import *
+
+prefix_udf = udf(lambda s: "prefix_" + s, StringType())
+
+table_path = "...."
+
+spark.createDataFrame([{"id": "1", "body": "test_body"}]).write.format("delta").save(table_path)
+
+target = DeltaTable.forPath(spark, table_path)
+source = spark.createDataFrame([{"id": "1", "body": "new_body"}])
+
+target.alias("target").merge(source.alias("source"),"source.id = target.id").whenMatchedUpdate(set = { "body": prefix_udf(col("source.body")) }).execute()```

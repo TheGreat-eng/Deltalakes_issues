@@ -1,0 +1,2 @@
+- show all classes in python docs
+- fix developer API tag in scala/java docs

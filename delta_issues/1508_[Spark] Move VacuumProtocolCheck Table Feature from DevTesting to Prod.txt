@@ -1,0 +1,15 @@
+#### Which Delta project/connector is this regarding?
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+We move the Table Feature from dev/test only to prod as part of this PR.
+
+## How was this patch tested?
+Existing UTs
+
+## Does this PR introduce _any_ user-facing changes?
+No

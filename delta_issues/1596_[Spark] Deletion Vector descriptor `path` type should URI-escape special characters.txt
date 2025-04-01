@@ -1,0 +1,19 @@
+#### Which Delta project/connector is this regarding?
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+This PR fixes an issue where the `path` type of `DeletionVectorDescriptor` must escape special characters in the DV path. A special character may exist if the DV is referring to an existing file from another table that contains such a character in its path.
+
+## How was this patch tested?
+
+New tests.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No.

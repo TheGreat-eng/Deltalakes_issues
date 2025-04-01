@@ -1,0 +1,19 @@
+#### Which Delta project/connector is this regarding?
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+`DeltaTableV2.snapshot` can be stale, if the object was instantiated long before the command using it. This can happen, for example, with a `DeltaTable` (which binds an internal `DeltaTableV2` when constructed and never refreshes it). This can be dangerous, so we rename the field and document the danger so it is less likely to cause bugs.
+
+## How was this patch tested?
+
+Field rename - compilation suffices.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

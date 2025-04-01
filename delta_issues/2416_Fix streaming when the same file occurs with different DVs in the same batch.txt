@@ -1,0 +1,23 @@
+<!--
+Thanks for sending a pull request!  Here are some tips for you:
+  1. If this is your first time, please read our contributor guidelines: https://github.com/delta-io/delta/blob/master/CONTRIBUTING.md
+  2. If the PR is unfinished, add '[WIP]' in your PR title, e.g., '[WIP] Your PR title ...'.
+  3. Be sure to keep the PR description updated to reflect all changes.
+  4. Please write your PR title to summarize what this PR proposes.
+  5. If possible, provide a concise example to reproduce the issue for a faster review.
+  6. If applicable, include the corresponding issue number in the PR title and link it in the body.
+-->
+
+## Description
+
+There was an edge case in streaming with deletion vectors in the source, where in `ignoreChanges`-mode it could happen that if the same file occurred with different DVs in the same batch (or both with a DV and without a DV), then we would read the file with the wrong DV, since we broadcast the DVs to the scans by data file path.
+
+This PR fixes this issue, by reading files from different versions in different scans and then taking the union of the result to build the final `DataFrame` for the batch.
+
+## How was this patch tested?
+
+Added new tests for having 2 DML commands (DELETE->DELETE and DELETE->INSERT) in the same batch for all change modi.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No.

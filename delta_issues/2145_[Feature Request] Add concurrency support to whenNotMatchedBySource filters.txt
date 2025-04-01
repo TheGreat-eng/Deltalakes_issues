@@ -1,0 +1,119 @@
+## Feature request
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the issue title
+For example: [Feature Request][Spark] Title of my issue
+-->
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+### Overview
+
+Introduce support for ensuring partition disjoint in the conditions provided to the "whenNotMatchedBySource" group of operations.
+
+In the context of merge operations belonging to the "whenNotMatchedBySource" family, any conditions that would normally guarantee partition disjoint are currently ignored, resulting in a concurrency error being raised.
+
+To address this, it is possible to include a partition disjoint statement within the join condition (e.g., "class=1"), which enables concurrent updates across multiple partitions.
+
+All operations within the "WhenMatched" and "WhenNotMatched" groups are now designed to ensure concurrency safety. However, if you incorporate "whenNotMatchedBySourceDelete," Spark will throw a ConcurrentAppendException.
+
+### Motivation
+
+Adding concurrency disjont support to whenNotMatchedBy will increase the utility for delta lake tables.
+
+### Further details
+
+An example scenario:
+1) my source is non-delta file (eg. json/parquet)
+2) This file sources one of the partitions within my delta table
+3) I want to merge into specified partition in my table. Within this partition i want to run a query that upserts the data and removes rows that not exist any more within source (basically refresh). To do that I have currently 2 options:
+* partition overwrite - this would work fine, but produces unnecessary changes in the log (eg. rows that has not changed are logged as delete + insert)
+* Split operation to 2 phases, read target table, join with current table and add rows that should be deleted into that - no longer atomic
+*  Use merge statement - use whenMatched condition to insert/update only new rows based on uuid/checksum, and whenNotMatchedBySource to delete rows form the target delta that no longer exists - whenNotMatchedBySource condition filters are not taken into account for concurrency
+
+The code snipped that simulates this behaviour:
+```
+import tempfile
+import threading
+from pyspark.sql import SparkSession
+
+spark = SparkSession.builder.appName('test').getOrCreate()
+
+SCHEMA = StructType(
+    [
+        StructField("uuid", StringType(), nullable=False),
+        StructField("column_1", StringType(), nullable=False),
+        StructField("column_2", StringType(), nullable=False),
+        StructField("product_name", StringType(), nullable=False),
+        StructField("category_id", IntegerType(), nullable=False),
+        StructField("checksum", StringType(), nullable=False),
+    ]
+)
+
+def merge_df(df, category_id, target_delta_table):
+    join_condition = f"target.category_id = '{category_id}' AND target.checksum == source.checksum"
+
+    delete_condition = f"target.category_id = '{category_id}"
+
+    update_condition = "target.uuid <> source.uuid"
+    update_set = {"column_1": "source.column_1", "column_2": "source.column_2"}
+
+    merge_statement = (
+        target_delta_table.alias("target")
+        .merge(df.alias("source"), join_condition)
+        .whenNotMatchedInsertAll()
+        .whenNotMatchedBySourceDelete(condition=delete_condition)
+        .whenMatchedUpdate(condition=update_condition, set=update_set)
+    )
+    merge_statement.execute()
+
+
+data = [
+    ("001", "100", "1", "Product A", 1, "123456789"),
+    ("002", "200", "1", "Product B", 2, "987654321"),
+    ("003", "300", "1", "Product C", 1, "246813579"),
+]
+initial_df = spark.createDataFrame(data, schema)
+
+temp_dir = tempfile.mkdtemp()
+
+initial_df.write.format("delta").option(
+            "delta.enableChangeDataFeed", True
+        ).partitionBy('category_id').save(temp_dir)
+
+target_table = DeltaTable.forPath(spark, temp_dir)
+
+new_data_1 = [("005", "500", "5", "Product G", 1, "aaabbbccc")]
+category_id_1 = 1
+df_1 = spark.createDataFrame(new_data_1, schema)
+
+new_data_2 = [("007", "700", "7", "Product O", 2, "111555")]
+category_id_2 = 2
+df_2 = spark.createDataFrame(new_data_2, schema)
+
+threads = []
+t1 = threading.Thread(target=merge_df, args=(df_1, category_id_1, target_table, schema))
+t1.start()
+threads.append(t1)
+
+t2=threading.Thread(target=merge_df, args=(df_2, category_id_2, target_table, schema))
+t2.start()
+threads.append(t2)
+
+for thread in threads:
+    thread.join()
+```
+In example above although the condition category was specified that would make this operation partition scoped, it is ignored since whenNotMatchedBySource is considered as non-partition-scoped.
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [ ] Yes. I can contribute this feature independently.
+- [X] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [x] No. I cannot contribute this feature at this time.

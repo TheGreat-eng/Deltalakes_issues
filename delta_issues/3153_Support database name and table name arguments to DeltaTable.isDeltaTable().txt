@@ -1,0 +1,27 @@
+## Feature request
+
+### Overview
+
+Currently, `DeltaTable.isDeltaTable()` only supports table path. If you have a delta table registered in the metastore and if you execute `DeltaTable.isDeltaTable("my_database.my_table")`, it simply returns `false`. 
+
+The `DeltaTable.forName()` API already supports tableName argument in addition to the table path. This feature will bring parity and consistency to the `isDeltaTable` API.
+
+```scala
+def forName(sparkSession: SparkSession, tableName: String): [DeltaTable]
+def forName(tableOrViewName: String): [DeltaTable]
+
+```
+
+### Motivation
+
+- Often end-users don't care about the underlying delta table path. Being able to check whether a given tableName is a delta table or not is incredibly valuable. Without this feature, they would have to run additional commands (e.g. desc extended) to get the table path first
+- DeltaTable API Parity
+
+### Further details
+Instead of end-users having to must reason about the delta table path, you could probably use `spark.sessionState.catalog.getTableMetadata(tblIdentifier)` api to get the table path and pass the table path to the existing isDeltaTable(). The `tblIdentifier` can be constructured using the user provided `databaseName` and `tableName`.
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [ ] Yes. I can contribute this feature independently.

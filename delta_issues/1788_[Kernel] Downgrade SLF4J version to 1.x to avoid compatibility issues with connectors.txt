@@ -1,0 +1,14 @@
+#### Which Delta project/connector is this regarding?
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [X] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+Downgrades SLF4J version to 1.x. Version 2.x includes additional APIs that are unsupported in lower versions and should not be used to avoid compatibility issues.
+
+## How was this patch tested?
+
+ Ran some unit tests and checked the output logs locally.

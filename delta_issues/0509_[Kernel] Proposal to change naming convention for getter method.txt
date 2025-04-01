@@ -1,0 +1,10 @@
+Currently, kernel uses `get` prefix for getter method, but it will lead to inconsistent naming once we start using [record](https://docs.oracle.com/en/java/javase/16/language/records.html) of JDK 16. 
+
+I propose changing the convention to avoid `get` prefix as much as possible like Iceberg project. 
+https://iceberg.apache.org/contribute/#method-naming
+
+> 2. Avoid get in method names, unless an object must be a Java bean.
+>   - In most cases, replace `get` with a more specific verb that describes what is happening in the method, like `find` or `fetch`.
+>   - If there isn't a more specific verb or the method is a getter, omit `get` because it isn't helpful to readers and makes method names longer.
+
+Relates to https://delta-users.slack.com/archives/C04TRPG3LHZ/p1729770917226719

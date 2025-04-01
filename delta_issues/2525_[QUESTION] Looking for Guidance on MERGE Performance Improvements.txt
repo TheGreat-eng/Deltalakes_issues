@@ -1,0 +1,13 @@
+We've just converted our entire database to Delta Lake tables and are now configuring our incremental update pipelines.  All is well, for the most part, but we do have one table in particular which is taking a long time to `MERGE`.  The table has around 40 million rows (10GB on disk), and around 100,000 of those are updated daily.  The merge operation is taking over half an hour, which is longer than the amount of time it takes me to write the table to a parquet file.  I am looking for some strategy to speed up this operation.
+
+Some context: for most rows, only the `updated_at` column is updated.  I was thinking about partitioning the table by some timestamp column, but the docs recommend not partitioning tables under 1TB.  I also thought about doing an OPTIMIZE/ZORDER operation on the `updated_at` column, but spark threw the following error: 
+
+```
+AnalysisException: Z-Ordering on [updated_at] will be
+ ineffective, because we currently do not collect stats for these columns.
+ You can disable
+ this check by setting
+ '%sql set spark.databricks.delta.optimize.zorder.checkStatsCollection.enabled = false'
+```
+
+Am I correct in assuming that only some partition or optimization operation will improve performance for `MERGE`, or is there some other strategy I might be overlooking?  I've also read about ingestion time clustering, but since we loaded the table in a short series of batches I don't see that helping.  Can someone please make some suggestions?

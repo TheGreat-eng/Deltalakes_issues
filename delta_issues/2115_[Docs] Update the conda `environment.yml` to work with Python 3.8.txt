@@ -1,0 +1,5 @@
+## Description
+PySpark has dropped support for Python 3.7 which broke the API doc generation script. Update the `docs/environment.yml` dependencies to work with Python 3.8.
+
+## How was this patch tested?
+Tested by following the `docs/README.md` and was able to see the generated docs for all modules: delta-spark, flink, connectors and kernel.

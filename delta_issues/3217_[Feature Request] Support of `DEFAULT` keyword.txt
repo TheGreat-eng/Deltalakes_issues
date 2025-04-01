@@ -1,0 +1,21 @@
+## Feature request
+Support the SQL `DEFAULT` keyword.
+Due to the recently introduced generated columns this seems somehow related.
+Would this be a reasonable feature to implement WDYT?
+
+### Overview
+
+Create Table like this:
+```
+CREATE TABLE tbl (
+    col STRING DEFAULT 'default value'
+);
+```
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [ ] Yes. I can contribute this feature independently.
+- [ ] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [x] No. I cannot contribute this feature at this time.

@@ -1,0 +1,16 @@
+#### Which Delta project/connector is this regarding?
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [x] Other (fill in here): general infra
+
+## Description
+
+Remove unnecessary files from the connectors directory
+
+## How was this patch tested?
+N/A
+
+## Does this PR introduce _any_ user-facing changes?
+No

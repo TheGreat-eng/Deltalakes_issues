@@ -1,0 +1,25 @@
+#### Which Delta project/connector is this regarding?
+
+
+- [X] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+Extend `delta.dml.{merge, update, delete}.stats` metrics with the following fields:
+- `commitVersion` The commit version of the DML version. This allows associating DML metrics with commit metrics and distinguishing DML operations that did not commit.
+- `numLogicalRecordsAdded` and `numLogicalRecordsRemoved`: The number of logical records in AddFile and RemoveFile actions to be committed. These metrics can be compared to the row-level metrics emitted by the DML operations.
+
+Finally, this commit adds the `isWriteCommand` field in DELETE metrics to distinguish DELETE operations that are performed in the context of WRITE commands that selectively overwrite data.
+
+
+## How was this patch tested?
+
+Log-only changes. Existing tests.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

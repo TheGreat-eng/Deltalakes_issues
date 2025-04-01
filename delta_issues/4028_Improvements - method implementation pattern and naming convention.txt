@@ -1,0 +1,15 @@
+What were proposed in this Pull Request?
+* avoid mutability at the method `findLastCompleteCheckpoint` and written recursive implementation.
+* method `override def listFrom(path: Path)` actually returns the `Iterator` but name is `listFrom` which should be `iteratorFrom`. I came across this, when I debug the code
+```
+  val checkpoints =
+          store
+            .listFrom(checkpointPrefix(logPath, math.max(0, cur - 1000)))
+```
+`.iterate` was not resolved. Which remind me the method doesn't return the `List`.
+
+How this PR was tested?
+* compiled with sbt - PASSED
+* CI / CD run - PASSED
+
+@brkyvz Request for the review.

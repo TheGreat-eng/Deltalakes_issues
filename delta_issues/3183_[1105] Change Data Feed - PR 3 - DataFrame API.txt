@@ -1,0 +1,10 @@
+See the project plan at https://github.com/delta-io/delta/issues/1105.
+
+This PR adds the DataFrame API for CDF as well as a new test suite to test this API. This API includes options
+- "startingVersion"
+- "startingTimestamp"
+- "endingVersion"
+- "endingTimestamp"
+- "readChangeFeed"
+
+Misc. other CDF improvements, too, like extra schema checks during OptTxn write and returning a CDF relation in the `DeltaLog::createRelation` method.

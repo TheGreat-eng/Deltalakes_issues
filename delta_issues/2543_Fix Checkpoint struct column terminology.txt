@@ -1,0 +1,15 @@
+
+## Description
+
+Fix Checkpoint struct column terminology.
+
+The Delta Spec has only 1 version of checkpoint but the delta connector uses the term CheckpointV2 in order to write partition values in struct form (partitionValues_parsed col). This is kind of confusing.
+This PR fixes this terminology.
+
+## How was this patch tested?
+
+Existing UTs
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

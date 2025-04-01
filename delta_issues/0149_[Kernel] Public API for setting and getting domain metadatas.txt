@@ -1,0 +1,38 @@
+<!--
+Thanks for sending a pull request!  Here are some tips for you:
+  1. If this is your first time, please read our contributor guidelines: https://github.com/delta-io/delta/blob/master/CONTRIBUTING.md
+  2. If the PR is unfinished, add '[WIP]' in your PR title, e.g., '[WIP] Your PR title ...'.
+  3. Be sure to keep the PR description updated to reflect all changes.
+  4. Please write your PR title to summarize what this PR proposes.
+  5. If possible, provide a concise example to reproduce the issue for a faster review.
+  6. If applicable, include the corresponding issue number in the PR title and link it in the body.
+-->
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [X] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+Adds support for setting and getting domain metadatas using public Kernel APIs. The protocol outlines "user-controlled" metadata domains, see https://github.com/delta-io/delta/blob/master/PROTOCOL.md#domain-metadata, we should support setting and getting these as part of the Kernel transaction/snapshot APIs.
+
+## How was this patch tested?
+
+Adds new tests as well as refactors existing test suite to use the new APIs.
+
+NOTE: I think the way the current suite is structured could be improved, especially with these API changes. This PR does not attempt to fix that and just adds tests + adjusts current tests to use the new APIs. We can refactor this as a follow up task (lower priority).
+
+## Does this PR introduce _any_ user-facing changes?
+
+Yes, adds the following public APIs
+- `txnBuilder.withDomainMetadata`
+- `txnBuilder.withDomainMetadataRemoved`
+- `snapshot.getDomainMetadataConfiguration`

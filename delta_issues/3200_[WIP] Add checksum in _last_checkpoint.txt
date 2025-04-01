@@ -1,0 +1,13 @@
+## Description
+
+This PR adds Checksum field to LAST_CHECKPOINT file. The checksum is written when LAST_CHECKPOINT file is written and it is validated when LAST_CHECKPOINT is read during snapshot creating.
+
+This is needed to prevent scenarios like SplitReads which might occur when concurrent readers and writers are involved.  
+
+## How was this patch tested?
+
+Added UTs
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

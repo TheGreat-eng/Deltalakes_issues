@@ -1,0 +1,19 @@
+The documentation incorrectly notes that "Enabling default column values for a table upgrades the Delta table version as a byproduct of enabling table features. This protocol upgrade is irreversible. Tables with default column values enabled can only be read in Delta Lake 3.1 and above."
+
+Signed-off-by: Miles Cole [m.w.c.360@gmail.com](mailto:m.w.c.360@gmail.com)
+
+#### Which Delta project/connector is this regarding?
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+Default columns is a writer table feature, not a reader feature.
+
+## How was this patch tested?
+I confirmed that a table with the defaultColumns table feature was readable by delta lake 3.0
+
+## Does this PR introduce _any_ user-facing changes?
+No

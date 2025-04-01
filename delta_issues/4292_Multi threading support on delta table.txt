@@ -1,0 +1,1 @@
+We faced issue the Parquet table was not compatible with Multi thread processing(Parallel insert in table). Dose delta table is compatible with Multi thread processing(Parallel insert/upsert, delete)?

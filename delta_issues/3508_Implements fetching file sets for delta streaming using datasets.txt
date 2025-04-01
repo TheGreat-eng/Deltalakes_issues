@@ -1,0 +1,19 @@
+This should make streaming against tables with very busy/large logs
+much more performant.  The current implementation of streaming works
+very well if the stream is close to current.  However if it falls
+very far behind, many json files will need to be downloaded to the
+driver and processed to build the files in the next micro batch
+
+This also pushes partition filtering ahead of the checks against
+maxFilesPerTrigger and maxBytesPerTrigger.  This will make these
+parameters much more useful when streaming against a table with a
+where clause which only selects a very small subset of a large table
+
+I was not able to layer in two checks which are present in the
+existing implementation, breaking delta protocol changes and breaking
+schema changes.  Those checks are currently implemented as side
+effects in a filtering step.
+
+They could probably be re-implemented with a bit more work
+
+This feature is moved behind the option: datasetForDeltaStreaming

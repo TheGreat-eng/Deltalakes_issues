@@ -1,0 +1,1 @@
+Now that the videos from Spark Summit have been published, we can link to the video of the tutorial. Also updated the tutorial's description.

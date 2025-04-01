@@ -1,0 +1,64 @@
+## 🥞 Stacked PR
+Use this [link](https://github.com/delta-io/delta/pull/4291/files) to review incremental changes.
+  - [**stack/metadata-validator-and-updater**](https://github.com/delta-io/delta/pull/4291)[[Files changed](https://github.com/delta-io/delta/pull/4291/files)]
+
+---------
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [x] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+Parent issue https://github.com/delta-io/delta/issues/4289
+
+Introduces `IcebergWriterCompatV1MetadataValidatorAndUpdater` which performs the metadata validation and updates for the writer feature IcebergWriterCompatV1:
+```
+/**
+ * Performs the validations and updates necessary to support the table feature IcebergWriterCompatV1
+ * when it is enabled by the table property "delta.enableIcebergWriterCompatV1".
+ *
+ * <p>Requires that the following table properties are set to the specified values. If they are set
+ * to an invalid value, throws an exception. If they are not set, enable them if possible.
+ *
+ * <ul>
+ *   <li>Requires ID column mapping mode (cannot be enabled on existing table).
+ *   <li>Requires icebergCompatV2 to be enabled.
+ * </ul>
+ *
+ * <p>Checks that required table features are enabled: icebergCompatWriterV1, icebergCompatV2,
+ * columnMapping
+ *
+ * <p>Checks the following:
+ *
+ * <ul>
+ *   <li>Checks that all table features supported in the table's protocol are in the allow-list of
+ *       table features. This simultaneously ensures that any unsupported features are not present
+ *       (e.g. CDF, variant type, etc).
+ *   <li>Checks that there are no fields with data type byte or short.
+ *   <li>Checks that the table feature `invariants` is not active in the table (i.e. there are
+ *   no invariants in the table schema). This is a special case where the incompatible feature
+ *   `invariants` is in the allow-list of features since it is included by default in the table
+ *   protocol for new tables. Since it is incompatible we must verify that it is inactive in
+ *   the table.
+ * </ul>
+
+```
+
+## How was this patch tested?
+
+Adds unit tests.
+
+Note - we refactor the tests in `IcebergCompatV2MetadataValidatorAndUpdaterSuite` so that we can run them for `icebergCompatV2` and for `icebergWriterCompatV1` since `icebergWriterCompatV1` enables and enforces `icebergCompatV2`.
+
+## Does this PR introduce _any_ user-facing changes?
+
+Yes, after all tasks in https://github.com/delta-io/delta/issues/4289 are complete a new writer feature will be supported.

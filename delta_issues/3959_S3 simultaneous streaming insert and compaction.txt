@@ -1,0 +1,5 @@
+I would like to know if it is safe to compact old partitions in parallel to streaming insert process in DeltaLake + S3 storage configuration.
+
+I want to make sure that there will be no data loss or duplicates due to race conditions.      
+
+It is not very clear for me from [Delta Storage](https://docs.delta.io/latest/delta-storage.html#amazon-s3) which writes must originate from a single Spark driver (writes of the data files or writes of the delta log entries). 

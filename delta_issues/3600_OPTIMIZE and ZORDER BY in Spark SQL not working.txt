@@ -1,0 +1,13 @@
+I tried to use OPTIMIZE inside spark sql (using python) and there's an error.
+This is what I try to execute:
+`spark.sql("OPTIMIZE vuelos ZORDER BY (Dest)")`
+
+And this is the output:
+`ParseException: 
+mismatched input 'OPTIMIZE' expecting {'(', 'ADD', 'ALTER', 'ANALYZE', 'CACHE', 'CLEAR', 'COMMENT', 'COMMIT', 'CREATE', 'DELETE', 'DESC', 'DESCRIBE', 'DFS', 'DROP', 'EXPLAIN', 'EXPORT', 'FROM', 'GRANT', 'IMPORT', 'INSERT', 'LIST', 'LOAD', 'LOCK', 'MAP', 'MERGE', 'MSCK', 'REDUCE', 'REFRESH', 'REPLACE', 'RESET', 'REVOKE', 'ROLLBACK', 'SELECT', 'SET', 'SHOW', 'START', 'TABLE', 'TRUNCATE', 'UNCACHE', 'UNLOCK', 'UPDATE', 'USE', 'VALUES', 'WITH'}(line 1, pos 0)`
+
+`== SQL ==
+OPTIMIZE vuelos ZORDER BY (Dest)
+^^^`
+
+Is this expected?

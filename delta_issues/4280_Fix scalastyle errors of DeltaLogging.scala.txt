@@ -1,0 +1,2 @@
+## What changes were proposed in this pull request?
+Fix scalastyle errors of DeltaLogging.scala. Change "// scalastyle:off on" to "// scalastyle:on println" to ensure the validity of grammar checks.

@@ -1,0 +1,16 @@
+## What changes were proposed in this pull request?
+Add selected name mode column mapping tests within critical suites to ensure test coverage.
+
+Covers:
+- DDLs: Merge, Insert, DELETE
+- Schema evolution
+- Checkpointing
+- Restore
+- Delta as stream source & sink
+- Table creation & altering
+
+## How was this patch tested?
+
+Tests are automatically run under column mapping modes.
+
+GitOrigin-RevId: 09771dbad41da4107a36b9d301dc7b318fd5f43a

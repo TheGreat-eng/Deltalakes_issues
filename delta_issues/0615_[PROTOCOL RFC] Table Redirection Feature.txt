@@ -1,0 +1,33 @@
+## Protocol Change Request
+
+## Overview
+Currently, DeltaLog lacks a seamless method for migrating an existing table to new storage. Users must establish their own lengthy and complex data cloning procedures. This feature request proposes a new table functionality that allows an existing Delta table to be redirected to a new storage location. Once the redirection process is complete, the table's data, Delta log, checkpoint, and checksum files would be cloned to the new storage location. All subsequent workloads would then be managed on the new storage location.
+
+### Description of the protocol change
+
+The detail proposal and the required protocol changes are sketched out [in this doc](https://docs.google.com/document/d/1k2M8zbfdggkqgJCSN9Y5PpCiH87Khv5KFDS8q4-izt4/edit#heading=h.dd2cc57oc5wk).
+
+At a high level, we propose two new features for Delta tables: **redirectReaderWriter** and **redirectWriterOnly**. Both features are similar, but with distinct functionalities. The **redirectReaderWriter** feature blocks both read and write queries from Delta clients that have not implemented this feature. In contrast, the **redirectWriterOnly** feature only blocks write queries from such clients.
+
+
+These table feature includes the following capabilities:
+1. RedirectReaderWriter: This feature supports redirecting both read and write operations from the source to the destination, while blocking read and write operations from legacy Delta clients.
+2. RedirectWriterOnly: This feature allows redirecting read and write operations from the source to the destination but only blocks write operations from legacy Delta clients, permitting reads from the source tables.
+3. Both features should enable tables to be redirected to different storage and catalogs without ambiguity.
+4. Time Traveling:
+4.1. Fully supports time-travel queries.
+4.2. Allows restoring to any version before or after the table redirect commit, without reversing the table redirect property.
+7. Neither feature should cause noticeable performance regression.
+8. During both the enabling and dropping these table features, all committed transactions should appear correctly in the redirected table, while uncommitted transactions should not be visible.
+9. There should be clear guidelines on which queries can or cannot be processed at each stage of the enablement and disablement procedures.
+10. The source table should remain in a valid state if a user cancels the redirect table feature.
+
+### Willingness to contribute
+
+The Delta Lake Community encourages protocol innovations. Would you or another member of your organization be willing to contribute this feature to the Delta Lake code base?
+
+- [x] Yes. I can contribute.
+- [ ] Yes. I would be willing to contribute with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute at this time.
+
+

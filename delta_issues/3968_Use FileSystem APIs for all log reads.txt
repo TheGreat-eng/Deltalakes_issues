@@ -1,0 +1,9 @@
+There has been a few questions about the exception "No AbstractFileSystem configured for scheme:"
+- #346
+- https://delta-users.slack.com/archives/CJ70UCSHM/p1583362667142500
+These occur because the default HDFSLogStore uses FileContext for all reads and writes and therefore does not work with non-HDFS storage which do not have AbstractFileSystem (inner class related to FileContext APIs) implementation. While table writes definitely need a possibly-storage-specific LogStore that can absolutely guarantee the atomic properties, table reads do  not need such guarantees. So it is okay for all reads on all systems to use the FileSystem APIs. 
+
+So the proposal to make this out-of-the-box user experience slightly easier is to do the following
+
+- Default HDFSLogStore uses FileSystem APIs for reads. So, by default, all table reads on all storage systems (that have FileSystem implementations) will work out of the box. 
+- For writes, intercept the "No AbstractFileSystem configured for scheme:" error and give a better error message that explains what the error means and link it to the storage docs page. 

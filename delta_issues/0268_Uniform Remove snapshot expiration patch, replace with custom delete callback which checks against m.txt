@@ -1,0 +1,35 @@
+This change removes the snapshot expiration patch for uniform which currently prevents any deletion of shared data files
+as part of expiration. We can achieve the same behavior by passing in a custom delete callback which checks if a path to delete is in the Iceberg metadata location, if it is we can clean it up, if it's not we should not clean it up since it would be a data file. 
+
+Note, one edge case which is also addressed is in case the user some configured their Iceberg metadata location to be the same as the data location. In this case, we take the conservative approach of not doing any metadata cleanup.
+Such a configuration in practice is very rare since it goes against a user's interest to not separate (separation of metadata in a different prefix ensures better throughput for instance), but it didn't add too much complexity to defend against that so it was added.
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [ X] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other 
+
+## Description
+
+This change removes the snapshot expiration patch for uniform which currently prevents any deletion of shared data files
+as part of expiration. We can achieve the same behavior by passing in a custom delete callback which checks if a path to delete is in the Iceberg metadata location, if it is we can clean it up, if it's not we should not clean it up since it would be a data file. 
+
+Note, one edge case which is also addressed is in case the user some configured their Iceberg metadata location to be the same as the data location. In this case, we take the conservative approach of not doing any metadata cleanup.
+Such a configuration in practice is very rare since it goes against a user's interest to not separate (separation of metadata in a different prefix ensures better throughput for instance), but it didn't add too much complexity to defend against that so it was added.
+
+In general, We want to remove Uniform custom Iceberg patches since this will put us on a path for being able to upgrade more effectively and make it more maintainable.
+
+## How was this patch tested?
+
+Added integration tests for expiration to ConvertToIcebergSuite
+
+## Does this PR introduce _any_ user-facing changes?
+
+No, behavior is preserved

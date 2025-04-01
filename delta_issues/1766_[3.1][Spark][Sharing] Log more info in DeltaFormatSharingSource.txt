@@ -1,0 +1,17 @@
+#### Which Delta project/connector is this regarding?
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [X] Other (Delta Sharing)
+
+## Description
+Cherrypick of #2547
+
+Log more info in DeltaFormatSharingSource and throw error when server returns bad version.
+
+## How was this patch tested?
+Unit Test
+
+## Does this PR introduce _any_ user-facing changes?
+No

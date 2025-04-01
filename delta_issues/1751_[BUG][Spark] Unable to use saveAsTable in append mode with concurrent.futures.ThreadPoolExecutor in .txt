@@ -1,0 +1,114 @@
+## Bug
+
+
+
+### Describe the problem
+
+My simplified use case is to read from one location and append the data to a Delta Lake table with a Hive Metastore in batches. I have to do this for a couple of tables concurrently, so I use a Python ThreadPoolExecutor for it. Each thread executes the above append operation for different tables
+
+But when I use append mode with saveAsTable on the second batch append I get this error
+
+`The column number of the existing table spark_catalog.test_schema.delta_dummy (struct<>) doesn't match the data schema (struct<id:int,_c1:string>).`
+
+Somehow it's not able to get the target table's current schema, 
+
+```
+I tried the same with parquet and CSV as target format, It worked as expected in those cases, 
+
+With delta, lake overwrite mode also does not face this issue
+
+With delta, lake writes to s3 files instead of the table and also does not face issue 
+
+Only getting the above error when saving as a table with delta lake format in append mode
+
+Also observed without Python future threads even append working fine
+```
+
+
+
+#### Steps to reproduce
+
+`
+from pyspark.sql import SparkSession
+from delta.tables import *
+
+import concurrent.futures
+
+
+AWS_ACCESS_KEY_ID="AWS_ACCESS_KEY_ID"
+AWS_SECRET_ACCESS_KEY="AWS_SECRET_ACCESS_KEY"
+dep_packages = 'io.delta:delta-spark_2.12:3.0.0,'\
+                'org.apache.spark:spark-avro_2.12:3.5.0,'\
+                'org.apache.hadoop:hadoop-aws:3.3.1,'\
+                'com.amazonaws:aws-java-sdk-bundle:1.11.901'
+
+spark = SparkSession\
+        .builder\
+        .appName("pyspark-notebook")\
+        .config("spark.jars.packages", dep_packages)\
+        .config("spark.sql.extensions", "io.delta.sql.DeltaSparkSessionExtension")\
+        .config("hive.metastore.uris", "thrift://localhost:9085")\
+        .config("spark.sql.catalog.spark_catalog", "org.apache.spark.sql.delta.catalog.DeltaCatalog")\
+        .config("fs.s3a.aws.credentials.provider", "org.apache.hadoop.fs.s3a.SimpleAWSCredentialsProvider")\
+        .config("spark.hadoop.fs.s3a.access.key", AWS_ACCESS_KEY_ID)\
+        .config("spark.hadoop.fs.s3a.secret.key", AWS_SECRET_ACCESS_KEY)\
+        .config("spark.sql.warehouse.dir", "s3a://dw_path/delta_db")\
+        .enableHiveSupport()\
+        .getOrCreate()
+
+def dummy_check_for_new_changes(logic_func):
+    with concurrent.futures.ThreadPoolExecutor(max_workers=10) as executor:
+        executor.submit(logic_func)
+
+def insert_data():
+    try:
+        df = spark.read.format("csv")\
+                .option("header", "true")\
+                .option("inferSchema", "true")\
+                .load('test.csv')
+        df.show()
+        df\
+        .write\
+        .saveAsTable("test_schema.delta_dummy", format='delta', mode='append')
+        print("inserted data")
+    except Exception as e:
+        print(e)
+        raise e
+
+
+def execute_code():
+    insert_data()
+    insert_data()
+
+
+dummy_check_for_new_changes(execute_code)
+
+
+
+`
+
+#### Observed results
+
+Getting the below error on the second append operation
+`
+The column number of the existing table spark_catalog.rbl_aura_ledger.hold_history_delta_dummy1 (struct<>) doesn't match the data schema (struct<id:int,_c1:string>).
+`
+
+#### Expected results
+
+<!-- What did you expect to happen? -->
+Its suppose to append the data to the table
+
+#### Further details
+
+<!--
+Include any additional details that may be useful for diagnosing the problem here. If including tracebacks, please include the full traceback. Large logs and files should be attached.
+-->
+
+### Environment information
+
+* Delta Lake version:3.0
+* Spark version:3.5.0
+* Scala version:2.12
+
+

@@ -1,0 +1,9 @@
+Currently, the stats are serialized using semantics similar to the `to_json` expression in Spark. `JsonHandler.parseJson` is currently used to parse the stats. It has extra non-JSON semantics such as handling timestamp, date type columns.
+
+The delta files are serialized using the semantics of Jackson serializer and strictly contain the data types that are JSON supported types (i.e no timestamp or date types).
+
+This task is to
+* refactor these two paths into for reads and writes. 
+* document the details in PROTOCOL. Currently the serialization of stats is missing.
+
+More context [here](https://github.com/delta-io/delta/pull/2903#discussion_r1569591454).

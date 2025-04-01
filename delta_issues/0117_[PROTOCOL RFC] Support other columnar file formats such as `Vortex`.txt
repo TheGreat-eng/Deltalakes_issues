@@ -1,0 +1,15 @@
+## Protocol Change Request
+Vortex (https://github.com/spiraldb/vortex) seems like new kid on the block, better and faster than parquet. 
+
+### Description of the protocol change
+Support vortex as file format (provider) instead of just parquet
+
+### Willingness to contribute
+
+The Delta Lake Community encourages protocol innovations. Would you or another member of your organization be willing to contribute this feature to the Delta Lake code base?
+
+- [X] Yes. I can contribute but in delta-rs ;).
+- [ ] Yes. I would be willing to contribute with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute at this time.
+
+

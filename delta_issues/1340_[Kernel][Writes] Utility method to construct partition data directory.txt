@@ -1,0 +1,7 @@
+## Description
+(Split from larger PR #2944)
+
+Utility method to construct the partition data directory.
+
+## How was this patch tested?
+UTs

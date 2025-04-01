@@ -1,0 +1,35 @@
+#### Which Delta project/connector is this regarding?
+
+- [x] Other (Hive)
+
+## Description
+
+This pull request adds compatibility for Delta Lake with Apache Hive 4.0. This enhancement enables Hive 4.0 users to create delta tables.
+
+### Key Changes:
+- **Delta Lake Hive Integration:** Enabled compatibility for Hive 4.0 to work with Delta Lake tables.
+- **Metadata Handling:** Improved how Hive 4.0 handles Delta table metadata to ensure seamless integration.
+
+
+### Why We Need This Change:
+Integrating Delta Lake with Hive 4.0 bridges the gap between Hive users and the powerful features of Delta Lake. This change simplifies data workflows, allowing users to leverage Delta Lake’s robust features without leaving the Hive environment.
+
+### Resolved Issues:
+This PR resolves any outstanding issues related to the lack of Delta Lake compatibility in Hive 4.0.
+
+## How was this patch tested?
+
+- Unit tests were added to verify Delta Lake's functionality within Hive, covering both positive and negative test cases.
+- Manual testing was conducted to ensure compatibility across various Delta Lake operations, including creating Delta tables in Hive 4.0.
+- Jar building is successful without any issue. [build/sbt hiveAssembly/assembly]
+- We can create delta tables through hive 4.0 shell.
+
+
+## Does this PR introduce _any_ user-facing changes?
+
+Yes, this PR introduces user-facing changes:
+- **New Features:** Hive 4.0 users can now created Delta Lake tables directly.
+
+
+These changes enhance the existing capabilities of Hive, making it more versatile in managing large datasets with Delta Lake's advanced features.
+

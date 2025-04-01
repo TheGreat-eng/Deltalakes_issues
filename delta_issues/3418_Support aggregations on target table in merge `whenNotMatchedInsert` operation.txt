@@ -1,0 +1,40 @@
+I have a Delta table with a numbered ID column, and I want each insert to the table to be given the next ID number. 
+
+A simplified version of the table looks like this:
+```python
+path = '/tmp/delta_id_test'
+spark.createDataFrame([
+    (0, 'a'),
+    (1, 'b'),
+], schema='id: int, val: string').write.format('delta').save(path)
+```
+
+And let's say I have a DataFrame I want to insert that looks like this:
+```python
+df = spark.createDataFrame([('c', )], schema='val: string')
+```
+
+My current implementation is this:
+```python
+import pyspark.sql.functions as f
+max_id = spark.read.format('delta').load(path).select(f.max('id')).collect()[0][0]
+df.withColumn('id', f.lit(max_id+1)).write.format('delta').mode('append').save(path)
+```
+
+This works as long as no other process wrote to the table between getting the `max_id` and writing the new row with `max_id+1`. However, since I have multiple concurrent processes writing to the table, this will create inconsistencies in the table.  
+My problem is that I need the read operation that gives me the `max_id` and the write operation that inserts a new row with `max_id+1` to be a single Delta transaction, so I thought about using MERGE as a way to achieve both actions in the same transaction.
+
+My idea was to do something like this:
+```python
+import pyspark.sql.functions as f
+from delta.tables import DeltaTable
+table = DeltaTable.forPath(spark, path)
+table.alias('table').merge(df.alias('df'), f.lit(False)) \
+    .whenNotMatchedInsert(values={'id': f.max('table.id')+1, 'val': 'df.val'}) \
+    .execute()
+```
+
+Sadly this doesn't work and I get the following exception:
+> AnalysisException: 'cannot resolve `table.id` in INSERT clause given columns df.`val`;'
+
+I couldn't find any other way to do this sort of transaction, so I was hoping it might be possible to implement something like that as a new feature. 

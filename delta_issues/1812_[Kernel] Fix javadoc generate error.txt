@@ -1,0 +1,13 @@
+## Description
+Due to a merge conflict, this error didn't occur in the CI of PR that made the change.
+
+https://github.com/delta-io/delta/actions/runs/7507859889/job/20442273564?pr=2497
+```
+[error] /home/runner/work/delta/delta/kernel/kernel-api/src/main/java/io/delta/kernel/internal/skipping/DataSkippingPredicate.java:25:1:  error: type arguments not allowed here
+[error]  * A {@link Predicate} with a set of {@link Set<Column>} of columns referenced by the expression.
+[error]  
+```
+It looks like we can't have a reference to generics class with a particular type in javadoc due to [type erasure with generics](https://stackoverflow.com/questions/9482309/javadoc-bug-link-cant-handle-generics)
+
+## How was this patch tested?
+build succeeds locally

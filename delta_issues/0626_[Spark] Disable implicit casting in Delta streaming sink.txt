@@ -1,0 +1,20 @@
+## Description
+https://github.com/delta-io/delta/pull/3443 introduced implicit casting when writing to a Delta table using a streaming query.
+
+
+We are disabling this change for now as it regresses behavior when a struct field is missing in the input data. This previously succeeded, filling the missing fields with `null` but would now fail with:
+```
+DELTA_UPDATE_SCHEMA_MISMATCH_EXPRESSION] Cannot cast struct<name:string> to struct<name:string,age:bigint>. All nested columns must match.
+```
+
+Note: batch INSERT fails in this scenario with:
+```
+[DELTA_INSERT_COLUMN_ARITY_MISMATCH] Cannot write to '<table>, not enough nested fields in <struct>; target table has 3 column(s) but the inserted data has 2 column(s)
+```
+but since streaming write allowed this, we have to preserve that behavior.
+
+## How was this patch tested?
+Tests added as part of https://github.com/delta-io/delta/pull/3443, e.p. with flag disabled.
+
+## Does this PR introduce _any_ user-facing changes?
+Disabled behavior change that was to be introduced with https://github.com/delta-io/delta/pull/3443.

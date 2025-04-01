@@ -1,0 +1,24 @@
+## Feature request
+
+### Overview
+
+[Delta Lake 1.2.0](https://github.com/delta-io/delta/releases/tag/v1.2.0) has introduced a function to **support for compacting small files (optimize) into larger files in a Delta Lake table**. However, that version comes with Apache Spark 3.2 since Delta Lake 1.1.0. Would it be possible to have a backward compatible with Apache Spark 3.1 as well?
+
+### Motivation
+
+I'm currently using AWS Glue 3.0 for ELT. It comes with _Apache Spark 3.1_ as the latest version. Therefore, I cannot upgrade Delta Lake to v1.1+ since it uses Apache Spark 3.2. I need to use the `optimize` function to compact the objects in S3. It would be great if AWS Glue will support Spark 3.2 in the future, but I'm not sure when is the update. Would you please suggest on how to achieve this function with the Spark version limitation?
+
+### Further details
+[Compatibility with Apache Spark](https://docs.delta.io/latest/releases.html#compatibility-with-apache-spark) (Delta Lake Documentation)
+<!--
+Use this section to include any additional information about the feature. If you have a proposal for how to implement this feature, please include it here. For implementation guidelines, please read our contributor guidelines: https://github.com/delta-io/delta/blob/master/CONTRIBUTING.md
+If there are any specific requirements for this feature that are not immediately obvious please outline them here.
+-->
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [ ] Yes. I can contribute this feature independently.
+- [x] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.

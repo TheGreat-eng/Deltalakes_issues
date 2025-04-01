@@ -1,0 +1,17 @@
+## Feature request
+
+### Overview
+
+We should be allowed to reset the generated identity column in some way. Currently, it appears deleting the table completely from disk is the only way to do so.
+
+### Motivation
+
+You might consider adding it to the `VACUUM <table> RETAIN 0 HOURS` function. The reason why it would be helpful, is that, over time, with many inserts, we get very large numbers that are just plain obtuse. We do not need a run-away identity column, even if I have vacuumed the table.
+
+### Further details
+
+N/A
+
+### Willingness to contribute
+
+- [X] No. I cannot contribute this feature at this time.

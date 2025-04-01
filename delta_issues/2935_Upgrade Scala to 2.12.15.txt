@@ -1,0 +1,27 @@
+## Description
+
+Upgrade Scala to 2.12.15 to fix `java.lang.IllegalArgumentException: too many arguments` if running on JDK 17:
+```
+[info] Caused by: java.lang.reflect.InvocationTargetException
+[info] 	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+[info] 	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:77)
+[info] 	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+[info] 	at java.base/java.lang.reflect.Method.invoke(Method.java:568)
+[info] 	at java.base/java.lang.invoke.SerializedLambda.readResolve(SerializedLambda.java:278)
+[info] 	... 71 more
+[info] Caused by: java.lang.IllegalArgumentException: too many arguments
+[info] 	at java.base/java.lang.invoke.LambdaMetafactory.altMetafactory(LambdaMetafactory.java:511)
+[info] 	at scala.runtime.LambdaDeserializer$.makeCallSite$1(LambdaDeserializer.scala:105)
+[info] 	at scala.runtime.LambdaDeserializer$.deserializeLambda(LambdaDeserializer.scala:114)
+[info] 	at scala.runtime.LambdaDeserialize.deserializeLambda(LambdaDeserialize.java:38)
+[info] 	at org.apache.spark.sql.execution.LocalTableScanExec.$deserializeLambda$(LocalTableScanExec.scala)
+[info] 	... 76 more
+```
+
+## How was this patch tested?
+
+Existing test.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No.

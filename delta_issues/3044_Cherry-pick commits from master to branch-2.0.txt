@@ -1,0 +1,19 @@
+## Description
+Cherry-pick of following commits
+
+pick 13028146 Avoid Persisting NumRecord of RemoveFile to Checkpoint
+pick d10f5555 Add a evolvability test for `numRecords` removed as part of 5842b5f
+pick 3d1e7eae Fix `numCopiedRows` in UPDATE command metric
+pick 8dd98522 DELETE operation metrics and tests
+pick 976c5ef7 Add metric tests for `RESTORE` and `CREATE TABLE`
+pick 3081e6a6 Fix error message
+pick 2ff7cc7d Fix broken link in PROTOCOL.md file
+pick 86cf73f8 Add support of hadoop-aws s3a SimpleAWSCredentialsProvider to S3DynamoDBLogStore
+pick 38945d0d Nullable columns should work when using generated columns
+pick 11b2d1fb [Delta] Accept LogStore conf keys with and without the "spark." prefix
+pick b527c6fa Fix incomplete SQL conf keys in DeltaErrors
+pick d2804cb9 [Delta] Metric tests for merge
+pick 56e1b9b4 [ZOrder] Fast approach of interleaving bits
+
+## How was this patch tested?
+Each commit has tests and will be running the CI tests

@@ -1,0 +1,5 @@
+Hello Everyone,
+
+Could you help to show a full python example about how to store many small pictures to delta table?  And how to read out them?
+
+Best regards.

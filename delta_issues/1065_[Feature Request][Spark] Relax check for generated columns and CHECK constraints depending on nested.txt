@@ -1,0 +1,48 @@
+## Feature request
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the issue title
+For example: [Feature Request][Spark] Title of my issue
+-->
+
+- [X] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+### Overview
+The check to prevent invalid type changes from being applied in [ImplicitMetadataOperation.checkDependentExpression](https://github.com/delta-io/delta/blob/master/spark/src/main/scala/org/apache/spark/sql/delta/schema/ImplicitMetadataOperation.scala#L241) is too strict and can be relaxed to allow changing the type of a field in a struct if that field isn't referenced by a CHECK constraint or generated column.
+
+### Motivation
+
+The type of columns and nested fields that are referenced by a CHECK constraint or generated columns can’t be changed during schema evolution as the expressions may depend on the type.
+
+For example `hash(col)` or `typeof(col)` may/will return different results depending on the column type, leading to existing rows that may not satisfy CHECK constraints anymore or cause existing rows in a generated column to not match the actual result of the generated column expression anymore.
+
+The check enforcing that such type changes aren't applied is too strict when changing the type of fields inside structs and can be relaxed to allow more use cses.
+
+### Further details
+
+https://github.com/delta-io/delta/pull/2881 refactored the check to reject changing the type of a column or field during schema evolution in such a case but for simplicity, it doesn’t try to identify if nested struct fields that are modified overlap or not with fields referenced by a CHECK constraint or a generated column and instead consider the struct as a whole as being modified.
+
+By checking individual fields, we could allow the following valid use case which is rejected today:
+```
+CREATE TABLE t (a struct<x: byte, y: byte>) USING DELTA TBLPROPERTIES('delta.enableTypeWidening' = 'true');
+ALTER TABLE t ADD CONSTRAINT ck CHECK (hash(a.x) > 0);
+SET "spark.databricks.delta.schema.autoMerge.enabled" = "true";
+INSERT INTO t VALUES (CAST(2 AS INT))
+```
+Changing the type of struct field a.y  during schema evolution will fail, even though only `a.x` is referenced by the CHECK constraint.
+
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [x] Yes. I can contribute this feature independently.
+- [ ] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.
+
+I'm also happy to support anyone willing to implement this improvement.

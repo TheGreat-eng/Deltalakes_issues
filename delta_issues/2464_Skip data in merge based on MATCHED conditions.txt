@@ -1,0 +1,19 @@
+Related to:
+[[Feature Request] Merge performance improvements](https://github.com/delta-io/delta/issues/1827#top)
+[[BUG] Merge copy rows even when match clause is false. Potential for huge perf impact.](https://github.com/delta-io/delta/issues/1812#top)
+
+## Description
+This change adds data skipping in merge when there are only `MATCHED` clause instead of only relying on the `ON` condition.  The match conditions are used to skip files when scanning the table and to prune the list of modified files in `findTouchedFiles`.
+
+For example:
+```
+MERGE INTO target
+USING source
+ON target.key = source.key
+WHEN MATCHED AND target.value = 1 THEN UPDATE SET *
+WHEN MATCHED AND target.value = 2 THEN DELETE
+```
+A predicate `target.value = 1 OR target.value = 2` is used to skip files to scan based on file statistics and to remove files that effectively have no rows updated or deleted after the join in `findTouchedFiles`
+
+## How was this patch tested?
+Tests covering data skipping for different scenarios are added to `MergeIntoSuiteBase`

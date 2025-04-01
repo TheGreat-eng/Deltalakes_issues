@@ -1,0 +1,21 @@
+`vacuum(0)` was throwing the following error because the Java API has Double and Py4j was searching for integer. The fix is to convert the python parameter to float before calling java.
+
+
+```
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+  File "/private/var/folders/0q/c_zjyddd4hn5j9jkv0jsjvl00000gp/T/spark-ff856d5c-6a62-45bd-b9a4-0a0fea0acd09/userFiles-de551310-4bed-4267-be1c-b3c36556d6ff/io.delta_delta-core_2.11-0.4.0.jar/delta/tables.py", line 210, in vacuum
+  File "/usr/local/Cellar/spark/spark-2.4.3-bin-hadoop2.7/python/lib/py4j-0.10.7-src.zip/py4j/java_gateway.py", line 1257, in __call__
+  File "/usr/local/Cellar/spark/spark-2.4.3-bin-hadoop2.7/python/pyspark/sql/utils.py", line 63, in deco
+    return f(*a, **kw)
+  File "/usr/local/Cellar/spark/spark-2.4.3-bin-hadoop2.7/python/lib/py4j-0.10.7-src.zip/py4j/protocol.py", line 332, in get_return_value
+py4j.protocol.Py4JError: An error occurred while calling o49.vacuum. Trace:
+py4j.Py4JException: Method vacuum([class java.lang.Integer]) does not exist
+    at py4j.reflection.ReflectionEngine.getMethod(ReflectionEngine.java:318)
+    at py4j.reflection.ReflectionEngine.getMethod(ReflectionEngine.java:326)
+    at py4j.Gateway.invoke(Gateway.java:274)
+    at py4j.commands.AbstractCommand.invokeMethod(AbstractCommand.java:132)
+    at py4j.commands.CallCommand.execute(CallCommand.java:79)
+    at py4j.GatewayConnection.run(GatewayConnection.java:238)
+    at java.lang.Thread.run(Thread.java:748)
+```

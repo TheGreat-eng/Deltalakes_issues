@@ -1,0 +1,107 @@
+## Bug
+
+### Describe the problem
+When Z-ordering with the `spark.sql.files.maxRecordsPerFile` setting breaks the z-ordering of the output files. More specifically, the min/max statistic values on the z-ordered columns are no longer disjoint sets. I am convinced that this is the root issue of #1673 and [#1379](https://github.com/delta-io/delta/issues/1379#issuecomment-1486434470_).
+
+https://github.com/delta-io/delta/blob/29dd9741c64df1a40b14dde86ebdab983d79f0a8/core/src/main/scala/org/apache/spark/sql/delta/commands/OptimizeTableCommand.scala#L340
+As can be seen from the above line, the clustering of records into files must be told approximately how many files are created. So anything that affects the number of output files (e.g. `spark.sql.files.maxRecordsPerFile`) must be passed on to this part of the algorithm accordingly.
+
+I don't see a quick fix for this; since the clustering algorithm only asks for the approximate number of files there is no guarantee that it will cluster less than `maxRecordsPerFile` records into a file. But this is probably where one could start to solve this.
+
+#### Steps to reproduce
+I copied the example from #1673:
+
+```python
+# pyspark
+import random
+insert_list = []
+for i in range(0, 100000):
+    insert_list.append([i, 100000 - i, random.randint(0, 100000)])
+
+
+df = spark.createDataFrame(insert_list, schema=['x', 'y', 'z'])
+df.write.format("delta").mode("overwrite").saveAsTable("sky")
+
+# numFiles: 100000 / 20000 = 5
+spark.conf.set("spark.sql.files.maxRecordsPerFile",20000)
+
+x_info = spark.sql('OPTIMIZE sky ZORDER BY x');
+y_info = spark.sql('OPTIMIZE sky ZORDER BY y');
+z_info = spark.sql('OPTIMIZE sky ZORDER BY z');
+```
+
+#### Observed results
+```
+// 0.json
+{"commitInfo":{"timestamp":1680160534546,"operation":"CREATE OR REPLACE TABLE AS SELECT","operationParameters":{"isManaged":"false","description":null,"partitionBy":"[]","properties":"{}"},"isolationLevel":"Serializable","isBlindAppend":false,"operationMetrics":{"numFiles":"8","numOutputRows":"100000","numOutputBytes":"1258845"},"engineInfo":"Apache-Spark/3.3.0 Delta-Lake/2.2.0","txnId":"a00e89ff-7300-466e-aaf6-614535a32a81"}}
+{"protocol":{"minReaderVersion":1,"minWriterVersion":2}}
+{"metaData":{"id":"43a9df9c-1838-4270-8838-50458c6b8cbd","format":{"provider":"parquet","options":{}},"schemaString":"{\"type\":\"struct\",\"fields\":[{\"name\":\"x\",\"type\":\"long\",\"nullable\":true,\"metadata\":{}},{\"name\":\"y\",\"type\":\"long\",\"nullable\":true,\"metadata\":{}},{\"name\":\"z\",\"type\":\"long\",\"nullable\":true,\"metadata\":{}}]}","partitionColumns":[],"configuration":{},"createdTime":1680160531320}}
+{"add":{"path":"part-00000-82ac261c-4624-4d9c-a7ad-d500b3595650-c000.snappy.parquet","partitionValues":{},"size":155377,"modificationTime":1680160533392,"dataChange":true,"stats":"{\"numRecords\":12288,\"minValues\":{\"x\":0,\"y\":87713,\"z\":0},\"maxValues\":{\"x\":12287,\"y\":100000,\"z\":99990},\"nullCount\":{\"x\":0,\"y\":0,\"z\":0}}"}}
+{"add":{"path":"part-00001-e48b24f6-cade-4b9d-a8ec-c221661a991f-c000.snappy.parquet","partitionValues":{},"size":154640,"modificationTime":1680160533392,"dataChange":true,"stats":"{\"numRecords\":12288,\"minValues\":{\"x\":12288,\"y\":75425,\"z\":28},\"maxValues\":{\"x\":24575,\"y\":87712,\"z\":99992},\"nullCount\":{\"x\":0,\"y\":0,\"z\":0}}"}}
+{"add":{"path":"part-00002-7f16a728-05c8-4d87-9ef6-2dc85e2e66a0-c000.snappy.parquet","partitionValues":{},"size":154637,"modificationTime":1680160533392,"dataChange":true,"stats":"{\"numRecords\":12288,\"minValues\":{\"x\":24576,\"y\":63137,\"z\":3},\"maxValues\":{\"x\":36863,\"y\":75424,\"z\":99999},\"nullCount\":{\"x\":0,\"y\":0,\"z\":0}}"}}
+{"add":{"path":"part-00003-45579b25-17e6-4f67-b64e-7ad9e6eb783c-c000.snappy.parquet","partitionValues":{},"size":167379,"modificationTime":1680160533392,"dataChange":true,"stats":"{\"numRecords\":13312,\"minValues\":{\"x\":36864,\"y\":49825,\"z\":11},\"maxValues\":{\"x\":50175,\"y\":63136,\"z\":99998},\"nullCount\":{\"x\":0,\"y\":0,\"z\":0}}"}}
+{"add":{"path":"part-00004-444a17bc-9a14-4988-ad3b-bd26cff1f66d-c000.snappy.parquet","partitionValues":{},"size":154647,"modificationTime":1680160533392,"dataChange":true,"stats":"{\"numRecords\":12288,\"minValues\":{\"x\":50176,\"y\":37537,\"z\":0},\"maxValues\":{\"x\":62463,\"y\":49824,\"z\":100000},\"nullCount\":{\"x\":0,\"y\":0,\"z\":0}}"}}
+{"add":{"path":"part-00005-24efd319-05e3-49d1-b8d0-390a3f5a805a-c000.snappy.parquet","partitionValues":{},"size":154630,"modificationTime":1680160533392,"dataChange":true,"stats":"{\"numRecords\":12288,\"minValues\":{\"x\":62464,\"y\":25249,\"z\":2},\"maxValues\":{\"x\":74751,\"y\":37536,\"z\":99993},\"nullCount\":{\"x\":0,\"y\":0,\"z\":0}}"}}
+{"add":{"path":"part-00006-1cd19d50-25bc-4c98-a606-30102f34789f-c000.snappy.parquet","partitionValues":{},"size":154571,"modificationTime":1680160533392,"dataChange":true,"stats":"{\"numRecords\":12288,\"minValues\":{\"x\":74752,\"y\":12961,\"z\":1},\"maxValues\":{\"x\":87039,\"y\":25248,\"z\":99998},\"nullCount\":{\"x\":0,\"y\":0,\"z\":0}}"}}
+{"add":{"path":"part-00007-924e3c4c-6847-4545-9e66-d592557246e0-c000.snappy.parquet","partitionValues":{},"size":162964,"modificationTime":1680160533392,"dataChange":true,"stats":"{\"numRecords\":12960,\"minValues\":{\"x\":87040,\"y\":1,\"z\":7},\"maxValues\":{\"x\":99999,\"y\":12960,\"z\":99989},\"nullCount\":{\"x\":0,\"y\":0,\"z\":0}}"}}
+```
+
+```
+//1.json  spark.sql('OPTIMIZE sky ZORDER BY x');
+{"commitInfo":{"timestamp":1680160552828,"operation":"OPTIMIZE","operationParameters":{"predicate":"[]","zOrderBy":"[\"x\"]"},"readVersion":0,"isolationLevel":"SnapshotIsolation","isBlindAppend":false,"operationMetrics":{"numRemovedFiles":"8","numRemovedBytes":"1258845","p25FileSize":"250939","minFileSize":"250936","numAddedFiles":"5","maxFileSize":"251673","p75FileSize":"250998","p50FileSize":"250991","numAddedBytes":"1255537"},"engineInfo":"Apache-Spark/3.3.0 Delta-Lake/2.2.0","txnId":"e96fa2d8-032b-4814-bb6f-9943528997f6"}}
+{"add":{"path":"part-00000-0dd868d2-1cca-4d3b-a0c3-46ee1e1e44e4-c000.snappy.parquet","partitionValues":{},"size":250939,"modificationTime":1680160552706,"dataChange":false,"stats":"{\"numRecords\":20000,\"minValues\":{\"x\":36864,\"y\":6273,\"z\":7},\"maxValues\":{\"x\":93727,\"y\":63136,\"z\":99998},\"nullCount\":{\"x\":0,\"y\":0,\"z\":0}}"}}
+{"add":{"path":"part-00000-a5545f6b-e162-4250-8bf5-684627881f66-c001.snappy.parquet","partitionValues":{},"size":251673,"modificationTime":1680160552738,"dataChange":false,"stats":"{\"numRecords\":20000,\"minValues\":{\"x\":0,\"y\":1,\"z\":0},\"maxValues\":{\"x\":99999,\"y\":100000,\"z\":99990},\"nullCount\":{\"x\":0,\"y\":0,\"z\":0}}"}}
+{"add":{"path":"part-00000-12a20647-a4d6-4017-9dc9-acc7d0151a64-c002.snappy.parquet","partitionValues":{},"size":250991,"modificationTime":1680160552766,"dataChange":false,"stats":"{\"numRecords\":20000,\"minValues\":{\"x\":12288,\"y\":37537,\"z\":0},\"maxValues\":{\"x\":62463,\"y\":87712,\"z\":100000},\"nullCount\":{\"x\":0,\"y\":0,\"z\":0}}"}}
+{"add":{"path":"part-00000-b220d34d-2fa6-4f01-bf5f-3d2acd3e8d3b-c003.snappy.parquet","partitionValues":{},"size":250998,"modificationTime":1680160552790,"dataChange":false,"stats":"{\"numRecords\":20000,\"minValues\":{\"x\":21440,\"y\":32961,\"z\":3},\"maxValues\":{\"x\":67039,\"y\":78560,\"z\":99999},\"nullCount\":{\"x\":0,\"y\":0,\"z\":0}}"}}
+{"add":{"path":"part-00000-4fdaa0fb-4f58-4131-b93e-8566fa0272a1-c004.snappy.parquet","partitionValues":{},"size":250936,"modificationTime":1680160552810,"dataChange":false,"stats":"{\"numRecords\":20000,\"minValues\":{\"x\":67040,\"y\":12961,\"z\":1},\"maxValues\":{\"x\":87039,\"y\":32960,\"z\":99998},\"nullCount\":{\"x\":0,\"y\":0,\"z\":0}}"}}
+{"remove":{"path":"part-00006-1cd19d50-25bc-4c98-a606-30102f34789f-c000.snappy.parquet","deletionTimestamp":1680160551634,"dataChange":false,"extendedFileMetadata":true,"partitionValues":{},"size":154571}}
+{"remove":{"path":"part-00005-24efd319-05e3-49d1-b8d0-390a3f5a805a-c000.snappy.parquet","deletionTimestamp":1680160551634,"dataChange":false,"extendedFileMetadata":true,"partitionValues":{},"size":154630}}
+{"remove":{"path":"part-00002-7f16a728-05c8-4d87-9ef6-2dc85e2e66a0-c000.snappy.parquet","deletionTimestamp":1680160551634,"dataChange":false,"extendedFileMetadata":true,"partitionValues":{},"size":154637}}
+{"remove":{"path":"part-00001-e48b24f6-cade-4b9d-a8ec-c221661a991f-c000.snappy.parquet","deletionTimestamp":1680160551634,"dataChange":false,"extendedFileMetadata":true,"partitionValues":{},"size":154640}}
+{"remove":{"path":"part-00004-444a17bc-9a14-4988-ad3b-bd26cff1f66d-c000.snappy.parquet","deletionTimestamp":1680160551634,"dataChange":false,"extendedFileMetadata":true,"partitionValues":{},"size":154647}}
+{"remove":{"path":"part-00000-82ac261c-4624-4d9c-a7ad-d500b3595650-c000.snappy.parquet","deletionTimestamp":1680160551634,"dataChange":false,"extendedFileMetadata":true,"partitionValues":{},"size":155377}}
+{"remove":{"path":"part-00007-924e3c4c-6847-4545-9e66-d592557246e0-c000.snappy.parquet","deletionTimestamp":1680160551634,"dataChange":false,"extendedFileMetadata":true,"partitionValues":{},"size":162964}}
+{"remove":{"path":"part-00003-45579b25-17e6-4f67-b64e-7ad9e6eb783c-c000.snappy.parquet","deletionTimestamp":1680160551634,"dataChange":false,"extendedFileMetadata":true,"partitionValues":{},"size":167379}}
+```
+
+```
+//2.json  spark.sql('OPTIMIZE sky ZORDER BY y');
+{"commitInfo":{"timestamp":1680160554512,"operation":"OPTIMIZE","operationParameters":{"predicate":"[]","zOrderBy":"[\"y\"]"},"readVersion":1,"isolationLevel":"SnapshotIsolation","isBlindAppend":false,"operationMetrics":{"numRemovedFiles":"5","numRemovedBytes":"1255537","p25FileSize":"250939","minFileSize":"250936","numAddedFiles":"5","maxFileSize":"251673","p75FileSize":"250998","p50FileSize":"250991","numAddedBytes":"1255537"},"engineInfo":"Apache-Spark/3.3.0 Delta-Lake/2.2.0","txnId":"9aa0c15c-71e8-4213-90c0-5236f772cf3d"}}
+{"add":{"path":"part-00000-ea85692d-6aa3-4f86-bfb5-b0e1f9c804b9-c000.snappy.parquet","partitionValues":{},"size":251673,"modificationTime":1680160554418,"dataChange":false,"stats":"{\"numRecords\":20000,\"minValues\":{\"x\":0,\"y\":1,\"z\":0},\"maxValues\":{\"x\":99999,\"y\":100000,\"z\":99990},\"nullCount\":{\"x\":0,\"y\":0,\"z\":0}}"}}
+{"add":{"path":"part-00000-22a9a41a-d8b2-439b-926e-b3cb6a1c3eba-c001.snappy.parquet","partitionValues":{},"size":250998,"modificationTime":1680160554438,"dataChange":false,"stats":"{\"numRecords\":20000,\"minValues\":{\"x\":21440,\"y\":32961,\"z\":3},\"maxValues\":{\"x\":67039,\"y\":78560,\"z\":99999},\"nullCount\":{\"x\":0,\"y\":0,\"z\":0}}"}}
+{"add":{"path":"part-00000-9c4c7fef-0f45-4553-a755-76052f407ead-c002.snappy.parquet","partitionValues":{},"size":250991,"modificationTime":1680160554458,"dataChange":false,"stats":"{\"numRecords\":20000,\"minValues\":{\"x\":12288,\"y\":37537,\"z\":0},\"maxValues\":{\"x\":62463,\"y\":87712,\"z\":100000},\"nullCount\":{\"x\":0,\"y\":0,\"z\":0}}"}}
+{"add":{"path":"part-00000-ae91b14c-1649-4541-a08a-93dfa087bbdb-c003.snappy.parquet","partitionValues":{},"size":250939,"modificationTime":1680160554478,"dataChange":false,"stats":"{\"numRecords\":20000,\"minValues\":{\"x\":36864,\"y\":6273,\"z\":7},\"maxValues\":{\"x\":93727,\"y\":63136,\"z\":99998},\"nullCount\":{\"x\":0,\"y\":0,\"z\":0}}"}}
+{"add":{"path":"part-00000-bd03d50f-40cc-4ecc-a5d1-d7fdf17bcbb2-c004.snappy.parquet","partitionValues":{},"size":250936,"modificationTime":1680160554502,"dataChange":false,"stats":"{\"numRecords\":20000,\"minValues\":{\"x\":67040,\"y\":12961,\"z\":1},\"maxValues\":{\"x\":87039,\"y\":32960,\"z\":99998},\"nullCount\":{\"x\":0,\"y\":0,\"z\":0}}"}}
+{"remove":{"path":"part-00000-4fdaa0fb-4f58-4131-b93e-8566fa0272a1-c004.snappy.parquet","deletionTimestamp":1680160553845,"dataChange":false,"extendedFileMetadata":true,"partitionValues":{},"size":250936}}
+{"remove":{"path":"part-00000-0dd868d2-1cca-4d3b-a0c3-46ee1e1e44e4-c000.snappy.parquet","deletionTimestamp":1680160553845,"dataChange":false,"extendedFileMetadata":true,"partitionValues":{},"size":250939}}
+{"remove":{"path":"part-00000-12a20647-a4d6-4017-9dc9-acc7d0151a64-c002.snappy.parquet","deletionTimestamp":1680160553845,"dataChange":false,"extendedFileMetadata":true,"partitionValues":{},"size":250991}}
+{"remove":{"path":"part-00000-b220d34d-2fa6-4f01-bf5f-3d2acd3e8d3b-c003.snappy.parquet","deletionTimestamp":1680160553845,"dataChange":false,"extendedFileMetadata":true,"partitionValues":{},"size":250998}}
+{"remove":{"path":"part-00000-a5545f6b-e162-4250-8bf5-684627881f66-c001.snappy.parquet","deletionTimestamp":1680160553845,"dataChange":false,"extendedFileMetadata":true,"partitionValues":{},"size":251673}}
+```
+
+```
+//3.json  spark.sql('OPTIMIZE sky ZORDER BY z');
+{"commitInfo":{"timestamp":1680160555988,"operation":"OPTIMIZE","operationParameters":{"predicate":"[]","zOrderBy":"[\"z\"]"},"readVersion":2,"isolationLevel":"SnapshotIsolation","isBlindAppend":false,"operationMetrics":{"numRemovedFiles":"5","numRemovedBytes":"1255537","p25FileSize":"250939","minFileSize":"250936","numAddedFiles":"5","maxFileSize":"251673","p75FileSize":"250998","p50FileSize":"250991","numAddedBytes":"1255537"},"engineInfo":"Apache-Spark/3.3.0 Delta-Lake/2.2.0","txnId":"491b264c-0f06-46db-9ad3-93fa639110e6"}}
+{"add":{"path":"part-00000-67fe0935-ce6b-4301-bac1-766e9561415d-c000.snappy.parquet","partitionValues":{},"size":251673,"modificationTime":1680160555894,"dataChange":false,"stats":"{\"numRecords\":20000,\"minValues\":{\"x\":0,\"y\":1,\"z\":0},\"maxValues\":{\"x\":99999,\"y\":100000,\"z\":99990},\"nullCount\":{\"x\":0,\"y\":0,\"z\":0}}"}}
+{"add":{"path":"part-00000-270a02c4-2005-4774-9efa-4569e5e5e6e0-c001.snappy.parquet","partitionValues":{},"size":250998,"modificationTime":1680160555922,"dataChange":false,"stats":"{\"numRecords\":20000,\"minValues\":{\"x\":21440,\"y\":32961,\"z\":3},\"maxValues\":{\"x\":67039,\"y\":78560,\"z\":99999},\"nullCount\":{\"x\":0,\"y\":0,\"z\":0}}"}}
+{"add":{"path":"part-00000-698b728e-7b1c-468a-87b4-d49f91dcf04e-c002.snappy.parquet","partitionValues":{},"size":250991,"modificationTime":1680160555942,"dataChange":false,"stats":"{\"numRecords\":20000,\"minValues\":{\"x\":12288,\"y\":37537,\"z\":0},\"maxValues\":{\"x\":62463,\"y\":87712,\"z\":100000},\"nullCount\":{\"x\":0,\"y\":0,\"z\":0}}"}}
+{"add":{"path":"part-00000-9bcf38c2-b214-4fc0-ba5d-46d8f077f3b7-c003.snappy.parquet","partitionValues":{},"size":250939,"modificationTime":1680160555958,"dataChange":false,"stats":"{\"numRecords\":20000,\"minValues\":{\"x\":36864,\"y\":6273,\"z\":7},\"maxValues\":{\"x\":93727,\"y\":63136,\"z\":99998},\"nullCount\":{\"x\":0,\"y\":0,\"z\":0}}"}}
+{"add":{"path":"part-00000-2ef304da-4ba2-4c42-813f-658ed96dbdc5-c004.snappy.parquet","partitionValues":{},"size":250936,"modificationTime":1680160555978,"dataChange":false,"stats":"{\"numRecords\":20000,\"minValues\":{\"x\":67040,\"y\":12961,\"z\":1},\"maxValues\":{\"x\":87039,\"y\":32960,\"z\":99998},\"nullCount\":{\"x\":0,\"y\":0,\"z\":0}}"}}
+{"remove":{"path":"part-00000-bd03d50f-40cc-4ecc-a5d1-d7fdf17bcbb2-c004.snappy.parquet","deletionTimestamp":1680160555356,"dataChange":false,"extendedFileMetadata":true,"partitionValues":{},"size":250936}}
+{"remove":{"path":"part-00000-ae91b14c-1649-4541-a08a-93dfa087bbdb-c003.snappy.parquet","deletionTimestamp":1680160555356,"dataChange":false,"extendedFileMetadata":true,"partitionValues":{},"size":250939}}
+{"remove":{"path":"part-00000-9c4c7fef-0f45-4553-a755-76052f407ead-c002.snappy.parquet","deletionTimestamp":1680160555356,"dataChange":false,"extendedFileMetadata":true,"partitionValues":{},"size":250991}}
+{"remove":{"path":"part-00000-22a9a41a-d8b2-439b-926e-b3cb6a1c3eba-c001.snappy.parquet","deletionTimestamp":1680160555356,"dataChange":false,"extendedFileMetadata":true,"partitionValues":{},"size":250998}}
+{"remove":{"path":"part-00000-ea85692d-6aa3-4f86-bfb5-b0e1f9c804b9-c000.snappy.parquet","deletionTimestamp":1680160555356,"dataChange":false,"extendedFileMetadata":true,"partitionValues":{},"size":251673}}
+```
+
+#### Expected results
+
+The min/max statistics on the z-ordered column should be (approximately) disjoint sets. But right now they cover a wide range and there is a overlap between the many files.
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [ ] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [x] No. I cannot contribute a bug fix at this time.

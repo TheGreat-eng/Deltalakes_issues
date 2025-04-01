@@ -1,0 +1,116 @@
+I am currently working on a data platform project using Delta Lake (v1.0.0) and faced an issue using Delta Lake with Spark v3.2.0.
+
+When using Spark 3.1.2, the code below works perfectly, saving delta lake data as expected.
+With Spark 3.2.0, on the other hand, it throws an error log, `Caused by: java.lang.NoSuchMethodError: 'void org.apache.spark.sql.execution.datasources.parquet.ParquetSchemaConverter$.checkFieldNames(scala.collection.Seq)'`
+
+I suspect that the [breaking change](https://github.com/apache/spark/commit/251885772d41a572655e950a8e298315f222a803#diff-3730a913c4b95edf09fb78f8739c538bae53f7269555b6226efe7ccee1901b39L596) in `org.apache.spark.sql.execution.datasources.parquet.ParquetSchemaConverter` caused this problem. 
+
+If you have any questions regarding my code or settings, feel free to ask me for further illustration! 
+
+
+
+### `build.sbt`
+```sbt
+...
+
+scalaVersion := "2.12.15"
+fork := true
+
+libraryDependencies ++= Seq(
+  "org.apache.spark" %% "spark-sql" % "3.2.0",
+  "org.apache.spark" %% "spark-sql-kafka-0-10" % "3.2.0",
+  "org.apache.spark" %% "spark-token-provider-kafka-0-10" % "3.2.0",
+  "org.apache.kafka" % "kafka-clients" % "2.8.1",
+  "org.apache.parquet" % "parquet-hadoop-bundle" % "1.12.2",
+  "io.delta" %% "delta-core" % "1.0.0"
+)
+
+...
+```
+
+### `Main.scala`
+```scala
+...
+
+ val spark = SparkSession.builder.master("local[*]").appName("Simple Application").getOrCreate()
+  import spark.implicits._
+
+  val df = spark
+    .readStream
+    .format("kafka")
+    .option("kafka.bootstrap.servers", kafkaBrokers)
+    .option("subscribe", kafkaTopic)
+    .load()
+
+  val uuid = udf(() => java.util.UUID.randomUUID().toString)
+  val streamingDf = df.selectExpr("CAST(key AS STRING)", "CAST(value AS STRING)")
+    .as[(String, String)]
+    .withColumn("tmp_row_id", uuid())  // Temporary Unique ID
+
+  val outputDf = streamingDf.select($"tmp_row_id" as "id")
+    .writeStream
+    .outputMode("append")
+    .format("delta")
+    .option("checkpointLocation", "/tmp/checkpoint")
+    .start("delta-table")
+  outputDf.awaitTermination()
+
+...
+```
+
+
+### Full Error Logs
+```
+[error] Current State: ACTIVE
+[error] Thread State: RUNNABLE
+[error] Logical Plan:
+[error] Project [tmp_row_id#31 AS id#35]
+[error] +- Project [key#22, value#23, UDF() AS tmp_row_id#31]
+[error]    +- Project [cast(key#7 as string) AS key#22, cast(value#8 as string) AS value#23]
+[error]       +- StreamingDataSourceV2Relation [key#7, value#8, topic#9, partition#10, offset#11L, timestamp#12, timestampType#13], org.apache.spark.sql.kafka010.KafkaSourceProvider$KafkaScan@4d740d20, KafkaV2[Subscribe[...]]
+[error]         at org.apache.spark.sql.execution.streaming.StreamExecution.org$apache$spark$sql$execution$streaming$StreamExecution$$runStream(StreamExecution.scala:325)
+[error]         at org.apache.spark.sql.execution.streaming.StreamExecution$$anon$1.run(StreamExecution.scala:209)
+[error] Caused by: java.lang.NoSuchMethodError: 'void org.apache.spark.sql.execution.datasources.parquet.ParquetSchemaConverter$.checkFieldNames(scala.collection.Seq)'
+[error]         at org.apache.spark.sql.delta.schema.SchemaUtils$.checkFieldNames(SchemaUtils.scala:1050)
+[error]         at org.apache.spark.sql.delta.OptimisticTransactionImpl.verifyNewMetadata(OptimisticTransaction.scala:335)
+[error]         at org.apache.spark.sql.delta.OptimisticTransactionImpl.verifyNewMetadata$(OptimisticTransaction.scala:331)
+[error]         at org.apache.spark.sql.delta.OptimisticTransaction.verifyNewMetadata(OptimisticTransaction.scala:84)
+[error]         at org.apache.spark.sql.delta.OptimisticTransactionImpl.updateMetadata(OptimisticTransaction.scala:309)
+[error]         at org.apache.spark.sql.delta.OptimisticTransactionImpl.updateMetadata$(OptimisticTransaction.scala:235)
+[error]         at org.apache.spark.sql.delta.OptimisticTransaction.updateMetadata(OptimisticTransaction.scala:84)
+[error]         at org.apache.spark.sql.delta.schema.ImplicitMetadataOperation.updateMetadata(ImplicitMetadataOperation.scala:112)
+[error]         at org.apache.spark.sql.delta.schema.ImplicitMetadataOperation.updateMetadata$(ImplicitMetadataOperation.scala:62)
+[error]         at org.apache.spark.sql.delta.sources.DeltaSink.updateMetadata(DeltaSink.scala:37)
+[error]         at org.apache.spark.sql.delta.schema.ImplicitMetadataOperation.updateMetadata(ImplicitMetadataOperation.scala:59)
+[error]         at org.apache.spark.sql.delta.schema.ImplicitMetadataOperation.updateMetadata$(ImplicitMetadataOperation.scala:50)
+[error]         at org.apache.spark.sql.delta.sources.DeltaSink.updateMetadata(DeltaSink.scala:37)
+[error]         at org.apache.spark.sql.delta.sources.DeltaSink.$anonfun$addBatch$1(DeltaSink.scala:80)
+[error]         at org.apache.spark.sql.delta.sources.DeltaSink.$anonfun$addBatch$1$adapted(DeltaSink.scala:54)
+[error]         at org.apache.spark.sql.delta.DeltaLog.withNewTransaction(DeltaLog.scala:187)
+[error]         at org.apache.spark.sql.delta.sources.DeltaSink.addBatch(DeltaSink.scala:54)
+[error]         at org.apache.spark.sql.execution.streaming.MicroBatchExecution.$anonfun$runBatch$17(MicroBatchExecution.scala:600)
+[error]         at org.apache.spark.sql.execution.SQLExecution$.$anonfun$withNewExecutionId$5(SQLExecution.scala:103)
+[error]         at org.apache.spark.sql.execution.SQLExecution$.withSQLConfPropagated(SQLExecution.scala:163)
+[error]         at org.apache.spark.sql.execution.SQLExecution$.$anonfun$withNewExecutionId$1(SQLExecution.scala:90)
+[error]         at org.apache.spark.sql.SparkSession.withActive(SparkSession.scala:775)
+[error]         at org.apache.spark.sql.execution.SQLExecution$.withNewExecutionId(SQLExecution.scala:64)
+[error]         at org.apache.spark.sql.execution.streaming.MicroBatchExecution.$anonfun$runBatch$16(MicroBatchExecution.scala:598)
+[error]         at org.apache.spark.sql.execution.streaming.ProgressReporter.reportTimeTaken(ProgressReporter.scala:375)
+[error]         at org.apache.spark.sql.execution.streaming.ProgressReporter.reportTimeTaken$(ProgressReporter.scala:373)
+[error]         at org.apache.spark.sql.execution.streaming.StreamExecution.reportTimeTaken(StreamExecution.scala:69)
+[error]         at org.apache.spark.sql.execution.streaming.MicroBatchExecution.runBatch(MicroBatchExecution.scala:598)
+[error]         at org.apache.spark.sql.execution.streaming.MicroBatchExecution.$anonfun$runActivatedStream$2(MicroBatchExecution.scala:228)
+[error]         at scala.runtime.java8.JFunction0$mcV$sp.apply(JFunction0$mcV$sp.java:23)
+[error]         at org.apache.spark.sql.execution.streaming.ProgressReporter.reportTimeTaken(ProgressReporter.scala:375)
+[error]         at org.apache.spark.sql.execution.streaming.ProgressReporter.reportTimeTaken$(ProgressReporter.scala:373)
+[error]         at org.apache.spark.sql.execution.streaming.StreamExecution.reportTimeTaken(StreamExecution.scala:69)
+[error]         at org.apache.spark.sql.execution.streaming.MicroBatchExecution.$anonfun$runActivatedStream$1(MicroBatchExecution.scala:193)
+[error]         at org.apache.spark.sql.execution.streaming.ProcessingTimeExecutor.execute(TriggerExecutor.scala:57)
+[error]         at org.apache.spark.sql.execution.streaming.MicroBatchExecution.runActivatedStream(MicroBatchExecution.scala:187)
+[error]         at org.apache.spark.sql.execution.streaming.StreamExecution.$anonfun$runStream$1(StreamExecution.scala:303)
+[error]         at scala.runtime.java8.JFunction0$mcV$sp.apply(JFunction0$mcV$sp.java:23)
+[error]         at org.apache.spark.sql.SparkSession.withActive(SparkSession.scala:775)
+[error]         at org.apache.spark.sql.execution.streaming.StreamExecution.org$apache$spark$sql$execution$streaming$StreamExecution$$runStream(StreamExecution.scala:286)
+[error]         ... 1 more
+
+```

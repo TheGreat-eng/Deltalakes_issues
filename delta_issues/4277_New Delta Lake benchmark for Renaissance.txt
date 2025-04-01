@@ -1,0 +1,8 @@
+As the people behind the freshly released Renaissance Benchmark Suite (https://renaissance.dev/), the announcement of Delta Lake open sourcing caught our attention. Indeed, a Delta Lake benchmark could be a very interesting addition to Renaissance, since performing many ACID transactions on top of Apache Spark looks like a relevant use case with enough abstraction layers and complexity. Moreover, such a benchmark would drive attention to the framework and would also be used by GC or compiler developers to make sure that they properly deal with this kind of workloads.
+
+We would be very happy if you could [contribute to Renaissance](https://github.com/renaissance-benchmarks/renaissance/blob/master/CONTRIBUTION.md) with a workload that you feel is important. Adding such a workload should be a very easy task if you have a minimal demo app. It's not more complicated than adding a scala class to our `apache-spark` subproject and write a `runIteration` function with the actual workload. See this example of a [naive bayes classifier](https://github.com/renaissance-benchmarks/renaissance/blob/master/benchmarks/apache-spark/src/main/scala/org/renaissance/apache/spark/NaiveBayes.scala#L99-L105). Of course, we will be happy to help with the integration if necessary. 
+
+Issue on our GitHub repo: https://github.com/renaissance-benchmarks/renaissance/issues/126
+
+
+

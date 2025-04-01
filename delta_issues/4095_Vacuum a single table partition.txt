@@ -1,0 +1,5 @@
+Is it possible to vacuum a single partition of a Delta table in version 0.4.0? 
+
+With large tables, containing many partitions, the vacuum operation takes a very long time. This is problematic for us. How can we restrict the range of the vacuum operation to only some partitions? 
+
+In our example we vacuum maintaining 8 days of history. Our table is partitioned by date, so we are ignoring the most recent 8 partitions. How can we also limit the scope of the vacuum operation to only vacuum partitions which are between 8 and 10 days old?

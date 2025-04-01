@@ -1,0 +1,24 @@
+## Bug
+
+### Describe the problem
+I think this may be a build config issue. Why does iceberg jar contains the other Delta packages code?
+<img width="1141" alt="image" src="https://github.com/delta-io/delta/assets/1336227/1b861ad8-2cbf-42f1-a0a3-14d126fdb4d0">
+
+#### Steps to reproduce
+You can use the https://repo1.maven.org/maven2/io/delta/delta-iceberg_2.12/3.0.0rc1/delta-iceberg_2.12-3.0.0rc1.jar
+
+#### Further details
+
+### Environment information
+
+* Delta Lake version: 3.0.0 RC1
+* Spark version:
+* Scala version:
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [ ] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute a bug fix at this time.

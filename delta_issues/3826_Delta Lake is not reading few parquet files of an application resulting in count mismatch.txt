@@ -1,0 +1,30 @@
+Hi, 
+
+I need one urgent help here.  I am using Delta Lake provided by Databricks for storing the staged data from source application. 
+
+When Apache Spark processes the data, the data from source is staged in form of .parquet files and the transaction log directory **_delta_log** is updated with the location of .parquet files in a .json file.  
+
+However, I have observed that, even though an application gets its data in 4 .parquet files and if the json files have reference of only 3 parquet files,  then there will be a mismatch in the count of records when the data is read using the below commands:
+
+**spark>  spark.read.format("delta").load("/path/applicationname")**  //This command will show less count for the application
+
+VS
+
+**_spark> spark.read.format("parquet").load("/path/applicationname")_**   //This command will show the count of data stored in all the 4 parquet files, including the missing one.  
+
+So, according to Delta Lake, that one .parquet file doesn't exist. However, it actually exists. 
+
+**Issue**
+
+This is causing issues in capturing the correct data in Target DB for further analysis and the analysis is getting impacted. 
+
+**My Questions**
+
+- _Why this issue happens ?  Why the delta lake fails to write the location of .parquet file to transaction log?_ 
+
+- _How to fix this particular issue?_  I have seen that if I change the target path where I will capture the data for the same application and re-process, then 9 out of 10 times the issue gets fixed.  But, I cannot keep changing the target path and that's not a clean solution as well. 
+
+Please let me know if you need any additional information. 
+
+Thanks and Regards, 
+Sudhindra

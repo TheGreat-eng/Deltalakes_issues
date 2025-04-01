@@ -1,0 +1,68 @@
+While working on #1939, I created a large table with 13 delta versions (and a 10.checkpoint.parquet). `SnapshotManager::getLogSegmentForVersion` threw `Seems like the checkpoint is corrupted. Failed in getting the file ...` error because `checkpoints` paths were prefixed with `file:` yet `newCheckpointPaths` were not.
+
+Something needs to be canonicalized somewhere ...
+
+```
+newCheckpointPaths ::: [/Users/scott.sandre/delta/connectors/golden-tables/target/scala-2.12/classes/golden/basic-with-inserts-deletes-checkpoint/_delta_log/00000000000000000010.checkpoint.parquet]
+newCheckpointFileList ::: []
+checkpoints (mapped to getPath) ::: [file:/Users/scott.sandre/delta/connectors/golden-tables/target/scala-2.12/classes/golden/basic-with-inserts-deletes-checkpoint/_delta_log/00000000000000000010.checkpoint.parquet]
+```
+
+```
+[info] - simple end to end with inserts and deletes and checkpoint *** FAILED ***
+[info]   java.lang.IllegalStateException: Seems like the checkpoint is corrupted. Failed in getting the file information for:
+[info] [/Users/scott.sandre/delta/connectors/golden-tables/target/scala-2.12/classes/golden/basic-with-inserts-deletes-checkpoint/_delta_log/00000000000000000010.checkpoint.parquet]
+[info] among
+[info] file:/Users/scott.sandre/delta/connectors/golden-tables/target/scala-2.12/classes/golden/basic-with-inserts-deletes-checkpoint/_delta_log/00000000000000000010.checkpoint.parquet
+[info]   at io.delta.kernel.internal.snapshot.SnapshotManager.lambda$getLogSegmentForVersion$26(SnapshotManager.java:485)
+[info]   at java.base/java.util.Optional.map(Optional.java:265)
+[info]   at io.delta.kernel.internal.snapshot.SnapshotManager.getLogSegmentForVersion(SnapshotManager.java:466)
+[info]   at io.delta.kernel.internal.snapshot.SnapshotManager.getLogSegmentForVersion(SnapshotManager.java:270)
+[info]   at io.delta.kernel.internal.snapshot.SnapshotManager.getLogSegmentFrom(SnapshotManager.java:234)
+[info]   at io.delta.kernel.internal.snapshot.SnapshotManager.getSnapshotAtInit(SnapshotManager.java:190)
+[info]   at io.delta.kernel.internal.snapshot.SnapshotManager.buildLatestSnapshot(SnapshotManager.java:65)
+[info]   at io.delta.kernel.internal.TableImpl.getLatestSnapshot(TableImpl.java:50)
+[info]   at io.delta.kernel.LogReplaySuite.$anonfun$new$1(LogReplaySuite.scala:73)
+[info]   at org.scalatest.OutcomeOf.outcomeOf(OutcomeOf.scala:85)
+[info]   at org.scalatest.OutcomeOf.outcomeOf$(OutcomeOf.scala:83)
+[info]   at org.scalatest.OutcomeOf$.outcomeOf(OutcomeOf.scala:104)
+[info]   at org.scalatest.Transformer.apply(Transformer.scala:22)
+[info]   at org.scalatest.Transformer.apply(Transformer.scala:20)
+[info]   at org.scalatest.funsuite.AnyFunSuiteLike$$anon$1.apply(AnyFunSuiteLike.scala:226)
+[info]   at org.scalatest.TestSuite.withFixture(TestSuite.scala:196)
+[info]   at org.scalatest.TestSuite.withFixture$(TestSuite.scala:195)
+[info]   at org.scalatest.funsuite.AnyFunSuite.withFixture(AnyFunSuite.scala:1564)
+[info]   at org.scalatest.funsuite.AnyFunSuiteLike.invokeWithFixture$1(AnyFunSuiteLike.scala:224)
+[info]   at org.scalatest.funsuite.AnyFunSuiteLike.$anonfun$runTest$1(AnyFunSuiteLike.scala:236)
+[info]   at org.scalatest.SuperEngine.runTestImpl(Engine.scala:306)
+[info]   at org.scalatest.funsuite.AnyFunSuiteLike.runTest(AnyFunSuiteLike.scala:236)
+[info]   at org.scalatest.funsuite.AnyFunSuiteLike.runTest$(AnyFunSuiteLike.scala:218)
+[info]   at org.scalatest.funsuite.AnyFunSuite.runTest(AnyFunSuite.scala:1564)
+[info]   at org.scalatest.funsuite.AnyFunSuiteLike.$anonfun$runTests$1(AnyFunSuiteLike.scala:269)
+[info]   at org.scalatest.SuperEngine.$anonfun$runTestsInBranch$1(Engine.scala:413)
+[info]   at scala.collection.immutable.List.foreach(List.scala:431)
+[info]   at org.scalatest.SuperEngine.traverseSubNodes$1(Engine.scala:401)
+[info]   at org.scalatest.SuperEngine.runTestsInBranch(Engine.scala:396)
+[info]   at org.scalatest.SuperEngine.runTestsImpl(Engine.scala:475)
+[info]   at org.scalatest.funsuite.AnyFunSuiteLike.runTests(AnyFunSuiteLike.scala:269)
+[info]   at org.scalatest.funsuite.AnyFunSuiteLike.runTests$(AnyFunSuiteLike.scala:268)
+[info]   at org.scalatest.funsuite.AnyFunSuite.runTests(AnyFunSuite.scala:1564)
+[info]   at org.scalatest.Suite.run(Suite.scala:1114)
+[info]   at org.scalatest.Suite.run$(Suite.scala:1096)
+[info]   at org.scalatest.funsuite.AnyFunSuite.org$scalatest$funsuite$AnyFunSuiteLike$$super$run(AnyFunSuite.scala:1564)
+[info]   at org.scalatest.funsuite.AnyFunSuiteLike.$anonfun$run$1(AnyFunSuiteLike.scala:273)
+[info]   at org.scalatest.SuperEngine.runImpl(Engine.scala:535)
+[info]   at org.scalatest.funsuite.AnyFunSuiteLike.run(AnyFunSuiteLike.scala:273)
+[info]   at org.scalatest.funsuite.AnyFunSuiteLike.run$(AnyFunSuiteLike.scala:272)
+[info]   at org.scalatest.funsuite.AnyFunSuite.run(AnyFunSuite.scala:1564)
+[info]   at org.scalatest.tools.Framework.org$scalatest$tools$Framework$$runSuite(Framework.scala:321)
+[info]   at org.scalatest.tools.Framework$ScalaTestTask.execute(Framework.scala:517)
+[info]   at sbt.ForkMain$Run.lambda$runTest$1(ForkMain.java:413)
+[info]   at java.base/java.util.concurrent.FutureTask.run(FutureTask.java:264)
+[info]   at java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1128)
+[info]   at java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:628)
+[info]   at java.base/java.lang.Thread.run(Thread.java:829)
+```
+
+[basic-with-inserts-deletes-checkpoint.zip](https://github.com/delta-io/delta/files/12283182/basic-with-inserts-deletes-checkpoint.zip)
+

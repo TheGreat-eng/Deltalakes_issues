@@ -1,0 +1,4 @@
+Cherrypicked commits from master caused compilation failures in branch-0.6. This PR fixes it.
+
+
+

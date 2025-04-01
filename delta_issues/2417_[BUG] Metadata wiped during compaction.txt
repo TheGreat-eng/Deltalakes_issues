@@ -1,0 +1,47 @@
+## Bug
+
+### Describe the problem
+My application which writes to a table also stores metadata in the table. After I ran the compaction operation on a table, the application attempted to read the most recent metadata from table history, but the metadata is now empty.
+
+#### Steps to reproduce
+
+1. Write a DataFrame to a table and store metadata:
+```
+metadata_dict = ['a': 'b']
+df.write.format('delta').mode('append').option('userMetadata', json.dumps(metadata_dict))
+```
+2. Run compaction on the same table:
+```
+DeltaTable.forPath(spark, table_url).optimize().executeCompaction()
+```
+3. Attempt to read metadata from most recent table history:
+```
+metadata = DeltaTable.forPath(spark, table_url).history(1).first()['userMetadata']
+assert metadata == None
+```
+
+#### Observed results
+
+Most recent table history is now `None`.
+
+#### Expected results
+
+Table history is not `None` and I can access the metadata stored when my application wrote a DataFrame to the table. Assuming the compaction operation is also writing to the table, these writes will not include my metadata. How can I access or preserve my metadata after a compaction operation.
+
+#### Further details
+
+N/A
+
+### Environment information
+
+* Delta Lake version: 2.1.0
+* Spark version: 3.3.2
+* Scala version: 2.12
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [x] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute a bug fix at this time.

@@ -1,0 +1,37 @@
+#### Which Delta project/connector is this regarding?
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [X] Other (INFRA)
+
+## Description
+
+For delta-spark test triggers: ignore all markdown changes
+
+For delta-kernel test triggers: ignore all connectors, hudi, spark, iceberg, icebergShaded, and markdown changes.
+
+## How was this patch tested?
+
+### Make change in spark only: TODO
+
+### Make change in iceberg only: TODO
+
+### Make change in icebergShaded only: TODO
+
+### Make change in hudi only: TODO
+
+### Make change in hudi only: TODO
+
+### Make change in kernel only: TODO
+
+### Make change in docs only: TODO
+
+### Make change in standalone only: TODO
+
+### Make change in flink only: TODO
+
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

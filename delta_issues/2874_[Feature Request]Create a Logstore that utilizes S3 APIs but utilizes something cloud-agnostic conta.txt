@@ -1,0 +1,25 @@
+## Feature request
+Create a Logstore that utilizes S3 APIs but utilizes something cloud-agnostic containerized solution like Postgres. 
+
+### Overview
+While Delta Lake has supported concurrent reads from multiple clusters since its inception, there were limitations for multi-cluster writes specifically to S3. S3 lacks "put-If-Absent" consistency guarantees, and MinIO has standardized S3 as the API for multi-cloud object storage deployment. Thus, to guarantee ACID transactions on S3 for multi-cloud object storage, one must have concurrent writes originating from the same Apache Spark™ driver. MinIO has examined this use case to see if we can support "reject-if-exists" with PUT API. However, since MinIO supports active-active replication, it would introduce cross-cluster checks, which would heavily impact performance and deviates from the drop-in replacement for AWS S3.  This request is specifically to create a LogStore that utilizes S3 APIs but leverages something generic cloud agnostic containerized solution.
+<!-- Provide a high-level description of the feature request. -->
+
+### Motivation
+This feature request would enable delta lake usage with multi-cloud object storage with S3, irrespective of where it would be deployed. This will remove the ACID transaction capability restriction limited to AWS S3 and make it ubiquitously available for anyone deployed in any location, irrespective of public, private on-premise deployments, or edge deployments. 
+<!-- How will this feature be used? Why is it important? Which users will benefit from it? -->
+
+### Further details
+The current implementation of S3 LogStore is limiting the usage of delta for ACID transactions capable applications to only work with AWS S3. By completing this Issue/feature, delta will be usable along with MinIO in multi-cloud deployments.
+<!--
+Use this section to include any additional information about the feature. If you have a proposal for how to implement this feature, please include it here. For implementation guidelines, please read our contributor guidelines: https://github.com/delta-io/delta/blob/master/CONTRIBUTING.md
+If there are any specific requirements for this feature that are not immediately obvious please outline them here.
+-->
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute to the implementation of this feature?
+
+- [ ] Yes. I can contribute to this feature independently.
+- [ ] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [X] No. I cannot contribute to this feature at this time.

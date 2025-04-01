@@ -1,0 +1,2 @@
+- Modified old tests to work with Spark 3.0 by adding the right spark conf
+- Added a new test to test Metastore tables and SQL

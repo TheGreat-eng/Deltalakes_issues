@@ -1,0 +1,38 @@
+#### Which Delta project/connector is this regarding?
+
+- [ ] Spark
+- [ ] Standalone
+- [x] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+This adds changes to support using Delta with Flink 1.18.
+
+## Work in progress
+
+ - [ ] Decide if the Flink version we build against really should be changed to 1.18.1
+ - [ ] Update the README with version numbers that actually support newer Flink
+ - [ ] Fix the Mima settings so that it does not think that things in `io.delta.flink.internal` are actually exposed API.
+
+I think these should be done as separate PRs but I am not sure, depending on what you think I'll either do another PR for the Mima things or fix it properly in here.
+
+## How was this patch tested?
+
+It was tested via the test suite (on Java 8, running on arm64 macOS) and some minor manual testing.
+
+```
+[info] Passed: Total 568, Failed 0, Errors 0, Passed 565, Skipped 3
+[success] Total time: 1142 s (19:02), completed Apr 9, 2024 4:36:35 PM
+```
+
+If you have any ideas on how to better test this I would love to know, since I think I can see a patch to support Flink 1.19 in my future and would love to be more confident in that one.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No. It should not beyond supporting a newer version of Flink.
+
+## Thanks
+
+Thanks to @sdahlbac and @oskarskog for helping me with this, I definitely would not have had the patience to run the test suite this many without them.

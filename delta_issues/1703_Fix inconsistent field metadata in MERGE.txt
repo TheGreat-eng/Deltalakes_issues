@@ -1,0 +1,14 @@
+#### Which Delta project/connector is this regarding?
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+Fixes an issue where internal metadata attached to fields leaks into the plan constructed when executing a MERGE command, causing the same attribute to appear both with and without the internal metadata.
+
+This can cause plan validation to fail due to the same attribute having two apparently different data types (metadata is part of a field datatype).
+
+## How was this patch tested?
+Added test that would fail without the fix

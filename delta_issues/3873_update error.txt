@@ -1,0 +1,9 @@
+How to solve the problem of reporting error in updating target table caused by deleting a field in source table
+ deltaTable.as("events")
+                    .merge(
+                      descDeltaLakeUpdate.as("updates"),
+                      "events.delta_pk_value = updates.delta_pk_value")
+                    .whenMatched().updateAll()
+                    .whenNotMatched()
+                    .insertAll()
+                    .execute()

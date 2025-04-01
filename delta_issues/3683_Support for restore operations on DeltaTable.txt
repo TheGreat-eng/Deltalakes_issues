@@ -1,0 +1,6 @@
+DBR has restore to version and restore to timestamp utility commands.  
+https://docs.databricks.com/delta/delta-utility.html#restore-a-delta-table-to-an-earlier-state
+
+Would be great to have these in the OSS version of Delta to take advantage of time travel for ops and quickly resolving data issues.
+
+Technically, it's probably something that we could implement outside of Delta, but I would expect it to be a generally useful feature to include.

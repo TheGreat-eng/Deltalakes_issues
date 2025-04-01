@@ -1,0 +1,20 @@
+#### Which Delta project/connector is this regarding?
+- [X] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+This PR makes the write command behave similarly to delete, update, and merge, in that it will not write an empty commit to the transaction log.
+
+Resolves #1933 
+
+## How was this patch tested?
+
+Working on testing this locally, `sbt test` hangs on the `hiveTez` suite currently.
+
+## Does this PR introduce _any_ user-facing changes?
+
+Yes, if the user consumes the delta transaction log and would expect an empty write transaction to include a record in the log.

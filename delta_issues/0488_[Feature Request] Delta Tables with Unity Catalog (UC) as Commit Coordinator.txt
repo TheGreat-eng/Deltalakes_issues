@@ -1,0 +1,36 @@
+## Feature request
+
+#### Which Delta project/connector is this regarding?
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [x] Kernel
+- [ ] Other (fill in here)
+
+### Overview
+
+Implementation of Delta tables with Unity Catalog (UC) as the Commit Coordinator. This feature enables UC to act as the commit coordinator for Delta tables, providing atomic commit operations and seamless integration between Delta tables and Unity Catalog. The system will use UC as the commit coordinator when `delta.coordinatedCommits.commitCoordinator{-preview}` is set to `unity-catalog` in the Delta table properties.
+
+### Motivation
+
+How will this feature be used?
+- Delta tables will use Unity Catalog as the central commit coordinator
+- UC will maintain table metadata and track unbackfilled commits
+- UC will ensure atomic commits and handle commit conflicts
+
+Why is it important? Which users will benefit from it?
+
+- Centralizes commit coordination through UC
+- See [Delta Coordinated Commits RFC](https://github.com/delta-io/delta/blob/master/protocol_rfcs/managed-commits.md) or [PROTOCOL.md](https://github.com/delta-io/delta/blob/master/PROTOCOL.md) for more information on the coordinated commits and its benefits.
+
+### Further details
+
+[Design Doc](https://docs.google.com/document/d/1l2iql3e6rW06sQ8VQLdyjAtNW3NnWkOx1oyJC9B7tdM/edit?usp=sharing)
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [x] Yes. I can contribute this feature independently.
+- [ ] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.

@@ -1,0 +1,9 @@
+I noticed that in this below code
+https://github.com/delta-io/delta/blob/master/storage/src/main/java/io/delta/storage/HDFSLogStore.java#L130
+```java
+catch (org.apache.hadoop.fs.FileAlreadyExistsException e) {
+                throw new FileNotFoundException(path.toString());
+}
+```
+The catch block catches `FileAlreadyExistsException` but throws `FileNotFoundException`.
+I think it should also throws `FileAlreadyExistsException`. Do I misunderstand the situation there?

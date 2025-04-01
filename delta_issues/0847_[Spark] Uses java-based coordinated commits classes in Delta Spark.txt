@@ -1,0 +1,19 @@
+#### Which Delta project/connector is this regarding?
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+This PR adopts the coordinated commits interfaces from the storage module in Delta Spark. It removes the existing scala classes and adds the necessary conversion code from java -> scala (and in the opposite direction) where necessary.
+
+## How was this patch tested?
+
+Adds some unit tests for the critical code pieces (action serialization/deserialization and LogStore conversion). For the remainder, existing tests are sufficient.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

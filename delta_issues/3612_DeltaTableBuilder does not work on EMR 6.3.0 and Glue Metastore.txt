@@ -1,0 +1,60 @@
+From what I can tell, attempting to create a entry in a glue metastore on EMR runs into problems with consistent partition fields.
+
+When running the following code on EMR 6.3.0 (Spark 3.1.1) and Delta 1.0.0:
+
+
+```scala
+import io.delta.tables.DeltaTable
+import org.apache.spark.sql.types._
+DeltaTable.create()
+   .location("s3://bucket/dataset/v1")
+   .tableName("dev_database.datatable")
+   .partitionedBy("ingest_date")
+   .addColumns(StructType(Seq(StructField("ingest_date", DateType), StructField("id", StringType))))
+   .execute()
+```
+
+This exception is thrown: 
+```
+ diagnostics: User class threw exception: java.lang.AssertionError: assertion failed
+	at scala.Predef$.assert(Predef.scala:208)
+	at org.apache.spark.sql.catalyst.catalog.CatalogTable.partitionSchema(interface.scala:319)
+	at org.apache.spark.sql.hive.HiveExternalCatalog.newSparkSQLSpecificMetastoreTable$1(HiveExternalCatalog.scala:355)
+	at org.apache.spark.sql.hive.HiveExternalCatalog.createDataSourceTable(HiveExternalCatalog.scala:434)
+	at org.apache.spark.sql.hive.HiveExternalCatalog.$anonfun$createTable$1(HiveExternalCatalog.scala:299)
+	at scala.runtime.java8.JFunction0$mcV$sp.apply(JFunction0$mcV$sp.java:23)
+	at org.apache.spark.sql.hive.HiveExternalCatalog.withClient(HiveExternalCatalog.scala:105)
+	at org.apache.spark.sql.hive.HiveExternalCatalog.createTable(HiveExternalCatalog.scala:270)
+	at org.apache.spark.sql.catalyst.catalog.ExternalCatalogWithListener.createTable(ExternalCatalogWithListener.scala:94)
+	at org.apache.spark.sql.catalyst.catalog.SessionCatalog.createTable(SessionCatalog.scala:346)
+	at org.apache.spark.sql.execution.datasources.v2.V2SessionCatalog.createTable(V2SessionCatalog.scala:105)
+	at org.apache.spark.sql.execution.datasources.v2.CreateTableExec.run(CreateTableExec.scala:41)
+	at org.apache.spark.sql.execution.datasources.v2.V2CommandExec.result$lzycompute(V2CommandExec.scala:40)
+	at org.apache.spark.sql.execution.datasources.v2.V2CommandExec.result(V2CommandExec.scala:40)
+	at org.apache.spark.sql.execution.datasources.v2.V2CommandExec.doExecute(V2CommandExec.scala:55)
+	at org.apache.spark.sql.execution.SparkPlan.$anonfun$execute$1(SparkPlan.scala:185)
+	at org.apache.spark.sql.execution.SparkPlan.$anonfun$executeQuery$1(SparkPlan.scala:223)
+	at org.apache.spark.rdd.RDDOperationScope$.withScope(RDDOperationScope.scala:151)
+	at org.apache.spark.sql.execution.SparkPlan.executeQuery(SparkPlan.scala:220)
+	at org.apache.spark.sql.execution.SparkPlan.execute(SparkPlan.scala:181)
+	at org.apache.spark.sql.execution.QueryExecution.toRdd$lzycompute(QueryExecution.scala:134)
+	at org.apache.spark.sql.execution.QueryExecution.toRdd(QueryExecution.scala:133)
+	at io.delta.tables.DeltaTableBuilder.$anonfun$execute$4(DeltaTableBuilder.scala:356)
+	at org.apache.spark.sql.catalyst.QueryPlanningTracker$.withTracker(QueryPlanningTracker.scala:107)
+	at org.apache.spark.sql.execution.SQLExecution$.withTracker(SQLExecution.scala:232)
+	at org.apache.spark.sql.execution.SQLExecution$.executeQuery$1(SQLExecution.scala:110)
+	at org.apache.spark.sql.execution.SQLExecution$.$anonfun$withNewExecutionId$6(SQLExecution.scala:135)
+	at org.apache.spark.sql.catalyst.QueryPlanningTracker$.withTracker(QueryPlanningTracker.scala:107)
+	at org.apache.spark.sql.execution.SQLExecution$.withTracker(SQLExecution.scala:232)
+	at org.apache.spark.sql.execution.SQLExecution$.$anonfun$withNewExecutionId$5(SQLExecution.scala:135)
+	at org.apache.spark.sql.execution.SQLExecution$.withSQLConfPropagated(SQLExecution.scala:253)
+	at org.apache.spark.sql.execution.SQLExecution$.$anonfun$withNewExecutionId$1(SQLExecution.scala:134)
+	at org.apache.spark.sql.SparkSession.withActive(SparkSession.scala:772)
+	at org.apache.spark.sql.execution.SQLExecution$.withNewExecutionId(SQLExecution.scala:68)
+	at io.delta.tables.DeltaTableBuilder.execute(DeltaTableBuilder.scala:356)
+```
+
+The EMR cluster is configured with the following properties: 
+```json
+[{"classification":"spark", "properties":{"maximizeResourceAllocation":"true"}, "configurations":[]},{"classification":"spark-defaults", "properties":{"spark.sql.extension":"io.delta.sql.DeltaSparkSessionExtension", "spark.databricks.hive.metastore.glueCatalog.enabled":"true", "spark.sql.catalon.spark_catalog":"org.apache.spark.sql.delta.catalog.DeltaCatalog"}, "configurations":[]},{"classification":"hive-site", "properties":{"hive.metastore.client.factory.class":"com.amazonaws.glue.catalog.metastore.AWSGlueDataCatalogHiveClientFactory"}, "configurations":[]},{"classification":"spark-hive-site", "properties":{"hive.metastore.client.factory.class":"com.amazonaws.glue.catalog.metastore.AWSGlueDataCatalogHiveClientFactory"}, "configurations":[]}]
+```

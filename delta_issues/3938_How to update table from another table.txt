@@ -1,0 +1,4 @@
+This is not really an issue from Delta itself but my question.
+
+I have a very large table saved as delta format. In my upstream data source, there is some change. I need to run the whole process to generate the updated information. So now I have an updated table with some records updated with new information. How can I save this new big table into delta that only the updated information is saved? All other information could be fetch from old delta table.
+

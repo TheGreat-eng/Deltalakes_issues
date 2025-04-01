@@ -1,0 +1,2 @@
+## Feature request
+Some user may need to use `LogStoreProvider.createLogStore` to reuse LogStore function, so export it.

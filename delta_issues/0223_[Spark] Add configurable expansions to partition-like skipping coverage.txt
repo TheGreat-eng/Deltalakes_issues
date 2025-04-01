@@ -1,0 +1,15 @@
+#### Which Delta project/connector is this regarding?
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+Currently, partition-like skipping is limited to a set of whitelisted expressions referencing only Liquid clustering columns. This PR adds configs that can be used to expand these restrictions (allow an arbitrary expression referencing any column).
+
+## How was this patch tested?
+See test changes.
+
+## Does this PR introduce _any_ user-facing changes?
+No.

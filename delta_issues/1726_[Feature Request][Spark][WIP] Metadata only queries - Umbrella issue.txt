@@ -1,0 +1,49 @@
+## Feature request
+
+#### Which Delta project/connector is this regarding?
+- [X] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+### Overview
+
+This is the umbrella issue for metadata only queries.
+
+### Motivation
+
+Running queries on metadata only has huge performance improvement, up to 100x in some cases.
+
+### Further details
+Delta Log provides the following information:
+
+[Stats](https://github.com/delta-io/delta/blob/master/PROTOCOL.md#per-file-statistics) (optional):
+- numRecords
+- minValues
+- maxValues
+- nullValues
+
+[PartitionValues](https://github.com/delta-io/delta/blob/master/PROTOCOL.md#partition-value-serialization):
+- The actual value
+
+## Project Plan
+| ID | Task description | Issue | PR | Status | Author |
+|:---:|:---:|---|:---:|:---:|---|
+| 1 | SELECT COUNT(*) FROM Table | https://github.com/delta-io/delta/issues/1192 | https://github.com/delta-io/delta/pull/1377 | Done | @felipepessoto |
+| 2 | SELECT MIN(X), MAX(X) FROM Table | https://github.com/delta-io/delta/issues/2092 | https://github.com/delta-io/delta/pull/1525 | Done | @felipepessoto |
+| 3 | SELECT COUNT(*), MIN(X), MAX(X) FROM table WHERE partition_column = 1 | https://github.com/delta-io/delta/issues/1916 | https://github.com/delta-io/delta/pull/3345 | Pending | @7mming7 |
+| 4 | SELECT partition_column, COUNT(*) FROM table GROUP BY partition_column |  |  |  |  |
+| 5 | SELECT DISTINCT partition_column FROM table |  |  |  |  |
+| 6 | Support MIN/MAX on tables with Deletion Vectors |  |  |  |  |
+| 7 | Support nested columns (nested leaf-level) |  |  |  |  |
+| 8 | Refactor existing MIN/MAX code. Details in the [comment below](https://github.com/delta-io/delta/issues/2589#issuecomment-2023365940) |  |  |  |  |
+| 9 |  |  |  |  |  |
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [X] Yes. I can contribute this feature independently.
+- [ ] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.

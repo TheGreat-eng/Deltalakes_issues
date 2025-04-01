@@ -1,0 +1,1 @@
+Follow up from review comment [here](https://github.com/delta-io/delta/pull/1753#discussion_r1191754440). Add operation type check for tests in [OptimizeMetricsSuite.scala](https://github.com/delta-io/delta/blob/master/core/src/test/scala/org/apache/spark/sql/delta/optimize/OptimizeMetricsSuite.scala)

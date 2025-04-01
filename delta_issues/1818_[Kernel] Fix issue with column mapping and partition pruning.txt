@@ -1,0 +1,5 @@
+## Description
+Currently, column name in the logical schema is used for lookup. For column mapping mode enabled tables, partition values are stored with physical name.
+
+## How was this patch tested?
+Added tests for pruning with `id` and `name` modes

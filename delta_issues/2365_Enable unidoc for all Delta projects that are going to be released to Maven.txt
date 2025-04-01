@@ -1,0 +1,21 @@
+#### Which Delta project/connector is this regarding?
+- [x] Spark
+- [x] Standalone
+- [x] Flink
+- [x] Kernel
+- [ ] Other (fill in here)
+
+## Description
+This is leftover task from the connector code migration to this repo. The unidoc/java doc generation was disabled for standalone, and flink. This is to enable them back. Specifically I did the following
+1. Refactored all the unidoc source file filtering code in a clean way so that each subproject can configure but reuse all the code. 
+2. With this refactoring we can also easily generate combined docs for multiple projects. For example, the 2 Kernel projects can be documented together using the kernelGroup aggregation project. This is what I plan to upload to docs.delta.io. 
+3. ~The generated doc for Maven upload is also fixed to make sure we dont public doc jars exposing inner classes. As a result, each project with public APIs will generate it own scala/java docs.~ I reverted this as this is throwing errors that I cannot fix yet. Added a TODO in the code. Also in a separate PR, I will update the higher level doc generation scripts in delta/docs to consolidate the separate docs into one location.
+
+
+You can generate all the docs by `build/sbt unidoc`
+
+## How was this patch tested?
+Existing tests force generation of docs
+
+## Does this PR introduce _any_ user-facing changes?
+No

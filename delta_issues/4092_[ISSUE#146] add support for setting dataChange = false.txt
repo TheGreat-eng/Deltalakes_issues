@@ -1,0 +1,3 @@
+This add suuport for setting dataChange parameter when writing to delta table. the dataChange parameter is implemented as a DataFrame writer option. 
+add a test to illustrate the scene of rearranging the data without changing it.
+- Closes issue #146  

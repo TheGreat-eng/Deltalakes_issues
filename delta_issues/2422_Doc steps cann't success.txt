@@ -1,0 +1,195 @@
+## Bug
+Can't save data to delta table
+### Describe the problem
+According the doc [tutorial create table](https://docs.delta.io/latest/quick-start.html#create-a-table), every steps above are all successful.  When I input `data.write.format("delta").save("/tmp/delta-table")`, there are many errors:
+```
+Py4JJavaError                             Traceback (most recent call last)
+Cell In[9], line 1
+----> 1 **data.write.format("delta").save("/tmp/delta-table")**
+
+File D:\Program Files\condamini\envs\panel110\lib\site-packages\pyspark\sql\readwriter.py:1398, in DataFrameWriter.save(self, path, format, mode, partitionBy, **options)
+   1396     self._jwrite.save()
+   1397 else:
+-> 1398     self._jwrite.save(path)
+
+File D:\Program Files\condamini\envs\panel110\lib\site-packages\py4j\java_gateway.py:1322, in JavaMember.__call__(self, *args)
+   1316 command = proto.CALL_COMMAND_NAME +\
+   1317     self.command_header +\
+   1318     args_command +\
+   1319     proto.END_COMMAND_PART
+   1321 answer = self.gateway_client.send_command(command)
+-> 1322 return_value = get_return_value(
+   1323     answer, self.gateway_client, self.target_id, self.name)
+   1325 for temp_arg in temp_args:
+   1326     if hasattr(temp_arg, "_detach"):
+
+File D:\Program Files\condamini\envs\panel110\lib\site-packages\pyspark\errors\exceptions\captured.py:169, in capture_sql_exception.<locals>.deco(*a, **kw)
+    167 def deco(*a: Any, **kw: Any) -> Any:
+    168     try:
+--> 169         return f(*a, **kw)
+    170     except Py4JJavaError as e:
+    171         converted = convert_exception(e.java_exception)
+
+File D:\Program Files\condamini\envs\panel110\lib\site-packages\py4j\protocol.py:326, in get_return_value(answer, gateway_client, target_id, name)
+    324 value = OUTPUT_CONVERTER[type](answer[2:], gateway_client)
+    325 if answer[1] == REFERENCE_TYPE:
+--> 326     raise Py4JJavaError(
+    327         "An error occurred while calling {0}{1}{2}.\n".
+    328         format(target_id, ".", name), value)
+    329 else:
+    330     raise Py4JError(
+    331         "An error occurred while calling {0}{1}{2}. Trace:\n{3}\n".
+    332         format(target_id, ".", name, value))
+
+Py4JJavaError: An error occurred while calling o49.save.
+: com.google.common.util.concurrent.ExecutionError: java.lang.UnsatisfiedLinkError: org.apache.hadoop.io.nativeio.NativeIO$Windows.access0(Ljava/lang/String;I)Z
+	at com.google.common.cache.LocalCache$Segment.get(LocalCache.java:2261)
+	at com.google.common.cache.LocalCache.get(LocalCache.java:4000)
+	at com.google.common.cache.LocalCache$LocalManualCache.get(LocalCache.java:4789)
+	at org.apache.spark.sql.delta.DeltaLog$.getDeltaLogFromCache$1(DeltaLog.scala:801)
+	at org.apache.spark.sql.delta.DeltaLog$.apply(DeltaLog.scala:811)
+	at org.apache.spark.sql.delta.DeltaLog$.forTable(DeltaLog.scala:643)
+	at org.apache.spark.sql.delta.sources.DeltaDataSource.createRelation(DeltaDataSource.scala:172)
+	at org.apache.spark.sql.execution.datasources.SaveIntoDataSourceCommand.run(SaveIntoDataSourceCommand.scala:47)
+	at org.apache.spark.sql.execution.command.ExecutedCommandExec.sideEffectResult$lzycompute(commands.scala:75)
+	at org.apache.spark.sql.execution.command.ExecutedCommandExec.sideEffectResult(commands.scala:73)
+	at org.apache.spark.sql.execution.command.ExecutedCommandExec.executeCollect(commands.scala:84)
+	at org.apache.spark.sql.execution.QueryExecution$$anonfun$eagerlyExecuteCommands$1.$anonfun$applyOrElse$1(QueryExecution.scala:98)
+	at org.apache.spark.sql.execution.SQLExecution$.$anonfun$withNewExecutionId$6(SQLExecution.scala:118)
+	at org.apache.spark.sql.execution.SQLExecution$.withSQLConfPropagated(SQLExecution.scala:195)
+	at org.apache.spark.sql.execution.SQLExecution$.$anonfun$withNewExecutionId$1(SQLExecution.scala:103)
+	at org.apache.spark.sql.SparkSession.withActive(SparkSession.scala:827)
+	at org.apache.spark.sql.execution.SQLExecution$.withNewExecutionId(SQLExecution.scala:65)
+	at org.apache.spark.sql.execution.QueryExecution$$anonfun$eagerlyExecuteCommands$1.applyOrElse(QueryExecution.scala:98)
+	at org.apache.spark.sql.execution.QueryExecution$$anonfun$eagerlyExecuteCommands$1.applyOrElse(QueryExecution.scala:94)
+	at org.apache.spark.sql.catalyst.trees.TreeNode.$anonfun$transformDownWithPruning$1(TreeNode.scala:512)
+	at org.apache.spark.sql.catalyst.trees.CurrentOrigin$.withOrigin(TreeNode.scala:104)
+	at org.apache.spark.sql.catalyst.trees.TreeNode.transformDownWithPruning(TreeNode.scala:512)
+	at org.apache.spark.sql.catalyst.plans.logical.LogicalPlan.org$apache$spark$sql$catalyst$plans$logical$AnalysisHelper$$super$transformDownWithPruning(LogicalPlan.scala:31)
+	at org.apache.spark.sql.catalyst.plans.logical.AnalysisHelper.transformDownWithPruning(AnalysisHelper.scala:267)
+	at org.apache.spark.sql.catalyst.plans.logical.AnalysisHelper.transformDownWithPruning$(AnalysisHelper.scala:263)
+	at org.apache.spark.sql.catalyst.plans.logical.LogicalPlan.transformDownWithPruning(LogicalPlan.scala:31)
+	at org.apache.spark.sql.catalyst.plans.logical.LogicalPlan.transformDownWithPruning(LogicalPlan.scala:31)
+	at org.apache.spark.sql.catalyst.trees.TreeNode.transformDown(TreeNode.scala:488)
+	at org.apache.spark.sql.execution.QueryExecution.eagerlyExecuteCommands(QueryExecution.scala:94)
+	at org.apache.spark.sql.execution.QueryExecution.commandExecuted$lzycompute(QueryExecution.scala:81)
+	at org.apache.spark.sql.execution.QueryExecution.commandExecuted(QueryExecution.scala:79)
+	at org.apache.spark.sql.execution.QueryExecution.assertCommandExecuted(QueryExecution.scala:133)
+	at org.apache.spark.sql.DataFrameWriter.runCommand(DataFrameWriter.scala:856)
+	at org.apache.spark.sql.DataFrameWriter.saveToV1Source(DataFrameWriter.scala:387)
+	at org.apache.spark.sql.DataFrameWriter.saveInternal(DataFrameWriter.scala:354)
+	at org.apache.spark.sql.DataFrameWriter.save(DataFrameWriter.scala:239)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at py4j.reflection.MethodInvoker.invoke(MethodInvoker.java:244)
+	at py4j.reflection.ReflectionEngine.invoke(ReflectionEngine.java:374)
+	at py4j.Gateway.invoke(Gateway.java:282)
+	at py4j.commands.AbstractCommand.invokeMethod(AbstractCommand.java:132)
+	at py4j.commands.CallCommand.execute(CallCommand.java:79)
+	at py4j.ClientServerConnection.waitForCommands(ClientServerConnection.java:182)
+	at py4j.ClientServerConnection.run(ClientServerConnection.java:106)
+	at java.lang.Thread.run(Thread.java:750)
+Caused by: java.lang.UnsatisfiedLinkError: org.apache.hadoop.io.nativeio.NativeIO$Windows.access0(Ljava/lang/String;I)Z
+	at org.apache.hadoop.io.nativeio.NativeIO$Windows.access0(Native Method)
+	at org.apache.hadoop.io.nativeio.NativeIO$Windows.access(NativeIO.java:793)
+	at org.apache.hadoop.fs.FileUtil.canRead(FileUtil.java:1249)
+	at org.apache.hadoop.fs.FileUtil.list(FileUtil.java:1454)
+	at org.apache.hadoop.fs.RawLocalFileSystem.listStatus(RawLocalFileSystem.java:601)
+	at org.apache.hadoop.fs.FileSystem.listStatus(FileSystem.java:1972)
+	at org.apache.hadoop.fs.FileSystem.listStatus(FileSystem.java:2014)
+	at org.apache.hadoop.fs.ChecksumFileSystem.listStatus(ChecksumFileSystem.java:761)
+	at io.delta.storage.HadoopFileSystemLogStore.listFrom(HadoopFileSystemLogStore.java:59)
+	at org.apache.spark.sql.delta.storage.LogStoreAdaptor.listFrom(LogStore.scala:452)
+	at org.apache.spark.sql.delta.storage.DelegatingLogStore.listFrom(DelegatingLogStore.scala:127)
+	at org.apache.spark.sql.delta.SnapshotManagement.listFrom(SnapshotManagement.scala:76)
+	at org.apache.spark.sql.delta.SnapshotManagement.listFrom$(SnapshotManagement.scala:75)
+	at org.apache.spark.sql.delta.DeltaLog.listFrom(DeltaLog.scala:74)
+	at org.apache.spark.sql.delta.SnapshotManagement.listFromOrNone(SnapshotManagement.scala:93)
+	at org.apache.spark.sql.delta.SnapshotManagement.listFromOrNone$(SnapshotManagement.scala:89)
+	at org.apache.spark.sql.delta.DeltaLog.listFromOrNone(DeltaLog.scala:74)
+	at org.apache.spark.sql.delta.SnapshotManagement.$anonfun$listDeltaAndCheckpointFiles$1(SnapshotManagement.scala:113)
+	at org.apache.spark.sql.delta.metering.DeltaLogging.recordFrameProfile(DeltaLogging.scala:140)
+	at org.apache.spark.sql.delta.metering.DeltaLogging.recordFrameProfile$(DeltaLogging.scala:138)
+	at org.apache.spark.sql.delta.DeltaLog.recordFrameProfile(DeltaLog.scala:74)
+	at org.apache.spark.sql.delta.metering.DeltaLogging.$anonfun$recordDeltaOperationInternal$1(DeltaLogging.scala:133)
+	at com.databricks.spark.util.DatabricksLogging.recordOperation(DatabricksLogging.scala:128)
+	at com.databricks.spark.util.DatabricksLogging.recordOperation$(DatabricksLogging.scala:117)
+	at org.apache.spark.sql.delta.DeltaLog.recordOperation(DeltaLog.scala:74)
+	at org.apache.spark.sql.delta.metering.DeltaLogging.recordDeltaOperationInternal(DeltaLogging.scala:132)
+	at org.apache.spark.sql.delta.metering.DeltaLogging.recordDeltaOperation(DeltaLogging.scala:122)
+	at org.apache.spark.sql.delta.metering.DeltaLogging.recordDeltaOperation$(DeltaLogging.scala:112)
+	at org.apache.spark.sql.delta.DeltaLog.recordDeltaOperation(DeltaLog.scala:74)
+	at org.apache.spark.sql.delta.SnapshotManagement.listDeltaAndCheckpointFiles(SnapshotManagement.scala:113)
+	at org.apache.spark.sql.delta.SnapshotManagement.listDeltaAndCheckpointFiles$(SnapshotManagement.scala:109)
+	at org.apache.spark.sql.delta.DeltaLog.listDeltaAndCheckpointFiles(DeltaLog.scala:74)
+	at org.apache.spark.sql.delta.SnapshotManagement.getLogSegmentForVersion(SnapshotManagement.scala:146)
+	at org.apache.spark.sql.delta.SnapshotManagement.getLogSegmentForVersion$(SnapshotManagement.scala:140)
+	at org.apache.spark.sql.delta.DeltaLog.getLogSegmentForVersion(DeltaLog.scala:74)
+	at org.apache.spark.sql.delta.SnapshotManagement.getLogSegmentFrom(SnapshotManagement.scala:70)
+	at org.apache.spark.sql.delta.SnapshotManagement.getLogSegmentFrom$(SnapshotManagement.scala:65)
+	at org.apache.spark.sql.delta.DeltaLog.getLogSegmentFrom(DeltaLog.scala:74)
+	at org.apache.spark.sql.delta.SnapshotManagement.$anonfun$getSnapshotAtInit$1(SnapshotManagement.scala:292)
+	at org.apache.spark.sql.delta.metering.DeltaLogging.recordFrameProfile(DeltaLogging.scala:140)
+	at org.apache.spark.sql.delta.metering.DeltaLogging.recordFrameProfile$(DeltaLogging.scala:138)
+	at org.apache.spark.sql.delta.DeltaLog.recordFrameProfile(DeltaLog.scala:74)
+	at org.apache.spark.sql.delta.SnapshotManagement.getSnapshotAtInit(SnapshotManagement.scala:288)
+	at org.apache.spark.sql.delta.SnapshotManagement.getSnapshotAtInit$(SnapshotManagement.scala:287)
+	at org.apache.spark.sql.delta.DeltaLog.getSnapshotAtInit(DeltaLog.scala:74)
+	at org.apache.spark.sql.delta.SnapshotManagement.$init$(SnapshotManagement.scala:57)
+	at org.apache.spark.sql.delta.DeltaLog.<init>(DeltaLog.scala:80)
+	at org.apache.spark.sql.delta.DeltaLog$.$anonfun$apply$4(DeltaLog.scala:790)
+	at org.apache.spark.sql.catalyst.plans.logical.AnalysisHelper$.allowInvokingTransformsInAnalyzer(AnalysisHelper.scala:323)
+	at org.apache.spark.sql.delta.DeltaLog$.$anonfun$apply$3(DeltaLog.scala:785)
+	at org.apache.spark.sql.delta.metering.DeltaLogging.recordFrameProfile(DeltaLogging.scala:140)
+	at org.apache.spark.sql.delta.metering.DeltaLogging.recordFrameProfile$(DeltaLogging.scala:138)
+	at org.apache.spark.sql.delta.DeltaLog$.recordFrameProfile(DeltaLog.scala:595)
+	at org.apache.spark.sql.delta.metering.DeltaLogging.$anonfun$recordDeltaOperationInternal$1(DeltaLogging.scala:133)
+	at com.databricks.spark.util.DatabricksLogging.recordOperation(DatabricksLogging.scala:128)
+	at com.databricks.spark.util.DatabricksLogging.recordOperation$(DatabricksLogging.scala:117)
+	at org.apache.spark.sql.delta.DeltaLog$.recordOperation(DeltaLog.scala:595)
+	at org.apache.spark.sql.delta.metering.DeltaLogging.recordDeltaOperationInternal(DeltaLogging.scala:132)
+	at org.apache.spark.sql.delta.metering.DeltaLogging.recordDeltaOperation(DeltaLogging.scala:122)
+	at org.apache.spark.sql.delta.metering.DeltaLogging.recordDeltaOperation$(DeltaLogging.scala:112)
+	at org.apache.spark.sql.delta.DeltaLog$.recordDeltaOperation(DeltaLog.scala:595)
+	at org.apache.spark.sql.delta.DeltaLog$.createDeltaLog$1(DeltaLog.scala:784)
+	at org.apache.spark.sql.delta.DeltaLog$.$anonfun$apply$5(DeltaLog.scala:802)
+	at com.google.common.cache.LocalCache$LocalManualCache$1.load(LocalCache.java:4792)
+	at com.google.common.cache.LocalCache$LoadingValueReference.loadFuture(LocalCache.java:3599)
+	at com.google.common.cache.LocalCache$Segment.loadSync(LocalCache.java:2379)
+	at com.google.common.cache.LocalCache$Segment.lockedGetOrLoad(LocalCache.java:2342)
+	at com.google.common.cache.LocalCache$Segment.get(LocalCache.java:2257)
+	... 47 more
+```
+#### Steps to reproduce
+
+Please include copy-pastable code snippets if possible.
+1. I install all hadoop, pypark, java, delta-spark
+2. I can execute .\bin\spark-shell, and [spark-url](http://localhost:4040/) is OK
+3. from python, I can start pyspark as 2.
+4. and when I save a pyspark.sql.dataframe.DataFrame, it's wrong as above.
+
+#### Observed results
+
+
+#### Expected results
+
+<!-- What did you expect to happen? -->
+
+#### Further details
+
+
+### Environment information
+* Delta Lake version: 2.4.0
+* Spark version: 3.4.1
+* Scala version: version 2.12.17
+* OS: windows 11 HOME
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [ ] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute a bug fix at this time.

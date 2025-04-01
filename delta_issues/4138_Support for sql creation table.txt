@@ -1,0 +1,26 @@
+```
+CREATE TABLE delta_test
+  (name string, money bigint)
+  USING delta
+```
+
+```
+Exception in thread "main" java.lang.IllegalArgumentException: 'path' is not specified
+	at org.apache.spark.sql.delta.DeltaErrors$.pathNotSpecifiedException(DeltaErrors.scala:221)
+	at org.apache.spark.sql.delta.sources.DeltaDataSource$$anonfun$9.apply(DeltaDataSource.scala:140)
+	at org.apache.spark.sql.delta.sources.DeltaDataSource$$anonfun$9.apply(DeltaDataSource.scala:140)
+	at scala.collection.MapLike$class.getOrElse(MapLike.scala:128)
+	at org.apache.spark.sql.catalyst.util.CaseInsensitiveMap.getOrElse(CaseInsensitiveMap.scala:28)
+	at org.apache.spark.sql.delta.sources.DeltaDataSource.createRelation(DeltaDataSource.scala:139)
+	at org.apache.spark.sql.execution.datasources.DataSource.resolveRelation(DataSource.scala:323)
+	at org.apache.spark.sql.execution.command.CreateDataSourceTableCommand.run(createDataSourceTables.scala:78)
+	at org.apache.spark.sql.execution.command.ExecutedCommandExec.sideEffectResult$lzycompute(commands.scala:70)
+	at org.apache.spark.sql.execution.command.ExecutedCommandExec.sideEffectResult(commands.scala:68)
+	at org.apache.spark.sql.execution.command.ExecutedCommandExec.executeCollect(commands.scala:79)
+	at org.apache.spark.sql.Dataset$$anonfun$6.apply(Dataset.scala:194)
+	at org.apache.spark.sql.Dataset$$anonfun$6.apply(Dataset.scala:194)
+	at org.apache.spark.sql.Dataset$$anonfun$52.apply(Dataset.scala:3370)
+	at org.apache.spark.sql.execution.SQLExecution$$anonfun$withNewExecutionId$1.apply(SQLExecution.scala:78)
+	at org.apache.spark.sql.execution.SQLExecution$.withSQLConfPropagated(SQLExecution.scala:125)
+	at org.apache.spark.sql.execution.SQLExecution$.withNewExecutionId(SQLExecution.scala:73)
+```

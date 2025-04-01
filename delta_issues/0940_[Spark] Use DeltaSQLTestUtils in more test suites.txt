@@ -1,0 +1,6 @@
+## Description
+Follow-up from https://github.com/delta-io/delta/pull/3365
+Mix in `DeltaSQLTestUtils` in more test suites so that they use the Delta temp dir creation helpers.
+
+## How was this patch tested?
+Test-only

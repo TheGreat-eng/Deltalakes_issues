@@ -1,0 +1,1 @@
+Move over the `LogStore` and `CloseableIterator` interfaces from `delta-core`'s `io.delta.storage` package

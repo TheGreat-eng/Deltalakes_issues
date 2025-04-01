@@ -1,0 +1,34 @@
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+The `inCommitTimestamp` feature of Delta Kernel API expects the `operationalParameters` of `CommitInfo` to be a `MapType<StringType, StringType>`.  
+
+The newly added `autoCompact` feature added the `auto` flag to `operationalParamaters` as a boolean, which is incompatible.
+
+This PR restores that expectation of the `inCommitTimestamp` feature for the `OPTIMIZE` operation in the Spark Connector.
+
+Resolves #3888.
+
+## How was this patch tested?
+
+I've attached a test-case.
+
+## Does this PR introduce _any_ user-facing changes?
+
+<!--
+If yes, please clarify the previous behavior and the change this PR proposes - provide the console output, description and/or an example to show the behavior difference if possible.
+If possible, please also clarify if this is a user-facing change compared to the released Delta Lake versions or within the unreleased branches such as master.
+If no, write 'No'.
+-->
+We change format of the field `commitInfo.operationalParameters.auto` field from boolean to string.

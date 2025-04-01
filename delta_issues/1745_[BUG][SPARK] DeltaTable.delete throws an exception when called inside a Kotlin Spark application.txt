@@ -1,0 +1,129 @@
+## Bug
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the issue title
+For example: [BUG][Spark] Title of my issue
+-->
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+### Describe the problem
+When loading a delta table (based in S3) using `DeltaTable.forPath` and then trying to delete rows from it using `deltaTable.delete` method, Kotlin/Java throws this exception: 
+```Exception in thread "main" java.util.NoSuchElementException: None.get```
+When doing the same with pyspark, everything works as expected and the deletion is being performed successfully.
+
+#### Steps to reproduce
+Same code for both kotlin and pyspark:
+1. `val deltaTable = DeltaTable.forPath(sparkSession, pathToTable)`
+2. `deltaTable.delete("timestampField < timestamp")`
+
+#### Observed results
+Kotlin:
+```Exception in thread "main" java.util.NoSuchElementException: None.get```
+
+#### Expected results
+In pyspark it works as perfectly and deletes the requested rows. I expect for it to work the same way in Kotlin/Java.
+
+#### Further details
+```
+Exception in thread "main" java.util.NoSuchElementException: None.get
+	at scala.None$.get(Option.scala:529)
+	at scala.None$.get(Option.scala:527)
+	at org.apache.spark.sql.execution.datasources.v2.DataSourceV2Strategy.apply(DataSourceV2Strategy.scala:306)
+	at org.apache.spark.sql.catalyst.planning.QueryPlanner.$anonfun$plan$1(QueryPlanner.scala:63)
+	at scala.collection.Iterator$$anon$11.nextCur(Iterator.scala:486)
+	at scala.collection.Iterator$$anon$11.hasNext(Iterator.scala:492)
+	at scala.collection.Iterator$$anon$11.hasNext(Iterator.scala:491)
+	at org.apache.spark.sql.catalyst.planning.QueryPlanner.plan(QueryPlanner.scala:93)
+	at org.apache.spark.sql.execution.SparkStrategies.plan(SparkStrategies.scala:70)
+	at org.apache.spark.sql.catalyst.planning.QueryPlanner.$anonfun$plan$3(QueryPlanner.scala:78)
+	at scala.collection.TraversableOnce$folder$1.apply(TraversableOnce.scala:196)
+	at scala.collection.TraversableOnce$folder$1.apply(TraversableOnce.scala:194)
+	at scala.collection.Iterator.foreach(Iterator.scala:943)
+	at scala.collection.Iterator.foreach$(Iterator.scala:943)
+	at scala.collection.AbstractIterator.foreach(Iterator.scala:1431)
+	at scala.collection.TraversableOnce.foldLeft(TraversableOnce.scala:199)
+	at scala.collection.TraversableOnce.foldLeft$(TraversableOnce.scala:192)
+	at scala.collection.AbstractIterator.foldLeft(Iterator.scala:1431)
+	at org.apache.spark.sql.catalyst.planning.QueryPlanner.$anonfun$plan$2(QueryPlanner.scala:75)
+	at scala.collection.Iterator$$anon$11.nextCur(Iterator.scala:486)
+	at scala.collection.Iterator$$anon$11.hasNext(Iterator.scala:492)
+	at org.apache.spark.sql.catalyst.planning.QueryPlanner.plan(QueryPlanner.scala:93)
+	at org.apache.spark.sql.execution.SparkStrategies.plan(SparkStrategies.scala:70)
+	at org.apache.spark.sql.execution.QueryExecution$.createSparkPlan(QueryExecution.scala:496)
+	at org.apache.spark.sql.execution.QueryExecution.$anonfun$sparkPlan$1(QueryExecution.scala:171)
+	at org.apache.spark.sql.catalyst.QueryPlanningTracker.measurePhase(QueryPlanningTracker.scala:138)
+	at org.apache.spark.sql.execution.QueryExecution.$anonfun$executePhase$2(QueryExecution.scala:219)
+	at org.apache.spark.sql.execution.QueryExecution$.withInternalError(QueryExecution.scala:546)
+	at org.apache.spark.sql.execution.QueryExecution.$anonfun$executePhase$1(QueryExecution.scala:219)
+	at org.apache.spark.sql.SparkSession.withActive(SparkSession.scala:900)
+	at org.apache.spark.sql.execution.QueryExecution.executePhase(QueryExecution.scala:218)
+	at org.apache.spark.sql.execution.QueryExecution.sparkPlan$lzycompute(QueryExecution.scala:171)
+	at org.apache.spark.sql.execution.QueryExecution.sparkPlan(QueryExecution.scala:164)
+	at org.apache.spark.sql.execution.QueryExecution.$anonfun$executedPlan$1(QueryExecution.scala:186)
+	at org.apache.spark.sql.catalyst.QueryPlanningTracker.measurePhase(QueryPlanningTracker.scala:138)
+	at org.apache.spark.sql.execution.QueryExecution.$anonfun$executePhase$2(QueryExecution.scala:219)
+	at org.apache.spark.sql.execution.QueryExecution$.withInternalError(QueryExecution.scala:546)
+	at org.apache.spark.sql.execution.QueryExecution.$anonfun$executePhase$1(QueryExecution.scala:219)
+	at org.apache.spark.sql.SparkSession.withActive(SparkSession.scala:900)
+	at org.apache.spark.sql.execution.QueryExecution.executePhase(QueryExecution.scala:218)
+	at org.apache.spark.sql.execution.QueryExecution.executedPlan$lzycompute(QueryExecution.scala:186)
+	at org.apache.spark.sql.execution.QueryExecution.executedPlan(QueryExecution.scala:179)
+	at org.apache.spark.sql.execution.QueryExecution.simpleString(QueryExecution.scala:238)
+	at org.apache.spark.sql.execution.QueryExecution.org$apache$spark$sql$execution$QueryExecution$$explainString(QueryExecution.scala:284)
+	at org.apache.spark.sql.execution.QueryExecution.explainString(QueryExecution.scala:252)
+	at org.apache.spark.sql.execution.SQLExecution$.$anonfun$withNewExecutionId$6(SQLExecution.scala:117)
+	at org.apache.spark.sql.execution.SQLExecution$.withSQLConfPropagated(SQLExecution.scala:201)
+	at org.apache.spark.sql.execution.SQLExecution$.$anonfun$withNewExecutionId$1(SQLExecution.scala:108)
+	at org.apache.spark.sql.SparkSession.withActive(SparkSession.scala:900)
+	at org.apache.spark.sql.execution.SQLExecution$.withNewExecutionId(SQLExecution.scala:66)
+	at org.apache.spark.sql.execution.QueryExecution$$anonfun$eagerlyExecuteCommands$1.applyOrElse(QueryExecution.scala:107)
+	at org.apache.spark.sql.execution.QueryExecution$$anonfun$eagerlyExecuteCommands$1.applyOrElse(QueryExecution.scala:98)
+	at org.apache.spark.sql.catalyst.trees.TreeNode.$anonfun$transformDownWithPruning$1(TreeNode.scala:461)
+	at org.apache.spark.sql.catalyst.trees.CurrentOrigin$.withOrigin(origin.scala:76)
+	at org.apache.spark.sql.catalyst.trees.TreeNode.transformDownWithPruning(TreeNode.scala:461)
+	at org.apache.spark.sql.catalyst.plans.logical.LogicalPlan.org$apache$spark$sql$catalyst$plans$logical$AnalysisHelper$$super$transformDownWithPruning(LogicalPlan.scala:32)
+	at org.apache.spark.sql.catalyst.plans.logical.AnalysisHelper.transformDownWithPruning(AnalysisHelper.scala:267)
+	at org.apache.spark.sql.catalyst.plans.logical.AnalysisHelper.transformDownWithPruning$(AnalysisHelper.scala:263)
+	at org.apache.spark.sql.catalyst.plans.logical.LogicalPlan.transformDownWithPruning(LogicalPlan.scala:32)
+	at org.apache.spark.sql.catalyst.plans.logical.LogicalPlan.transformDownWithPruning(LogicalPlan.scala:32)
+	at org.apache.spark.sql.catalyst.trees.TreeNode.transformDown(TreeNode.scala:437)
+	at org.apache.spark.sql.execution.QueryExecution.eagerlyExecuteCommands(QueryExecution.scala:98)
+	at org.apache.spark.sql.execution.QueryExecution.commandExecuted$lzycompute(QueryExecution.scala:85)
+	at org.apache.spark.sql.execution.QueryExecution.commandExecuted(QueryExecution.scala:83)
+	at org.apache.spark.sql.Dataset.<init>(Dataset.scala:220)
+	at org.apache.spark.sql.Dataset$.$anonfun$ofRows$1(Dataset.scala:92)
+	at org.apache.spark.sql.SparkSession.withActive(SparkSession.scala:900)
+	at org.apache.spark.sql.Dataset$.ofRows(Dataset.scala:89)
+	at org.apache.spark.sql.delta.util.AnalysisHelper.toDataset(AnalysisHelper.scala:82)
+	at org.apache.spark.sql.delta.util.AnalysisHelper.toDataset$(AnalysisHelper.scala:81)
+	at io.delta.tables.DeltaTable.toDataset(DeltaTable.scala:44)
+	at io.delta.tables.execution.DeltaTableOperations.$anonfun$executeDelete$2(DeltaTableOperations.scala:47)
+	at org.apache.spark.sql.SparkSession.withActive(SparkSession.scala:900)
+	at org.apache.spark.sql.delta.DeltaTableUtils$.withActiveSession(DeltaTable.scala:491)
+	at io.delta.tables.execution.DeltaTableOperations.$anonfun$executeDelete$1(DeltaTableOperations.scala:43)
+	at org.apache.spark.sql.delta.util.AnalysisHelper.improveUnsupportedOpError(AnalysisHelper.scala:99)
+	at org.apache.spark.sql.delta.util.AnalysisHelper.improveUnsupportedOpError$(AnalysisHelper.scala:85)
+	at io.delta.tables.DeltaTable.improveUnsupportedOpError(DeltaTable.scala:44)
+	at io.delta.tables.execution.DeltaTableOperations.executeDelete(DeltaTableOperations.scala:43)
+	at io.delta.tables.execution.DeltaTableOperations.executeDelete$(DeltaTableOperations.scala:42)
+	at io.delta.tables.DeltaTable.executeDelete(DeltaTable.scala:44)
+	at io.delta.tables.DeltaTable.delete(DeltaTable.scala:185)
+	at io.delta.tables.DeltaTable.delete(DeltaTable.scala:174)	
+```
+
+### Environment information
+* Delta Lake version: 3.1.0 RC2
+* Spark version: 3.5.0
+* Scala version: 2.12
+
+### Willingness to contribute
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [ ] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [x] No. I cannot contribute a bug fix at this time.

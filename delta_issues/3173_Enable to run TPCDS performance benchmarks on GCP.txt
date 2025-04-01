@@ -1,0 +1,15 @@
+## Description
+
+This PR enables to run TCPDS performance benchmarks not only on AWS but also on Google Cloud Platform.This is an extension of the framework introduced by: https://github.com/delta-io/delta/pull/973 .
+
+In order to run the benchmark, you need to manually create a Dataproc cluster first. All prerequisites and sample gcloud commands are in README file. After that you can run *Load data* and *Query data* steps provided by the framework.
+
+Please see the README updates for more details.
+
+## How was this patch tested?
+
+I manually ran the benchmarks on GCP.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No.

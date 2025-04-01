@@ -1,0 +1,33 @@
+## Feature request
+As an optimization, don't commit empty transactions to the log on Write commands.
+
+#### Which Delta project/connector is this regarding?
+- [X] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+### Overview
+
+If the transaction is a no-op / empty, then no transaction could be committed. This is the case for delete, update, and merge but not write.
+
+### Motivation
+
+I have a streaming job that ingests sensor data into a few dozen delta tables. Some of this data is beyond our ingestion window and goes to an "expired" table. For most of the batches this ends up with an empty dataframe going into the call to `df.write`. I noticed on our expired records table the majority of the log entries per day are completely empty.
+
+### Further details
+
+At least in our case I cannot see the utility in the empty transaction being recorded, I guess I could see in other cases where the transaction log entry would serve as a high watermark of sorts to indicate liveness. As an example, I would prefer to omit empty transactions (this log is mostly empty writes):
+```
+1707	2023-07-24 16:06:51	NULL	NULL	WRITE	{"mode":"Append","partitionBy":"["ingestion_date"]"}	NULL	NULL	NULL	1706	Serializable	true	{"numFiles":"0","numOutputBytes":"0","numOutputRows":"0"}	NULL	Apache-Spark/3.3.1-amzn-0 Delta-Lake/2.2.0
+1706	2023-07-24 16:05:53	NULL	NULL	WRITE	{"mode":"Append","partitionBy":"["ingestion_date"]"}	NULL	NULL	NULL	1705	Serializable	true	{"numFiles":"0","numOutputBytes":"0","numOutputRows":"0"}	NULL	Apache-Spark/3.3.1-amzn-0 Delta-Lake/2.2.0
+```
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [X] Yes. I can contribute this feature independently.
+- [ ] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.

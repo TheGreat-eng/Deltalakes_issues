@@ -1,0 +1,23 @@
+## Feature request
+
+### Overview
+
+As a developer working with Delta Lake I would like to be able to query a delta table using C# so that I do not have to rely on Apache Spark to retrieve my data. 
+
+### Motivation
+This feature will be used to reduce costs by allowing applications to query a delta table directly instead of relying on Spark. 
+
+### Further details
+
+<!--
+Use this section to include any additional information about the feature. If you have a proposal for how to implement this feature, please include it here. For implementation guidelines, please read our contributor guidelines: https://github.com/delta-io/delta/blob/master/CONTRIBUTING.md
+If there are any specific requirements for this feature that are not immediately obvious please outline them here.
+-->
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [ ] Yes. I can contribute this feature independently.
+- [x] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.

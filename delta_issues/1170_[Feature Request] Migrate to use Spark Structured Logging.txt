@@ -1,0 +1,35 @@
+## Feature request
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the issue title
+For example: [Feature Request][Spark] Title of my issue
+-->
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+### Overview
+
+<!-- Provide a high-level description of the feature request. -->
+Spark structured logging ([SPIP](https://docs.google.com/document/d/1rATVGmFLNVLmtxSpWrEceYm7d-ocgu8ofhryVs4g3XU/edit?pli=1#heading=h.rks22ljmjzmt)) aims to provide more analyzable logs by changing the plain text logs to a structured JSON format. Spark has introduced a new set of structured logging APIs and is currently working on [migration](https://issues.apache.org/jira/browse/SPARK-47240).
+### Motivation
+
+<!-- How will this feature be used? Why is it important? Which users will benefit from it? -->
+Currently, analyzing Delta text logs can be challenging. Structured logging will make the logs easier to understand and directly queryable using Spark SQL. It will simplify the debugging process and facilitate more efficient log analysis.
+### Further details
+
+<!--
+Use this section to include any additional information about the feature. If you have a proposal for how to implement this feature, please include it here. For implementation guidelines, please read our contributor guidelines: https://github.com/delta-io/delta/blob/master/CONTRIBUTING.md
+If there are any specific requirements for this feature that are not immediately obvious please outline them here.
+-->
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [x] Yes. I can contribute this feature independently.
+- [ ] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.

@@ -1,0 +1,2 @@
+This helps understand which queries do what in Spark UI.
+See detailed description in https://github.com/delta-io/delta/pull/525

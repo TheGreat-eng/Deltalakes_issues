@@ -1,0 +1,54 @@
+## Bug
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the issue title
+For example: [BUG][Spark] Title of my issue
+-->
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+### Describe the problem
+
+#### Steps to reproduce
+
+<!--
+Please include copy-pastable code snippets if possible.
+1. _____
+2. _____
+3. _____
+-->
+
+#### Observed results
+
+After upgrading our Spark workflow to Delta Lake 2.4.0 and Spark 3.4.0, which was previously running Delta Lake 0.6.1 and Spark 2.4.6, we observed a decrease in performance when writing a Spark DataFrame into a Delta Lake table. Interestingly, this performance degradation was not evident when using the "parquet" file format and writing parquet files directly without delta
+
+Additionally, we noticed that Parquet files generated with Spark 3.4.0 were larger in size compared to our previous setup.
+
+These tests were conducted on both EMR 6.12 and the Hadoop Cloudera environment, and the results were consistent across both platforms.
+
+#### Expected results
+
+Should not be any degradation in performance between delta-io version 0.6.1 and 2.4.0
+
+#### Further details
+
+
+
+### Environment information
+
+* Delta Lake version: 2.4.0
+* Spark version: 3.4.0
+* Scala version: 2.12
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [ ] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [x] No. I cannot contribute a bug fix at this time.

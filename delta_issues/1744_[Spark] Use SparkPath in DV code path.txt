@@ -1,0 +1,21 @@
+#### Which Delta project/connector is this regarding?
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+This PR refactors the DV code path to use the `SparkPath` helper and clarifies requirements of whether a path string should or should not be escaped.
+
+This PR also touches on some test cases as a preparation for testing tables with special characters -- which relies on a new Spark release and thus not shipped with this PR.
+
+## How was this patch tested?
+
+Existing tests.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No.

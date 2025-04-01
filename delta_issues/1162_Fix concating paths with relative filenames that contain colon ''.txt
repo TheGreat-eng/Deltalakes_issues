@@ -1,0 +1,21 @@
+#### Which Delta project/connector is this regarding?
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+This PR fixes an issue where the `safeConcatPaths` method throws an exception when the `relativeChildPath` contains a colon `:`. Such a character is not allowed in Hadoop paths due to ambiguity (`aa:bb.csv` can be interpreted as an absolute path like `aa://bb.csv` where `aa` is the scheme), but is allowed in many file systems such as S3. Thus we need to handle this case.
+
+The fix here is to prepend a `/` so that Hadoop will know that everything after `/` belongs to the path, not the scheme.
+
+## How was this patch tested?
+
+New tests.
+
+## Does this PR introduce _any_ user-facing changes?
+
+Nope.

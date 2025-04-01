@@ -1,0 +1,5 @@
+https://github.com/delta-io/delta/pull/1382 upgraded Spark version to 3.3.1 but it didn't upgrade PySpark version. Hence, Scala tests are running with Spark 3.3.1 but Python tests are running with Spark 3.3.0.
+
+We need to upgrade the PySpark version in the following files:
+- https://github.com/delta-io/delta/blob/master/Dockerfile
+- https://github.com/delta-io/delta/blob/master/.github/workflows/test.yaml

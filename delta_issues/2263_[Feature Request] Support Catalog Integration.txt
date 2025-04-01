@@ -1,0 +1,33 @@
+## Feature request
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the issue title
+For example: [Feature Request][Spark] Title of my issue
+-->
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+### Overview
+
+Support Catalog Integration throughout Delta codebase for DDL. 
+
+### Motivation
+
+Delta is currently entirely file system based and lacks catalog integration. This is painful when interaction with HMS as the fields like schema and table properties are not correctly updated in HMS with DDL. 
+
+### Further details
+
+The feature proposes to pass objects like CatalogTable from all DDL/DML commands to OptimisticTransaction, which then would be catalog-aware, so users (or features) can register post-commit hooks that talk to the catalog. 
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [ ] Yes. I can contribute this feature independently.
+- [x] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.

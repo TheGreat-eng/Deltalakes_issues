@@ -1,0 +1,1 @@
+After redirecting to the "register here" link, slack complains "This invite link is no longer active." so long as not logging in slack.

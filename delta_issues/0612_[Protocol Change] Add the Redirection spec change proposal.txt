@@ -1,0 +1,26 @@
+<!--
+-->
+
+#### Which Delta project/connector is this regarding?
+
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [x] Other (Protocol Change Documentation)
+
+## Description
+This PR describes the detail of redirection, which include the feature definition, the procedure of enablement and disablement, and query redirection flow.
+
+This PR is created to submit all necessary documentation of the 
+
+## How was this patch tested?
+Documentation PR doesn't need test case.
+
+## Does this PR introduce _any_ user-facing changes?
+No.

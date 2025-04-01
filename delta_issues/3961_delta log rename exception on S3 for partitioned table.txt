@@ -1,0 +1,9 @@
+Hi, we are on delta 0.5 version and have some delta partitioned tables on S3. we are using pyspark on EMR to manage DeltaTables.
+
+after we upgraded to 0.5, we started noticing following exception while doing compaction on individual partitions.
+
+these exceptions are re-producible and random on any partition while doing this job sequentially on each partition. 
+
+java.io.IOException: rename from s3://some-s3-bucket/delta/tables/dltable/_delta_log/.00000000000000002214.json.7aa85f40-03f5-426d-b518-55f1b350d794.tmp to s3://some-s3-bucket/delta/tables/dltable/_delta_log/00000000000000002214.json failed.
+
+Please let us know if there is any way, to resolve this exception. 

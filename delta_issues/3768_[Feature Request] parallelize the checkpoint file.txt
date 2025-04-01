@@ -1,0 +1,6 @@
+here remove the checkpoint partsize:
+https://github.com/delta-io/delta/commit/d627769ce9822b8fad1f42bd0a00245a21892216#diff-2536a2cca0486cd1f20730c0216332ef77846d7dfbf3f77860b828be09439b9c
+
+I think it is usable to do parallelize the checkpoint file  when the actions is too large.
+
+If it is ok,  I will submit a PR for this.

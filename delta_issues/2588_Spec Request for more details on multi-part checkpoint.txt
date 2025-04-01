@@ -1,0 +1,21 @@
+### Describe the problem
+https://github.com/delta-io/delta/issues/837 added multi-part checkpoint. 
+[Specification](https://github.com/delta-io/delta/blob/master/PROTOCOL.md) says that the checkpoint file can be split into multiple files.
+
+Are there any restrictions on how the actions must be split into different files? As an example, say we know that the only actions since last checkpoint have been add file actions. Then the additional datapoint in the new checkpoint is just the newly added files since last checkpoint. 
+1. With multi-part checkpoint, can we copy the previous checkpoint as part 0 and add newly added files alone as part 1 of the checkpoint?
+2. If (1) is valid, are there ways to optimize this case, either now or in the roadmap? For example, a way to refer to the previous checkpoint file.
+
+This is specifically useful for append only streaming scenarios.
+
+### Environment information
+
+* Delta Lake version: 2.3.0
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [x] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute a bug fix at this time.

@@ -1,0 +1,25 @@
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [X] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+- adds a new `TableIdentifier` class, that kernel will pass on to Commit Coordinator Client
+- adds a new `Table::forPathWithTableId(engine, path, tableId)` interface
+- the tableId is stored as an `Optional` in the `Table`, and this PR does **not** propagate that value into SnapshotManager, Snapshot, etc. Future PRs can take care of that.
+
+## How was this patch tested?
+
+TableIdentifier UTs
+
+## Does this PR introduce _any_ user-facing changes?
+
+Yes. See the above.

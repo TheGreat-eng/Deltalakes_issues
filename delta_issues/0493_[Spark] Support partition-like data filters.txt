@@ -1,0 +1,26 @@
+#### Which Delta project/connector is this regarding?
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+Given an arbitrary data skipping expression, we can skip a file if:
+1. For all of the referenced attributes in the expression, the collected min and max values are equal AND there are 0 nulls on that column.
+AND
+2. The data skipping expression (when evaluated on the collect min==max values on all referenced attributes) evaluates to false.
+
+This PR adds support for some of these expressions with the following limitations:
+1. The table must be >= 100 files (this is to ensure that the added data skipping expressions to avoid regressing the performance for small tables that won't have many files with the same min-max value).
+2. The table must be a clustered table and all referenced attributes must be clustering columns (we use this heuristic to avoid adding extra complexity to data skipping for expressions that won't be able to filter out many files).
+3. The expression must not reference a Timestamp-type column. Because stats on timestamp columns are truncated to millisecond precision, we can't safely assume that the min and max value for a timestamp column are the same (even if the collected stats are the same). Because timestamp is generally quite high cardinality, it should anyways be relatively rare that the min and max value for a file are equal for the timestamp column.
+
+One more minor nuance: There's one more case where the collected stats differs from the behavior of partitioned tables - a truncated string. However, if a string value is truncated to the first 32 characters, then the collected max value for the string will not be equal to the collected min value (as one or more tiebreaker character(s) will be appended to the collected max value). As a result, it should be sufficient to validate equality, since for any truncated string, the min and max value will not be equal.
+
+
+## How was this patch tested?
+See new test.
+
+## Does this PR introduce _any_ user-facing changes?
+No.

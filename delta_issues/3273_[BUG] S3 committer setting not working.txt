@@ -1,0 +1,64 @@
+## Bug
+
+### Describe the problem
+I set the delta lake on top of AWS S3, and use our on-premise EKS Spark 3.2 cluster to write delta tables. However, I found that setting S3 committer is not working for delta but the same setting can work on default writer.
+
+#### Steps to reproduce
+My spark session setting:
+```
+    spark_builder = SparkSession.builder.appName("my_app")\
+        .config("fs.s3a.acl.default", "BucketOwnerFullControl") \
+        .config("spark.hadoop.fs.s3a.connection.timeout", "600000") \
+        .config("spark.hadoop.mapreduce.fileoutputcommitter.algorithm.version", "2") \
+        .config("spark.hadoop.fs.s3a.committer.staging.abort.pending.uploads", "false") \
+        .config("spark.hadoop.fs.s3a.committer.name", "magic") \
+        .config("spark.hadoop.fs.s3a.committer.magic.enabled", "true") \
+        .config("spark.hadoop.fs.s3a.committer.abort.pending.uploads", "false") \
+        .config("spark.hadoop.mapreduce.outputcommitter.factory.scheme.s3a", "org.apache.hadoop.fs.s3a.commit.S3ACommitterFactory") \
+        .config("spark.sql.extensions", "io.delta.sql.DeltaSparkSessionExtension") \
+        .config("spark.sql.catalog.spark_catalog", "org.apache.spark.sql.delta.catalog.DeltaCatalog") \
+        .config("spark.sql.sources.commitProtocolClass", "org.apache.spark.internal.io.cloud.PathOutputCommitProtocol") \
+        .config("spark.sql.parquet.output.committer.class", "org.apache.spark.internal.io.cloud.BindingParquetOutputCommitter")
+
+spark_session = configure_spark_with_delta_pip(spark_builder).getOrCreate()
+# spark_session = spark_builder.getOrCreate()
+```
+
+Write data with delta:
+```
+df.write.format("delta").partitionBy(self.__partition_columns).mode(mode).save(self.__path)
+```
+
+Write data with default writer:
+```
+writer = df.write
+writer.parquet(self.__path, partitionBy=self.__partition_columns, mode=mode, compression=compression)
+```
+#### Observed results
+
+If running with the default writer, we can observe the `__magic` temporary folder with S3 versioning.
+If running with the delta, no such temporary folders can be observed, nor the `__SUCCESS` file.
+
+#### Expected results
+
+The S3 committer setting should work whether or not using delta.
+
+#### Further details
+
+<!--
+Include any additional details that may be useful for diagnosing the problem here. If including tracebacks, please include the full traceback. Large logs and files should be attached.
+-->
+
+### Environment information
+
+* Delta Lake version: 1.0.0
+* Spark version: 3.2
+* Scala version: N/A, I use PySpark
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [ ] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute a bug fix at this time.

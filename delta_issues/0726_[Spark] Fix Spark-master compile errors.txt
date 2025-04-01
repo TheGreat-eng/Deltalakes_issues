@@ -1,0 +1,1 @@
+Spark-master based build broken of change https://github.com/apache/spark/pull/47785

@@ -1,0 +1,15 @@
+I am installing Apache SPARK for the first time. I was able to install the docker container.
+
+I ran the following command:
+
+docker pull apache/spark and then started the container using
+
+docker run -it apache/spark /bin/sh
+
+Now I am trying to install the delta spark package.
+
+Used the following command
+
+pip install delta-spark
+
+However I am getting the following error: ERROR: Could not install packages due to an EnvironmentError: [Errno 13] Permission denied: '/home/spark' Check the permissions.

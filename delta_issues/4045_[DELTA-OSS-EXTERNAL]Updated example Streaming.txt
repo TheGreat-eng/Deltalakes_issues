@@ -1,0 +1,5 @@
+1. Added some println as comments for different sections
+2. Added variable checkpointPath to replace hardcode in option
+3. Changed duration of stream3 from 10000 to 20000 so as to get obvious 
+results for updated Delta Table
+4. Added a delete statement of checkpoint directory in the end

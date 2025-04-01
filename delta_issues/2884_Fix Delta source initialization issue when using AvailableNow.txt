@@ -1,0 +1,15 @@
+(Cherry-pick of 29d3a092 for 2.1.1 release)
+
+When using AvailableNow, here are the flows for Delta source:
+
+- New query: prepareForTriggerAvailableNow, (latestOffset -> getBatch)*.
+- Restarted query: prepareForTriggerAvailableNow, getBatch, (latestOffset -> getBatch)*.
+
+When restarting a query, getBatch is required to be called first. Otherwise, previousOffset will not be set and latestOffset will assume it's a new query and return an incorrect offset.
+
+Today, we call latestOffset inside prepareForTriggerAvailableNow, which causes the incorrect initialization for lastOffsetForTriggerAvailableNow because previousOffset is not set yet at this moment when restarting a query.
+
+In this PR, we add isTriggerAvailableNow and set it to true in prepareForTriggerAvailableNow without initializing lastOffsetForTriggerAvailableNow, and make lastOffsetForTriggerAvailableNow initialization happen inside latestOffset (for new query) or getBatch (for restarted query) so that it can be initialized correctly. We add an internal flag spark.databricks.delta.streaming.availableNow.offsetInitializationFix.enabled to allow users switching back to the old behavior.
+
+In addition, we also add a validation for previousOffset and currentOffset to make sure they never move backward. This would ensure we will not cause data duplication even if we have any bug in offset generation. `spark.databricks.delta.streaming.offsetValidation.enabled` is added to allow users turning off the check.
+

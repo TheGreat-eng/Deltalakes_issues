@@ -1,0 +1,19 @@
+#### Which Delta project/connector is this regarding?
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+For DeltaArithmeticException, print the error details in the message. This will for example make the column for which an implicit DML cast failed user visible.
+
+## How was this patch tested?
+
+Added a new test to validate message details
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

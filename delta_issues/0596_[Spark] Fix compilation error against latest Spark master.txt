@@ -1,0 +1,18 @@
+#### Which Delta project/connector is this regarding?
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+This PR fixes the compilation error against the latest Spark.
+
+## How was this patch tested?
+
+Manually compiled.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

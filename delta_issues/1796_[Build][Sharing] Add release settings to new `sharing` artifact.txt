@@ -1,0 +1,2 @@
+## Description
+The new artifact `sharing` is missing the release settings.

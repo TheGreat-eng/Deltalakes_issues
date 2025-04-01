@@ -1,0 +1,11 @@
+## Description
+
+This PR updates the protocol specification of Row Tracking to use `DomainMetadata` to store the high water mark instead of the special purpose `RowIdHighWaterMark` action.
+
+## How was this patch tested?
+
+N/A
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

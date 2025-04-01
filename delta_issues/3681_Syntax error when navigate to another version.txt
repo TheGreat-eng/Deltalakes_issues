@@ -1,0 +1,29 @@
+Hi
+
+Created a table all is fine.
+but when I try this 
+
+`df_history1 = spark.sql("SELECT * FROM agg VERSION AS OF 1")`
+
+I get 
+
+```
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+  File "/Users/richardg/dist/spark-3.0.2-bin-hadoop3.2/python/pyspark/sql/session.py", line 649, in sql
+    return DataFrame(self._jsparkSession.sql(sqlQuery), self._wrapped)
+  File "/Users/richardg/dist/spark-3.0.2-bin-hadoop3.2/python/lib/py4j-0.10.9-src.zip/py4j/java_gateway.py", line 1305, in __call__
+  File "/Users/richardg/dist/spark-3.0.2-bin-hadoop3.2/python/pyspark/sql/utils.py", line 134, in deco
+    raise_from(converted)
+  File "/Users/richardg/dist/spark-3.0.2-bin-hadoop3.2/python/pyspark/sql/utils.py", line 33, in raise_from
+    raise e
+pyspark.sql.utils.ParseException:
+mismatched input 'AS' expecting {<EOF>, ';'}(line 1, pos 26)
+
+== SQL ==
+SELECT * FROM agg VERSION AS OF 1
+```
+
+working with pySpark on Spark 3.0.2 and delta lake 0.8.0.
+Seems strange because all other feature works as they should 
+Any idea ?

@@ -1,0 +1,10 @@
+https://github.com/delta-io/delta/pull/3246#issuecomment-2161286020 (seen in one other PR too)
+
+Looking at the tests, we have a test table with 50mil rows that is used multiple times. The high number was used to create a Parquet file with multiple row groups. We can still get the Parquet files with multiple row groups and lower table row count.
+
+```
+spark = SparkSession.builder \
+    .appName("ParquetRowGroupSize") \
+    .config("spark.sql.parquet.block.size", 512 * 1024 * 1024)  # Set to 512 MB
+    .getOrCreate()
+```

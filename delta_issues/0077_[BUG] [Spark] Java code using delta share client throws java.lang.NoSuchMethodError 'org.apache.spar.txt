@@ -1,0 +1,232 @@
+## Bug
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the issue title
+For example: [BUG][Spark] Title of my issue
+-->
+
+- [X] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+### Describe the problem
+
+I'm trying to run a simple Java program that uses the delta share client from spark to consume a table from Databricks. The code I'm using is the following one:
+
+```
+package org.example;
+
+import org.apache.spark.sql.Dataset;
+import org.apache.spark.sql.Row;
+import org.apache.spark.sql.SparkSession;
+
+public class Main {
+    public static void main(String[] args) {
+        // Create a Spark session
+        SparkSession spark = SparkSession.builder()
+                .config("spark.sql.extensions", "io.delta.sql.DeltaSparkSessionExtension")
+                .config(
+                        "spark.sql.catalog.spark_catalog", "org.apache.spark.sql.delta.catalog.DeltaCatalog"
+                )
+                .appName("Spark Example for consuming delta sharing from databricks")
+                .master("local[*]") // Use local mode for testing
+                .getOrCreate();
+
+        String tablePath = "<profile-file-path>#<share-name>.<schema-name>.<table-name>";
+
+        // Create a DataFrame from a JSON file
+        Dataset<Row> df = spark.read().format("deltaSharing").load(tablePath);
+
+        // Show the DataFrame content
+        df.show();
+
+        // Stop the Spark session
+        spark.stop();
+    }
+}
+```
+
+And the pom.xml is this one:
+
+```
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>org.example</groupId>
+    <artifactId>JavaExamplesConsumingDBX</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <properties>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.spark</groupId>
+            <artifactId>spark-core_2.13</artifactId>
+            <version>3.5.3</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.spark</groupId>
+            <artifactId>spark-sql_2.13</artifactId>
+            <version>3.5.3</version>
+        </dependency>
+        <dependency>
+            <groupId>io.delta</groupId>
+            <artifactId>delta-core_2.13</artifactId>
+            <version>2.4.0</version> 
+        </dependency>
+        <dependency>
+            <groupId>io.delta</groupId>
+            <artifactId>delta-sharing-spark_2.13</artifactId>
+            <version>3.3.0</version>
+        </dependency>
+        <dependency>
+            <groupId>io.delta</groupId>
+            <artifactId>delta-sharing-client_2.13</artifactId>
+            <version>1.2.3</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+            <version>2.15.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.15.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
+            <version>2.15.0</version>
+        </dependency>
+    </dependencies>
+</project>
+```
+
+I'm also providing as VM Options `--add-opens java.base/sun.nio.ch=ALL-UNNAMED`
+
+
+#### Steps to reproduce
+
+1. Create a new Java project that uses maven
+2. Copy and paste the Main.java class and the pom.xml in the new project
+3. Edit run configuration and add as VM options --add-opens java.base/sun.nio.ch=ALL-UNNAMED
+4. Run the code
+
+The above steps should reproduce the issue
+
+#### Observed results
+
+With the mentioned configuration, I'm getting the following error:
+
+```
+Exception in thread "main" java.lang.NoSuchMethodError: 'org.apache.spark.sql.types.StructType org.apache.spark.sql.delta.DeltaTableUtils$.removeInternalWriterMetadata(org.apache.spark.sql.SparkSession, org.apache.spark.sql.types.StructType)'
+	at io.delta.sharing.spark.DeltaSharingDataSource.getHadoopFsRelationForDeltaSnapshotQuery(DeltaSharingDataSource.scala:421)
+	at io.delta.sharing.spark.DeltaSharingDataSource.autoResolveBaseRelationForSnapshotQuery(DeltaSharingDataSource.scala:369)
+	at io.delta.sharing.spark.DeltaSharingDataSource.createRelation(DeltaSharingDataSource.scala:237)
+	at org.apache.spark.sql.execution.datasources.DataSource.resolveRelation(DataSource.scala:346)
+	at org.apache.spark.sql.DataFrameReader.loadV1Source(DataFrameReader.scala:229)
+	at org.apache.spark.sql.DataFrameReader.$anonfun$load$2(DataFrameReader.scala:211)
+	at scala.Option.getOrElse(Option.scala:201)
+	at org.apache.spark.sql.DataFrameReader.load(DataFrameReader.scala:211)
+	at org.apache.spark.sql.DataFrameReader.load(DataFrameReader.scala:186)
+	at org.example.Main.main(Main.java:22)
+```
+
+#### Expected results
+
+The expected result is the display of the data of the table
+
+#### Further details
+
+I'm probably not setting the right version of some dependencies, but I wasn't able to find anything by searching in the internet + using LLM. I tried as well by following maven dependencies from [mvnrepository](https://mvnrepository.com/) but couldn't make it work. 
+
+I could make the mentioned java code to work with the following pom.xml:
+```
+
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>org.example</groupId>
+    <artifactId>JavaExamplesConsumingDBX</artifactId>
+    <version>1.0-SNAPSHOT</version>
+
+    <properties>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.spark</groupId>
+            <artifactId>spark-core_2.12</artifactId>
+            <version>3.3.2</version> <!-- Use the latest version -->
+        </dependency>
+        <dependency>
+            <groupId>org.apache.spark</groupId>
+            <artifactId>spark-sql_2.12</artifactId>
+            <version>3.3.2</version> <!-- Use the latest version -->
+        </dependency>
+        <dependency>
+        <groupId>io.delta</groupId>
+        <artifactId>delta-core_2.12</artifactId>
+        <version>2.4.0</version> <!-- Use the latest version -->
+        </dependency>
+        <dependency>
+            <groupId>io.delta</groupId>
+            <artifactId>delta-sharing-spark_2.12</artifactId>
+            <version>1.2.3</version> <!-- This works but fails with the no method found <version>3.1.0</version> -->
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/io.delta/delta-sharing-client -->
+        <dependency>
+            <groupId>io.delta</groupId>
+            <artifactId>delta-sharing-client_2.12</artifactId>
+            <version>1.2.3</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-core</artifactId>
+            <version>2.13.4</version> <!-- Use a compatible version -->
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.13.4</version> <!-- Use a compatible version -->
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
+            <version>2.13.4</version> <!-- Include this dependency -->
+        </dependency>
+    </dependencies>
+
+</project>
+```
+
+But these dependencies don't support deletionVectors feature and I was trying to not remove this feature from our tables just because java clients that want to use delta share cannot support this.
+
+### Environment information
+
+* Delta Lake version: 3.3.0
+* Spark version: 3.5.3
+* Scala version: 2.13
+* Java version: Java 17 (openjdk-17)
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [X] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute a bug fix at this time.

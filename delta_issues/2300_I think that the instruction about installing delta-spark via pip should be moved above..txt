@@ -1,0 +1,47 @@
+I have tried the [PySpark Shell](https://docs.delta.io/latest/quick-start.html#pyspark-shell).
+
+I executed `pip install pyspark==3.4.1`. However, I missed the instruction of `pip install delta-spark==2.4.0` described [later](https://docs.delta.io/latest/quick-start.html#python).
+
+Without delta-spark, I encountered the following error.
+
+```text
+Using Python version 3.10.12 (main, Jun 11 2023 05:26:28)
+Spark context Web UI available at http://resourcemanager:4040
+Spark context available as 'sc' (master = local[*], app id = local-1693886076339).
+SparkSession available as 'spark'.
+>>> import pyspark
+>>> from delta import *
+>>>
+>>> builder = pyspark.sql.SparkSession.builder.appName("MyApp") \
+...     .config("spark.sql.extensions", "io.delta.sql.DeltaSparkSessionExtension") \
+...     .config("spark.sql.catalog.spark_catalog", "org.apache.spark.sql.delta.catalog.DeltaCatalog")
+>>>
+>>> spark = configure_spark_with_delta_pip(builder).getOrCreate()
+Traceback (most recent call last):
+  File "/home/hadoop/.local/lib/python3.10/site-packages/importlib_metadata/__init__.py", line 408, in from_name
+    return next(iter(cls.discover(name=name)))
+StopIteration
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/tmp/spark-24507fde-15ea-426a-819f-1b689c513c95/userFiles-3a2a9d5c-52b5-4b5a-b8a8-a8c31fdeb4d4/io.delta_delta-core_2.12-2.4.0.jar/delta/pip_utils.py", line 69, in configure_spark_with_delta_pip
+  File "/home/hadoop/.local/lib/python3.10/site-packages/importlib_metadata/__init__.py", line 909, in version
+    return distribution(distribution_name).version
+  File "/home/hadoop/.local/lib/python3.10/site-packages/importlib_metadata/__init__.py", line 882, in distribution
+    return Distribution.from_name(distribution_name)
+  File "/home/hadoop/.local/lib/python3.10/site-packages/importlib_metadata/__init__.py", line 410, in from_name
+    raise PackageNotFoundError(name)
+importlib_metadata.PackageNotFoundError: No package metadata was found for delta_spark
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+  File "/tmp/spark-24507fde-15ea-426a-819f-1b689c513c95/userFiles-3a2a9d5c-52b5-4b5a-b8a8-a8c31fdeb4d4/io.delta_delta-core_2.12-2.4.0.jar/delta/pip_utils.py", line 75, in configure_spark_with_delta_pip
+Exception:
+This function can be used only when Delta Lake has been locally installed with pip.
+See the online documentation for the correct usage of this function.
+```
+
+This is why I think that installing delta-spark instruction should be described nearby pyspark.

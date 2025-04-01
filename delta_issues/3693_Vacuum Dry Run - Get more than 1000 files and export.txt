@@ -1,0 +1,5 @@
+Hi,
+When executing the vacuum dry run there is a dafault result of 1000 records. Is there an option to view/export the entire list?
+`VACUUM table_identifier [DRY RUN]`
+
+Same issue with DESCRIBE HISTORY as well. Are there any workarounds for this? Thanks in Advance

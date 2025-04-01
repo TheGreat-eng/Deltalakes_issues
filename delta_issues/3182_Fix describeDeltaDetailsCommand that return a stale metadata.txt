@@ -1,0 +1,3 @@
+DescribeDeltaDetailsCommand doesn't call DeltaLog.update
+
+See https://github.com/delta-io/delta/issues/921

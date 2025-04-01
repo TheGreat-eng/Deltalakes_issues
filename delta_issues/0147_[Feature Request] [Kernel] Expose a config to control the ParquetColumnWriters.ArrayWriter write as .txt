@@ -1,0 +1,4 @@
+## Feature request
+Now, the ParquetColumnWriters.ArrayWriter only supports the 3-level writer. We hope it can write as 2-level writer.
+
+https://github.com/delta-io/delta/blob/7e85686e79ed519beb494b55de0a9bb982d32a8e/kernel/kernel-defaults/src/main/java/io/delta/kernel/defaults/internal/parquet/ParquetColumnWriters.java#L406-L409

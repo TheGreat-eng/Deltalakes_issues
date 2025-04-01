@@ -1,0 +1,53 @@
+While setting up my local test environment I realized a difference in the behavior of `spark.catalog.listColumns()` and `spark.table('database.table').columns`.
+
+I am not 100% certain if this issue belongs here. My guess was that while this is working with non-delta tables it must be somehow related to the implementation of delta-io. I appreciate you having a look at this and maybe guiding me in the right direction if the issue here is in the wrong place.
+
+
+### Description:
+Creating a delta table in standalone mode and calling:
+`spark.catalog.listColumns('table','database')`
+returns an empty list.
+While calling:
+`spark.table('database.table').columns`
+returns the columns.
+**While non-delta table behavior is as expected.**
+In case that helps: Within databricks (azure) runtime (7.1) this does not occur.
+
+### Reproduce behavior
+**Using jupyter pyspark-notebook image:**
+[https://github.com/jupyter/docker-stacks/tree/master/pyspark-notebook](url)
+[https://hub.docker.com/r/jupyter/pyspark-notebook](url)
+
+**Execute:**
+```python
+from pyspark.sql import SparkSession
+spark = SparkSession.builder.master('local[*]'
+            ).config('spark.jars.packages', 'io.delta:delta-core_2.12:0.7.0'
+            ).config('spark.sql.extensions', 'io.delta.sql.DeltaSparkSessionExtension'
+            ).config('spark.sql.catalog.spark_catalog', 'org.apache.spark.sql.delta.catalog.DeltaCatalog'
+            ).config('spark.sql.catalogImplementation', 'hive'
+            ).getOrCreate()
+
+spark.sql('CREATE DATABASE database')
+
+spark.sql("""
+    CREATE TABLE database.table (
+        column1 STRING,
+        column2 STRING
+    )""")
+
+spark.sql("""
+    CREATE TABLE database.table_delta (
+        column1 STRING,
+        column2 STRING
+    )
+    USING DELTA""")
+
+print('columns table:')
+print(spark.catalog.listColumns('table','database'))
+print(spark.table('database.table').columns)
+
+print('columns table_delta:')
+print(spark.catalog.listColumns('table_delta','database'))
+print(spark.table('database.table_delta').columns)
+```

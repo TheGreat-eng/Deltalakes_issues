@@ -1,0 +1,13 @@
+## Feature request
+
+Pushing down the predicate helps read less records especially when getting the scan files and reading multi-part checkpoint files.
+
+The current library we use `parquet-mr` already has support for pruning the records based on the stats in rowgroups and individual records as each record is read.
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [x] Yes. I can contribute this feature independently.
+- [ ] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.

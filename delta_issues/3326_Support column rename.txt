@@ -1,0 +1,10 @@
+## What changes were proposed in this pull request?
+This PR introduces the `DeltaColumnRenameSuite` which tests the column renaming functionalities supported by the column mapping feature.
+
+## How was this patch tested?
+
+This test should be automatically run.
+
+Closes https://github.com/delta-io/delta/issues/958.
+
+GitOrigin-RevId: a64ebcb847bfccd5d0af61ea7c997898507b62f9

@@ -1,0 +1,40 @@
+Hi All,
+
+
+I have CDC(change data capture) events coming in and pushed to Kafka. I use PySpark structured streaming  to continously read CDC events and try to merge into when
+1. INSERT operation - Row is new and event type is insert - 
+2. UPDATE operation- Update only updated columns from CDC event received (I recieve only changed columns in CDC event not all the columns for an event) and event type is update 
+3. DELETE operation - Delete the record and event type is delete
+
+Below is the sample code in Python
+
+`DeltaTable.forPath(self.spark, "/test_table") \
+            .alias("baseTable") \
+            .merge(df.alias("changedTable"), "baseTable.id = changedTable.id") \
+            .whenMatchedDelete(condition="changedTable.uip_event_type = 'DELETE'") \
+            .whenMatchedUpdateAll() \
+            .whenNotMatchedInsertAll().execute()`
+
+
+ Update events: 
+ This results in updating the matched row with unchanged column values in the table to null as the source(CDC event generator) sent only updated columns instead of sending the full row. Please note that changed column values get updated correctly and unchanged columns get set to null. 
+
+I want to update only changed columns values.
+
+By any chance, Is there a way to compute changed columns dynamically  for a particular  row in the update expression when matched?
+
+`DeltaTable.forPath(spark, "/data/events/")
+  .as("events")
+  .merge(
+    updatesDF.as("updates"),
+    "events.eventId = updates.eventId")
+  .whenMatched
+  .updateExpr(
+    Map("data" -> "updates.data"))`
+
+ 
+
+
+
+
+

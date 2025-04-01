@@ -1,0 +1,27 @@
+## Feature request
+
+### Overview
+
+The Spark community is adding a new interface to Spark 3.4 that is called [Spark Connect](https://docs.google.com/document/d/1Mnl6jmGszixLW4KcJU5j9IgpG9-UabS0dcM6PM2XGDc/edit). This new interface promises several benefits by separating user code from Spark by adding a gRPC layer between the user code and the driver. We should add a new implementation of the `DeltaTable` interface that is compatible with Spark Connect.
+
+### Motivation
+
+Delta Connect is expected to bring the same benefits as Spark Connect:
+
+1. Easier upgrading to more recent versions of Spark and Delta, as the client interface is completely decoupled from the server.
+2. Simpler integration of Spark and Delta with developer tooling. IDEs no longer have to integrate with the full Spark and Delta implementation, and instead can integrate with a thin-client.
+3. Support for languages other than Java/Scala and Python. Clients "merely" have to generate Protocol Buffers and therefore become simpler to implement.
+4. Spark and Delta will become more stable, as user code is no longer running in the same JVM as Spark's driver.
+5. Remote connectivity. Code can run anywhere now, as there is a gRPC layer between the user interface and the driver.
+
+### Further details
+
+We can add support for Delta to Spark Connect by implementing the extension points that it provides. We can use the `extension` field in the `Relation` and `Command` messages to add Delta specific relations such as `DescribeHistory` and commands such as `Vacuum` respectively. On the server-side we can implement the `RelationPlugin` and `CommandPlugin` to translate these Protobuf messages to `LogicalPlan` nodes in Spark.
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [x] Yes. I can contribute this feature independently.
+- [ ] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.

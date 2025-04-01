@@ -1,0 +1,75 @@
+<!--
+Thanks for sending a pull request!  Here are some tips for you:
+  1. If this is your first time, please read our contributor guidelines: https://github.com/delta-io/delta/blob/master/CONTRIBUTING.md
+  2. If the PR is unfinished, add '[WIP]' in your PR title, e.g., '[WIP] Your PR title ...'.
+  3. Be sure to keep the PR description updated to reflect all changes.
+  4. Please write your PR title to summarize what this PR proposes.
+  5. If possible, provide a concise example to reproduce the issue for a faster review.
+  6. If applicable, include the corresponding issue number in the PR title and link it in the body.
+-->
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [X] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+<!--
+- Describe what this PR changes.
+- Describe why we need the change.
+ 
+If this PR resolves an issue be sure to include "Resolves #XXX" to correctly link and close the issue upon merge.
+-->
+This PR fixes a race condition in UniForm Iceberg Converter. 
+
+Before our change, UniForm Iceberg Converter executes as follows:
+1. Read `lastConvertedDeltaVersion` from Iceberg latest snapshot
+2. Convert the delta commits starting from `lastConvertedDeltaVersion` to iceberg snapshots
+3. Commit the iceberg snapshots.
+
+When there are multiple iceberg conversion threads, a race condition may occur, causing one delta commit to be written into multiple Iceberg snapshots, and data corruption. 
+
+As an example, considering we have a UniForm table with latest delta version and iceberg version both 1. Two threads A and B start writing to delta tables.
+
+1. Thread A writes Delta version 2, reads `lastConvertedDeltaVersion` = 1, and converts delta version 2. 
+2. Thread B writes Delta version 3, reads `lastConvertedDeltaVersion` = 1, and converts delta version 2, 3.
+3. Thread A commits Iceberg version 2, including converted delta version 2.
+4. Thread B commits Iceberg version 3, including converted delta version 2 and 3.
+
+When both threads commit to Iceberg, we will have delta version 2 included in iceberg history twice as different snapshots. If version 2 is an AddFile, that means we insert the same data twice into iceberg.
+
+Our fix works as follows: 
+1. Read `lastConvertedDeltaVersion` and **a new field** `lastConvertedIcebergSnapshotId` from Iceberg latest snapshot
+2. Convert the delta commits starting from `lastConvertedDeltaVersion` to iceberg snapshots
+5. Before Iceberg Commits, checks that the base snapshot ID of this transaction equals `lastConvertedIcebergSnapshotId` (**this check is the core of this change**)
+6. Commit the iceberg snapshots.
+
+This change makes sure we are only committing against a specific Iceberg snapshot, and will abort if the snapshot we want to commit against is not the latest one. As an example, our fix will successfully block the example above.
+
+1. Thread A writes Delta version 2, reads `lastConvertedDeltaVersion` = 1, `lastConvertedIcebergSnapshotId` = S0 and converts delta version 2. 
+2. Thread B writes Delta version 3, reads `lastConvertedDeltaVersion` = 1, `lastConvertedIcebergSnapshotId` = S0 and converts delta version 2, 3.
+3. Thread A creates an Iceberg transaction with parent snapshot S0. Because `lastConvertedIcebergSnapshotId` is also S0, it commits and update iceberg latest snapshot to S1.
+4. Thread B creates an Iceberg transaction, with parent snapshot S1. Because `lastConvertedIcebergSnapshotId` is S0 != S1,  it aborts the conversion.
+## How was this patch tested?
+
+<!--
+If tests were added, say they were added here. Please make sure to test the changes thoroughly including negative and positive cases if possible.
+If the changes were tested in any way other than unit tests, please clarify how you tested step by step (ideally copy and paste-able, so that other reviewers can test and check, and descendants can verify in the future).
+If the changes were not tested, please explain why.
+-->
+
+## Does this PR introduce _any_ user-facing changes?
+
+<!--
+If yes, please clarify the previous behavior and the change this PR proposes - provide the console output, description and/or an example to show the behavior difference if possible.
+If possible, please also clarify if this is a user-facing change compared to the released Delta Lake versions or within the unreleased branches such as master.
+If no, write 'No'.
+-->

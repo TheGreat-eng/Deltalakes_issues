@@ -1,0 +1,1 @@
+We are trying to implement delta lake in the on-prem data center for analytics? What is the recommended storage device for delta lake format?

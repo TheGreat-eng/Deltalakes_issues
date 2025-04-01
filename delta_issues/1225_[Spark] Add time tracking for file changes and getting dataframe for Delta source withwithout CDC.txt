@@ -1,0 +1,11 @@
+#### Which Delta project/connector is this regarding?
+Spark
+
+## Description
+Add time tracking for file changes and getting dataframe for Delta source with/without CDC
+
+## How was this patch tested?
+Existing unit tests
+
+## Does this PR introduce _any_ user-facing changes?
+No

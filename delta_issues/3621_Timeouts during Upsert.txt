@@ -1,0 +1,44 @@
+I have a job where I'm upserting ~60GB+/2billion rows into delta table in S3. My job is dying with a bunch of heartbeat timeouts and RPC timeouts:
+
+```
+org.apache.spark.rpc.RpcTimeoutException: Futures timed out after [10000 milliseconds]. This timeout is controlled by spark.executor.heartbeatInterval
+	at org.apache.spark.rpc.RpcTimeout.org$apache$spark$rpc$RpcTimeout$$createRpcTimeoutException(RpcTimeout.scala:47)
+	at org.apache.spark.rpc.RpcTimeout$$anonfun$addMessageIfTimeout$1.applyOrElse(RpcTimeout.scala:62)
+	at org.apache.spark.rpc.RpcTimeout$$anonfun$addMessageIfTimeout$1.applyOrElse(RpcTimeout.scala:58)
+	at scala.runtime.AbstractPartialFunction.apply(AbstractPartialFunction.scala:38)
+	at org.apache.spark.rpc.RpcTimeout.awaitResult(RpcTimeout.scala:76)
+	at org.apache.spark.rpc.RpcEndpointRef.askSync(RpcEndpointRef.scala:103)
+	at org.apache.spark.executor.Executor.reportHeartBeat(Executor.scala:996)
+	at org.apache.spark.executor.Executor.$anonfun$heartbeater$1(Executor.scala:212)
+	at scala.runtime.java8.JFunction0$mcV$sp.apply(JFunction0$mcV$sp.java:23)
+	at org.apache.spark.util.Utils$.logUncaughtExceptions(Utils.scala:1996)
+	at org.apache.spark.Heartbeater$$anon$1.run(Heartbeater.scala:46)
+	at java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:511)
+	at java.util.concurrent.FutureTask.runAndReset(FutureTask.java:308)
+	at java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.access$301(ScheduledThreadPoolExecutor.java:180)
+	at java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:294)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1149)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:624)
+	at java.lang.Thread.run(Thread.java:748)
+Caused by: java.util.concurrent.TimeoutException: Futures timed out after [10000 milliseconds]
+	at scala.concurrent.impl.Promise$DefaultPromise.ready(Promise.scala:259)
+	at scala.concurrent.impl.Promise$DefaultPromise.result(Promise.scala:263)
+	at org.apache.spark.util.ThreadUtils$.awaitResult(ThreadUtils.scala:293)
+	at org.apache.spark.rpc.RpcTimeout.awaitResult(RpcTimeout.scala:75)
+```
+
+This appears to be happening at the stage where Delta is joining the existing table to the incoming data:
+<img width="1415" alt="Screen Shot 2021-06-10 at 8 59 34 PM" src="https://user-images.githubusercontent.com/9755852/121619839-19772380-ca1e-11eb-949c-3e17119e0112.png">
+<img width="661" alt="Screen Shot 2021-06-10 at 9 00 41 PM" src="https://user-images.githubusercontent.com/9755852/121619916-36135b80-ca1e-11eb-9420-3c6b76e817d2.png">
+<img width="1389" alt="Screen Shot 2021-06-10 at 9 08 53 PM" src="https://user-images.githubusercontent.com/9755852/121620690-9d7ddb00-ca1f-11eb-8ef3-ee1499bd0287.png">
+
+I've tried all manner of things:
+* Changed the partitions (current partitioning scheme leads to parquet files between 1-3mb)
+* Altering the timeouts (spark.network.timeout set to 1000s)
+* Adding more memory (spark.[driver/executor].memory set to 38912m)
+* Removing driver memory limits (currently set spark.driver.maxResultSize to 20g, 36g available)
+
+These steps seem to have solved various memory issues that proceeded the timeout error, but I cant find anything that would help here. Any advice on how to move forward?
+
+Spark: 3.1.1
+Delta: 1.0.0

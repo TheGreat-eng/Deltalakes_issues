@@ -1,0 +1,11 @@
+## What changes were proposed in this pull request?
+
+Implementing the test infra for selecting column mapping tests so we won't overwhelm the test runners.
+
+Enabled one `MergeIntoSQLSuite` test to demonstrate the effect.
+
+## How was this patch tested?
+
+The tests are automatically run.
+
+GitOrigin-RevId: 81427d90936f03647170cd4703f102d1ec49728b

@@ -1,0 +1,18 @@
+This PR adds shims to ungate the remaining type changes that only work with Spark 4.0 / master. Spark 4.0 contains the required changes to Parquet readers to be able to read the data after applying the type changes.
+
+## Description
+Extend the list of supported type changes for type widening to include changes that can be supported with Spark 4.0:
+- (byte, short, int) -> long
+- float -> double
+- date -> timestampNTZ
+- (byte, short, int) -> double
+- decimal -> decimal (with increased precision/scale that doesn't cause precision loss)
+- (byte, short, int, long) -> decimal
+
+Shims are added to support these changes when compiling against Spark 4.0/master and to only allow `byte` -> `short`  - > `int` when compiling against Spark 3.5.
+
+## How was this patch tested?
+Adding test cases for the new type changes in the existing type widening test suites. The list of supported / unsupported changes covered in tests differs between Spark 3.5 and Spark 4.0, shims are also provided to handle this.
+
+## Does this PR introduce _any_ user-facing changes?
+Yes: allow using the listed type changes with type widening, either via `ALTER TABLE CHANGE COLUMN TYPE` or during schema evolution in MERGE and INSERT.

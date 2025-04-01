@@ -1,0 +1,23 @@
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [X] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+This PR implements the logic of Lite Vacuum. Since the user surface is not defined yet, all of the code is behind a spark conf which is set to false by default.
+
+## How was this patch tested?
+
+Modified existing tests to run in both Lite and full mode. Additionally, added new tests cases specific to Lite vacuum.
+
+## Does this PR introduce _any_ user-facing changes?
+
+NO

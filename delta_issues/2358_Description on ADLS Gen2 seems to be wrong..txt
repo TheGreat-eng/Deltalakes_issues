@@ -1,0 +1,3 @@
+In [this section (Configuration (ADLS Gen2))](https://docs.delta.io/latest/delta-storage.html#configuration-adls-gen2) , it says `Here are the steps to configure Delta Lake on Azure Data Lake Storage Gen1.`.
+
+However, I think that it should be `Here are the steps to configure Delta Lake on Azure Data Lake Storage Gen2.`.

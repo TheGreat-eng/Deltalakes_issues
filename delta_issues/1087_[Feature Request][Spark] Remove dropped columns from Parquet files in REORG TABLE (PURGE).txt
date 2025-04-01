@@ -1,0 +1,38 @@
+## Feature request
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the issue title
+For example: [Feature Request][Spark] Title of my issue
+-->
+
+- [X] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+### Overview
+
+`REORG TABLE <table_name> (PURGE)` removes the soft-deleted data from a table by merging existing deletion vectors with the data files. It can be improved by also finding and removing dropped columns that are still present in the physical data file.
+Columns can be dropped using the column mapping feature that powers the `ALTER TABLE <table_name> DROP COLUMN <column_name>` command
+
+### Motivation
+This will allow reducing storage space when columns are dropped from a table and may also slightly increase performance.
+
+### Further details
+This only requires updating the logic to identify files to rewrite in [DeltaReorgTableCommand](https://github.com/delta-io/delta/blob/master/spark/src/main/scala/org/apache/spark/sql/delta/commands/DeltaReorgTableCommand.scala#L109). Dropped columns are automatically removed by the underlying OPTIMIZE run for any files that passes this filter as the dropped columns aren't part of the read set and are ignored when rewriting files.
+
+This could reuse the same mechanism used to by type widening to rewrite files that contain a different type:
+https://github.com/delta-io/delta/blob/master/spark/src/main/scala/org/apache/spark/sql/delta/commands/DeltaReorgTableCommand.scala#L138
+Read parquet footers and identify the ones that have a column that's not present in the table schema.
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [x] Yes. I can contribute this feature independently.
+- [ ] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.
+
+This is a good first task for someone not familiar with Delta, I'm happy to give guidance on how to implement this and review PRs.

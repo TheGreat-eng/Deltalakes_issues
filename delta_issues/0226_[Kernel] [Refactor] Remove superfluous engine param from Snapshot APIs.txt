@@ -1,0 +1,19 @@
+#### Which Delta project/connector is this regarding?
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [X] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+Remove superfluous engine param from Snapshot APIs
+
+## How was this patch tested?
+
+Refactor only.
+
+## Does this PR introduce _any_ user-facing changes?
+
+Removes param from public API.

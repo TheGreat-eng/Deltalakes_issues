@@ -1,0 +1,7 @@
+I have this delta lake in ADLS to sink data through spark structured streaming. We usually append new data from our data source to our delta lake, but there are some cases when we find errors in the data that we need to reprocess everything. So what we do is delete all the data and the checkpoints and re-run the pipeline, having the correct data inside our ADLS.
+
+But the problem with this approach is that the end-users stay one whole day without the data to analyze (because we need to delete it to re-run). So, to fix that, I would like to know if there's a way to do an "overwrite" output using the structured streaming so we can overwrite the data into a new delta version, and the end-user could still query the data using the current version.
+
+I don't know if it's possible using streaming, but I would like to know if anyone had a similar problem and how you went to solve it :)
+
+Thanks!

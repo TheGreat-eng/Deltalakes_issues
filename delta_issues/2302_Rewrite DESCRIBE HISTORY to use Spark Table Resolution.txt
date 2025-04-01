@@ -1,0 +1,13 @@
+## Description
+
+This PR updates the Delta Lake DESCRIBE HISTORY command to work with V1 and V2 tables.
+
+It rewrites the Delta DESCRIBE HISTORY command to use Spark's table resolution logic instead of resolving the target table manually at command execution time. For that, it changes `DescribeDeltaHistoryCommand` from a LeafRunnableCommand to a UnaryLike command that takes an UnresolvedTable as a child plan node, which will be resolved by Spark. In addition, it also uses an `UnresolvedPathBasedDeltaTable` LogicalPlan for the case that `DESCRIBE HISTORY` is run against a raw path. This logical plan is an indication that the target table specified as a path so no table resolution is necessary.
+
+## How was this patch tested?
+
+This PR modifies a subset of existing unit tests and in general is covered by the entire body of existing DESCRIBE HISTORY test coverage.
+
+## Does this PR introduce _any_ user-facing changes?
+
+N/A

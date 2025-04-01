@@ -1,0 +1,21 @@
+#### Which Delta project/connector is this regarding?
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [x] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+Rename Parquet readers to maintain consistency with Parquet writers.
+
+Resolves https://github.com/delta-io/delta/issues/2636
+
+## How was this patch tested?
+
+Existing tests suffice.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

@@ -1,0 +1,19 @@
+#### Which Delta project/connector is this regarding?
+- [X] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+Python 3.7 is deprecated. This PR changes the build pipeline to use v3.9, matching Spark: https://github.com/apache/spark/blob/6ca45c52b7416e7b3520dc902cb24f060c7c72dd/.github/workflows/build_and_test.yml#L414
+
+Also updated setuptools to v41.1.0 for Python 3.9 compatibility:
+
+<img width="730" alt="image" src="https://github.com/delta-io/delta/assets/1336227/a25ea4a2-f95c-4cba-a59d-c1b7a94c8f39">
+
+## How was this patch tested?
+I temporarily commented the `if: steps.git-diff.outputs.diff` to run the tests: https://github.com/delta-io/delta/actions/runs/5665363510/job/15350071847?pr=1940
+
+## Does this PR introduce _any_ user-facing changes?
+No

@@ -1,0 +1,21 @@
+## Description
+
+- This PR fixes https://github.com/delta-io/delta/issues/527
+- MERGE consists of two passes. During the first pass, it scans over the target table to find all files that are affected by the MERGE operation. During the second pass it reads those files again to update/insert the rows from the source table. 
+- If the source changes between the two passes and contains an additional row that is in the target table, but not in one of the files that have been identified in pass 1, it will insert this row into the target table instead of updating the original row, leading to duplicate rows. 
+- This can happen if the source is non-deterministic. A source is classified as non-deterministic if any of the operators in the source plan is non-deterministic (i.e. depends on some mutable internal state or some other input that is not part of the outputs of the children), or if it is a non-delta scan. 
+- We solve this issue by materializing the source table at the start of a MERGE operation if it is non-deterministic, removing the possibility that the table changes during the two passes. The logic of source materialization is encapsulated in ```MergeIntoMaterializeSource``` and is used by ```MergeIntoCommand```.
+- The source is materialized onto the local disks of the executors using RDD local checkpoint. In case RDD blocks are lost, a retry loop is introduced. Blocks can be lost e.g. because of Spot instance kills. In case of using autoscaling through Spark dynamic allocation, executor decomissioning can be enabled with the following configs to gracefully migrate the blocks.
+```
+spark.decommission.enabled=true
+spark.storage.decommission.rddBlocks.enabled=true
+```
+- When materializing the source table we lose the statistics and inferred constraints about the table, which can lead to regressions. We include a manual broadcast hint in the source table if the table size is small, ensuring that we choose the most efficient join when possible, and a "dummy" filter to re-introduce the constraints that can be used for further filter inference. https://github.com/apache/spark/pull/37248 has implemented to make it work out-of-the-box in Spark 3.4, so these workarounds can be removed then.
+
+## How was this patch tested?
+
+UTs to ensure that MERGE has the same behavior as before. additional UT that MERGE with a materialized source preserves dataframe hints, the source contains a broadcast hint depending on the size of the source table and that an error is thrown in case any RDD blocks go missing. Test to check that non-deterministic source is treated as deterministic if materialized.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

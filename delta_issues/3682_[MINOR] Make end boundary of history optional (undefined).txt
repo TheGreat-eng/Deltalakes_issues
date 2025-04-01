@@ -1,0 +1,3 @@
+Since `None` is used for the end boundary of a delta table history it could also easily be "transferred" up the call chain and be the default input value. That's the purpose of the PR.
+
+Signed-off-by: Jacek Laskowski <jacek@japila.pl>

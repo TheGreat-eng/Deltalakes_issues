@@ -1,0 +1,11 @@
+## Description
+
+This PR splits out some of the delta utilities classes into their own files. This makes them easier to find (e.g. intellij lets you search for files more quickly than classes), and allows the individual files to be shared or moved around more easily.
+
+## How was this patch tested?
+
+This should be covered by the existing test suite
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

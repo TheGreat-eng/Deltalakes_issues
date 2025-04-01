@@ -1,0 +1,11 @@
+I have a library in Databricks cluster, and this library has an API looks like below
+
+>   def checkRange(deltaPath : String, endTime: String): Unit ={
+    val d = io.delta.tables.DeltaTable.forPath(deltaPath)
+}
+
+when I call this API from notebook, I always get below error, does anyone have insight how to fix it? Thanks
+
+**java.lang.NoClassDefFoundError: com/xxx/shaded/io/delta/tables/DeltaTable$,**
+
+I execute it on Azure Databricks, and runtime version is 7.3 LTS (includes Apache Spark 3.0.1, Scala 2.12)

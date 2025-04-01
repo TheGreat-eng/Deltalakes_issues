@@ -1,0 +1,17 @@
+#### Which Delta project/connector is this regarding?
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [X] Other (delta sharing)
+
+## Description
+Fix the issue of not using the correct refreshToken, when refreshing on the 2nd time, or more.
+
+## How was this patch tested?
+Unit Tests
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

@@ -1,0 +1,32 @@
+## Feature request
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the issue title
+For example: [Feature Request][Spark] Title of my issue
+-->
+
+- [ ] Spark
+- [X] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+### Overview
+I'd like to be able to track schema evolution easily. Maybe through the DESCRIBE HISTORY command. 
+
+This would actually be useful for a lot of situations. Tracking schema evolution is a frequent requests from data consumers - they want to be able to alert on schema changes in order do things like update metadata repositories. @dennyglee 
+
+### Motivation
+Imagine someone deployed a bug that mixes up which tables an ETL process should write to, but it's nondeterministic. Now you have a pipeline that writes to the wrong table in some unpredictable cases. When it does that, it writes the data for TABLE A into TABLE B, and the schema evolves. There are ways to go and research which situations this happens in, but it might be difficult. It would be nice to be able to just run a DESCRIBE HISTORY on each table to determine if it had a schema evolution occur around the bug deployment time. (this scenario may or may not have happened, I can neither confirm nor deny)
+
+This would actually be useful for a lot of situations. Tracking schema evolution is a frequent request from data consumers - they want to be able to alert on schema changes in order do things like update metadata repositories. 
+
+### Further details
+I imagine adding this to the metadata of insert or update operations in the table history
+
+### Willingness to contribute
+
+- [ ] Yes. I can contribute this feature independently.
+- [X] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.

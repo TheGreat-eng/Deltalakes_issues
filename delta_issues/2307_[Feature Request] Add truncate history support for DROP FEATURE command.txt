@@ -1,0 +1,34 @@
+## Feature request
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the issue title
+For example: [Feature Request][Spark] Title of my issue
+-->
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+### Overview
+
+The `DROP FEATURE` command allows to drop table features from Delta Tables. Dropping a reader+writer feature is performed in two steps:
+
+We clean all traces of the feature in the latest version and inform the user they need to wait until the retention period is over.
+After the retention period is over, the user executes the command again and the protocol is downgraded.
+
+This feature request is about adding the `TRUNCATE HISTORY` option in `DROP FEATURE` command. The new option automatically sets the history retention period to minimum and cleans up metadata. This operation occurs at the second time the user invokes the operation.
+
+### Motivation
+
+The new option allows the user to drop features more easily without having to wait the default retention period or manually change the retention period.
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [ ] Yes. I can contribute this feature independently.
+- [x] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.

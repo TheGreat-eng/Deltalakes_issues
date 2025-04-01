@@ -1,0 +1,19 @@
+## Feature request
+
+### Overview
+
+We have lots of use cases that require fast query access to DeltaLake which doesn't seem to scale very much. Reading through the databricks documentation below it looks like the dynamic file pruning feature is what we want to leverage. However, this isn't available in Delta Lake open source. 
+
+https://www.databricks.com/blog/2020/04/30/faster-sql-queries-on-delta-lake-with-dynamic-file-pruning.html
+
+### Motivation
+
+This feature will greatly help us from using native DeltaLake capabilities rather than looking at other options for low latency reads.
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [ ] Yes. I can contribute this feature independently.
+- [ ] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [X ] No. I cannot contribute this feature at this time.

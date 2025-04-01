@@ -1,0 +1,12 @@
+Environment: Spark Standalone in a distributed cluster.
+Spark Worker Nodes are running with userid "X".
+Spark Driver runs as userid "Peter" and start a Spark Job wich creates a delta lake table.
+
+Problem:
+The part-000.....snappy.parquet files are written by user X (which is correct from my point of view)
+The folder _delta_log belongs to user "Peter". Also the files created in this folder belong to "Peter".
+
+When Spark driver starts another spark job with userid "Tom". He will get Permission denied, because he has no access to _delta_log since the folder belongs to Peter.
+
+Expected behavior:
+All files and folders are created by userid "X".

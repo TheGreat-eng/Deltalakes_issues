@@ -1,0 +1,29 @@
+## Bug
+### Describe the problem
+See https://github.com/delta-io/delta/pull/3601#discussion_r1740457343
+
+Changing the data type of a field that is referenced by a generated column or CHECK constraint is forbidden as this may change the result returned by that expression.
+
+This is checked in [AlterDeltaTableCommands](https://github.com/delta-io/delta/blob/5d6309477ab51be5f88d421e868a4489723f400d/spark/src/main/scala/org/apache/spark/sql/delta/commands/alterDeltaTableCommands.scala#L76) for manual type changes and [ImplicitMetadataOperation](https://github.com/delta-io/delta/blob/5d6309477ab51be5f88d421e868a4489723f400d/spark/src/main/scala/org/apache/spark/sql/delta/schema/ImplicitMetadataOperation.scala#L234) for type changes applied during schema evolution. These checks don't work correctly for fields nested inside a map or array.
+
+This is because generated column and CHECK constraint expression use paths that referenced a specific element in the array or map, e.g. `col.arr[0]` whereas the path that the check looks for is a generic schema path to that element: `col.element` 
+
+#### Steps to reproduce
+Create a table with schema `a struct<arr: array<struct<x: smallint>>>` and insert an `int` value for field `x`.
+
+See similar test:
+https://github.com/delta-io/delta/blob/5d6309477ab51be5f88d421e868a4489723f400d/spark/src/test/scala/org/apache/spark/sql/delta/GeneratedColumnSuite.scala#L737
+
+#### Observed results
+The write succeeds
+
+#### Expected results
+The operation should fail
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [ ] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [x] No. I cannot contribute a bug fix at this time.

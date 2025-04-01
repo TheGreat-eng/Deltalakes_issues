@@ -1,0 +1,5 @@
+## Description
+This utility method can be used to filter for columns with invariants or a certain data type (timestamp_ntz, variant, etc.) to implicitly identify the table features that should be enabled.
+
+## How was this patch tested?
+Unit tests.

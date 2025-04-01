@@ -1,0 +1,17 @@
+## Feature request
+
+#### Which Delta project/connector is this regarding?
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [X] Other (Docs)
+
+### Overview
+
+Show a table of Delta Lake Release Version x Supported Table Features
+
+### Motivation
+
+Make it easier to tell which table feature is in which delta lake version

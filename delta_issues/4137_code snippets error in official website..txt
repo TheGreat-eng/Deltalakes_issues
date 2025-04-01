@@ -1,0 +1,15 @@
+"Table Deletes, Updates, and Merges"
+    |--Use merge in streaming queries with foreachBatch
+
+`val deltaTable = io.delta.tables.DeltaTable.forName("aggregates")`
+
+object DeltaTable only has forPath() method.
+Can not find this API in below maven dependencies:
+
+<dependency>
+            <groupId>io.delta</groupId>
+            <artifactId>delta-core_2.11</artifactId>
+            <version>0.3.0</version>
+</dependency>
+
+

@@ -1,0 +1,11 @@
+## Description
+
+This PR adds a new user-facing API `addFeatureSupport`, allowing users to add table features to a table's `protocol` action. Along with an existing API `upgradeTableProtocol`, we now provide sufficient API to manipulate table protocol.
+
+## How was this patch tested?
+
+A new test.
+
+## Does this PR introduce _any_ user-facing changes?
+
+Yes, see the first section.

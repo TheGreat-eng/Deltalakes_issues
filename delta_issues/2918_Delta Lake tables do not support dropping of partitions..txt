@@ -1,0 +1,5 @@
+## support dropping of partitions
+
+The following SQL cannot delete the delta table partition：
+`alter table clob_dw.ods_t_task_svc_task_1d drop partition (ds = '20220903')`
+how to solve this problem?

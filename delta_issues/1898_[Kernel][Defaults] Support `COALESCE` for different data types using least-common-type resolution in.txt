@@ -1,0 +1,21 @@
+## Feature request
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the issue title
+For example: [Feature Request][Spark] Title of my issue
+-->
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [X] Kernel
+- [ ] Other (fill in here)
+
+### Overview
+
+#2415 adds support for `COALESCE` for boolean type expressions and #2416 is to add support for all data types (needs to be finished before this issue). This issue is to support different `expr` data types if they can all be up-casted to one least-common-type.
+
+### Further details
+
+Need to update `DefaultExpressionEvaluator` to find a least-common-type if it exists and add implicit casts for each expression.

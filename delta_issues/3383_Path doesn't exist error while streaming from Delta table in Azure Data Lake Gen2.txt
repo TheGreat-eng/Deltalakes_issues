@@ -1,0 +1,30 @@
+While evaluating delta for streaming use case, I came across the following issue.
+
+### Data flow:
+
+**1. Rate data to kafka:**
+
+val df = spark.readStream.format("rate").option("rowsPerSecond", 10).option("numPartitions", 1).load().selectExpr("to_json(named_struct('timestamp',timestamp,'value',value)) as value")
+
+df.writeStream.format("kafka").option("kafka.bootstrap.servers","***:9094").option("topic", "ratedata").option("checkpointLocation", "stream/ratedataproducer/").start().awaitTermination()
+
+**2. kafka to Delta**
+
+**3. Delta to console**
+
+
+import org.apache.spark.sql.streaming.Trigger
+val df = spark.readStream.format("delta").load("abfss://*****@****.dfs.core.windows.net/stream/ratedata")
+
+df.createOrReplaceTempView("ratedata")
+val wdf = spark.sql("select id,  date_format(cast(timestamp as timestamp), 'HH:mm:ss') as sourcetime,date_format(current_timestamp(),'HH:mm:ss') as currenttime from ratedata")
+ wdf.writeStream.format("console").option("checkpointLocation", "/tmp/ratedataconsumer").outputMode("append").trigger(Trigger.ProcessingTime("1 SECONDS")).start().awaitTermination()
+
+
+**It streams fine for sometime and randomly throws the following error:**
+
+_java.io.FileNotFoundException: Operation failed: "The specified path does not exist.", 404, GET, https://shddatalakesta.dfs.core.windows.net/datalake-uat?upn=false&resource=filesystem&maxResults=500&directory=stream/rateda
+ta/_delta_log&timeout=90&recursive=false, PathNotFound, "The specified path does not exist._
+
+
+I have tested this with multiple storage containers and tables, and I am able to reproduce this consistently.

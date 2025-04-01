@@ -1,0 +1,82 @@
+## `mypy` error:  Module "delta" does not explicitly export attribute "DeltaTable"
+
+### Describe the problem
+
+When trying to run `mypy` checks over any modules that use the Python `delta-spark` package, it will throw an error on the `import` line.
+
+#### Steps to reproduce
+
+1. Install packages:
+
+    ```sh
+    pip install pyspark delta-spark mypy
+    ```
+
+1. Create simple file:
+
+    ```sh
+    touch ./src/count.py
+    ```
+
+1. Code in `count.py`:
+
+    ```py
+    from delta import DeltaTable
+
+    def count_rows_in_delta_table(
+        table_name: str,
+        table_path: str,
+        spark_session: SparkSession,
+    ) -> int:
+        """
+        Super simple function to count rows in `delta` table.
+        """
+        table = DeltaTable.forPath(
+            sparkSession=spark_session,
+            path=f"{table_path}{'/' if not table_path.endswith('/') else ''}{table_name}",
+        )
+        return table.toDF().count()
+    ```
+
+1. Run `mypy`:
+
+    ```sh
+    mypy ./src --ignore-missing-imports --pretty --install-types --non-interactive --implicit-optional
+    ```
+
+
+#### Observed results
+
+The error returned from `mypy` is:
+
+```txt
+src/count.py:1: error: Module "delta" does not explicitly export attribute "DeltaTable"  [attr-defined]
+    from delta import DeltaTable
+    ^
+```
+
+#### Expected results
+
+No error.
+
+#### Further details
+
+To resolve, I suggest adding one extra line to the top of the `delta.tables` module:
+
+```py
+__all__ = ["DeltaTable", "DeltaMergeBuilder", "DeltaTableBuilder", "DeltaOptimizeBuilder"]
+```
+
+### Environment information
+
+* Delta Lake version: `2.3.0`
+* PySpark version: `3.3.2`
+* Scala version:
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [x] Yes. I can contribute a fix for this bug independently.
+- [ ] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute a bug fix at this time.

@@ -1,0 +1,14 @@
+## Databricks
+`%sql show databases`
+![image](https://user-images.githubusercontent.com/9123665/201788219-aff05647-3103-4a16-98b2-e55013d812c0.png)
+
+
+## local Delta
+```python
+spark.sql("show databases").collect()
+```
+```console
+[Row(namespace='default')]
+```
+
+they should both be `namespace`, or they should both be `databaseName`. but as it exists right now, unit tests are failing due to this discrepancy and blocking merge requests for us.

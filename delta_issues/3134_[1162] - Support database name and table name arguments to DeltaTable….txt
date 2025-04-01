@@ -1,0 +1,5 @@
+Added functionality in DeltaTable::isDeltaTable() to lookup by table name
+
+Added unit test to DeltaTableSuite.scala for said functionality
+
+This resolves #[1162](https://github.com/delta-io/delta/issues/1162) 

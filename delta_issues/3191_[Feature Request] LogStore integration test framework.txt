@@ -1,0 +1,28 @@
+## Feature request
+
+### Overview
+
+It would be great to have an automated integration test framework for all of our LogStores that includes
+a) integration-testing (using real cloud buckets/tables) and
+b) stress-testing (using multiple concurrent readers + writers)
+c) validation that the reads/writes were successful
+
+### Motivation
+
+<!-- How will this feature be used? Why is it important? Which users will benefit from it? -->
+
+### Further details
+
+There is an existing example integration test for [S3DynamoDBLogStore](https://github.com/delta-io/delta/blob/master/storage-s3-dynamodb/src/main/java/io/delta/storage/S3DynamoDBLogStore.java) at [here](https://github.com/delta-io/delta/blob/master/storage-s3-dynamodb/integration_tests/dynamodb_logstore.py).
+
+It would be great to get similar integration tests for each of the production log stores in the `delta-storage` artifact [here](https://github.com/delta-io/delta/tree/master/storage/src/main/java/io/delta/storage).
+
+Ideally it would be one python file that took command line arguments for the
+- log store to use
+- cloud/scheme
+- tablePath/bucket
+- credentials
+- number of current readers / writers
+- per-cloud specific arguments
+
+that could be invoked from a specific `run-logstore-integration-tests.py` file that ran for each of our log stores.

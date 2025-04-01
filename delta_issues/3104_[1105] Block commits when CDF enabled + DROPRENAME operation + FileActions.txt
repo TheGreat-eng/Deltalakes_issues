@@ -1,0 +1,29 @@
+## Description
+
+This PR block commits if
+1. table has CDC enabled and there are `FileActions` to write
+2. table has column mapping enabled and there is a column mapping related metadata action (e.g. DROP, RENAME, upgrade)
+
+We do this because the current semantics is undefined. So, we block it for now, and can un-block it in the future once we define the expected output.
+
+Please note: under current public APIs, this scenario is not possible. e.g. during a DROP or RENAME operation, only metadata is changes, so no `FileAction`s are committed. Nonetheless, we want to future proof this.
+
+This block occurs during `OptimisticTransactionImpl::prepareCommit`
+
+At a high level, this PR solves the given problem by solving 3 smaller problems
+
+- what is the mapping of physical -> logical names for a given schema? For this we add `DeltaColumnMapping::getPhysicalNameFieldMap`
+- given a new schema and an existing schema, detect a drop/rename column operation using the map from 1). For this we add `DeltaColumnMapping::isDropColumnOperation` and `DeltaColumnMapping::isRenameColumnOperation`
+- Using the helper method from 2, implement the desired blocking algorithm. For this we add `OptimisticTransaction::performCdcColumnMappingCheck`.
+
+## How was this patch tested?
+
+<!--
+If tests were added, say they were added here. Please make sure to test the changes thoroughly including negative and positive cases if possible.
+If the changes were tested in any way other than unit tests, please clarify how you tested step by step (ideally copy and paste-able, so that other reviewers can test and check, and descendants can verify in the future).
+If the changes were not tested, please explain why.
+-->
+
+## Does this PR introduce _any_ user-facing changes?
+
+For each of the 3 sub-problems described above, we add a unit test to `DeltaColumnMappingSuite`.

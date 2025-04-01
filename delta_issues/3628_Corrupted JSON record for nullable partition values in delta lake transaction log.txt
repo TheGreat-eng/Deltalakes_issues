@@ -1,0 +1,14 @@
+Delta Lake transaction log files might contain corrupted JSON records if the data set is partitioned and one partition column is nullable.
+
+If there is a NULL value in the partition column, the _delta_lake transaction log contains JSON record, but it is not properly formatted.
+
+Here is the example of JSON transaction log record:
+```
+{
+"path":"AccountId=__HIVE_DEFAULT_PARTITION__/ExtractDateKey=20191215/part-00002-f1ed87af-cb70-4fdf-8f19-269dfa9bdd65.c000.snappy.parquet",
+"partitionValues":{"AccountId":"ExtractDateKey","20191215"},
+"size":16303,"modificationTime":1600477317000,"dataChange":0,"stats":...
+```
+
+The structure `{"AccountId":"ExtractDateKey","20191215"}` is not a valid JSON object and cannot be parsed using standard JSON parsers.
+

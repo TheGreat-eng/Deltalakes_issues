@@ -1,0 +1,56 @@
+<!--
+Thanks for sending a pull request!  Here are some tips for you:
+  1. If this is your first time, please read our contributor guidelines: https://github.com/delta-io/delta/blob/master/CONTRIBUTING.md
+  2. If the PR is unfinished, add '[WIP]' in your PR title, e.g., '[WIP] Your PR title ...'.
+  3. Be sure to keep the PR description updated to reflect all changes.
+  4. Please write your PR title to summarize what this PR proposes.
+  5. If possible, provide a concise example to reproduce the issue for a faster review.
+  6. If applicable, include the corresponding issue number in the PR title and link it in the body.
+-->
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [X] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+For local E2E Delta Connect testing, we also designed an [util class](https://github.com/delta-io/delta/blob/01bf60743b77c47147843e9083129320490f1629/spark-connect/client/src/test/scala-spark-master/io/delta/connect/tables/RemoteSparkSession.scala#L62) to start a local server in a different process similar to [SparkConnect](https://github.com/apache/spark/blob/ba208b9ca99990fa329c36b28d0aa2a5f4d0a77e/connector/connect/client/jvm/src/test/scala/org/apache/spark/sql/test/RemoteSparkSession.scala#L37).
+
+We noticed that the server takes a random amount of seconds to start up, and back then we received the error `INVALID_HANDLE.SESSION_NOT_FOUND] The handle 746e6c86-9fa9-4b08-9572-388c20eaed47 is invalid. Session not found. SQLSTATE: HY000"`, so what we did is to add a 10s `Thread.sleep` before starting the client.
+
+This is not robust, so we are removing the `Thread.sleep`. This should work because:
+1. The SparkSession's builder here already uses the default [Configuration](https://github.com/apache/spark/blob/3edc9c23a723a92c5a951cea0436529de65c640a/connector/connect/client/jvm/src/main/scala/org/apache/spark/sql/SparkSession.scala#L891) of the `SparkConnectClient` which includes a default retry policy.
+2. Spark patches the error `INVALID_HANDLE.SESSION_NOT_FOUND` in this [PR](https://github.com/apache/spark/pull/46971) at some point, so we should be able to retry even if encountering this error.
+
+<!--
+- Describe what this PR changes.
+- Describe why we need the change.
+ 
+If this PR resolves an issue be sure to include "Resolves #XXX" to correctly link and close the issue upon merge.
+-->
+
+## How was this patch tested?
+Existing UTs.
+
+Ran `build/sbt` tests locally at least 20 times.
+<!--
+If tests were added, say they were added here. Please make sure to test the changes thoroughly including negative and positive cases if possible.
+If the changes were tested in any way other than unit tests, please clarify how you tested step by step (ideally copy and paste-able, so that other reviewers can test and check, and descendants can verify in the future).
+If the changes were not tested, please explain why.
+-->
+
+## Does this PR introduce _any_ user-facing changes?
+
+<!--
+If yes, please clarify the previous behavior and the change this PR proposes - provide the console output, description and/or an example to show the behavior difference if possible.
+If possible, please also clarify if this is a user-facing change compared to the released Delta Lake versions or within the unreleased branches such as master.
+If no, write 'No'.
+-->
+No.

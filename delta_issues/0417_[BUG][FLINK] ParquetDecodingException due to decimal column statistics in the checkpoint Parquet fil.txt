@@ -1,0 +1,92 @@
+## Bug
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the issue title
+For example: [BUG][Spark] Title of my issue
+-->
+
+- [ ] Spark
+- [ ] Standalone
+- [X] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+### Describe the problem
+We have a Flink application that writes from Kafka to Delta tables. Periodically, a maintenance job is run using Spark on these tables, performing OPTIMIZE and VACUUM operations.
+
+- The maintenance job wrote a `*.checkpoint.parquet` Delta log checkpoint
+- This checkpoint includes an `add.stats_parsed` column, which is a struct containing the stats of each column
+- One of the stats is `maxValues`, which contains statistical information about columns, including a `decimal(38,9)` column
+- When Flink uses this checkpoint information, [it employs a library (Parquet4S) to read the parquet files which sets the scale from 9 to 18](https://github.com/mjakubowski84/parquet4s/blob/6c252482a550af8a0977332614fd7da1c1327b8f/core/src/main/scala/com/github/mjakubowski84/parquet4s/Decimals.scala#L16). Increasing the scale limits the number of digits in the integer part to 20 digits
+- Our Delta table has some entries with an integer part greater than 20 digits, causing a `BufferOverflowException` during Parquet decoding
+- We confirmed this hypothesis by reading the latest checkpoint before the maintenance job. In this case, the Parquet file does not contain the `stats_parsed` column
+
+#### Steps to reproduce
+
+<!--
+Please include copy-pastable code snippets if possible.
+1. _____
+2. _____
+3. _____
+-->
+1) Have a Delta table with checkpoint statistics information for a `decimal(38,9)` column and entries with an integer part greater than 20 digits;
+2) Try to write to this Delta table using the Delta connector.
+
+#### Observed results
+
+Flink connector throws a `ParquetDecodingException` due to the integer part of a decimal column exceeding 20 digits after the scale is increased from 9 to 18 when decoding the Parquet checkpoint file.
+
+#### Expected results
+
+Flink should be able to handle the Parquet checkpoint file with structured statistics for the columns.
+
+#### Further details
+
+<!--
+Include any additional details that may be useful for diagnosing the problem here. If including tracebacks, please include the full traceback. Large logs and files should be attached.
+-->
+
+```2024-11-28 11:44:55
+shadedelta.org.apache.parquet.io.ParquetDecodingException: Can not read value at 15 in block 0 in file s3a://some-bucket/some-delta-table/_delta_log/00000000000000000232.checkpoint.parquet
+	at shadedelta.org.apache.parquet.hadoop.InternalParquetRecordReader.nextKeyValue(InternalParquetRecordReader.java:254)
+	at shadedelta.org.apache.parquet.hadoop.ParquetReader.read(ParquetReader.java:132)
+	at shadedelta.com.github.mjakubowski84.parquet4s.ParquetIterableImpl$$anon$3.hasNext(ParquetReader.scala:144)
+	at scala.collection.IterableLike.copyToArray(IterableLike.scala:255)
+	at scala.collection.IterableLike.copyToArray$(IterableLike.scala:251)
+	at shadedelta.com.github.mjakubowski84.parquet4s.ParquetIterableImpl.copyToArray(ParquetReader.scala:126)
+	at scala.collection.TraversableOnce.copyToArray(TraversableOnce.scala:334)
+	at scala.collection.TraversableOnce.copyToArray$(TraversableOnce.scala:333)
+	at shadedelta.com.github.mjakubowski84.parquet4s.ParquetIterableImpl.copyToArray(ParquetReader.scala:126)
+	at scala.collection.TraversableOnce.toArray(TraversableOnce.scala:342)
+	at scala.collection.TraversableOnce.toArray$(TraversableOnce.scala:339)
+	at shadedelta.com.github.mjakubowski84.parquet4s.ParquetIterableImpl.toArray(ParquetReader.scala:126)
+	at io.delta.standalone.internal.SnapshotImpl.$anonfun$loadInMemory$3(SnapshotImpl.scala:284)
+        ...
+Caused by: java.nio.BufferOverflowException
+	at java.base/java.nio.HeapByteBuffer.put(Unknown Source)
+	at java.base/java.nio.ByteBuffer.put(Unknown Source)
+	at shadedelta.com.github.mjakubowski84.parquet4s.Decimals$.binaryFromDecimal(Decimals.scala:36)
+	at shadedelta.com.github.mjakubowski84.parquet4s.Decimals$.rescaleBinary(Decimals.scala:20)
+	at shadedelta.com.github.mjakubowski84.parquet4s.ParquetRecordConverter$DecimalConverter.addBinary(ParquetReadSupport.scala:133)
+	at shadedelta.org.apache.parquet.column.impl.ColumnReaderBase$2$6.writeValue(ColumnReaderBase.java:390)
+	at shadedelta.org.apache.parquet.column.impl.ColumnReaderBase.writeCurrentValueToConverter(ColumnReaderBase.java:440)
+	at shadedelta.org.apache.parquet.column.impl.ColumnReaderImpl.writeCurrentValueToConverter(ColumnReaderImpl.java:30)
+	at shadedelta.org.apache.parquet.io.RecordReaderImplementation.read(RecordReaderImplementation.java:406)
+	at shadedelta.org.apache.parquet.hadoop.InternalParquetRecordReader.nextKeyValue(InternalParquetRecordReader.java:229)
+	...
+```
+
+### Environment information
+
+* Delta Lake version: 3.2.0
+* Spark version: N/A
+* Scala version: N/A
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [X] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute a bug fix at this time.

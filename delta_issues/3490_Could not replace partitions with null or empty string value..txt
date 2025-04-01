@@ -1,0 +1,75 @@
+Spark version: 3.1.2
+Delta version: 0.8.0
+
+We are using `replaceWhere` to overwrite partition data in delta. The null or empty string partition value would be translate to `__HIVE_DEFAULT_PARTITION__` when writing them out to the filesystem. But it seems that we could not replace those partitions afterwards.
+
+Reproduce code:
+
+```
+sdf = spark.createDataFrame([[None, 1, 10], ['', 2, 20], ['b', 1, 30], ['b', 2, 40]], schema=['x', 'y', 'z'])
+sdf.write.format("delta").partitionBy(["x", "y"]).save("partition_table")
+```
+
+After writing the delta table, the folder structure is:
+
+```
+├─x=b
+│  ├─y=1
+│  └─y=2
+├─x=__HIVE_DEFAULT_PARTITION__
+│  ├─y=1
+│  └─y=2
+└─_delta_log
+```
+
+Then we try to replace partition with null/empty string value:
+
+```
+new_sdf = spark.createDataFrame([['', 1, 11], ['', 2, 21]], schema=['x', 'y', 'z'])
+new_sdf.write.format("delta").mode("overwrite").option("replaceWhere", "x == ''").save("partition_table")
+```
+
+or 
+
+```
+new_sdf = spark.createDataFrame([[None, 1, 11], ['', 2, 21]], schema=['x', 'y', 'z'])
+new_sdf.write.format("delta").mode("overwrite").option("replaceWhere", "x == null").save("partition_table")
+```
+
+Both would failed with error message:
+
+```
+In [3]: new_sdf = spark.createDataFrame([['', 1, 11], ['', 2, 21]], schema=['x', 'y', 'z'])
+    ...: new_sdf.write.format("delta").mode("overwrite").option("replaceWhere", "x == ''").save("partition_table")
+---------------------------------------------------------------------------
+AnalysisException                         Traceback (most recent call last)
+<ipython-input-17-0c473ba4010d> in <module>
+      1 new_sdf = spark.createDataFrame([['', 1, 11], ['', 2, 21]], schema=['x', 'y', 'z'])
+----> 2 new_sdf.write.format("delta").mode("overwrite").option("replaceWhere", "x == ''").save("partition_table")
+
+D:\software\miniconda3\envs\playground\lib\site-packages\pyspark\sql\readwriter.py in save(self, path, format, mode, partitionBy, **options)
+   1107             self._jwrite.save()
+   1108         else:
+-> 1109             self._jwrite.save(path)
+   1110
+   1111     @since(1.4)
+
+D:\software\miniconda3\envs\playground\lib\site-packages\py4j\java_gateway.py in __call__(self, *args)
+   1302
+   1303         answer = self.gateway_client.send_command(command)
+-> 1304         return_value = get_return_value(
+   1305             answer, self.gateway_client, self.target_id, self.name)
+   1306
+
+D:\software\miniconda3\envs\playground\lib\site-packages\pyspark\sql\utils.py in deco(*a, **kw)
+    115                 # Hide where the exception came from that shows a non-Pythonic
+    116                 # JVM exception message.
+--> 117                 raise converted from None
+    118             else:
+    119                 raise
+
+AnalysisException: Data written out does not match replaceWhere 'x == '''.
+Invalid data would be written to partitions x=null/y=1, x=null/y=2.
+```
+
+Could anyone take a look please? Thanks.

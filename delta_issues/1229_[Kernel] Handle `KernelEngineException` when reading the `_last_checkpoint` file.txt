@@ -1,0 +1,7 @@
+There is an issue with the `CloseableIterator` interface that Kernel is using. Currently, it extends Java's `iterator`, which doesn't throw any exceptions. We use `CloseableIterator` when returning data read from a file or any incremental data access.  Any IOException in `hasNext` or `next` is wrapped in a `UncheckedIOException` or `RuntimeException`. Users of the `CloseableIterator` need to catch for `UncheckedIOException` or `RuntimeException` explicitly and look at the cause if they are interested in the `IOException`. This is not consistent and causes problems for the code that want to handle exceptions like `FileNotFoundException` (subclass of `IOException`) and take further actions.
+
+
+* Change the `CloseableIterator.{next, hasNext}` contract to expect `KernelEngineException` for any exceptions that occur while executing in the `Engine`.
+* Update the `DefaultParquetHandler` and `DefaultJsonHandler` to throw `KernelEngineException` instead of `UncheckedIOException` or `RuntimeException`.
+* In the checkpoint metadata loading method, catch `KernelEngineException` and see if the cause is `FileNotFoundException.` If yes, don't retry loading.
+

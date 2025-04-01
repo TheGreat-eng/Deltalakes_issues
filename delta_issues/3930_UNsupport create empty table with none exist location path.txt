@@ -1,0 +1,105 @@
+just create empty by execute sql,
+``` sql
+CREATE TABLE events (
+  date DATE,
+  eventId STRING,
+  eventType STRING,
+  data STRING)
+USING DELTA
+```
+error infos output like follow:
+``` basic
+20/04/13 11:38:00 ERROR SparkSQLDriver: Failed in [CREATE TABLE dev_lk.events124 (date DATE, eventId STRING, eventType STRING, data STRING) USING DELTA]
+java.lang.IllegalArgumentException: 'path' is not specified
+  at org.apache.spark.sql.delta.DeltaErrors$.pathNotSpecifiedException(DeltaErrors.scala:249)
+  at org.apache.spark.sql.delta.sources.DeltaDataSource$$anonfun$9.apply(DeltaDataSource.scala:142)
+  at org.apache.spark.sql.delta.sources.DeltaDataSource$$anonfun$9.apply(DeltaDataSource.scala:142)
+```
+
+- i just want to create table by schema and no data, i try to only write metadata to hdfs and create table by sql, it success; some main step like this:
+
+- construct delta lake metadata and save to concrete path of hdfs,
+```scala
+import java.sql.Timestamp
+
+import com.fasterxml.jackson.annotation.JsonInclude.Include
+import com.fasterxml.jackson.databind.{DeserializationFeature, ObjectMapper}
+import com.fasterxml.jackson.module.scala.DefaultScalaModule
+import com.fasterxml.jackson.module.scala.experimental.ScalaObjectMapper
+import org.apache.hadoop.conf.Configuration
+import org.apache.hadoop.fs.Path
+import org.apache.spark.SparkConf
+import org.apache.spark.sql.delta.actions.{CommitInfo, Metadata, SingleAction}
+import org.apache.spark.sql.delta.storage.HDFSLogStore
+
+object DeltaLogDemo {
+  val hadoopConfHome = "H:\\tmp\\124hadoopConf"
+  val conf = new Configuration()
+  conf.addResource(new Path(String.format("file:///%s/hdfs-site.xml", hadoopConfHome)))
+  conf.addResource(new Path(String.format("file:///%s/core-site.xml", hadoopConfHome)))
+  val sparkConf = new SparkConf(false)
+  
+	// 本来可以直接调用org.apache.spark.sql.delta.util.JsonUtils#toJson, 当前出现init异常;
+  val mapper = new ObjectMapper with ScalaObjectMapper
+  mapper.setSerializationInclusion(Include.NON_ABSENT)
+  mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+  mapper.registerModule(DefaultScalaModule)
+
+  def main(args: Array[String]): Unit = {
+    run()
+  }
+
+  def run(): Unit = {
+
+    val commitInfo = CommitInfo(
+      version = None,
+      timestamp = new Timestamp(System.currentTimeMillis()),
+      userId = None,
+      userName = None,
+      operation = "WRITE",
+      operationParameters = Map("mode" -> "ErrorIfExists"
+        , "partitionBy" -> "[]"
+      ),
+      job = None,
+      notebook = None,
+      clusterId = None,
+      readVersion = None,
+      isolationLevel = None,
+      isBlindAppend = Some(true)
+    )
+
+    val metadata = Metadata(schemaString = "{\"type\":\"struct\",\"fields\":[{\"name\":\"id\",\"type\":\"long\",\"nullable\":true,\"metadata\":{}}]}")
+    
+    val commitAction = SingleAction(commitInfo = commitInfo)
+    val metadataAction = SingleAction(metaData = metadata)
+    val actionIterator = Iterable(commitAction, metadataAction).iterator.map(mapper.writeValueAsString(_))
+
+    val logStore = new HDFSLogStore(sparkConf, conf)
+    val path = new Path("/tmp/delta-table/by_code/_delta_log/00000000000000000000.json")
+
+    logStore.write(path, actionIterator, true)
+  }
+}
+```
+
+- create table by sql in sparksql
+```sql
+CREATE TABLE dev_lk.by_code USING DELTA LOCATION '/tmp/delta-table/by_code';
+desc table dev_lk.by_code;
+select * from dev_lk.by_code limit 3;
+```
+- write data to table of delta lake
+```scala
+println("Upsert new data")
+val newData = spark.range(0, 200).toDF
+val deltaTable = DeltaTable.forPath("/tmp/delta-table/by_code")
+
+deltaTable.as("oldData").merge(newData.as("newData"), "oldData.id = newData.id")
+.whenMatched.update(Map("id" -> col("newData.id")))
+.whenNotMatched.insert(Map("id" -> col("newData.id"))).execute()
+
+// 执行SQL查询数据: select * from dev_lk.by_code limit 3;
+```
+
+[the detail infos record on this blog](https://www.yuque.com/kaidata/data2prediction/gzfrys)
+

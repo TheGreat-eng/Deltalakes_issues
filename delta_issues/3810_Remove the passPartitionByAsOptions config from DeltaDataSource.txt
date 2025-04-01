@@ -1,0 +1,1 @@
+For Delta OSS `partitionBy` to work with Spark, we turn on the config `passPartitionByAsOptions` in DeltaDataSource. We can remove this config now as it’s turned on by default in Spark 3.0.

@@ -1,0 +1,8 @@
+Hi There
+
+when I am trying to read data from delta into spark using `spark.read.format('delta').load(mount_path)` there is an intermittent issue mentioned below is occurring but not all the time
+```
+The schema of your delta table has changed in an incompatible way since your dataframe or deltatable object was created. please redefine your dataframe or deltatable object.
+```
+but when we use ```spark.table("delta.`{}`".format(mount_path))``` it seems to be stable - Is there a reason this could happen? 
+`spark.databricks.delta.checkLatestSchemaOnRead` is `true` by default, the full exception is suggesting to configure it as `false`

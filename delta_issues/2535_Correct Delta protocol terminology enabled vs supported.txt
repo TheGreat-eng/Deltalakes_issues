@@ -1,0 +1,7 @@
+## Description
+
+This PR fixes a terminology issue in Delta protocol, so the term `supported` is now used to describe a table feature name being listed in table protocol's `readerFeatures` and/or `writerFeatures`. The choice of this word is to emphasize that, in such a scenario, the Delta table *may* use the listed table features but is not forced to do so.
+
+For example, when `appendOnly` is listed in a table's protocol, the table may or may not be append-only, depending on the existence and value of table property `delta.appendOnly`. However, writers must recognize the table feature `appendOnly` and know that the table property should be checked before writing this table.
+
+This PR did not touch the Row ID/Row Tracking sections, as it's handled by another PR: https://github.com/delta-io/delta/pull/1747.

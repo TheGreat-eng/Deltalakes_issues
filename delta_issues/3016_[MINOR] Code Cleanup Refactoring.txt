@@ -1,0 +1,19 @@
+Code Cleanup / Refactoring:
+
+- Use vals (not vars)
+- Fix scaladocs
+- Use constants
+- Check table availability with txn.deltaLog.tableExists (not txn.readVersion > -1)
+- Import reorg
+- Remove unused values
+
+## How was this patch tested?
+
+1. `./build/sbt clean package test:compile`
+2. `./build/sbt clean '++ 2.13.5 ; package ; test:compile'`
+
+Waiting for the repo build to execute the entire testsuite.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

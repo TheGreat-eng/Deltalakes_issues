@@ -1,0 +1,20 @@
+#### Which Delta project/connector is this regarding?
+- [X] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+(Cherry-pick of d9a5f9f9c64b5066467801917de158650ae091cb to branch-2.4)
+
+Reenable iceberg build that was previously disabled in #1720
+
+## How was this patch tested?
+
+N/A
+
+## Does this PR introduce _any_ user-facing changes?
+
+Yes, add delta-iceberg back to Delta 2.4

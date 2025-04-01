@@ -1,0 +1,26 @@
+<!--
+Thanks for sending a pull request!  Here are some tips for you:
+  1. If this is your first time, please read our contributor guidelines: https://github.com/delta-io/delta/blob/master/CONTRIBUTING.md
+  2. If the PR is unfinished, add '[WIP]' in your PR title, e.g., '[WIP] Your PR title ...'.
+  3. Be sure to keep the PR description updated to reflect all changes.
+  4. Please write your PR title to summarize what this PR proposes.
+  5. If possible, provide a concise example to reproduce the issue for a faster review.
+  6. If applicable, include the corresponding issue number in the PR title and link it in the body.
+-->
+
+## Description
+Properly handle read-incompatible schema changes when querying batch CDF (e.g. `table_changes()` TVF, and SQL/DF APIs).
+Right now, batch CDF is almost always serving past data using the latest schema, but the latest schema may not be read-compatible with the data files.
+
+this PR introduces the following:
+
+1. added checks for read-incompatibility in batch CDF
+2. a new Delta SQL conf `changeDataFeed.defaultSchemaModeForColumnMappingTable` that can be set to `endVersion`, `latest` or `legacy`. If `legacy` it would fallback to the current behavior in which either latest schema is used or a time-travel version schema is used, if `endVersion` is set, we will use the end version's schema to serve the batch and if `latest` is set, the latest schema will always be used. Note, this is orthogonal to 1), checks will be triggered all the time to ensure read-compatibility, even when `endVersion` is used.
+3. The SQL conf cannot be used when time-travel options `versionOf` is specified. Apparently ppl can time-travel the schema during querying batch CDF, this is probably unintentional, but since it exists, i explicitly blocked two options from being used concurrently. 
+
+
+## How was this patch tested?
+New Unit tests.
+
+## Does this PR introduce _any_ user-facing changes?
+No

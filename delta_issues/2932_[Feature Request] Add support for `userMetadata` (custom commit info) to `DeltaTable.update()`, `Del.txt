@@ -1,0 +1,37 @@
+## Feature request
+
+### Overview
+
+I propose extending [Delta Lake Python API](https://docs.delta.io/latest/api/python/index.html) operations by an additional optional parameter `userMetadata`:
+
+- `DeltaTable.delete(condition, userMetadata = None)`
+- `DeltaTable.update(condition, set, userMetadata= None)`
+- `DeltaTable.merge(source, condition, userMetadata= None)`
+
+The value of this parameter should be written into the delta log version JSON file as custom commit info.
+
+### Motivation
+
+This feature for providing additional user specified information on a commit would increase **transparency** and allow some (high level) degree of **data lineage**. 
+
+### Further details
+
+As of today, Delta supports adding a user provided string to the delta log (column [`userMetadata`](https://docs.delta.io/latest/delta-utility.html#history-schema)):
+
+Currently there [are two ways (in PySpark)](https://docs.delta.io/latest/delta-batch.html#set-user-defined-commit-metadata) to achieve this:
+1. Spark's DataFrameWriter supports the option `userMetadata`
+2. Before carrying out any operation that will create a new version of a Delta Table, the user can set the SparkSession configuration property `spark.databricks.delta.commitInfo.userMetadata`
+
+However, there are drawbacks of those two options:
+1. Can only be used when appending or overwriting a Delta Table; this does not work for `delete`, `update`, `merge`
+2. If in the _same Spark session_ there are _parallel_ jobs performing operations (insert, delete, update, merge) on different Delta Tables and the user wants to attach different `userMetadata` to each of those commits, the _timing_ of setting the SparkSession configuration property `spark.databricks.delta.commitInfo.userMetadata` is critical and might result in undesired outcomes.
+
+Therefore, I'd prefer to explicitly set the `userMetadata` for a specific operation only.
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [ ] Yes. I can contribute this feature independently.
+- [ ] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [x] No. I cannot contribute this feature at this time.

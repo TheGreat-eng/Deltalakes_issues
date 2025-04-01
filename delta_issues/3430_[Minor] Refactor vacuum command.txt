@@ -1,0 +1,1 @@
+this PR removes unused imports, variables, parameters, and functions not used in the VacuumCommand class 

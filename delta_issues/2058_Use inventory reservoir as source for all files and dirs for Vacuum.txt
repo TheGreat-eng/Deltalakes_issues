@@ -1,0 +1,43 @@
+<!--
+Thanks for sending a pull request!  Here are some tips for you:
+  1. If this is your first time, please read our contributor guidelines: https://github.com/delta-io/delta/blob/master/CONTRIBUTING.md
+  2. If the PR is unfinished, add '[WIP]' in your PR title, e.g., '[WIP] Your PR title ...'.
+  3. Be sure to keep the PR description updated to reflect all changes.
+  4. Please write your PR title to summarize what this PR proposes.
+  5. If possible, provide a concise example to reproduce the issue for a faster review.
+  6. If applicable, include the corresponding issue number in the PR title and link it in the body.
+-->
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+- Currently, users have large tables with daily/hourly partitions for many years, among all these partitions only recent ones are subjected to change due to job reruns, corrections, and late arriving events.
+
+- When Vacuum is run on these tables, the listing of files is performed on all the partitions and it runs for several hours/days. This duration grows as tables grow and vacuum becomes a major overhead for customers especially when they have hundreds or thousands of such delta tables. File system scan takes the most amount of time in Vacuum operation for large tables, mostly due to the parallelism achievable and API throttling on the object stores.
+
+- This change provides a way for users to pass a reservoir of files generated externally (eg: from inventory reports of cloud stores) as a delta table or as a spark SQL query (having a predefined schema). The vacuum operation when provided with such a reservoir data frame will skip the listing operation and use it as a source of all files in the storage.
+
+"Resolves #1691".
+
+## How was this patch tested?
+
+- Unit Testing  (` build/sbt 'testOnly org.apache.spark.sql.delta.DeltaVacuumSuite'`)
+
+## Does this PR introduce _any_ user-facing changes?
+
+yes, the MR accepts an optional method to pass inventory.
+
+`VACUUM table_name [USING INVENTORY <reservoir-delta-table>] [RETAIN num HOURS] [DRY RUN]`
+`VACUUM table_name [USING INVENTORY <reservoir-query>] [RETAIN num HOURS] [DRY RUN]`
+
+eg:  `VACUUM test_db.table using inventory select * from reservoir_table RETAIN 168 HOURS dry run`

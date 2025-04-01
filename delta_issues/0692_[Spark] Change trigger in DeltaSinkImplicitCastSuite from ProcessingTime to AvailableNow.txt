@@ -1,0 +1,8 @@
+## Description
+Quick follow-up from https://github.com/delta-io/delta/pull/3443
+Instead of using a continuously running streaming trigger, write the data to the source upfront and use a more appropriate single run trigger.
+
+## How was this patch tested?
+Test-only
+
+## Does this PR introduce _any_ user-facing changes?

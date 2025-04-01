@@ -1,0 +1,27 @@
+## Feature request
+
+#### Which Delta project/connector is this regarding?
+
+-  [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+### Overview
+
+Streaming queries fail with error when there is a data type change in a column.
+
+### Motivation
+
+We are managing schema mutation in custom code which already handles the data type change but the exception in delta spark is blocking us.
+
+### Further details
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [ ] Yes. I can contribute this feature independently.
+-  [x] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.

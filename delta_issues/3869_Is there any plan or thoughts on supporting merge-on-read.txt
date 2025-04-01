@@ -1,0 +1,5 @@
+Not a (urgent) requirement, but a curiosity.
+
+Merge-on-read may help to improve the performance of writing data (where there're deletes/updates) and reduce the resources usage. When we not require reading has as much high performance as possible or reading is not frequent, we can compaction the files at certain frequency.
+
+We build a CDC pipeline via spark streaming and merge api where in each mini-batch we trigger a merge operation. We want the merge can finish as soon as possible and it does not take too much resources because we may start many CDC jobs on one cluster.

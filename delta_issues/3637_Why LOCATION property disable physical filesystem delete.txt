@@ -1,0 +1,26 @@
+Hi! Why LOCATION property set explicitly changes DROP TABLE behaviour ?
+
+```sql
+
+CREATE TABLE test.t19(i int,s string)
+USING DELTA;
+
+-- Delta log is located here: dbfs:/warehouse/tablespace/managed/hive/test.db/t19
+
+DROP TABLE IF EXISTS test.t19;
+```
+
+Delta log is deleted.
+
+But in this case
+
+``` sql
+CREATE TABLE test.t19(i int,s string)
+USING DELTA
+LOCATION 'dbfs:/warehouse/tablespace/managed/hive/test.db/t19';
+
+DROP TABLE IF EXISTS test.t19;
+```
+
+Delta log is not deleted from dbfs. Is it expected behaviour ?
+

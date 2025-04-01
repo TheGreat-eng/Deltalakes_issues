@@ -1,0 +1,39 @@
+## Bug
+
+### Describe the problem
+History timestamps are missing timezone information.
+
+#### Steps to reproduce
+
+```
+from delta import DeltaTable
+
+table = DeltaTable.forPath(spark_context, backend_url)
+timestamp = table.history(depth).first()['timestamp']
+```
+
+#### Observed results
+
+Retrieving the last commit timestamp from table history returns a value in the format `2022-09-21 13:45:08.100000`. This timestamp contains no timezone information. Am I to assume this is UTC?
+
+#### Expected results
+
+Timestamp contains timezone information.
+
+#### Further details
+
+<!--
+Include any additional details that may be useful for diagnosing the problem here. If including tracebacks, please include the full traceback. Large logs and files should be attached.
+-->
+
+### Environment information
+
+delta-spark 1.2.1 and also tried 2.1.0 (Python)
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [x] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute a bug fix at this time.

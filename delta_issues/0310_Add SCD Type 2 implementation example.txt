@@ -1,0 +1,30 @@
+This PR adds an example demonstrating how to implement Slowly Changing Dimension (SCD) Type 2 using Delta Lake. This is a common data warehousing pattern that many users implement, so having a reference implementation will be valuable to the community.
+
+## Features Demonstrated
+- Creation and maintenance of historical records using Delta Lake
+- Proper use of merge operations for SCD Type 2 implementation
+- Best practices for temporal data handling
+- Efficient querying patterns for current and historical data
+
+## Implementation Details
+The example includes:
+- Full Scala implementation with comments
+- Comprehensive README with setup instructions
+- Best practices for Delta Lake operations
+- Example queries for accessing historical data
+
+## Testing Done
+- Verified the example runs successfully with Delta Lake 2.4.0
+- Tested with both new records and updates to existing records
+- Validated historical record preservation
+- Confirmed proper handling of current/historical queries
+
+## Documentation
+Added complete documentation including:
+- Prerequisites
+- Setup instructions
+- Usage examples
+- Output explanations
+- Best practices
+
+Signed-off-by: Sa'id Olanrewaju <os.sg@icloud.com>

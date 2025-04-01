@@ -1,0 +1,23 @@
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [X] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+During log reconstruction we throw a bunch of various errors when we encounter a table state that we consider invalid. This PR updates some of those errors to be `InvalidTableException`. This doesn't necessarily cover all possible exceptions due to an invalid table, just some of the known and clear cases during log reconstruction.
+
+## How was this patch tested?
+
+Updates existing tests.
+
+## Does this PR introduce _any_ user-facing changes?
+
+Yes, instead of internal `RuntimeExceptions` or `IllegalStateExceptions`, etc a `InvalidTableException` will be thrown when certain invalid table states are encountered.

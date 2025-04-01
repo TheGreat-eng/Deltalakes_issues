@@ -1,0 +1,17 @@
+## Description
+Pushing down the predicate helps read fewer records especially when getting the scan files and reading multi-part checkpoint files.
+
+The current library we use parquet-mr already has support for pruning the records based on the stats in rowgroups and individual records as each record is read. This PR converts the given Kernel `Predicate` into `parquet-mr` predicate and gives as input to the `parquet-mr` reader.
+
+The support is only to prune the row groups using the pushed-down predicate. Individual record level filter is disabled due to the following reasons:
+*  the `parquet-mr` materializes the entire record first before evaluating the predicate. This causes implementation challenges around the current `ColumnarBatch` construction out of the rows returned by the `parquet-mr`
+* We have additional partition pruning/data skipping that helps prune the records anyway.
+
+Current support is on the following column types: BYTE, SHORT, INT, LONG, FLOAT, DOUBLE, DATA, BOOLEAN, STRING, BINARY. Timestamp is currently not supported as the most popular physical format is INT96 which can't be used for stats based rowgroup pruning.
+
+Supported operators: eq, gt, lt, gte, lte, not, and, or
+
+Resolves #2667 
+
+## How was this patch tested?
+Unit tests

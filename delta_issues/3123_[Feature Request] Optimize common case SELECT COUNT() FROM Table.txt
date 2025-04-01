@@ -1,0 +1,20 @@
+## Feature request
+Running the query "SELECT COUNT(*) FROM Table" should read only Delta logs
+
+### Overview
+
+Running the query "SELECT COUNT(*) FROM Table" takes a lot of time for big tables, Spark scan all the parquet files just to return the number of rows, that information is available from Delta Logs.
+
+The same for "SELECT COUNT(*) FROM Table Group BY PartitionColumn"
+
+### Motivation
+
+Huge performance overhead.
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [ ] Yes. I can contribute this feature independently.
+- [X] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.

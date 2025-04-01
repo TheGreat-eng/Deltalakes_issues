@@ -1,0 +1,23 @@
+## Feature request
+
+### Overview
+
+We saw a few reported issues due to missing configs. We can add a check in DeltaLog to verify the following Spark confs.
+
+```
+--conf "spark.sql.extensions=io.delta.sql.DeltaSparkSessionExtension" --conf "spark.sql.catalog.spark_catalog=org.apache.spark.sql.delta.catalog.DeltaCatalog"
+```
+
+If these are not set, we can throw a user friendly error.
+
+### Motivation
+
+Provide a user friendly error rather than throwing random weird errors.
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [ ] Yes. I can contribute this feature independently.
+- [ ] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [x] No. I cannot contribute this feature at this time.

@@ -1,0 +1,22 @@
+Hello,
+
+I'm trying to setup the isolation level to Serializable on open source delta using azure synapse notebook.
+
+Command :
+`ALTER TABLE  publish.testOptimization012 SET TBLPROPERTIES ('delta.isolationLevel' = 'Serializable')`
+
+
+It seems like delta is not able to identify the configuration
+
+`Error: Unknown configuration was specified: delta.isolationLevel
+org.apache.spark.sql.delta.DeltaErrors$.unknownConfigurationKeyException(DeltaErrors.scala:398)
+org.apache.spark.sql.delta.DeltaConfigsBase.$anonfun$validateConfigurations$3(DeltaConfig.scala:147)
+scala.Option.getOrElse(Option.scala:189)
+org.apache.spark.sql.delta.DeltaConfigsBase.$anonfun$validateConfigurations$1(DeltaConfig.scala:147)
+scala.collection.TraversableLike.$anonfun$map$1(TraversableLike.scala:238)`
+
+
+The same command works in databricks delta. Is this expected ? Why is this inconsistency between databricks delta and open delta ?
+
+
+

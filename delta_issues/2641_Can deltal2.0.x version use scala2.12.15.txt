@@ -1,0 +1,2 @@
+Can publish new deltal2.0.x version use scala2.12.15?  Because spark3.2 is using 2.12.15 build
+

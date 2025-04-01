@@ -1,0 +1,23 @@
+`build/sbt compile` shows:
+```
+[info] Compiling 72 Scala sources to /tmp/delta/target/scala-2.12/classes...
+[warn] /tmp/delta/src/main/scala/org/apache/spark/sql/delta/PreprocessTableMerge.scala:21: imported `DeltaErrors' is permanently hidden by definition of object DeltaErrors in package delta
+[warn] import org.apache.spark.sql.delta.{DeltaErrors, DeltaFullTable}
+[warn]                                    ^
+[warn] /tmp/delta/src/main/scala/org/apache/spark/sql/delta/PreprocessTableMerge.scala:21: imported `DeltaFullTable' is permanently hidden by definition of object DeltaFullTable in package delta
+[warn] import org.apache.spark.sql.delta.{DeltaErrors, DeltaFullTable}
+[warn]                                                 ^
+[warn] /tmp/delta/src/main/scala/org/apache/spark/sql/delta/PreprocessTableUpdate.scala:19: imported `DeltaErrors' is permanently hidden by definition of object DeltaErrors in package delta
+[warn] import org.apache.spark.sql.delta.{DeltaErrors, DeltaFullTable}
+[warn]                                    ^
+[warn] /tmp/delta/src/main/scala/org/apache/spark/sql/delta/PreprocessTableUpdate.scala:19: imported `DeltaFullTable' is permanently hidden by definition of object DeltaFullTable in package delta
+[warn] import org.apache.spark.sql.delta.{DeltaErrors, DeltaFullTable}
+[warn]                                                 ^
+[warn] /tmp/delta/src/main/scala/org/apache/spark/sql/delta/UpdateExpressionsSupport.scala:19: imported `DeltaErrors' is permanently hidden by definition of object DeltaErrors in package delta
+[warn] import org.apache.spark.sql.delta.DeltaErrors
+[warn]                                   ^
+[warn] there were two deprecation warnings; re-run with -deprecation for details
+[warn] 6 warnings found
+```
+
+Remove unnecessary imports in some other files as well.

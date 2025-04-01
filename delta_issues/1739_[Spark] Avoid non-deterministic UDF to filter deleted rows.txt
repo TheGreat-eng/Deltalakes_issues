@@ -1,0 +1,24 @@
+#### Which Delta project/connector is this regarding?
+
+- [X] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+Currently, filtering of rows that are marked as deleted (DVs) is performed with a non-deterministic UDF that is added in the plan during `PrepareDeltaScan` rule. The problem is that the non-deterministic UDF prevents any filters to be pushed down to the scan, resulting in bad performance. In addition, the non-deterministic UDF prevents a number of optimizations, e.g.  reusing subqueries.
+
+To avoid the above issues, this commit replaces the non-deterministic UDF with a standard filter expressions that is injected by the new `PreprocessTableWithDVsStrategy` before converting the logical plan to a physical one. The DV filter will be the bottom-most filter in the logical plan and so will be placed at the beginning of the filters that are pushed to the `FileSourceScanExec` node. 
+
+Note that the DV filter will not be further pushed down to the Parquet reader because filter pushdown is disabled when DVs are enabled.
+
+## How was this patch tested?
+
+Existing tests.
+
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

@@ -1,0 +1,22 @@
+Context:
+
+I have a standard 3-tier medallion architecture (bronze, silver, and gold) and a streaming context which have the following partitions: Entity_1, Entity_2, Year, Month, Day. 
+In our use case, we need to always use a merge operation because our data can be ingested out of temporal order (events from the past). 
+We also have a constraint about the high rate of ingesting that can be very demanding, that's why we decided to decouple ingest (merge) from the compress (optimize and vacuum). 
+Currently, the ingest job runs in streaming and with foreachBatch of some N messages, and compress every 1h. 
+The bronze tier contains all the data untouched and partitioned by the reception date of the event, then the silver tier by the date of the event, this way we can always reprocess data, and ensure transformations are also only applied in silver.
+
+Problem: 
+
+In silver, since we can receive data from past events, we dont have a way to ensure that merge operations dont have conflicts with optimize since we cant simply define other partitioning or disjoint conditions for them. 
+Because of that, we have the following ConcurrentAppendException:
+
+`  delta.exceptions.ConcurrentAppendException: Files were added to partition [pk1=sadadq3r242r, pk2=94, year=2022, month=10, day=16] by a concurrent update. Please try the operation again.
+E               Conflicting commit: {"timestamp":1666271057556,"operation":"OPTIMIZE","operationParameters":{"predicate":[],"zOrderBy":[]},"readVersion":6,"isolationLevel":"SnapshotIsolation","isBlindAppend":false,"operationMetrics":{"numRemovedFiles":"2","numRemovedBytes":"7813","p25FileSize":"4880","minFileSize":"4880","numAddedFiles":"1","maxFileSize":"4880","p75FileSize":"4880","p50FileSize":"4880","numAddedBytes":"4880"},"engineInfo":"Apache-Spark/3.3.0 Delta-Lake/2.1.0","txnId":"20a41a05-70a9-4685-843e-35ca4ee3cb8d"}
+`
+
+Question:
+How can we avoid this error if our jobs cant have disjoint commands or partitioning to filter by?
+
+
+Thank you in advance

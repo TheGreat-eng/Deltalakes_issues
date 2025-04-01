@@ -1,0 +1,19 @@
+#### Which Delta project/connector is this regarding?
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [X] Other (DOCS)
+
+## Description
+
+Update `releases.md` to mention that Delta Spark 3.2 uses Spark 3.5
+
+## How was this patch tested?
+
+Trivial
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

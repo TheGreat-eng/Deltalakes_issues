@@ -1,0 +1,18 @@
+#### Which Delta project/connector is this regarding?
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+Schema evolution tests are moved out of `MergeIntoSuiteBase` and collected in separated test traits to allow more flexibility when running tests with different combinations of parameters in the future:
+- MergeIntoSchemaEvolutionCoreTests: a very small subset of tests intended to be run with a large number of varying combinations to preserve core test coverage with e.g. CDF, DVs, column mapping.
+- MergeIntoSchemaEvolutionBaseTests: All basic schema evolution tests - and by extension tests that don't fit in other traits.
+- MergeIntoSchemaEvolutionNotMatchedBySourceTests: Tests covering schema evolution with NOT MATCHED BY SOURCE clauses.
+- MergeIntoNestedStructEvolutionTests: Tests covering nested struct evolution.
+
+## How was this patch tested?
+This is a refactor of existing tests.

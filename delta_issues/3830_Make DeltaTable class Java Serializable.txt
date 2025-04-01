@@ -1,0 +1,88 @@
+If a `DeltaTable` instance is defined as a variable in Spark shell, it's pretty easy to capture it in a closure and cause `NotSerializableException`. For example, the following closure `_ + x` doesn't use the `DeltaTable` instance, but it captures the reference. When Spark tries to serialize the closure, it will throw `NotSerializableException`.
+ 
+```
+scala> spark.range(5).write.format("delta").mode("append").save("/tmp/test-delta-table")
+                                                                                
+scala> val deltaTable = io.delta.tables.DeltaTable.forPath("/tmp/test-delta-table")
+deltaTable: io.delta.tables.DeltaTable = io.delta.tables.DeltaTable@708a2978
+
+scala> val x = 3
+x: Int = 3
+
+scala> deltaTable.toDF.as[Long].map(_ + x).show()
+org.apache.spark.SparkException: Task not serializable
+  at org.apache.spark.util.ClosureCleaner$.ensureSerializable(ClosureCleaner.scala:416)
+  at org.apache.spark.util.ClosureCleaner$.org$apache$spark$util$ClosureCleaner$$clean(ClosureCleaner.scala:406)
+  at org.apache.spark.util.ClosureCleaner$.clean(ClosureCleaner.scala:163)
+  at org.apache.spark.SparkContext.clean(SparkContext.scala:2326)
+  at org.apache.spark.rdd.RDD$$anonfun$mapPartitionsWithIndex$1.apply(RDD.scala:872)
+  at org.apache.spark.rdd.RDD$$anonfun$mapPartitionsWithIndex$1.apply(RDD.scala:871)
+  at org.apache.spark.rdd.RDDOperationScope$.withScope(RDDOperationScope.scala:151)
+  at org.apache.spark.rdd.RDDOperationScope$.withScope(RDDOperationScope.scala:112)
+  at org.apache.spark.rdd.RDD.withScope(RDD.scala:385)
+  at org.apache.spark.rdd.RDD.mapPartitionsWithIndex(RDD.scala:871)
+  at org.apache.spark.sql.execution.WholeStageCodegenExec.doExecute(WholeStageCodegenExec.scala:630)
+  at org.apache.spark.sql.execution.SparkPlan$$anonfun$execute$1.apply(SparkPlan.scala:131)
+  at org.apache.spark.sql.execution.SparkPlan$$anonfun$execute$1.apply(SparkPlan.scala:127)
+  at org.apache.spark.sql.execution.SparkPlan$$anonfun$executeQuery$1.apply(SparkPlan.scala:155)
+  at org.apache.spark.rdd.RDDOperationScope$.withScope(RDDOperationScope.scala:151)
+  at org.apache.spark.sql.execution.SparkPlan.executeQuery(SparkPlan.scala:152)
+  at org.apache.spark.sql.execution.SparkPlan.execute(SparkPlan.scala:127)
+  at org.apache.spark.sql.execution.SparkPlan.getByteArrayRdd(SparkPlan.scala:247)
+  at org.apache.spark.sql.execution.SparkPlan.executeTake(SparkPlan.scala:339)
+  at org.apache.spark.sql.execution.CollectLimitExec.executeCollect(limit.scala:38)
+  at org.apache.spark.sql.Dataset.org$apache$spark$sql$Dataset$$collectFromPlan(Dataset.scala:3389)
+  at org.apache.spark.sql.Dataset$$anonfun$head$1.apply(Dataset.scala:2550)
+  at org.apache.spark.sql.Dataset$$anonfun$head$1.apply(Dataset.scala:2550)
+  at org.apache.spark.sql.Dataset$$anonfun$52.apply(Dataset.scala:3370)
+  at org.apache.spark.sql.execution.SQLExecution$$anonfun$withNewExecutionId$1.apply(SQLExecution.scala:80)
+  at org.apache.spark.sql.execution.SQLExecution$.withSQLConfPropagated(SQLExecution.scala:127)
+  at org.apache.spark.sql.execution.SQLExecution$.withNewExecutionId(SQLExecution.scala:75)
+  at org.apache.spark.sql.Dataset.withAction(Dataset.scala:3369)
+  at org.apache.spark.sql.Dataset.head(Dataset.scala:2550)
+  at org.apache.spark.sql.Dataset.take(Dataset.scala:2764)
+  at org.apache.spark.sql.Dataset.getRows(Dataset.scala:254)
+  at org.apache.spark.sql.Dataset.showString(Dataset.scala:291)
+  at org.apache.spark.sql.Dataset.show(Dataset.scala:751)
+  at org.apache.spark.sql.Dataset.show(Dataset.scala:710)
+  at org.apache.spark.sql.Dataset.show(Dataset.scala:719)
+  ... 49 elided
+Caused by: java.io.NotSerializableException: io.delta.tables.DeltaTable
+Serialization stack:
+	- object not serializable (class: io.delta.tables.DeltaTable, value: io.delta.tables.DeltaTable@708a2978)
+	- field (class: $iw, name: deltaTable, type: class io.delta.tables.DeltaTable)
+	- object (class $iw, $iw@258377a7)
+	- field (class: $iw, name: $iw, type: class $iw)
+	- object (class $iw, $iw@2f95761e)
+	- field (class: $iw, name: $iw, type: class $iw)
+	- object (class $iw, $iw@50b9fe7b)
+	- field (class: $iw, name: $iw, type: class $iw)
+	- object (class $iw, $iw@15c5d50e)
+	- field (class: $iw, name: $iw, type: class $iw)
+	- object (class $iw, $iw@44b3c545)
+	- field (class: $iw, name: $iw, type: class $iw)
+	- object (class $iw, $iw@6d95932e)
+	- field (class: $iw, name: $iw, type: class $iw)
+	- object (class $iw, $iw@1d7e6380)
+	- field (class: $iw, name: $iw, type: class $iw)
+	- object (class $iw, $iw@35a19f9)
+	- field (class: $line15.$read, name: $iw, type: class $iw)
+	- object (class $line15.$read, $line15.$read@d66a221)
+	- field (class: $iw, name: $line15$read, type: class $line15.$read)
+	- object (class $iw, $iw@143776b6)
+	- field (class: $iw, name: $outer, type: class $iw)
+	- object (class $iw, $iw@31fc8c5e)
+	- field (class: $anonfun$1, name: $outer, type: class $iw)
+	- object (class $anonfun$1, <function1>)
+	- element of array (index: 3)
+	- array (class [Ljava.lang.Object;, size 4)
+	- field (class: org.apache.spark.sql.execution.WholeStageCodegenExec$$anonfun$13, name: references$1, type: class [Ljava.lang.Object;)
+	- object (class org.apache.spark.sql.execution.WholeStageCodegenExec$$anonfun$13, <function2>)
+  at org.apache.spark.serializer.SerializationDebugger$.improveException(SerializationDebugger.scala:40)
+  at org.apache.spark.serializer.JavaSerializationStream.writeObject(JavaSerializer.scala:46)
+  at org.apache.spark.serializer.JavaSerializerInstance.serialize(JavaSerializer.scala:100)
+  at org.apache.spark.util.ClosureCleaner$.ensureSerializable(ClosureCleaner.scala:413)
+  ... 83 more
+```
+
+It would be great to make `DeltaTable` extend `Serializable` to avoid the issue.

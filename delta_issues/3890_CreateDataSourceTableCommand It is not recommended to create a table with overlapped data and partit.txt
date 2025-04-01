@@ -1,0 +1,34 @@
+Version:
+- pyspark 2.4.5
+- delta 0.5
+
+I have the following warning message while trying to create a Delta table from an existing location.
+
+`20/05/13 15:25:07 WARN CreateDataSourceTableCommand: It is not recommended to create a table with overlapped data and partition columns, as Spark cannot store a valid table schema and has to infer it at runtime, which hurts performance. Please check your data files and remove the partition columns in it.`
+
+Here the code to reproduce the issue:
+
+```
+from pyspark import Row
+
+spark = SparkSession.builder.appName('Test') \
+    .config('spark.jars.packages', 'io.delta:delta-core_2.11:0.5.0') \
+    .config("spark.sql.extensions", "io.delta.sql.DeltaSparkSessionExtension") \
+    .getOrCreate()
+
+
+data = [
+ {"entityType": "goal_message", "arrivalHour": 2020051417, "value": 2},
+ {"entityType": "goal_message", "arrivalHour": 2020051415, "value": 1},
+]
+df = spark.createDataFrame(Row(**x) for x in data)
+df.write.format('delta').mode('append').partitionBy(['arrivalHour']).save("/tmp/table.delta")
+spark.sql("CREATE TABLE example2 USING DELTA LOCATION '/tmp/table.delta'")
+```
+
+```
+20/05/15 14:16:36 WARN CreateDataSourceTableCommand: It is not recommended to create a table with overlapped data and partition columns, as Spark cannot store a valid table schema and has to infer it at runtime, which hurts performance. Please check your data files and remove the partition columns in it.
+20/05/15 14:16:36 WARN HiveExternalCatalog: Couldn't find corresponding Hive SerDe for data source provider DELTA. Persisting data source table `default`.`example2` into Hive metastore in Spark SQL specific format, which is NOT compatible with Hive.
+```
+
+Am I doing something wrong? Thanks.

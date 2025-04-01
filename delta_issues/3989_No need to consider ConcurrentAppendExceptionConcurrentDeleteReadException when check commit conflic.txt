@@ -1,0 +1,11 @@
+I have a Scenario related to Conflict check, that is when the current txn check conflict with a already committed Compaction's actions(AddFile&RemoveFile), should we need to consider ConcurrentAppendException/ConcurrentDeleteReadException?
+I think there is no need to do these two Exceptions conflict check, but we should keep the last ConcurrentDeleteDeleteException in this Scenario.
+Because the actions of Compation is dataChange=false, it just rerange the data, not modify it.
+1. ConcurrentAppendException
+the data of the new AddFile in Compaction's actions should already be read by the current txn.
+2. ConcurrentDeleteReadException
+the data of the RemoveFile in Compaction's actions does not be deleted, they just reranger
+to other files. So it does not affect the AddFiles read by the current txn, even they deleted by Compaction.
+
+Can any one help to review the logic? @marmbrus @zsxwing  Thanks!
+If it is correct, we can reduce some conflict.

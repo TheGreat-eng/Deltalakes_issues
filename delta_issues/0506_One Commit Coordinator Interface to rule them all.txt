@@ -1,0 +1,15 @@
+Today there are two Commit Coordinator Client (CCC) interfaces. One in delta-kernel-api and one in delta-storage (that delta-spark uses). Further, the current DynamoDBCommitCoordinatorClient implementation uses the delta-storage CCC interface. This means that any engine that wants to re-use that same DDB-CCC implementation has to depend on delta-storage, which brings in Hadoop and LogStore dependencies. This won't work for all engines (e.g.)
+
+We should Kernel-ize the interface and implementations and make sure that any engine can use the implementations provided in this repo.
+
+| # | Depends On | PR | Description | Status | Created | 
+|---|---|---|---|---|---|
+| 1 | N/A  | #3795 | TableIdentifier | MERGED ✅  | 2024-10-22 |
+| 2 | 1 | #3797 | TableDescriptor, CommitCoordinatorClient | MERGED ✅  | 2024-10-23 | 
+| 3 | 2 | #3798 | ConfigurationProvider, CommitCoordinatorBuilder, CommitCoordinatorUtils |IN REVIEW 👀 | 2024-10-23 |
+| 4 | 3 | #3803 | InMemoryCommitCoordinatorClient, new FileSystemClient APIs |IN REVIEW 👀 | 2024-10-24 |
+| 5 | 4 | #3821 | AbstractCommitCoordinatorBuilderSuite | IN REVIEW 👀 | 2024-10-28 |
+| 6 | 5 | #3829 | Refactor Kernel internals to use new CCC API; delete unused files | IN REVIEW 👀  | 2024-10-26 |
+| 7 | N/A | #3833 | Make CommitInfo implement AbstractCommitInfo | IN REVIEW 👀  | 2024-10-30 |
+| 8 | N/A | #3834 | Make Metadata implement AbstractMetadata; fix Metadata partition col APIs | IN REVIEW 👀 | 2024-10-30 |
+| 9 | N/A | #3838 | Make Protocol implement AbstractProtocol | IN REVIEW 👀 | 2024-10-31 |

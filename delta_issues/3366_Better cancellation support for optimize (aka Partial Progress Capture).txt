@@ -1,0 +1,7 @@
+This is a follow up from PR #934 review [comment](https://github.com/delta-io/delta/pull/934#issuecomment-1045326364).
+
+Currently if one of the optimize tasks fails, we don't cancel the optimize job and fail the job at the end.
+
+Couple of improvements to make:
+- fail the optimize command as soon as there is a single optimize job failure
+- continue working and at the end capture partial progress of successful jobs and commit. 

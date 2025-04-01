@@ -1,0 +1,7 @@
+Hi, 
+I Created a delta table and got the below WARN. Seems like because of delta format table 
+is not getting stored in Hive metasore.
+I want to access delta table using tableau spark sql driver which uses sparkThriftServer, just wanted check if there is anyway ? 
+scala> spark.sql("create table FL_insurance using delta location 'file:/Users/cklekkala/Documents/SparkWorkSpace/FL_insurance'")
+19/10/13 03:07:08 WARN HiveExternalCatalog: Couldn't find corresponding Hive SerDe for data source provider delta. Persisting data source table `default`.`fl_insurance` into Hive metastore in Spark SQL specific format, which is NOT compatible with Hive.
+res22: org.apache.spark.sql.DataFrame = []

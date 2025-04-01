@@ -1,0 +1,16 @@
+In databricks I can use MERGE. That doesn't seem supported in the open source version.
+
+```
+MERGE INTO deltatest 
+USING tbl_delta 
+ON deltatest.PartitionKey IN ('category1', 'category2') 
+AND deltatest.uniqueID = tbl_delta.uniqueID 
+WHEN MATCHED THEN UPDATE SET * 
+WHEN NOT MATCHED THEN INSERT *
+```
+error:
+```
+Py4JJavaError: An error occurred while calling o25.sql.
+: org.apache.spark.sql.catalyst.parser.ParseException: 
+mismatched input 'MERGE' expecting {'(', 'SELECT', 'FROM', 'ADD', 'DESC', 'WITH', 'VALUES', 'CREATE', 'TABLE', 'INSERT', 'DELETE', 'DESCRIBE', 'EXPLAIN', 'SHOW', 'USE', 'DROP', 'ALTER', 'MAP', 'SET', 'RESET', 'START', 'COMMIT', 'ROLLBACK', 'REDUCE', 'REFRESH', 'CLEAR', 'CACHE', 'UNCACHE', 'DFS', 'TRUNCATE', 'ANALYZE', 'LIST', 'REVOKE', 'GRANT', 'LOCK', 'UNLOCK', 'MSCK', 'EXPORT', 'IMPORT', 'LOAD'}(line 1, pos 0)
+```

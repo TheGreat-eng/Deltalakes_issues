@@ -1,0 +1,5 @@
+## Feature request
+
+Some of the `LogStore` implementations have a fast `listFrom` functionality implementations (example [S3](https://github.com/delta-io/delta/blob/master/storage/src/main/java/io/delta/storage/S3SingleDriverLogStore.java#L214)) which helps reduce the state construction latency in Kernel when table has many commit files in the `_deltalog` directory.
+
+Current `DefaultFileSystemClient.listFrom` uses [regular](https://github.com/delta-io/delta/blob/master/kernel/kernel-defaults/src/main/java/io/delta/kernel) `FileSystem.listStatus` and then filters out not required files.

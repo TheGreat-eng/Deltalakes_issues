@@ -1,0 +1,27 @@
+## Description
+
+This PR resolves issue https://github.com/delta-io/delta/issues/1641 to allow automatic schema evolution in structs that are inside maps.
+
+Assuming the target and source tables have the following schemas:
+target: `id string, map map<int, struct<a: int, b: int>>`
+source: `id string, map map<int, struct<a: int, b: int, c: int>>`
+```
+SET spark.databricks.delta.schema.autoMerge.enabled = true;
+
+MERGE INTO target t
+USING source s
+ON t.id = s.id
+WHEN MATCHED THEN UPDATE SET *
+```
+returns an analysis error today:
+```
+AnalysisException: cannot resolve 's.map' due to data type mismatch: cannot cast map<string,struct<a:int,b:int>> to map<string,struct<a:int,b:int,c:string>>;
+```
+
+With this change, the merge command succeeds and the target table schema evolves to include field `c` inside the map value. The same also works for map keys.
+
+## How was this patch tested?
+- Tests are added to `MergeIntoSuiteBase` and `MergeIntoSQLSuite` to cover struct evolution inside of maps values and keys.
+
+## Does this PR introduce _any_ user-facing changes?
+Yes, struct evolution inside of maps now succeeds instead of failing with an analysis error, see previous example.

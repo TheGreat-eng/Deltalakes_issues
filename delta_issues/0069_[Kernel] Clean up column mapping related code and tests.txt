@@ -1,0 +1,9 @@
+## Description
+Following changes:
+* Currently column mapping assignment happens just before the commit. It should before we create the transaction where the new metadata and protocol are created in TxnBuilder.build() before passing to txn.
+* Update `ColumnMapping.updateColumnMappingMetadata` to `ColumnMapping.updateColumnMappingMetadataIfNeeded` which returns the new metadata only if there are any changes. Otherwise empty is returned.
+* Cleanup the tests to use parametrized and concise utility methods. There is a lot of repeated code across the tests.
+  * Moved column mapping integration tests out of `DeltaTableWriteSuite` into `DeltaColumnMappingSuite` 
+
+## How was this patch tested?
+Existing tests and new tests for `ColumnMapping.updateColumnMappingMetadataIfNeeded`.

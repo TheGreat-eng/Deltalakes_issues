@@ -1,0 +1,15 @@
+#### Which Delta project/connector is this regarding?
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+Followup for this PR https://github.com/delta-io/delta/pull/2695, that classifies DeltaAnalysisException. This includes test change only to use checkError for exception verification.
+
+## How was this patch tested?
+existing tests changed
+
+## Does this PR introduce _any_ user-facing changes?
+No

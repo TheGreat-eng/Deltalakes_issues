@@ -1,0 +1,8 @@
+## Description
+Plain refactor to make trait `SupportsPathIdentifier` - provides utilities to check if a table is accessed by path - usable outside of `DeltaCatalog`
+
+## How was this patch tested?
+Existing tests
+
+## Does this PR introduce _any_ user-facing changes?
+No

@@ -1,0 +1,35 @@
+## Bug
+
+idea run write_uniform_hudi.py error。
+python version 3.11
+pyspark 3.5.1
+
+/Users/liujinhui/community/delta/venv/bin/python -X pycache_prefix=/Users/liujinhui/Library/Caches/JetBrains/IntelliJIdea2023.3/cpython-cache /Users/liujinhui/Library/Application Support/JetBrains/IntelliJIdea2023.3/plugins/python/helpers/pydev/pydevd.py --multiprocess --qt-support=auto --client 127.0.0.1 --port 49397 --file /Users/liujinhui/community/delta/hudi/integration_tests/write_uniform_hudi.py 
+Connected to pydev debugger (build 233.13135.103)
+Traceback (most recent call last):
+  File "<frozen importlib._bootstrap>", line 1176, in _find_and_load
+  File "<frozen importlib._bootstrap>", line 1147, in _find_and_load_unlocked
+  File "<frozen importlib._bootstrap>", line 690, in _load_unlocked
+  File "<frozen importlib._bootstrap_external>", line 940, in exec_module
+  File "<frozen importlib._bootstrap>", line 241, in _call_with_frames_removed
+  File "/Users/liujinhui/community/delta/venv/lib/python3.11/site-packages/pyspark/testing/__init__.py", line 19, in <module>
+    from pyspark.testing.pandasutils import assertPandasOnSparkEqual
+  File "/Users/liujinhui/community/delta/venv/lib/python3.11/site-packages/pyspark/testing/pandasutils.py", line 27, in <module>
+    import pyspark.pandas as ps
+  File "/Users/liujinhui/community/delta/venv/lib/python3.11/site-packages/pyspark/pandas/__init__.py", line 60, in <module>
+    from pyspark.pandas.indexes.base import Index
+  File "/Users/liujinhui/community/delta/venv/lib/python3.11/site-packages/pyspark/pandas/indexes/__init__.py", line 17, in <module>
+    from pyspark.pandas.indexes.base import Index  # noqa: F401
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/liujinhui/community/delta/venv/lib/python3.11/site-packages/pyspark/pandas/indexes/base.py", line 66, in <module>
+    from pyspark.pandas.series import Series, first_series
+  File "/Users/liujinhui/community/delta/venv/lib/python3.11/site-packages/pyspark/pandas/series.py", line 118, in <module>
+    from pyspark.pandas.strings import StringMethods
+  File "/Users/liujinhui/community/delta/venv/lib/python3.11/site-packages/pyspark/pandas/strings.py", line 44, in <module>
+    class StringMethods:
+  File "/Users/liujinhui/community/delta/venv/lib/python3.11/site-packages/pyspark/pandas/strings.py", line 1332, in StringMethods
+    def match(self, pat: str, case: bool = True, flags: int = 0, na: Any = np.NaN) -> "ps.Series":
+                                                                           ^^^^^^
+  File "/Users/liujinhui/community/delta/venv/lib/python3.11/site-packages/numpy/__init__.py", line 397, in __getattr__
+    raise AttributeError(
+AttributeError: `np.NaN` was removed in the NumPy 2.0 release. Use `np.nan` instead.. Did you mean: 'nan'?

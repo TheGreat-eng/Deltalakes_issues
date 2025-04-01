@@ -1,0 +1,27 @@
+Cherry-pick 03bdf8476c3e4f76d9a2d26592b7fd638736f57a to branch 3.2
+
+#### Which Delta project/connector is this regarding?
+
+- [X] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+Resolves #3423.
+
+This PR updates the logic in `BaseExternalLogStore::listFrom` so that it does not make a request to get the latest entry from the external store (which is used to perform recovery operations) in the event that a non `_delta_log` file is being listed.
+
+This is useful for VACUUM operations which may do hundreds or thousands of list calls in the table directory and nested partition directories of parquet files. This is NOT the `_delta_log`. Thus, checking the external store during these list calls is (1) useless and unwanted as we are not listing the `_delta_log` so clearly now isn't the time to attempt to do a fixup, and (2) expensive.
+
+This PR makes it so that future VACUUM operations do not perform unnecessary calls to the external store (e.g. DyanamoDB).
+
+## How was this patch tested?
+
+Unit tests and an integration test that actually runs VACUUM and compares the number of external store calls using the old/new logic. I ran that test myself 50 times, too, and it passed every time (therefore, not flaky).
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

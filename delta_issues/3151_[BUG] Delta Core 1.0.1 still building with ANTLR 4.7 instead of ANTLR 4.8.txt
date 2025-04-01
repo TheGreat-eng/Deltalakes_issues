@@ -1,0 +1,59 @@
+## Bug
+
+### Describe the problem
+
+I am building a Spark 3.1.3 environment that uses the matching version of Delta Core (1.0.1) for OSS delta table support.  This version of Delta Core was released on February 11th, 2022. However, when invoking the first Spark SQL query, I am getting an error message: `ANTLR Tool version 4.7 used for code generation does not match the current runtime version 4.8ANTLR Tool version 4.7 used for code generation does not match the current runtime version 4.8+`
+
+This issue was was first reported in https://github.com/delta-io/delta/issues/686 and addressed by https://github.com/delta-io/delta/pull/676. However, this never made it into the next build of `1.0.1` for Spark 3.1.x.
+
+Anyway, the result is that Spark 3.1.3 is built with version `4.8-1` https://github.com/apache/spark/blob/v3.1.3/pom.xml#L192 and Delta Core `1.0.1` is built with version `4.7` https://github.com/delta-io/delta/blob/v1.0.1/build.sbt#L61. From what I can see, all versions of Spark 3.1.x used this same `4.8-1` ANTLR version.
+
+#### Steps to reproduce
+
+Start Spark with delta-core 1.0.1 on Spark 3.1.3, with the configuration options set:
+
+```conf
+spark.sql.extensions: io.delta.sql.DeltaSparkSessionExtension
+spark.sql.catalog.spark_catalog: org.apache.spark.sql.delta.catalog.DeltaCatalog
+```
+Invoke any spark-sql code after starting an interactive shell.
+
+#### Observed results
+
+```bash
+Welcome to
+      ____              __
+     / __/__  ___ _____/ /__
+    _\ \/ _ \/ _ `/ __/  '_/
+   /__ / .__/\_,_/_/ /_/\_\   version 3.1.3
+      /_/
+
+Using Python version 3.9.2 (default, Feb 28 2021 17:03:44)
+Spark context Web UI available at http://967611c91d57:4040
+Spark context available as 'sc' (master = local[*], app id = local-1654051675565).
+SparkSession available as 'spark'.
+>>> spark.sql("show databases").show(100, False)
+ANTLR Tool version 4.7 used for code generation does not match the current runtime version 4.8ANTLR Tool version 4.7 used for code generation does not match the current runtime version 4.8+----------------------------------------+
+|namespace                               |
++----------------------------------------+
+```
+
+#### Expected results
+
+I expected that the fix for https://github.com/delta-io/delta/pull/676 should be present in Delta Core 1.0.1 since this release is older than the pull request. My guess is that the fix ended up on master and was divergent from the Delta Core 1.0.x development branch for which it was destined, but I'm not entirely sure.
+
+### Environment information
+
+* Delta Lake version: 1.0.1
+* Spark version: 3.1.3
+* Scala version: 2.12
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [ ] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [x] No. I cannot contribute a bug fix at this time.
+
+I think is a relatively simple fix for anyone to add into a 1.0.2 release.

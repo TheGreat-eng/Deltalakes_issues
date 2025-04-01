@@ -1,0 +1,13 @@
+## Description
+
+Support auto vacuum after file actions except optimize
+`spark.databricks.delta.autoVacuum.enabled (default false)`
+`spark.databricks.delta.autoVacuum.retentionHours (default 7*24)`
+
+## How was this patch tested?
+
+UT
+
+## Does this PR introduce _any_ user-facing changes?
+
+Support auto vacuum feature

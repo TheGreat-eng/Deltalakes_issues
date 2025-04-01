@@ -1,0 +1,22 @@
+## Description
+Implements `Table.checkpoint` API to checkpoint the table at given version
+
+```
+    /**
+     * Checkpoint the table at given version. It writes a single checkpoint file.
+     *
+     * @param tableClient {@link TableClient} instance to use.
+     * @param version     Version to checkpoint.
+     * @throws TableNotFoundException if the table is not found
+     * @throws CheckpointAlreadyExistsException if a checkpoint already exists at the given version
+     * @throws IOException for any I/O error.
+     * @since 3.2.0
+     */
+    void checkpoint(TableClient tableClient, long version)
+            throws TableNotFoundException, CheckpointAlreadyExistsException, IOException;
+
+```
+
+## How was this patch tested?
+Unit and integration tests. TODO: one pending test for tombstones are removed correctly.
+

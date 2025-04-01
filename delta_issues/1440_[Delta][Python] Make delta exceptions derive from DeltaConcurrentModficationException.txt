@@ -1,0 +1,28 @@
+#### Which Delta project/connector is this regarding?
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [x] Other (Delta)
+
+## Description
+
+Made the delta exceptions derive from DeltaConcurrentModficationException to align with what's done in Scala.
+This also makes it easy to check/catch all of the delta concurrent related exceptions.
+Also removed an exception conversion as the scala equivalent class is abstract meaning it can never be instantiated.
+
+## How was this patch tested?
+
+Shouldn't have any functional difference so will be covered by existing tests.
+
+## Does this PR introduce _any_ user-facing changes?
+
+Yes, users will now be able to catch all the delta exceptions by doing something like:
+```python
+
+try:
+    delta_operation()
+except delta.exceptions.DeltaConcurrentModificationException as e:
+    ...
+````

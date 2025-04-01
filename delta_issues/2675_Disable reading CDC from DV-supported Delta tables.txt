@@ -1,0 +1,7 @@
+## Description
+
+This PR adds a check to disable reading CDC from a table that have DV marked as `supported` in the protocol. Reading CDC with DV is not yet supported in the current version of Delta Lake.
+
+## How was this patch tested?
+
+Not needed. Trivial change.

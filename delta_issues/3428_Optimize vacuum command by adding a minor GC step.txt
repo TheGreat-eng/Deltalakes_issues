@@ -1,0 +1,14 @@
+this PR optimizes vacuum command by adding a new minor GC step to the existing vacuum algorithm. 
+the new GC algorithm will be composed of two steps:
+
+- [step1] Minor GC: use the delta snapshot to determine the tracked files that should be removed and delete them. We don't need to do any recursive listing and this can be done in the same pass that is extracting the valid paths.
+- [step2] major/full GC: same current behavior. 
+
+the major GC will benefit from the minor GC since all the tracked files to delete will be already deleted and only untracked files/dirs will need to be cleaned in this step. Also, empty dirs because of files deleted by the current vacuum will not wait until the next vacuum is deleted and will be vacuumed during the same GC cycle.  
+
+Does this PR introduce any user-facing change?
+No 
+
+How was this patch tested?
+- using the existing vacuum correctness test.
+- more scenarios were added to cover behavior changes introduced by this PR.

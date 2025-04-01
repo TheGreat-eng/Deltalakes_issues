@@ -1,0 +1,1 @@
+Cherry-pick https://github.com/delta-io/delta/pull/1776 for 2.4

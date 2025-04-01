@@ -1,0 +1,23 @@
+#### Which Delta project/connector is this regarding?
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [X] Other (INFRA)
+
+## Description
+
+Create new workflow `spark_examples_test.yaml` that compiles the `examples/scala/build.sbt` project.
+
+Also fixes such compilation so that it uses the local jars (previously it was incorrectly hardcoded to Delta 3.0).
+
+This requires running `publishM2` beforehand.
+
+## How was this patch tested?
+
+CI tests and specifically tested on a commit that uses a new `clusterBy` API in 3.2: https://github.com/delta-io/delta/pull/3012
+
+## Does this PR introduce _any_ user-facing changes?
+
+No.

@@ -1,0 +1,12 @@
+DO NOT MERGE. We should think of a solution for #1384 (Delta SQL confs) at the same time.
+
+## Description
+Resolves #1455 
+
+This PR removes the `databricks` prefix from Delta Configs (e.g. `spark.delta.properties.defaults.$config` instead of `spark.databricks.delta.properties.defaults.$config`). If both config keys are used, and with different values, an exception is thrown.
+
+## How was this patch tested?
+New unit test, and existing tests pass.
+
+## Does this PR introduce _any_ user-facing changes?
+Yes. Users should now use prefix `spark.delta.properties.defaults` instead of `spark.databricks.delta.properties.defaults` when setting global default delta config values.

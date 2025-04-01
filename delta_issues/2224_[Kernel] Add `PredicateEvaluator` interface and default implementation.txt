@@ -1,0 +1,37 @@
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [x] Kernel
+- [ ] Other (fill in here)
+
+## Description
+Part of delta-io/delta#2071 (Partition Pruning in Kernel). We need a way to evaluate the predicate on a `ColumnarBatch` using an existing optional selection vector.
+
+Adds `PredicateEvaluator` interface.
+```
+public interface PredicateEvaluator {
+    /**
+     * Evaluate the predicate on given inputData. Combine the existing selection vector with the
+     * output of the predicate result and return a new selection vector.
+     *
+     * @param inputData               {@link ColumnarBatch} of data to which the predicate
+     *                                expression refers to input.
+     * @param existingSelectionVector Optional existing selection vector. If not empty, it is
+     *                                combined with the predicate result. The caller is also
+     *                                releasing the ownership of `existingSelectionVector` to this
+     *                                callee, and the callee is responsible for closing it.
+     * @return A {@link ColumnVector} of boolean type that captures the predicate result for each
+     * row together with the existing selection vector.
+     */
+    ColumnVector eval(ColumnarBatch inputData, Optional<ColumnVector> existingSelectionVector);
+}
+```
+
+## How was this patch tested?
+Unit tests

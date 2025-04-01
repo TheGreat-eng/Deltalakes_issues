@@ -1,0 +1,51 @@
+## Bug
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the issue title
+For example: [BUG][Spark] Title of my issue
+-->
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+### Describe the problem
+Disabling DELTA_STATS_SKIPPING causes operations with DVs to fail with: `Cannot work with a non-pinned table snapshot of the TahoeFileIndex when reading a table with DVs`. The issue is caused because when we disable DELTA_STATS_SKIPPING the plan contains a TahoeLogFileIndex. This causes the requirement to fail at `PreprocessTableWithDVs.dvEnabledScanFor` to fail.
+
+#### Steps to reproduce
+The issue can be reproduced with:
+```
+  test("TEST non-pinned table bug") {
+    withTable("delta_target") {
+      withSQLConf(DeltaSQLConf.DELTA_STATS_SKIPPING.key -> false.toString) {
+        sql(
+          s"""
+             |CREATE TABLE delta_target(key2 INT, value INT)
+             |USING delta
+             |OPTIONS('path'='$tempPath')
+        """.stripMargin)
+
+        sql("DELETE FROM delta_target WHERE key2 = 0")
+        sql("SELECT key2, value FROM delta_target").collect()
+      }
+    }
+  }
+```
+<!--
+Please include copy-pastable code snippets if possible.
+1. _____
+2. _____
+3. _____
+-->
+
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [ ] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute a bug fix at this time.

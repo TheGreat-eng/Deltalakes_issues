@@ -1,0 +1,16 @@
+
+#### Which Delta project/connector is this regarding?
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [x] Kernel
+- [ ] Other (fill in here)
+
+## Description
+addresses  https://github.com/delta-io/delta/issues/2539
+
+## How was this patch tested?
+added unit tests
+
+## Does this PR introduce _any_ user-facing changes?
+No

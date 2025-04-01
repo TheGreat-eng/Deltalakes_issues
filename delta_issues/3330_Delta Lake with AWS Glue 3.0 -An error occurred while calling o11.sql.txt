@@ -1,0 +1,10 @@
+Hi ,
+I am using Delta Lake 1.0.0 with AWS Glue version 3.0. I have requirement to create couples of delta table at run time .. every thing was working fine in my local. The same code I am trying to run at  in cloud and  to create delta table. The code throws an error at --spark.sql( create statement) -- it looks something is broken in the middle --as I see delta table folder with logs files are create.. but throws error.
+
+I have been trying different configurations and none of them are working for me. Some of these are:
+
+ configured the spark.delta.logStore.class=org.apache.spark.sql.delta.storage.S3SingleDriverLogStore --conf spark.sql.extensions=io.delta.sql.DeltaSparkSessionExtension --conf spark.sql.catalog.spark_catalog=org.apache.spark.sql.delta.catalog.DeltaCatalog
+as mentioned in below link:
+https://stackoverflow.com/questions/71040176/aws-glue-not-able-to-write-delta-lake-in-s3
+
+Appreciate someone have any thought on this issue.

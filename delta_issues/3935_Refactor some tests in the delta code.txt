@@ -1,0 +1,9 @@
+The main goal of this Pull Request is to make small changes in the tests by providing very minor changes which in most cases consists of :
+
+- removing unused imports
+- removing unused values
+- stop using a deprecated method and replace it by the adequate method
+- replacing var by val when possible
+- not using the new operator when instantiating a scala case class (like StructField or StructType)
+
+These changes were tested by running all the tests.

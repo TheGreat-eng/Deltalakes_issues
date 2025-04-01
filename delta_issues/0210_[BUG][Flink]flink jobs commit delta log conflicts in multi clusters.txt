@@ -1,0 +1,74 @@
+## Bug
+
+#### Which Delta project/connector is this regarding?
+- [x] Standalone
+- [x] Flink
+
+### Describe the problem
+I set up several flink jobs to write to the same S3 path, the column `cluster` as the partition column.
+
+base_path: s3://bigdata-bucket/records
+us01 cluster: s3://bigdata-bucket/records/cluster=us01/dt=2025-02-03/hour=01/...
+us02 cluster: s3://bigdata-bucket/records/cluster=us02/dt=2025-02-03/hour=01/...
+us03 cluster: s3://bigdata-bucket/records/cluster=us03/dt=2025-02-03/hour=01/...
+...
+us07 cluster: s3://bigdata-bucket/records/cluster=us07/dt=2025-02-03/hour=01/...
+
+The job in each cluster will write data into the cluster, and all of the jobs will commit the delta log to `s3://bigdata-bucket/records/_delta_log/`.
+
+Sporadically, the s3://bigdata-bucket/records/_delta_log/0000000xxxxx.json file will be replaced by the job from other clusters.
+
+For example, the job in us01 committed the delta log  00000000000000058835.json. In a very short time (several milliseconds) afterwards, the job in us02 committed the same delta log  00000000000000058835.json and the previous file was replaced by the newer one. So this caused the delta log missing which caused the parquet files in the previous json file can't be queried anymore.
+
+
+
+#### Steps to reproduce
+This issue happened occasionally. Some information can be provided.
+
+In delta-flink:0.6.0
+io.delta.flink.sink.internal.committer.DeltaGlobalCommitter#doCommit:
+
+![Image](https://github.com/user-attachments/assets/35b18f60-d329-4e55-8363-6fc2deb51a5c)
+
+These two logs can be found in the both jobs' taskManager's logs. There is no Exception or Error we can find in the logs. 
+
+
+
+#### Expected results
+The newer one should not be written, the job should throw `FileAlreadyExistException`  and the commit version should be +1.
+
+
+#### Further details
+
+- The log in the us01 cluster's flink job
+2025-02-03 03:10:17,692 INFO  com.amazon.ws.emr.hadoop.fs.s3n.MultipartUploadOutputStream  [] - close closed:false s3://bigdata-bucket/records/_delta_log/00000000000000058833.json
+
+- The log in the us02 cluster's flink job
+2025-02-03 03:10:17,696 INFO  com.amazon.ws.emr.hadoop.fs.s3n.MultipartUploadOutputStream  [] - close closed:false s3://bigdata-bucket/recordss/_delta_log/00000000000000058833.json
+
+The log means the flink job has finished writing the delta log json file. And the previous one was replaced by the newer one.
+
+### Environment information
+
+```
+  <dependency>
+      <groupId>io.delta</groupId>
+      <artifactId>delta-flink</artifactId>
+      <version>0.6.0</version>
+  </dependency>
+
+  <dependency>
+      <groupId>io.delta</groupId>
+      <artifactId>delta-standalone_2.12</artifactId>
+      <version>0.6.0</version>
+  </dependency>
+```
+
+* Flink version: 1.17.1
+* Scala version: 2.12.11
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [x] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.

@@ -1,0 +1,20 @@
+Resolves #1434
+
+## Description
+
+- Improve projection push down for Delta: Finding files to rewrite for DELETE operation query
+- reduce memory usage for deleserialization of big parquet files
+- reduce IO overhead for big parquet files
+
+## How was this patch tested?
+
+Spark 3.2.1 and delta 1.2.1
+1. In production enviroment in Appsflyer company. 
+And 
+Spark 3.3.0 and delta 2.1.0(latest ,aster)
+1. Run DeleteScalaSuite -> test ("delete usage test - with condition"). 
+2. Check Query Plan for Delta: Finding files to rewrite for DELETE operation
+3. `Scan parquet Output [1]` must be[key#565], and not `[key#565, value#566]` 
+
+## Does this PR introduce _any_ user-facing changes?
+No

@@ -1,0 +1,88 @@
+## Bug
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the issue title
+For example: [BUG][Spark] Title of my issue
+-->
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [x] Kernel
+- [ ] Other (fill in here)
+
+### Describe the problem
+
+#### Steps to reproduce
+
+Easy to reproduce using a simple ingest query to ingest a Delta table from the Druid-Delta connector. After upgrading the Delta Kernel dependency from `3.1.0` to `3.2.0`, we noticed that ingestion from existing Delta tables setup locally stopped working. The stacktrace is:
+
+```
+java.lang.IllegalArgumentException: Can not instantiate `LogStore` class: io.delta.storage.HDFSLogStore
+	at io.delta.kernel.defaults.internal.DefaultEngineErrors.canNotInstantiateLogStore(DefaultEngineErrors.java:26)
+	at io.delta.kernel.defaults.internal.logstore.LogStoreProvider.getLogStore(LogStoreProvider.java:88)
+	at io.delta.kernel.defaults.engine.DefaultFileSystemClient.listFrom(DefaultFileSystemClient.java:76)
+	at io.delta.kernel.internal.snapshot.SnapshotManager.listFrom(SnapshotManager.java:228)
+	at io.delta.kernel.internal.snapshot.SnapshotManager.listFromOrNone(SnapshotManager.java:253)
+	at io.delta.kernel.internal.snapshot.SnapshotManager.listDeltaAndCheckpointFiles(SnapshotManager.java:294)
+	at io.delta.kernel.internal.snapshot.SnapshotManager.getLogSegmentForVersion(SnapshotManager.java:466)
+	at io.delta.kernel.internal.snapshot.SnapshotManager.getLogSegmentFrom(SnapshotManager.java:415)
+	at io.delta.kernel.internal.snapshot.SnapshotManager.getSnapshotAtInit(SnapshotManager.java:352)
+	at io.delta.kernel.internal.snapshot.SnapshotManager.buildLatestSnapshot(SnapshotManager.java:113)
+	at io.delta.kernel.internal.TableImpl.getLatestSnapshot(TableImpl.java:55)
+	at org.apache.druid.delta.input.DeltaInputSource.createSplits(DeltaInputSource.java:210)
+	at org.apache.druid.msq.input.external.ExternalInputSpecSlicer.sliceSplittableInputSource(ExternalInputSpecSlicer.java:119)
+```
+
+The underlying issue seems to be that it's unable to instantiate `LogStore`, which is coming from a new code path added in https://github.com/delta-io/delta/pull/2770/files.
+
+
+After adding the dependency to the Druid-Delta connector, I was still seeing the same error:
+```xml
+     <dependency>
+      <groupId>io.delta</groupId>
+      <artifactId>delta-storage</artifactId>
+      <version>${delta-kernel.version}</version>
+    </dependency>
+```
+
+
+Thanks to @vkorukanti who swiftly helped provide a workaround by adding the following line before making calls to the Kernel APIs: `Thread.currentThread().setContextClassLoader(LogStore.class.getClassLoader());` before calls to the Kernel API
+
+It's unclear if this workaround is needed for all the Kernel APIs or just specifically when getting the snapshot information - i.e., ` table.getLatestSnapshot(engine)`
+
+<!--
+Please include copy-pastable code snippets if possible.
+1. _____
+2. _____
+3. _____
+-->
+
+#### Observed results
+
+Ingestion fails.
+<!-- What happened?  This could be a description, log output, etc. -->
+
+#### Further details
+
+The slack thread has some more information: https://delta-users.slack.com/archives/CJ70UCSHM/p1719190251166299
+
+
+<!--
+Include any additional details that may be useful for diagnosing the problem here. If including tracebacks, please include the full traceback. Large logs and files should be attached.
+-->
+
+### Environment information
+
+* Delta Lake version: 3.20
+* Spark version: 3.5.0
+
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [x] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute a bug fix at this time.

@@ -1,0 +1,12 @@
+currently delta is an project that is independent from apache spark, but it uses stuff deep inside the bowels of spark that is not part of spark's public or stable api. this makes you wonder if spark has perhaps extensibility issue (one shouldn't have to use internal apis to add a data source). it is also practically somewhat problematic: once you depend on delta it is nearly impossible to upgrade spark without also having to upgrade delta in complete lockstep.
+
+once your project depends on delta trying out the latest spark master branch becomes very difficult, since its up to you to compile delta against it (which usually means fixing at least a few breaking changes in delta's usage of catalyst, and also fixing a bunch of broken unit tests). this is not good for the spark community as the community depends on contributors being able to test the latest spark master and report back issues. it now seems we have to chose between being able to test latest spark or using delta (or becoming an expert in delta's internals to maintain our own version against spark master).
+
+to make delta less coupled some options are:
+1) use less spark internal/unstable apis
+2) always have a public branch for delta that is build against latest spark master
+3) move delta into spark so the two projects are developed together
+4) make more of the apis that delta uses in spark stable and/or public
+
+best,
+koert

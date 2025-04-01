@@ -1,0 +1,2 @@
+ - Added a scala quick start example to simulate the quick start guide.
+ - Created sbt project to easily run the quick start guide.

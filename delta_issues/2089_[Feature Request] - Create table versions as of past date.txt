@@ -1,0 +1,30 @@
+## Feature request
+
+#### Which Delta project/connector is this regarding?
+<!--
+ [Feature Request][Spark] Title of my issue
+-->
+
+- [X ] Spark
+
+
+### Overview
+
+I'd like to be able to create versions of the table as of past dates rather than using the execution time as the timestamp of a given version of the table. 
+### Motivation
+
+I have some old tables that I'd like to migrate to delta but I'd like to keep the different versions with the real timestamps. Would be nice to have the capability to write a table as of a given point in time.
+
+
+### Further details
+
+I don't think the capability is needed to generate past table versions for an already existing table, but would be good to have this for new tables (i.e. versions get added sequentially but just with past timestamps instead of execution  timestamps)
+
+I searched a bit and didn't find a way to do it. (I didn't find a feature request for it either, so glad to know if this exists)
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+
+- [X] No. I cannot contribute this feature at this time.

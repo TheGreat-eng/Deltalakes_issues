@@ -1,0 +1,57 @@
+<!--
+Thanks for sending a pull request!  Here are some tips for you:
+  1. If this is your first time, please read our contributor guidelines: https://github.com/delta-io/delta/blob/master/CONTRIBUTING.md
+  2. If the PR is unfinished, add '[WIP]' in your PR title, e.g., '[WIP] Your PR title ...'.
+  3. Be sure to keep the PR description updated to reflect all changes.
+  4. Please write your PR title to summarize what this PR proposes.
+  5. If possible, provide a concise example to reproduce the issue for a faster review.
+  6. If applicable, include the corresponding issue number in the PR title and link it in the body.
+-->
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+<!--
+- Describe what this PR changes.
+- Describe why we need the change.
+ 
+If this PR resolves an issue be sure to include "Resolves #XXX" to correctly link and close the issue upon merge.
+-->
+
+Currently, the [`Utils.isTesting`](https://github.com/apache/spark/blob/105bed7d2cab807211540b166ce8b97549d4ede7/core/src/main/scala/org/apache/spark/util/Utils.scala#L1878) check in tests is not reliable because the `spark.testing` system property is not set before the suites start, so the tests are relying on [this line](https://github.com/apache/spark/blob/105bed7d2cab807211540b166ce8b97549d4ede7/core/src/test/scala/org/apache/spark/SparkFunSuite.scala#L94) in `SparkFunSuite` to set the test indicator. This is causing issues in CI because it means whether `Utils.isTesting` returns correct result depends on whether it is called after `SparkFunSuite::beforeAll` is called.
+
+For example, some deletion vector-related suites are relying on the [`TEST_DV_NAME_PREFIX` config](https://github.com/delta-io/delta/blob/a6db4e05d943fec019522c9c08ff0b64125cbc5d/spark/src/main/scala/org/apache/spark/sql/delta/sources/DeltaSQLConf.scala#L2410-L2415) to be correctly initialized in tests. However, if a previous test in the same JVM group initialized this config before `spark.testing` is correctly set by `SparkFunSuite`, the deletion vector suites would see the incorrect value of `TEST_DV_NAME_PREFIX` and fail (This is currently not an issue in master by luck but if a PR added new tests that changed the JVM grouping in CI job (https://github.com/delta-io/delta/pull/4039, https://github.com/delta-io/delta/pull/4040), this would incorrectly fail the PR's spark test job).
+
+This PR fixes this by setting `spark.testing` to true in build file. Note that this flag is already set in the Spark repo but not here yet.
+
+## How was this patch tested?
+
+<!--
+If tests were added, say they were added here. Please make sure to test the changes thoroughly including negative and positive cases if possible.
+If the changes were tested in any way other than unit tests, please clarify how you tested step by step (ideally copy and paste-able, so that other reviewers can test and check, and descendants can verify in the future).
+If the changes were not tested, please explain why.
+-->
+
+Check that the `TEST_DV_NAME_PREFIX` is correctly set for tests that run `Utils.testing` before `SparkFunSuite::beforeAll` (e.g., `org.apache.spark.sql.delta.DeltaWithNewTransactionWithCoordinatedCommitsBatch100Suite`)
+
+
+## Does this PR introduce _any_ user-facing changes?
+
+<!--
+If yes, please clarify the previous behavior and the change this PR proposes - provide the console output, description and/or an example to show the behavior difference if possible.
+If possible, please also clarify if this is a user-facing change compared to the released Delta Lake versions or within the unreleased branches such as master.
+If no, write 'No'.
+-->
+
+No

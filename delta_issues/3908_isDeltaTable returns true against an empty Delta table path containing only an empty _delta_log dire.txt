@@ -1,0 +1,16 @@
+Encountered  while trying to vacuum an empty delta table through an automated vacuum that lists out a database path and checks if any underlying table paths are delta tables. 
+
+All that exists under this example table path is an empty _delta_log directory
+```
+>>> table_path
+'s3://<some_db_path>/<table>'
+>>> DeltaTable.isDeltaTable(spark, table_path)
+True
+>>> deltaTable = DeltaTable.forPath(spark, table_path)
+>>> deltaTable.vacuum(24)                                                       
+Traceback (most recent call last):
+  File "/usr/lib/spark/python/pyspark/sql/utils.py", line 63, in deco
+    return f(*a, **kw)
+  File "/usr/lib/spark/python/lib/py4j-0.10.7-src.zip/py4j/protocol.py", line 328, in get_return_value
+py4j.protocol.Py4JJavaError: An error occurred while calling o71.vacuum.
+: java.lang.IllegalArgumentException: requirement failed: No state defined for this table. Is this really a Delta table? Refusing to garbage collect.```

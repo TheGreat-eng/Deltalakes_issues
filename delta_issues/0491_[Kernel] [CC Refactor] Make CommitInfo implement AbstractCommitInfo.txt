@@ -1,0 +1,21 @@
+#### Which Delta project/connector is this regarding?
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+This PR makes CommitInfo depend on AbstractCommitInfo. This lets us remove the `CoordinatedCommitsUtils.convertCommitInfoToAbstractCommitInfo` method.
+
+Also cleans up code along the way, and adds `version` (read from the file name) to CommitInfo.
+
+## How was this patch tested?
+
+Existing UTs.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No.

@@ -1,0 +1,18 @@
+## Feature request
+
+### Overview
+
+Hi there!
+Though the Delta Format spec mentions a number of formats for the underlying files, it seems that only Parquet is the way to go for now. I think that's probably meaningful most of the time, however I think the following two formats might be something to consider:
+
+- Apache Arrow : Thought significantly larger, it allows to be used by using Memory-Map which would greatly reduce memory allocation for some scenarios (local files). Normally storage is a lot cheaper than RAM & CPU
+- Avro: I'm not sure about this one but I think it might has advantages for large dimension tables because it's row oriented. Correct me if I'm wrong , I have an old-school SQL Background ;)
+
+
+### Willingness to contribute
+
+I'm currently out of time but that might change. Also I don't speak Rust fluently yet :)
+
+### Closing words
+
+I really appreciate that awesome work on the Delta Format that's being done and I just tried to write down what I think could be great. If it's not meaningful, feel free to close this issue 

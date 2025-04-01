@@ -1,0 +1,41 @@
+## Feature request
+
+#### Which Delta project/connector is this regarding?
+
+- [X] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+### Overview
+
+The problem: Sometimes, it is possible that a delta log references parquet files or deletion vector files that do not exist in the filesystem. One specific example of that can happen when the following sequence of actions occurs:
+1. A table is created and several entries are added
+2. Some files are deleted
+3. Vacuum command is applied to physically remove the deleted files
+4. We time travel to a version of the table before step 2 has happened
+In this case we end up with a table that has a reference to a file but that file has been vacuumed so the table becomes not usable.
+
+Right now, we have no way of selecting from tables that have delta log references to missing files. The FSCK command would make the table usable by removing those references.
+
+### Motivation
+
+This feature will be used to make the table usable again. At the moment, if a Delta Log contains a reference to a file that does not exist in the filesystem, an error is thrown.
+
+Users have previously requested this feature to be added. See https://github.com/delta-io/delta/issues/748#issuecomment-930724418
+
+### Further details
+
+Some of the features this command should have:
+- Remove references to the parquet files that are not found in the filesystem
+- Report any files that have a deletion vector, but the referenced deletion vector file is missing
+- Have a DRY RUN mode that would allow the user to see which files will be removed without actually performing the removal
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [X] Yes. I can contribute this feature independently.
+- [ ] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.

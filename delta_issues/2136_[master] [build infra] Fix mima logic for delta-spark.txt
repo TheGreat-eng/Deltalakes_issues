@@ -1,0 +1,12 @@
+## Description
+
+Fix Mima delta-spark/delta-core version mismatch.
+
+Resolves delta-io/delta#2173
+
+## How was this patch tested?
+
+`build/sbt spark/mimaPreviousClassfiles`
+
+## Does this PR introduce _any_ user-facing changes?
+No

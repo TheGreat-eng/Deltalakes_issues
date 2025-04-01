@@ -1,0 +1,20 @@
+#### Which Delta project/connector is this regarding?
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [x] Kernel
+- [ ] Other (fill in here)
+
+## Description
+We add reader support for Tables with Vacuum Protocol Check Table Feature in Kernel. 
+
+As per the protocol, for tables with Vacuum Protocol Check enabled, readers don’t need to understand or change anything new; they just need to acknowledge the feature exists.
+
+## How was this patch tested?
+
+- GENERATE_GOLDEN_TABLES=1 build/sbt 'goldenTables/testOnly *GoldenTables -- -z "basic-with-vacuum-protocol-check-feature"'
+- build/sbt 'testOnly io.delta.kernel.defaults.DeltaTableReadsSuite'
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

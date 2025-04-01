@@ -1,0 +1,19 @@
+## Feature request
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the issue title
+For example: [Feature Request][Spark] Title of my issue
+-->
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [X] Kernel
+- [ ] Other (fill in here)
+
+### Overview
+
+We have mima checks for Spark, Standalone, and Flink, we should add them for Kernel before the next release.
+
+The checks need to be enabled for the `kernelApi` and `kernelDefaults` projects in `build.sbt`. The MiMa settings for other projects are in https://github.com/delta-io/delta/blob/master/project/Mima.scala, we can mimic this for the kernel projects.

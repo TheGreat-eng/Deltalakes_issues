@@ -1,0 +1,19 @@
+#### Which Delta project/connector is this regarding?
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+This PR adds support for dropping the `changeDataFeed` table feature. It automatically removes `delta.enableChangeDataFeed` property from the table.
+
+## How was this patch tested?
+
+Added a test to `DeltaCDCSQLSuite`.
+
+## Does this PR introduce _any_ user-facing changes?
+
+Yes, users can now run `ALTER TABLE ... DROP FEATURE changeDataFeed`.

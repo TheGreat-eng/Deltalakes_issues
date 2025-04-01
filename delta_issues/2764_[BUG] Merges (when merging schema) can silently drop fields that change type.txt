@@ -1,0 +1,87 @@
+## Bug
+
+### Describe the problem
+
+Using `autoMerge` or `mergeSchema` when doing a `MERGE INTO` works great for added or removed columns.
+
+But encountering a changed column type can silently drop data from inserted rows. That is, if `delta` sees a new row with a different (and unconvertable) column type than its existing schema, it will silently null out that column.
+
+#### Steps to reproduce
+
+Here is some python code to reproduce. It merges a new row into an existing table and prints the results.
+
+```python
+import delta
+import pyspark
+import shutil
+
+PATH = '/tmp/schematest'
+shutil.rmtree(PATH, ignore_errors=True)
+
+builder = pyspark.sql.SparkSession.builder \
+    .config('spark.databricks.delta.schema.autoMerge.enabled', 'true') \
+    .config('spark.sql.catalog.spark_catalog', 'org.apache.spark.sql.delta.catalog.DeltaCatalog') \
+    .config('spark.sql.extensions', 'io.delta.sql.DeltaSparkSessionExtension')
+spark = delta.configure_spark_with_delta_pip(builder).getOrCreate()
+
+df1 = spark.createDataFrame([{'id': 1, 'int2str': 10, 'str2int': 'str', 'dropped': 'bye'}])
+df1.write.save(path=PATH, format='delta', mode='overwrite')
+
+df2 = spark.createDataFrame([{'id': 2, 'int2str': 'str', 'str2int': 20, 'added': 'hello'}])
+delta.DeltaTable.forPath(spark, PATH).alias('table') \
+    .merge(source=df2.alias('updates'), condition='table.id = updates.id') \
+    .whenMatchedUpdateAll() \
+    .whenNotMatchedInsertAll() \
+    .execute()
+
+table = delta.DeltaTable.forPath(spark, PATH)
+table.toDF().printSchema()
+table.toDF().sort('id').show()
+```
+
+#### Observed results
+
+The code above prints:
+
+```
+root                                                                            
+ |-- dropped: string (nullable = true)
+ |-- id: long (nullable = true)
+ |-- int2str: long (nullable = true)
+ |-- str2int: string (nullable = true)
+ |-- added: string (nullable = true)
+
++-------+---+-------+-------+-----+
+|dropped| id|int2str|str2int|added|
++-------+---+-------+-------+-----+
+|    bye|  1|     10|    str| null|
+|   null|  2|   null|     20|hello|
++-------+---+-------+-------+-----+
+```
+
+You can see that it cast the int 20 to a string and used it for `str2int`, but failed to cast the string for `int2str` and dropped that on the floor.
+
+#### Expected results
+
+Ideally an error would occur.
+
+It's reasonable that `delta` doesn't know what to do with the data -- it's an odd situation with no obvious way to solve it. But I'd expect an error in that case, since dropped data can cause real problems if you don't notice it's happening.
+
+You might reply that I asked for a merged schema, and I don't get to complain when `delta` tries its best to do a merge. But I think it's reasonable to want the ability to add or remove columns, but still error out in a situation like this.
+
+If this _is_ "delta working as intended", I'd be happy to convert this ticket into a feature request for a config option like `autoMergeSafely` or some way to control this to avoid silent loss of data.
+
+### Environment information
+
+* Delta Lake version: 2.1.1
+* Spark version: 3.3.1
+* Scala version: 2.12
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [ ] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [x] Potentially with guidance, depending on how involved it is
+- [ ] No. I cannot contribute a bug fix at this time.

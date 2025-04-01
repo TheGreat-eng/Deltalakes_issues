@@ -1,0 +1,12 @@
+Hello,
+
+We're trying a simple Merge operation between ~450k and ~1k records, but the operation doesn't finish, throwing a Java Heap Memory exception on my local machine. Trying to launch the same operation with a cluster of 10 machines, result in the same behaviour.
+
+The strange thing is that launching the same code with Delta version 2.4.0 and Spark 3.4.0 it finishes in a few seconds on my local system. Unfortunately we doesn't have the possibility to upgrade to Delta 2.4.0 and Spark 3.4.0 in our production cluster.
+
+I've tried to zOrdering the join column, or tune some Spark parameters as shuffle.partitions or join thresholds, but I did't have luck.
+
+
+@PawaritL, we've already talked about this issue in other opened thread, but I decided to open one new to avoid talking a bit different topic.
+
+Thank you in advance!

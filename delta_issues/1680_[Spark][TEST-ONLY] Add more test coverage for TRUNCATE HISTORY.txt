@@ -1,0 +1,15 @@
+#### Which Delta project/connector is this regarding?
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+We are currently missing SQL tests for ALTER TABLE DROP FEATURE TRUNCATE HISTORY with non-path based table. We have tests for writer feature, but not for readerwriter feature that require the TRUNCATE HISTORY syntax. This PR addresses that gap. 
+
+## How was this patch tested?
+This is a test-only PR.
+
+## Does this PR introduce _any_ user-facing changes?
+No.

@@ -1,0 +1,23 @@
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [X] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+Increase DV metrics "added" and "removed" for all DVs that have been "updated" because, from Delta Log's perspective, an "update" action is equivalent to a "remove" followed by an "add". Updating the counting rule will ensure that the metric reflects more accurately what happened at a lower level.
+
+## How was this patch tested?
+
+Updating existing tests.
+
+## Does this PR introduce _any_ user-facing changes?
+
+Yes, they'll see the change in DV metrics.

@@ -1,0 +1,12 @@
+## Description
+
+**_Background:_** currently the restore command and clone command will not trigger the iceberg conversion process. Therefore, the iceberg metadata will fall behind, causing discrepancy between delta reader and iceberg reader.
+
+**_Proposed Change:_** This PR solves the issue via invoking a iceberg conversion process after table restores.
+
+## How was this patch tested?
+
+E2E Tests
+
+## Does this PR introduce _any_ user-facing changes?
+No

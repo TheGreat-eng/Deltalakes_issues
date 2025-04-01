@@ -1,0 +1,17 @@
+## Description
+In S3, if `N.json` is over-written while an input stream is open on it, then the ETag will change and a `RemoteFileChangedException` will be thrown.
+
+This PR adds logic to retry reading that `N.json` file, at the exact same line that the error occurred at.
+
+This assumes and requires that the contents of N.json have been overwritten with the same identical content!
+
+As an important implementation highlight: so, if we are at index 25 (thus, the last successfully read index is 24), and we try to call `.next()` on the read iterator, and an RemoteFileChangedException is thrown, we will re-generate the read iterator, skip all the way to index 25, and try reading it again.
+
+
+## How was this patch tested?
+
+New UTs.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No.

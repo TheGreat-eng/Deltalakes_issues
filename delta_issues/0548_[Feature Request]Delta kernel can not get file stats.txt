@@ -1,0 +1,25 @@
+## Feature request
+
+#### Which Delta project/connector is this regarding?
+
+- [✓] Kernel
+
+### Overview
+
+Since the delta-standalone has been deprecated, we are migrating out project using delta-kernel instead of delta-standalone.
+But we found that delta-kernel can not get file stats when scanning file lists.
+
+In delta-standalone, we can get file stats in this class : <class AddFile implements FileAction>. And we can get the change logs
+using "Iterator<VersionLog> getChanges" in io.delta.standalone.DeltaLog which can not be list in delta-kernel too.
+
+### Motivation
+
+
+- out project need min&max stats of each file to do some optimization
+- the change logs will be used to maintain the file list cache incremental(since we can not list all file each time we scanning this table)
+
+### Further details
+
+### Willingness to contribute
+
+- [✓] No. I cannot contribute this feature at this time.

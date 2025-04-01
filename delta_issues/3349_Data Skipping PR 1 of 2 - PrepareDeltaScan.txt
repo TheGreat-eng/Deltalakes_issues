@@ -1,0 +1,12 @@
+This is PR 1 of 2 for Delta Lake OSS Data Skipping (aka file skipping with column stats) feature. See the issue https://github.com/delta-io/delta/issues/931.
+
+## What changes were proposed in this pull request?
+This PR adds several key classes (and some tests) that focuses on properly transforming the catalyst logical plan so that parquet files can be properly filtered using stats + filter expressions. Notably, this PR doesn't implement the actual statistic reader to properly filter those files. That will come in PR 2/2.
+
+The main changes are
+- added `PrepareDeltaScan`: a new rule (transformation) to be applied during the query planning process. It also ensures that scans on the same Snapshot in a query reuse that snapshot (performance optimization)
+- `DataSkippingReader`: a bare-bones skeleton to read stats + filter files that we will fully implement later in PR 2/2
+- changed `OptimisticTransaction` and `Snapshot` to properly use `PrepareDeltaScan`
+
+## How was this patch tested?
+- add `DeltaWithNewTransactionSuite` to test that concurrent transactions maintain snapshot isolation given the snapshot-reuse changes that we have added to PrepareDeltaScan

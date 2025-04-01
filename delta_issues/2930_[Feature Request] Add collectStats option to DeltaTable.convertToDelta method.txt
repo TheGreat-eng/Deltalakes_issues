@@ -1,0 +1,21 @@
+## Feature request
+
+Here's the current method signature for `DeltaTable.convertToDelta`:
+
+```python
+DeltaTable.convertToDelta(spark, identifier, partitionSchema)
+```
+
+It'd be nice if there was a `collectStats` option that'd let users skip statistics collection if that's a bottleneck when they're trying to convert a Parquet lake to a Delta Lake.
+
+### Further details
+
+Looks like `collectStats` is set to false in [this file](https://github.com/delta-io/delta/blob/master/core/src/main/scala/org/apache/spark/sql/delta/commands/ConvertToDeltaCommand.scala).  Perhaps it'll be relatively straightforward to expose this option via the different language APIs.
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [ ] Yes. I can contribute this feature independently.
+- [ ] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [X] No. I cannot contribute this feature at this time.

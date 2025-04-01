@@ -1,0 +1,21 @@
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+This change adds additional metrics regarding Vacuum to get better visibility
+
+## How was this patch tested?
+Existing tests
+
+## Does this PR introduce _any_ user-facing changes?
+No

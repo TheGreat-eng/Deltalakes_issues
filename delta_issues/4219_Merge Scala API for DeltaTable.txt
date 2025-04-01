@@ -1,0 +1,5 @@
+GitOrigin-RevId: 243bc18522d75b05bc1c02b92921aaefdeabfe40
+
+This PR is for https://github.com/delta-io/delta/issues/42, after the change, delta table has the ability to merge some source table/query with optional condition and update/insert rules.
+
+This PR has been tested by `MergeIntoScalaSuite.scala`

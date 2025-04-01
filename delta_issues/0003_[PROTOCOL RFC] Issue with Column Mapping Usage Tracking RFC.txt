@@ -1,0 +1,19 @@
+## Protocol Change Request
+The Column Mapping Usage Tracking RFC https://github.com/delta-io/delta/blob/master/protocol_rfcs/column-mapping-usage-tracking.md doesn't account for some problematic cases and could, as written, result in table corruption.
+
+### Description of the protocol change
+In order to switch from 'name' mode to 'none' mode on a table you need to know that no column was ever removed from the table (to avoid re-using a name previously used to bind information in parquet files which could lead to wrong results when querying the table), that no column was ever added to the table with a physical name that wasn't the logical name (either on table creation or as part of a subsequent DDL), and that no column was ever renamed (knowing that the current logical name for each column is the current physical name is not sufficient as a column could have been renamed, had parquet files written using the new name, and then been renamed again back to its original logical name).
+
+The current proposal covers the drop and rename cases (as denoted in the name delta.columnMapping.hasDroppedOrRenamed), but does not cover the add case (either as part of table creation or as part of subsequent DDL).
+
+Addressing issue https://github.com/delta-io/delta/issues/3764 would provide clarity about column mapping and its mutability in the spec, which would be helpful in thinking through the ramifications of proposals like these.
+
+### Willingness to contribute
+
+The Delta Lake Community encourages protocol innovations. Would you or another member of your organization be willing to contribute this feature to the Delta Lake code base?
+
+- [ ] Yes. I can contribute.
+- [ ] Yes. I would be willing to contribute with guidance from the Delta Lake community.
+- [ x] No. I cannot contribute at this time.
+
+

@@ -1,0 +1,29 @@
+The main goal of this Pull Request is to make some code enhancements on the different Options used in this project.
+Some pattern matching snippets were unnecessary since we could have treated options as collections.
+for example : 
+
+- **foreach** can replace the following code: 
+```
+option match {
+  case None => {}
+  case Some(x) => foo(x)
+}
+```
+- **forall** can replace the following code: 
+```
+option match {
+  case None => true
+  case Some(x) => foo(x)
+}
+```
+- **exists** can replace the following code:
+```
+option match {
+  case None => false
+  case Some(x) => foo(x)
+}
+```
+
+I also removed some unnecessary pattern matching conditions which could have been anticipated using a ```getOrElse``` on the Scala Option.
+
+These modifications were tested by running the existant tests.

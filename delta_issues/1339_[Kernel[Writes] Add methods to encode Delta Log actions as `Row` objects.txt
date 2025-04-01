@@ -1,0 +1,7 @@
+(Split from larger PR #2944)
+
+Add `toRow` for each of the action objects. Also add any missing actions such as `CommitInfo`.
+
+Also
+* Rename `READ_SCHEMA` to `FULL_SCHEMA` when all columns in an action are present. `READ_SCHEMA` is a term used to read just the subset of columns, but in some actions, it also represents the full schema.
+* Utility method to create single action `Row` object from a specific actions. Eg. `createMetadataSingleAction(Metadata metadata)` returns a `Row` of single action schema with `metaData` column representing the given `metadata` object.

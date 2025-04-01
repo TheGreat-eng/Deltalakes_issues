@@ -1,0 +1,35 @@
+## Feature request
+
+#### Which Delta project/connector is this regarding?
+
+- [x] Spark
+- [x] Standalone
+- [x] Flink
+- [x] Kernel
+- [x] Other (anything that can work write data in delta format)
+
+### Overview
+Delta protocol calls out support for relative path in the log files. This path is relative to the table root directory. Provide a way to configure writers to write logs with relative paths instead of absolute paths.
+It should be possible to switch between two as well.
+
+### Motivation
+- Moving data directory around in the filesystem.
+- Sometimes a same filesystem can be presented as different schemes, example: ozone.
+
+It is helpful to stick to relative paths in such cases as it increases the flexibility to choose/configure endpoints and need for editing the log files or rewrites.
+
+### Further details
+
+<!--
+Use this section to include any additional information about the feature. If you have a proposal for how to implement this feature, please include it here. For implementation guidelines, please read our contributor guidelines: https://github.com/delta-io/delta/blob/master/CONTRIBUTING.md
+If there are any specific requirements for this feature that are not immediately obvious please outline them here.
+-->
+NA
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [ ] Yes. I can contribute this feature independently.
+- [ ] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [x] No. I cannot contribute this feature at this time.

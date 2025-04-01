@@ -1,0 +1,25 @@
+## Feature request
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the issue title
+For example: [Feature Request][Spark] Title of my issue
+-->
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [X] Kernel
+- [ ] Other (fill in here)
+
+### Overview
+
+#2662 adds support for reading a snapshot of the table with beforeOrAt semantics (which aligns with SQL `TIMESTAMP AS OF` time-travel semantics).
+
+Delta-sharing and others require additional semantics to support other use-cases (i.e. streaming)
+- afterOrAt semantics
+- Retrieving just the table version without constructing the snapshot (to avoid unnecessary loading of the table protocol and metadata) for both semantics
+
+### Further details
+
+This includes revisiting the API added in #2662 and deciding what the API surface should look like for all of these time-travel related methods.

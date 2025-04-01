@@ -1,0 +1,22 @@
+## Feature request
+
+### Overview
+I have been following this guideline in order to setup pytest for a delta code in Docker: https://docs.delta.io/latest/quick-start.html#python but it does not work. I get the following error:
+
+>  return jvm.io.delta.tables.DeltaTable.isDeltaTable(jsparkSession, identifier)
+>  TypeError: 'JavaPackage' object is not callable
+
+I tried the same thing with a regular python code (not a unit test) and I still get the error. The python code works only if I invoke it like this `spark-submit --packages io.delta:delta-core_2.12:{Delta Lake version} PATH/TO/EXAMPLE`. Is there a way to invoke pytest like this?
+
+### Motivation
+Will save more time on devopsing if there is an out of the box feature to run delta (pytest) code  in Docker
+### Further details
+
+If this is not a proper space for issues like this please redirect me to the right place.
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [ ] Yes. I can contribute this feature independently.
+- Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.

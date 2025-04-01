@@ -1,0 +1,19 @@
+
+## Description
+
+This is the first step in transitioning the type widening table feature from preview to stable.
+Requirement: the protocol spec is finalized and the final version doesn't contain any backward-incompatible changes. See https://github.com/delta-io/delta/pull/3297
+
+This change introduces a new table feature `typeWidening` for the final, stable phase of type widening. Both the preview and stable table features are supported simultaneously - the current implementation respects both the protocol spec used during the preview and the finalized protocol spec.
+
+The stable feature isn't enabled automatically though as type widening is still in preview. The preview feature `typeWidening-preview` is the default feature enabled when the type widening table property is set. 
+
+The second step of the transition will be at GA time, to make the stable feature the default, automatically enabled one.
+During the transition period, all clients will support any table that enabled the feature during both the preview, and later on during the GA phase.
+
+## How was this patch tested?
+Added tests covering enabling in combination preview / stable features
+Added a test in particular to ensure that the preview feature doesn't get enabled automatically if the stable feature is already enabled.
+
+## Does this PR introduce _any_ user-facing changes?
+DBR now supports all tables that enable the type widening table feature, both now during the preview and in the future after the feature transitions to GA.

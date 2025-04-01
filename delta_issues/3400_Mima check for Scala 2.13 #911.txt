@@ -1,0 +1,4 @@
+To enable Mima check for Scala 2.13
+
+
+Signed-off-by: Jan Paw jpaw@virtuslab.com

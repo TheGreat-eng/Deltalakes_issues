@@ -1,0 +1,15 @@
+#### Which Delta project/connector is this regarding?
+
+- [X] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+Introduce MergeIntoMaterializeSource.MergeSource class to hold together the source dataframe, whether it was materialized or not and the reason for this decision.
+
+## How was this patch tested?
+
+Refactoring PR.

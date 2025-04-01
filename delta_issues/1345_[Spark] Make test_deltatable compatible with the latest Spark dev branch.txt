@@ -1,0 +1,19 @@
+#### Which Delta project/connector is this regarding?
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+After https://github.com/apache/spark/commit/e01ac581f46aa595e66daf33fe92b56d1328bc78, `pyspark.sql.column._to_seq` has moved to `pyspark.sql.classic.column._to_seq`. This PR fixes the test to make the test compatible with old and new Spark versions.
+
+## How was this patch tested?
+
+<anually tested.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No, test-only

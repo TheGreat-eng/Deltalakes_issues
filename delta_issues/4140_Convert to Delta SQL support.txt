@@ -1,0 +1,5 @@
+Add the following SQL support for `Convert to Delta`:
+
+```
+CONVERT TO DELTA parquet.`path/to/table` [PARTITIONED BY (col_name1 col_type1, col_name2 col_type2, ...)]
+```

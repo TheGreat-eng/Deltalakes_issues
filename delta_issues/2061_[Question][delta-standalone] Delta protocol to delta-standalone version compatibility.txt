@@ -1,0 +1,1 @@
+What would be the supported reader and writer versions of the delta protocol that the delta-standalone library supports? Running into the issue `Delta protocol version (3,7) is too new for this version of Delta Standalone Reader/Writer (1,2)`. The `delta-standalone` library version used was `delta-standalone_2.12-3.0.0`. Please clarify.

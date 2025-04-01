@@ -1,0 +1,10 @@
+## Description
+Small test fix to get https://github.com/delta-io/delta/commit/ca118d189591a98082e7bfa5014bf9264918c0a2 to compile against spark master
+
+The `errorClass` argument of `checkError` was renamed to `condition` in recent spark release. To work with both, the named argument is changed to be unnamed.
+
+## How was this patch tested?
+N/A, test-only
+
+## Does this PR introduce _any_ user-facing changes?
+No

@@ -1,0 +1,29 @@
+
+[spark_emr_logs.zip](https://github.com/delta-io/delta/files/5386620/spark_emr_logs.zip)
+Hi Guys,
+
+I have some problems with merge and schema evolution. My use case, I have a cdc from postgresql that generate many tables in my datalake in s3, I have a spark job running each 20 minutes processing these tables.
+The etl is very simple only add a column, do deduplication and writes to delta tables for each source table. For better performance I create one thread for each table in python, so the tables could process concurrently.
+
+This etl job worked very well, until I enable schema evolution. After schema evolution enabled new data wasn't write to delta tables and no error happened. If I disable schema evolution everything work again.
+
+I will attach a etl job example and logs from delta table.
+
+Please help me, this feature is very important to me.
+
+Spark 3, Emr 6.1
+[delta_logs.zip](https://github.com/delta-io/delta/files/5385478/delta_logs.zip)
+[etl_job.zip](https://github.com/delta-io/delta/files/5385495/etl_job.zip)
+
+
+Spark Submit:
+spark-submit --deploy-mode cluster --conf spark.executor.cores=3 --conf spark.executor.memoryOverhead=1024 --conf spark.executor.memory=8g --conf spark.dynamicAllocation.maxExecutors=5 --conf spark.sql.extensions=io.delta.sql.DeltaSparkSessionExtension --conf spark.sql.catalog.spark_catalog=org.apache.spark.sql.delta.catalog.DeltaCatalog --packages io.delta:delta-core_2.12:0.7.0 s3://bucket/code/projects/test/main_merge.py
+
+
+
+[print.zip](https://github.com/delta-io/delta/files/5385532/print.zip)
+
+
+To isolate the problem, I processed only two tables, the first batch works good, because it was a simple delta save because the table doesn't exist yet, but the second batch one table has only new data and the second table has new data and updated data, both tables has a new column called Op.
+All data present in the second table was gone in delta snapshot.
+I attached two images.

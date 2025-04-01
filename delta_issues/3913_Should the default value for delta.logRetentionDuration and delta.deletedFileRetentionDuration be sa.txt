@@ -1,0 +1,2 @@
+I do not understand why the default for both these parameter which are supposed to work in sync are different? 
+If I run vacuum with default values , I would lose history versions older than 7 days , correct? then what's the use of  delta.logRetentionDuration being 30 days?

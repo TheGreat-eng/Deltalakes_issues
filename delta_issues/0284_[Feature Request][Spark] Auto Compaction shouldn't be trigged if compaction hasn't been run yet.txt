@@ -1,0 +1,26 @@
+## Feature request
+The OSS implementation will run compaction when auto-compaction is enabled if compaction hasn't been run yet. I.e. running a CTAS w/ the table property enabled will perform compaction after the write even if the small file count doesn't meet minNumFiles.
+
+https://github.com/delta-io/delta/blob/a9208853bdf8836af1e0897cb800964f5f732589/spark/src/main/scala/org/apache/spark/sql/delta/stats/AutoCompactPartitionStats.scala#L71-L78
+
+Auto compaction in Databricks does not perform this unnecessary initial compaction operation. It should only be evaluated based on the presence of small files which meet or exceed the minNumFiles.
+
+#### Which Delta project/connector is this regarding?
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+### Overview
+
+### Motivation
+Improve performance of tables that get created with auto compaction enabled.
+
+### Further details
+
+### Willingness to contribute
+
+- [ ] Yes. I can contribute this feature independently.
+- [x] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.

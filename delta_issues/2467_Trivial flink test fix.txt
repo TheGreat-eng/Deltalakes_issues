@@ -1,0 +1,1 @@
+`getDeltaCheckpointFiles` should just explicitly filter for file names that end with `.checkpoint.parquet`. We don't want to accidentally read `.crc` files and return `true`.

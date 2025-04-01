@@ -1,0 +1,23 @@
+
+
+## Description
+The `GenerateRowIDs` rule is used to inject the correct expressions for the `_metadata.row_id` and `_metadata.row_commit_version` fields, that will provide default values when these are not materialized in the data files:
+- `_metadata.row_id = coalesce(_metadata.row_id, _metadata.base_row_id + _metadata.row_index)`
+- `_metadata.row_commit_version = coalesce(_metadata.row_commit_version, _metadata.default_row_commit_version)`
+
+This rule was initially applied during the normalization phase, which can interfere with plan caching.
+
+Ideally we'd like this rule to be a resolution rule, but this is hard to achieve, mainly due to the updated metadata attribute not being able to use analyzer tricks to plumb metadata through plans anymore. That prevents updating an already analyzed plan to reference new metadata fields, which is exactly what we do when preserving row tracking in DMLs.
+
+Instead we execute this rule during early optimization phase.
+
+Few improvements to the rule to make this work:
+- Make the rule idempotent, using `rowTrackingFieldsUpdated` to track whether the rule already update the fields.
+- Allow applying rule after unused metadata fields have been pruned. E.p. `base_row_id`, `row_index` and `default_row_commit_version` are required to generate correct values but may not be present if these are not referenced elsewhere in the query and have bee pruned.
+- Skip applying the rule if `_metadata.row_id` and `_metadata.row_commit_version` aren't used in the query. 
+
+## How was this patch tested?
+Covered by existing row tracking tests and `GenerateRowIDsSuite`
+
+## Does this PR introduce _any_ user-facing changes?
+No

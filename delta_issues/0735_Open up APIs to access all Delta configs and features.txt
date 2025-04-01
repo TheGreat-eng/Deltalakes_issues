@@ -1,0 +1,11 @@
+
+## Description
+
+Provide an API for apps or developers to have a view of all configs and features available in Delta.
+
+## How was this patch tested?
+
+A new unit test on the new API + existing tests.
+
+## Does this PR introduce _any_ user-facing changes?
+No

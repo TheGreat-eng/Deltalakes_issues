@@ -1,0 +1,19 @@
+## Feature request
+
+### Overview
+
+Support TimestampNTZ data type for Delta tables
+### Motivation
+Currently this datatype is supported in Spark 3.3, but Delta throws an UnsupportedException.
+
+### Further details
+Spark documentation for timestampNTZ - [timestamp without time zone](https://issues.apache.org/jira/browse/SPARK-35662). It's a local timestamp without the time zone information.
+
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [x] Yes. I can contribute this feature independently.
+- [ ] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.

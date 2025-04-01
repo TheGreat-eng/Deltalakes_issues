@@ -1,0 +1,18 @@
+## Description
+Currently, the log replay code used to find the active add files in a table snapshot is not observable. Add a few metrics to provide visibility into the log replay. These metrics are collected as the `CloseableIterator` of scan files is consumed and printed in slf4j logs when the iterator is closed. Following are the metrics collected:
+
+* number of `AddFile` actions seen
+* number of `AddFile` actions seen from delta files
+* number of duplicate `AddFile` actions seen
+* number of tombstones seen
+* number of active `AddFile`s
+
+## How was this patch tested?
+Add unit tests with different scenarios
+* deltas only
+* checkpoint class/multi-parts,
+* stats recompute - generates duplicate add files, 
+* removes - generates tombstones)
+
+## Does this PR introduce _any_ user-facing changes?
+No, but the info level logs will have a message with the log replay metrics.

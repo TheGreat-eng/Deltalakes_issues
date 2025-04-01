@@ -1,0 +1,89 @@
+If I create a table like this:
+
+```scala
+import io.delta.tables._
+
+DeltaTable
+  .create(spark)
+  .location("/tmp/foo")
+  .addColumn("x", "integer")
+  .execute()
+```
+
+I can use `replace` with different schema:
+
+```scala
+DeltaTable
+  .replace(spark)
+  .location("/tmp/foo")
+  .addColumn("y", "string")
+  .execute()
+``` 
+
+which will execute just fine and replace schema.
+
+However, if I try `createOrReplace`:
+
+```scala
+DeltaTable
+  .createOrReplace(spark)
+  .location("/tmp/foo")
+  .addColumn("z", "boolean")
+  .execute()
+```
+
+it fails with
+
+```
+  org.apache.spark.sql.AnalysisException: The specified schema does not match the existing schema at /tmp/foo.
+
+  == Specified ==
+  root
+  -- z: boolean (nullable = true)
+
+
+  == Existing ==
+  root
+  -- y: string (nullable = true)
+
+
+  == Differences==
+  - Specified schema is missing field(s): y
+  - Specified schema has additional field(s): z
+
+  If your intention is to keep the existing schema, you can omit the
+  schema from the create table command. Otherwise please ensure that
+  the schema matches.
+```
+
+Personally, I find this behavior confusing and would expect that both would behave the same, as long as table exists.
+
+To make it even more confusing, this behavior changes if `tableName` is used instead of location. The following passes just fine:
+
+```scala
+import io.delta.tables._
+
+DeltaTable
+  .create(spark)
+  .tableName("foo")
+  .addColumn("x", "integer")
+  .execute()
+
+DeltaTable
+  .replace(spark)
+  .tableName("foo")
+  .addColumn("y", "string")
+  .execute()
+
+DeltaTable
+  .createOrReplace(spark)
+  .tableName("foo")
+  .addColumn("z", "boolean")
+  .execute()
+```
+
+The difference seems to be caused by the following piece
+
+https://github.com/delta-io/delta/blob/0f30f6f47761cb01043d84aad182f30cb59b5e31/core/src/main/scala/org/apache/spark/sql/delta/commands/CreateDeltaTableCommand.scala#L194-L199
+
+which treats delta on path with `createOrReplace`, as a special case, and applies `createTransactionLogOrVerify()`, not used in case of table.

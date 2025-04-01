@@ -1,0 +1,31 @@
+When creating a new job that requires a merge function from the second run forward, I need to use this kind of code:
+
+    if DeltaTable.isDeltaTable(spark, OUTPUT_PATH):
+        deltaTable = DeltaTable.forPath(spark, OUTPUT_PATH)
+        merge_join_condition = ' ... not important ...'
+        (
+            deltaTable.alias("old").merge(
+                df.alias("new"),
+                merge_join_condition)
+            .whenMatchedUpdateAll()
+            .whenNotMatchedInsertAll()
+            .execute()
+        )
+    else:
+        df.write.format('delta').partitionBy('year', 'month', 'day').save(OUTPUT_PATH)
+
+It would be nice if we could have something like:
+
+    deltaTable = DeltaTable.getOrCreate(spark, OUTPUT_PATH, 'year', 'month', 'day') # partition column
+    merge_join_condition = ' ... not important ...'
+    (
+        deltaTable.alias("old").merge(
+            df.alias("new"),
+            merge_join_condition)
+        .whenMatchedUpdateAll()
+        .whenNotMatchedInsertAll()
+        .execute() # Here write or create the table using the partition columns above.
+    )
+
+What do you think?
+Doron

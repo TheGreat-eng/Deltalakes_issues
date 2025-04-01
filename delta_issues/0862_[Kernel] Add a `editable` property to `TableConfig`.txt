@@ -1,0 +1,5 @@
+[`TableConfig`](https://github.com/delta-io/delta/blob/master/kernel/kernel-api/src/main/java/io/delta/kernel/internal/TableConfig.java) represents the different configuration values that can be in the Delta table metadata. Some of the configurations should be editable by the connectors and some are not. E.g. `delta.deletedFileRetentionDuration` can be set by the connector, but not `delta.columnMapping.maxColumnId`. The latter property can only set by the Kernel as part of the table update.
+
+This is similar to `editable` in [`DeltaConfig`](https://github.com/delta-io/delta/blob/master/spark/src/main/scala/org/apache/spark/sql/delta/DeltaConfig.scala#L40) in Delta-Spark.
+
+Once the property is added, update the `TableConfig.validateProperties` to check the `editable` is true. If not throw error.

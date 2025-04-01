@@ -1,0 +1,19 @@
+#### Which Delta project/connector is this regarding?
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [X] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+Add a public utility function to determine if a given partition exists (i.e. actually has data)
+
+## How was this patch tested?
+
+Simple UTs.
+
+## Does this PR introduce _any_ user-facing changes?
+
+Yes.

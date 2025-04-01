@@ -1,0 +1,84 @@
+## Bug
+
+### Describe the problem
+When trying to merge a PySpark DataFrame, using delta, with an aggregated `struct` column, the code crashes.
+
+#### Steps to reproduce
+
+    import os
+
+    from delta import configure_spark_with_delta_pip
+
+    from pyspark.sql.session import SparkSession
+    from pyspark.sql.functions import *
+    from pyspark.sql.types import *
+
+    builder = (SparkSession.builder
+               .master("local[9]")
+               .appName("Local Spark")
+               .config("spark.sql.catalog.spark_catalog", "org.apache.spark.sql.delta.catalog.DeltaCatalog"))
+    spark = configure_spark_with_delta_pip(builder).getOrCreate()
+
+    schema = StructType([
+        StructField("age", StringType(), True),
+        StructField("name", StringType(), True),
+        StructField("surname", StringType(), True)
+    ])
+
+    data = [
+        ("10", "Jake", "Wilson"),
+        ("10", "Billy", "Burton"),
+        ("11", "Steve", "Harris"),
+        ("12", "Kate", "Lewis"),
+        ("7", "Layla", "Robinson"),
+        ("12", "Kelly", "Adams"),
+    ]
+
+    df = spark.createDataFrame(data=data, schema=schema)
+    df = df.withColumn("full_name", struct("name", "surname"))
+    df = df.groupBy("age").agg(collect_list("full_name").alias("names"))
+
+    desktop = os.path.join(os.path.join(os.path.expanduser('~')), 'Desktop')
+    file_path = f"{desktop}/test"
+    print(f"Saving to {file_path}")
+
+    delta_table = (DeltaTable.createIfNotExists(spark)
+                   .location(file_path)
+                   .addColumns(df.schema)
+                   .execute())
+
+    (delta_table
+     .alias("source")
+     .merge(source=df.alias("updates"),
+            condition=f"source.age = updates.age")
+     .whenMatchedUpdate(set={f"source.names": "updates.names"})
+     .whenNotMatchedInsertAll()
+     .execute())
+
+#### Observed results
+
+Following exception is thrown:
+```
+pyspark.sql.utils.AnalysisException: cannot resolve 'transform(updates.names, lambdafunction(updates.names[namedlambdavariable()], namedlambdavariable(), namedlambdavariable()))' due to data type mismatch: cannot cast array<struct<name:string,surname:string>> to array<struct<name:string,surname:string>>
+```
+
+#### Expected results
+
+A deltatable should have been created and the DataFrame data should have been merged into it.
+
+#### Further details
+
+<!--
+Include any additional details that may be useful for diagnosing the problem here. If including tracebacks, please include the full traceback. Large logs and files should be attached.
+-->
+
+### Environment information
+
+* Delta Lake version: 1.1.0
+* Spark version: 3.2.1
+
+### Willingness to contribute
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [x] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute a bug fix at this time.

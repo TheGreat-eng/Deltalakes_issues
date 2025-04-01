@@ -1,0 +1,8 @@
+## Context
+This PR is part of delta-io/delta#1783. 
+
+## Description 
+It implements Parquet reader based on `parquet-mr` and generates the output as columnar batches of `ColumnVector` and `ColumnarBatch` interface implementations.
+
+## How was this patch tested?
+UTs

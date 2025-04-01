@@ -1,0 +1,13 @@
+Getting following exception while using DeltaTable.forPath() in databricks-connect . 
+spark.read().format("delta") works.
+
+Following is the configuration  -
+Cluster - Databricks 8.1
+Java 1.8
+IntelliJ 
+
+Exception in thread "main" java.lang.UnsupportedOperationException
+	at io.delta.tables.DeltaTable$.forPath(DeltaTable.scala:625)
+	at io.delta.tables.DeltaTable.forPath(DeltaTable.scala)
+	at com.spgmi.ca.TestJob.triggerJob(TestJob.java:80)
+	at com.spgmi.ca.TestJob.main(TestJob.java:33)

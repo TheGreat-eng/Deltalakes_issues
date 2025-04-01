@@ -1,0 +1,97 @@
+## Bug
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the issue title
+For example: [BUG][Spark] Title of my issue
+-->
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+### Describe the problem
+
+I'm using a Jupyter notebook to connect to a remote Spark cluster, using the Spark Connect functionality in Spark 3.4.1. I can read and write Spark DataFrames in delta format to my S3 bucket. However, when I want to load the data as a deltatable `DeltaTable.forPath()` it fails because it assumes that the Spark Session has a SparkContext
+
+#### Steps to reproduce
+1. Prepare a spark connect server, see https://spark.apache.org/docs/latest/spark-connect-overview.html eg. `./sbin/start-connect-server.sh --packages org.apache.spark:spark-connect_2.12:3.4.0` 
+2. Connect with python and write some data
+```
+from pyspark.sql import SparkSession
+
+spark = SparkSession.builder.remote("sc://localhost").getOrCreate()
+columns = ["id","name"]
+data = [(1,"Sarah"),(2,"Maria")]
+df = spark.createDataFrame(data).toDF(*columns)
+df.write.format('delta').mode('overwrite').save('s3a://<bucket>/<name>')
+
+```
+3. Read the data back, this all works fine
+```
+data = spark.read.format("delta").load('s3a://<bucket>/<name>')
+data.show(n=3, truncate=False)
+
+```
+4. Load the data as a deltatable
+```
+from pyspark.sql import SparkSession
+from delta.tables import * 
+
+spark = SparkSession.builder.remote("sc://localhost").getOrCreate()
+
+dt = DeltaTable.forPath(spark, "s3a://<bucket>/<name>")
+
+```
+
+
+#### Observed results
+
+```
+---------------------------------------------------------------------------
+AttributeError                            Traceback (most recent call last)
+Cell In[41], line 8
+      4 spark = SparkSession.builder \
+      5      .remote("sc://localhost").getOrCreate()
+      7 # Lees de delta-tabel in als deltatable
+----> 8 dt = DeltaTable.forPath(spark, "s3a://<bucket>/<name>")
+     
+
+File /opt/app-root/lib64/python3.8/site-packages/delta/tables.py:384, in DeltaTable.forPath(cls, sparkSession, path, hadoopConf)
+    359 """
+    360 Instantiate a :class:`DeltaTable` object representing the data at the given path,
+    361 If the given path is invalid (i.e. either no table exists or an existing table is
+   (...)
+    380                    hadoopConf)
+    381 """
+    382 assert sparkSession is not None
+--> 384 jvm: "JVMView" = sparkSession._sc._jvm  # type: ignore[attr-defined]
+    385 jsparkSession: "JavaObject" = sparkSession._jsparkSession  # type: ignore[attr-defined]
+    387 jdt = jvm.io.delta.tables.DeltaTable.forPath(jsparkSession, path, hadoopConf)
+
+AttributeError: 'SparkSession' object has no attribute '_sc'
+```
+
+#### Expected results
+
+The data loaded as a DeltaTable object
+
+#### Further details
+
+I am aware that Spark Connect is very new, not yet feature complete and lacking some documentation on which features are and aren't supported. The best I have found so far are: https://issues.apache.org/jira/browse/SPARK-39375 and databrick's implementation of Spark Connect https://docs.databricks.com/en/dev-tools/databricks-connect-ref.html#limitations where the altter mentions that the SparkContext class and methods are not available. 
+
+### Environment information
+
+* Delta Lake version: 2.4.0
+* Spark version: 3.4.1
+* Scala version: 2.12
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [x] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute a bug fix at this time.

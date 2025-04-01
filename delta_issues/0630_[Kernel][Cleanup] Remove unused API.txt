@@ -1,0 +1,1 @@
+Remove `ColumnarBatch.slice` API. This API was proposed during the prototype for handling DVs, but the final implementation took a different route (basically passing a selection vector to indicate the selected rows). This is not used anywhere.

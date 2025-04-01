@@ -1,0 +1,7 @@
+Are the following functions available on the delta lake donated to linux foundation? so now anyone can use these utilities?
+Convert To Delta
+Delete From
+Fsck Repair Table
+Merge Into 
+Optimize 
+Update

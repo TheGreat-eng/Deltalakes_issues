@@ -1,0 +1,5 @@
+Solves #955 
+- Add `LocalLogStore.java`
+- Add `PublicLocalLogStoreSuite` class on `LogStoreSuite.scala`
+
+Signed-off-by: PhVHoang <a2k40pbc@gmail.com>

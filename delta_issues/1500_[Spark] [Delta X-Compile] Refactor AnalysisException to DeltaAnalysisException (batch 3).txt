@@ -1,0 +1,28 @@
+#### Which Delta project/connector is this regarding?
+
+- [X] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+We want Delta to cross-compile against both Spark 3.5 and Spark Master (4.0).
+
+Unfortunately, the constructor `new AnalysisException("msg")` became protected in Spark 4.0, meaning that all such occurances do not compile against Spark 3.5.
+
+Thus, we decided to:
+- replace `AnalysisException` with `DeltaAnalysisException`
+- use errorClasses
+- assign temporary error classes when needed to speed this along
+
+This PR fixes all remaining related compilation errors.
+
+## How was this patch tested?
+
+New UTs in `DeltaErrorsSuite`.
+
+Also, cherry-picked to the oss-cross-compile branch (https://github.com/delta-io/delta/pull/2780) and cross-compiled:
+- (this branch) Spark 3.5: ✅ 
+- (this branch) Spark 4.0: no remaining compilation errors.

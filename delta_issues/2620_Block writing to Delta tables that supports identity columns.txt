@@ -1,0 +1,13 @@
+## Description
+
+This PR fixes an issue described in https://github.com/delta-io/delta/issues/1694, where it is possible to INSERT values into an identity column without updating the high watermark.
+
+This issue is caused by a misplaced check in `actions.scala`. The check didn't fire for INSERTs.
+
+## How was this patch tested?
+
+Added new tests.
+
+## Does this PR introduce _any_ user-facing changes?
+
+Yes. After this PR is merged, it will no longer be possible to write to a table that has `minWriterVersion` = `6`, or has `identityColumns` in `writerFeatures`.

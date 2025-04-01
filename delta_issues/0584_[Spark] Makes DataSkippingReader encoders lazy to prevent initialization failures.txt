@@ -1,0 +1,19 @@
+#### Which Delta project/connector is this regarding?
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+This is a small fix that changes the `sizeCollectorInputEncoders` in `DataSkippingReader` to a `lazy val`. We are already doing this for other encoders in the codebases (e.g. see [here](https://github.com/delta-io/delta/blob/master/spark/src/main/scala/org/apache/spark/sql/delta/actions/actions.scala#L106)) in order to prevent initialization failures of those encoders during JVM startup.
+
+## How was this patch tested?
+
+Existing tests are sufficient as this does make any logical changes.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

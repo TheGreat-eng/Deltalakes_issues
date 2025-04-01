@@ -1,0 +1,13 @@
+Delta Lake merge command partition pruning is not working in the explain plan i dont see any partition filters being applied and its being used as filters 
+
+<img width="1704" alt="Screenshot 2021-05-12 at 7 22 04 PM" src="https://user-images.githubusercontent.com/29175387/117987019-c4c98580-b357-11eb-877f-6e00da4e90cb.png">
+
+
+But when i am doing a simple delta read i am able to see the partition filters 
+<img width="1739" alt="Screenshot 2021-05-12 at 7 26 29 PM" src="https://user-images.githubusercontent.com/29175387/117987481-22f66880-b358-11eb-9811-636cb6a76cee.png">
+
+
+Using delta lake version 8 in spark 3 emr version 6.2.0 
+
+Please help 
+

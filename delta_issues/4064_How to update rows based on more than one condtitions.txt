@@ -1,0 +1,17 @@
+May I know how to update rows based on the conditions like below?
+
+deltaTable
+.merge(
+    sourceDF.as("s")   
+    "id == s.oldId")
+.whenMatched(num = 1)
+.updateExpr(updateRecords1)
+.whenMatched(num = 2)
+.updateExpr(updateRecords2)
+
+But There can be at most one update action and one delete action in whenMatched clauses.
+Two update actions are not allowed.
+Is there a way to solve such a thing？
+or just merge twice?
+
+Wish for your feedback :)

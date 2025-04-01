@@ -1,0 +1,41 @@
+## Bug
+
+### Describe the problem
+Databricks delta table properties (tblproperties) are being redacted when the value contains the word "user".
+
+#### Steps to reproduce
+
+
+```
+create table t (abc string);
+show tblproperties t;
+alter table t set tblproperties('test_value' = 'user');
+show tblproperties t;
+```
+
+
+#### Observed results
+
+"test_value"  -  "*********(redacted)"
+
+#### Expected results
+
+"test_value" --- "user"
+
+#### Further details
+
+### Environment information
+
+Running Databricks Runtime 12.0, so whatever the newest versions are there.
+
+* Delta Lake version:
+* Spark version:
+* Scala version:
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [x] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute a bug fix at this time.

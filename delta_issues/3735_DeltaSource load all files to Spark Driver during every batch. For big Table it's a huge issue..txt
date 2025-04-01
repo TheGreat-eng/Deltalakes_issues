@@ -1,0 +1,5 @@
+
+This line of code uploads all files from delta-log to spark driver.
+https://github.com/delta-io/delta/blob/819bcd5635dd47775d1c6adb51b3f40674d0ea81/src/main/scala/org/apache/spark/sql/delta/files/DeltaSourceSnapshot.scala#L86
+1. This creates a very big overhead for spark driver memory and GC for big topics.
+2. It's pretty strange to see collect inside a function that returns an iterator. Does any concern exist to do not use `toLocalIterator`?

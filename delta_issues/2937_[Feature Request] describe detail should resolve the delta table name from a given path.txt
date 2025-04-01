@@ -1,0 +1,16 @@
+## Feature request
+Make the command `DESCRIBE DETAIL 'path'` also resolve the delta table name from a given path. Currently, this is not supported
+
+![image](https://user-images.githubusercontent.com/25264670/190189386-6280f655-079d-4ac3-839a-c8ab4e4635b4.png)
+
+### Motivation
+
+Currently, there is no easy method to resolve this information from a given path variable. The only possibility, that I currently see is looping over the result of `spark.catalog.listTables()` and compare for each `tableName` if the path of `DESCRIBE DETAIL tableName` is identical with my given path. This is time consuming and very ineffective
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [ ] Yes. I can contribute this feature independently.
+- [ ] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [X] No. I cannot contribute this feature at this time.

@@ -1,0 +1,4 @@
+- Add Writer Version 4 requirements.
+- Add Generated Columns.
+- Make the `Writer Version Requirements` table use GitHub markdown format.
+- Update the table of contents.

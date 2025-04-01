@@ -1,0 +1,44 @@
+#### Which Delta project/connector is this regarding?
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [x] Other (Sharing)
+
+## Description
+Fix Delta Sharing DataFrame not updated for Snapshot Query:
+When provider updated the table(insert or delete row), in delta-sharing-spark session, the dataframe on the same query for the same table is not updated, though a new rpc is made, the local delta log is updated, but it’s still at version 0.
+
+## How was this patch tested?
+Unit Test, Integration Test
+
+```
+scala> val df = spark.read.format("deltaSharing").load(dvcmtable2)
+df: org.apache.spark.sql.DataFrame = [id2: int, name: string]
+
+scala> df.show()
++---+----+                                                                      
+|id2|name|
++---+----+
+|  2| one|
+|  3| one|
++---+----+
+
+// Insert on provider table
+
+scala> val df = spark.read.format("deltaSharing").load(dvcmtable2)
+df: org.apache.spark.sql.DataFrame = [id2: int, name: string]
+
+scala> df.show()
++---+----+                                                                      
+|id2|name|
++---+----+
+|  6| one|
+|  3| one|
+|  2| one|
++---+----+
+
+```
+
+## Does this PR introduce _any_ user-facing changes?
+No

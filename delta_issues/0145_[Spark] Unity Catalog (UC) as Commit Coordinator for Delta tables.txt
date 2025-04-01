@@ -1,0 +1,40 @@
+<!--
+Thanks for sending a pull request!  Here are some tips for you:
+  1. If this is your first time, please read our contributor guidelines: https://github.com/delta-io/delta/blob/master/CONTRIBUTING.md
+  2. If the PR is unfinished, add '[WIP]' in your PR title, e.g., '[WIP] Your PR title ...'.
+  3. Be sure to keep the PR description updated to reflect all changes.
+  4. Please write your PR title to summarize what this PR proposes.
+  5. If possible, provide a concise example to reproduce the issue for a faster review.
+  6. If applicable, include the corresponding issue number in the PR title and link it in the body.
+-->
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+This PR follows up on https://github.com/delta-io/delta/pull/3837 adding support for Delta tables in delta-spark with Unity Catalog (UC) as the Commit Coordinator. 
+
+See [Delta Coordinated Commits RFC](https://github.com/delta-io/delta/blob/master/protocol_rfcs/managed-commits.md) or [PROTOCOL.md](https://github.com/delta-io/delta/blob/master/PROTOCOL.md) for more information on the coordinated commits and its benefits.
+
+Feature Request: https://github.com/delta-io/delta/issues/3836
+
+[Design Doc](https://docs.google.com/document/d/1l2iql3e6rW06sQ8VQLdyjAtNW3NnWkOx1oyJC9B7tdM/edit?usp=sharing)
+
+## How was this patch tested?
+
+<!--
+Unit Tests added in PR.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No.

@@ -1,0 +1,26 @@
+## Feature request
+
+Hello.
+
+presto has recently created a [delta.io](http://delta.io/) adapter to link delta files directly, this is making me consider to use a presto cluster instead (would scale decently enough with current data load I have to work with).
+However, is there anyone who has faced this issue and solved it in a “nice” way, or are there any plans to add a delta connector similar to what presto has done?
+
+### Overview
+
+Here is a reference to what presto has added: https://prestodb.io/blog/2022/03/15/native-delta-lake-connector-for-presto
+
+### Motivation
+
+To utilise apache druid for centralising a lakehouse architecture with delta.io as the base data layer.
+
+### Further details
+
+And a video: https://www.youtube.com/watch?v=JrXGkqpl7xk (fast forward to `21:40`) this is what would be nice to have but within apache druid.
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [ ] Yes. I can contribute this feature independently.
+- [X] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.

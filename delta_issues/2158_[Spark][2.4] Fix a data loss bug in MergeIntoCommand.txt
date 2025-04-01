@@ -1,0 +1,42 @@
+This is a cherry-pick of https://github.com/delta-io/delta/pull/2156 to delta-2.4 branch.
+
+#### Which Delta project/connector is this regarding?
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+Fix a data loss bug in MergeIntoCommand.
+It's caused by using different spark session config object for PreprocessTableMerge and MergeIntoCommand. In PreprocessTableMerge, the config value is from the spark session which is given for DeltaTable. In MergeIntoSchema it refers SQLConf.get which is from the active session of the current thread. It can be different when user set another new spark session or active session just doesn't set properly before the execution.
+
+If source dataframe has more columns than target table, auto schema merge feature adds additional nullable column to
+target table schema. The updated output projection built in PreprocessTableMerge, so `matchedClauses` and `notMatchedClauses` contains the addtional columns, but target table schema in MergeIntoCommand doesn't have it.
+
+As a result, the following index doesn't indicate the delete flag column index, which is numFields - 2.
+```
+      def shouldDeleteRow(row: InternalRow): Boolean =
+        row.getBoolean(outputRowEncoder.schema.fields.size)
+```
+row.getBoolean returns `getByte() != 0`, which causes dropping rows randomly.
+
+matched rows in target table loss
+Also as autoMerge doesn't work
+
+newly added column data in source df loss.
+The fix makes sure setting active session as the given spark session for target table. The PR applies the fix for other command to avoid any inconsistent config behavior.
+
+Fixes https://github.com/delta-io/delta/issues/2104
+
+## How was this patch tested?
+I confirmed that https://github.com/delta-io/delta/issues/2104 is fixed with the change.
+I confirmed the following by debug log message without the change:
+
+1. matchedClauses has more columns after processRow
+2. row.getBoolean(outputRowEncoder.schema.fields.size) refers random column value (It's Unsafe read)
+3. canMergeSchema in MergeIntoCommand is false, it was true in PreprocessTableMerge
+
+## Does this PR introduce any user-facing changes?
+Yes, fixes the data loss issue

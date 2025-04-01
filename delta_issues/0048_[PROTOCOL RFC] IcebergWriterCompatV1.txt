@@ -1,0 +1,16 @@
+## Protocol Change Request
+
+### Description of the protocol change
+
+This protocol change introduces a new compatibility flag, which ensures that a delta table can be safely
+read and written as an Apache Iceberg™ format table, similar to [IcebergCompatV1](https://github.com/delta-io/delta/blob/master/PROTOCOL.md#iceberg-compatibility-v1) and [IcebergCompatV2](https://github.com/delta-io/delta/blob/master/PROTOCOL.md#iceberg-compatibility-v2).
+
+It will introduce a number of limitations on a delta table, including limiting which table features and types can be used. For details on the exact requirements see [the RFC](https://github.com/delta-io/delta/pull/4285).
+
+### Willingness to contribute
+
+The Delta Lake Community encourages protocol innovations. Would you or another member of your organization be willing to contribute this feature to the Delta Lake code base?
+
+- [X] Yes. I can contribute.
+- [ ] Yes. I would be willing to contribute with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute at this time.

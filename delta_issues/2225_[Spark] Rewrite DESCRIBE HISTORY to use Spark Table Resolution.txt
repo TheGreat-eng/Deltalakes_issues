@@ -1,0 +1,19 @@
+#### Which Delta project/connector is this regarding?
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+This PR rewrites the Delta DESCRIBE HISTORY command to use Spark's table resolution logic instead of resolving the target table manually at command execution time. For that, it changes DescribeDeltaHistory to a UnaryNode that takes either a UnresolvedTable or UnresolvedPathBasedDeltaTable as a child plan node, which will be resolved by Spark. Once resolved, the DescribeDeltaHistory node is transformed to an actual runnable command (DescribeDeltaHistoryCommand) in DeltaAnalysis. The resolved table is passed to the command in the form of a DeltaTableV2.
+
+## How was this patch tested?
+
+This is mainly a refactor and the existing DescribeDeltaHistory suite already contains a large set of tests, which this PR relies on. The PR also updates the DeltaSqlParserSuite to check that commands are correctly parsed into a DescribeDeltaHistory.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

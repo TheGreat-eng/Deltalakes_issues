@@ -1,0 +1,13 @@
+## Description
+
+This PR is part of #1705.
+
+It rewrites the Delta OPTIMIZE command to use Spark's table resolution logic instead of resolving the target table manually at command execution time. For that, it changes OptimizeTableCommand from a LeafRunnableCommand to a UnaryLike command that takes a UnresolvedTable as a child plan node, which will be resolved by Spark. In addition, it also introduces a UnresolvedPathBasedDeltaTable LogicalPlan for the case that OPTIMIZE is run against a raw path. This new logical plan is an indication that the target table specified as a path so no table resolution is necessary.
+
+## How was this patch tested?
+
+Through the large set of existing unit tests that OPTIMIZE already has + adapted the DeltaSqlParserSuite to work with the new OptimizeTableCommand.
+
+## Does this PR introduce _any_ user-facing changes?
+
+N/A

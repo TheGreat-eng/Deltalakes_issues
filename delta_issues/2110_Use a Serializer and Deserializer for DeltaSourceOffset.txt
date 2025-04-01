@@ -1,0 +1,33 @@
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [X] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+This PR changes `DeltaSourceOffset` to have a jackson `Serializer` and `Deserializer`. `DeltaSourceOffset` objects need extra adjustment of values at serialization and deserialization time, for backward compatibility. This was implemented using a hacky custom `.json` getter for serialization, and an `apply` constructor from `OffsetV2`. But some tests use a plain old `JsonUtils.mapper.readValue`, and they wouldn't get the special magic applied. With this change, the special magic is always applied. The PR also adds a specific error for arbitrary JSON parse errors.
+
+## How was this patch tested?
+
+Added new unit tests.
+
+<!--
+If tests were added, say they were added here. Please make sure to test the changes thoroughly including negative and positive cases if possible.
+If the changes were tested in any way other than unit tests, please clarify how you tested step by step (ideally copy and paste-able, so that other reviewers can test and check, and descendants can verify in the future).
+If the changes were not tested, please explain why.
+-->
+
+## Does this PR introduce _any_ user-facing changes?
+No
+<!--
+If yes, please clarify the previous behavior and the change this PR proposes - provide the console output, description and/or an example to show the behavior difference if possible.
+If possible, please also clarify if this is a user-facing change compared to the released Delta Lake versions or within the unreleased branches such as master.
+If no, write 'No'.
+-->

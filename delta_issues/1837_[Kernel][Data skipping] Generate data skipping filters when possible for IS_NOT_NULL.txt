@@ -1,0 +1,19 @@
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [X] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+Generate skipping filters for IS_NOT_NULL and NOT(IS_NOT_NULL). Note NOT(IS_NOT_NULL) won't skip until IS_NULL is supported.
+
+## How was this patch tested?
+
+Adds tests.

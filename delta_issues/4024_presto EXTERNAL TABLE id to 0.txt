@@ -1,0 +1,36 @@
+The raw data was read from mysql
+`scala> spark.read.format("delta").load("/apps/delta/coupon_prod/xmd_product").limit(10).show()
++---+---------+------------------------+------------+------------------------+------------+-----------+----------+-------------------+-------------------+---------+
+| id|tenant_id|              item_title|out_goods_id|             coupon_name|consume_type|valid_start|valid_ends|        create_time|        modify_time|is_delete|
++---+---------+------------------------+------------+------------------------+------------+-----------+----------+-------------------+-------------------+---------+
+|  1|        1|【美团测试】免费果茶饮券|           1|【美团测试】免费果茶饮券|           1| 2019-09-29|2019-10-29|2019-09-29 16:54:10|2019-09-29 16:58:05|        0|
++---+---------+------------------------+------------+------------------------+------------+-----------+----------+-------------------+-------------------+---------+`
+
+CREATE EXTERNAL TABLE `xmd_product` (
+  `id` int ,
+  `tenant_id` int,
+  `item_title` STRING ,
+  `out_goods_id` STRING ,
+  `coupon_name` STRING ,
+  `consume_type` int,
+  `valid_start` STRING ,
+  `valid_ends` STRING,
+  `create_time` timestamp ,
+  `modify_time` timestamp ,
+  `is_delete` int
+) 
+ROW FORMAT SERDE 'org.apache.hadoop.hive.ql.io.parquet.serde.ParquetHiveSerDe'
+STORED AS INPUTFORMAT 'org.apache.hadoop.hive.ql.io.SymlinkTextInputFormat'
+OUTPUTFORMAT 'org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat'
+LOCATION '/apps/delta/coupon_prod/xmd_product/_symlink_format_manifest'
+
+presto query id The 0 ? 
+`presto:ods_xl_db> select * from xmd_product;
+ id | tenant_id |        item_title        | out_goods_id |       coupon_name        | consume_type | valid_start | valid_ends |       create_time       |       modify_time       
+----+-----------+--------------------------+--------------+--------------------------+--------------+-------------+------------+-------------------------+-------------------------
+  0 |         1 | 【美团测试】免费果茶饮券 | 1            | 【美团测试】免费果茶饮券 |            1 | 2019-09-29  | 2019-10-29 | 2019-09-29 16:54:10.000 | 2019-09-29 16:58:05.000 
+(1 row)
+`
+id=1 presto id=0 ?
+
+What's the reason, please

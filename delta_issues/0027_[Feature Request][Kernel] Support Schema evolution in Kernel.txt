@@ -1,0 +1,58 @@
+## Feature request
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the issue title
+For example: [Feature Request][Spark] Title of my issue
+-->
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [x] Kernel
+- [ ] Other (fill in here)
+
+### Overview
+
+Combined PR https://github.com/delta-io/delta/pull/4196
+
+
+The goal of this is to track schema evolution support in Delta Kernel. Specifically, to begin with users should be able to use the existing `withSchema` API on TransactionBuilder to update the schema on existing tables. Schema evolution validation should be performed to ensure that the changed schema cannot corrupt the table.
+These validations include
+
+* No duplicate columns are allowed
+* Names contain only valid characters
+* Data types are supported
+* No new non-nullable fields are added
+* No tightening of nullability
+* No type promotions are performed
+* Physical column name consistency is preserved in the new schema
+* Partition columns are not modified
+* Nested IDs for array/map types are preserved in the new schema
+
+
+### Project Plan Breakdown
+
+ 
+| Task | PR | Status |
+| ------------- | ------------- | ------------- |
+| SchemaChanges and ability to diff by ID | https://github.com/delta-io/delta/pull/4296/files  | In review |
+| SchemaUtils#validateByID and validation of ID/physical name existence and physical name consistency  | |
+| Add IcebergCompatV2 nested ID validation |  |   |
+| Expose validateByID and update TransactionBuilder to expose withSchema to allow updates |   |   |
+
+Follow ups:
+
+1. Add more tests for more deeply nested updates to SchemaUtil#computeSchemaChangesById as part of #4296
+2. Modify SchemaChanges abstraction to independently track renames/moves for fields.
+3. Make sure schema evolution works as expected with cluster column changes
+4. Possibly block updating schemas on partitioned tables or support it by ensuring that they are updated properly during renames.
+
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [x] Yes. I can contribute this feature independently.
+- [ ] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.

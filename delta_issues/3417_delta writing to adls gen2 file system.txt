@@ -1,0 +1,35 @@
+Hi,
+I am trying to write to delta table with underline file system as Azure DataLake Gen2. 
+But getting below error while saving the dataframe.
+
+
+
+
+            2022-01-18 16:43:48 Driver [INFO ] OptimisticTransaction - [tableId=2ecf0fde-9980-4246-9d7d-4849477fffcf] Attempting to commit version 0 with 4 actions with Serializable isolation level
+
+           Exception while processing:
+
+         java.lang.IllegalStateException: Versions (Vector(0, 0)) are not contiguous.
+
+              at org.apache.spark.sql.delta.DeltaErrors$.deltaVersionsNotContiguousException(DeltaErrors.scala:550)
+
+              at org.apache.spark.sql.delta.SnapshotManagement.verifyDeltaVersions(SnapshotManagement.scala:370)
+
+              at org.apache.spark.sql.delta.SnapshotManagement.verifyDeltaVersions$(SnapshotManagement.scala:365)
+
+              at org.apache.spark.sql.delta.DeltaLog.verifyDeltaVersions(DeltaLog.scala:59)
+
+              at org.apache.spark.sql.delta.SnapshotManagement.getLogSegmentForVersion(SnapshotManagement.scala:160)
+
+              at org.apache.spark.sql.delta.SnapshotManagement.getLogSegmentForVersion$(SnapshotManagement.scala:82)
+
+              at org.apache.spark.sql.delta.DeltaLog.getLogSegmentForVersion(DeltaLog.scala:59)
+
+              at org.apache.spark.sql.delta.SnapshotManagement.$anonfun$updateInternal$1(SnapshotManagement.scala:289
+
+Environments-
+
+Spark - 3.1.2
+Delta - 1.0.0
+
+Please someone help me here.

@@ -1,0 +1,43 @@
+## Bug
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the issue title
+For example: [BUG][Spark] Title of my issue
+-->
+
+- [ x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+### Describe the problem
+option("optimizeWrite", "True") does not work in GCP Dataproc cluster. 
+
+I am getting an exception
+
+java.lang.NoSuchMethodError: 'org.apache.spark.util.Clock org.apache.spark.storage.ShuffleBlockFetcherIterator$.$lessinit$greater$default$18()'
+	at org.apache.spark.sql.delta.perf.OptimizedWriterShuffleReader.read(DeltaOptimizedWriterExec.scala:291)
+	at org.apache.spark.sql.delta.perf.DeltaOptimizedWriterRDD.compute(DeltaOptimizedWriterExec.scala:268)
+	
+#### Steps to reproduce
+
+Created a GCS cluster using image 2.2-debian12. Created a jupyter notebook from the cluster with the following code: 
+
+spark = SparkSession.builder.appName("MyApp") \
+    .config("spark.sql.extensions", "io.delta.sql.DeltaSparkSessionExtension") \
+    .config("spark.sql.catalog.spark_catalog", "org.apache.spark.sql.delta.catalog.DeltaCatalog") \
+    .config("spark.jars", "gs://xxx/lib/delta-spark_2.12-3.1.0.jar,gs://xxx/lib/delta-storage-3.1.0.jar") \
+    .getOrCreate()
+
+df = spark.read.format("delta").load("gs://xxx/delta/data1")
+df.write.format("delta").partitionBy("g","p").option("optimizeWrite", "True").option("delta.enableChangeDataFeed", "true").save("gs://xxx/delta/data2")
+
+### Environment information
+
+* Delta Lake version: 3.1.0
+* Spark version: 3.5.1
+* Scala version: 2.12.18
+* GCS Dataproc Image version: 2.2-debian12
+

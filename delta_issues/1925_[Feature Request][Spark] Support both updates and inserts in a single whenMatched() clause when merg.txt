@@ -1,0 +1,29 @@
+## Feature request
+
+#### Which Delta project/connector is this regarding?
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+### Overview
+
+Right now the merge method on a DeltaTable allows one update or one delete per match clause. I propose to add a way to perform an update and an insert when a match is found to simplify the logic for SCD2.
+
+### Motivation
+
+As the [SCD2 example](https://docs.delta.io/latest/delta-update.html#slowly-changing-data-scd-type-2-operation-into-delta-tables) in the docs shows this currently requires a separate join to identify the rows that already exist in the source table and duplicate them into an "update-row" and an "insert-row".
+
+### Further details
+
+I've looked at the source of deltaMerge.scala, and it looks like this is a more complex task that just adding two clauses with the same condition to the DeltaMergeBuilder and expecting it to work, but I haven't delved deep into the code yet.
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [ ] Yes. I can contribute this feature independently.
+- [ ] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [x] No. I cannot contribute this feature at this time. (contractual restrictions on contributing to FOSS)

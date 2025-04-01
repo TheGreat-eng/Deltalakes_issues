@@ -1,0 +1,7 @@
+## Description
+Currently, Kernel's Parquet reader explicitly looks for the `key_value` repeated group under the Parquet map type, but the older versions of Parquet writers wrote any name for the repeated group. Instead of looking for the explicit `key_value` element, fetch the first element in the list. See [here](https://github.com/apache/parquet-format/blob/master/LogicalTypes.md#maps) for more details.
+
+## How was this patch tested?
+The [test](https://github.com/apache/spark/blob/master/sql/core/src/test/scala/org/apache/spark/sql/execution/datasources/parquet/ParquetThriftCompatibilitySuite.scala#L29) and sample file written by legacy writers are taken from Apache Spark™.
+
+Some columns (arrays with 2-level encoding, another legacy format) from the test file are currently not supported. I will follow up with a separate PR. It involves bit refactoring on the ArrayColumnReader.

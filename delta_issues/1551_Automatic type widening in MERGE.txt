@@ -1,0 +1,56 @@
+<!--
+Thanks for sending a pull request!  Here are some tips for you:
+  1. If this is your first time, please read our contributor guidelines: https://github.com/delta-io/delta/blob/master/CONTRIBUTING.md
+  2. If the PR is unfinished, add '[WIP]' in your PR title, e.g., '[WIP] Your PR title ...'.
+  3. Be sure to keep the PR description updated to reflect all changes.
+  4. Please write your PR title to summarize what this PR proposes.
+  5. If possible, provide a concise example to reproduce the issue for a faster review.
+  6. If applicable, include the corresponding issue number in the PR title and link it in the body.
+-->
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+This change is part of the type widening table feature.
+Type widening feature request: https://github.com/delta-io/delta/issues/2622
+Type Widening protocol RFC: https://github.com/delta-io/delta/pull/2624
+
+It adds automatic type widening as part of schema evolution in MERGE INTO:
+- During resolution of the `DeltaMergeInto` plan, when merging the target and source schema to compute the schema after evolution, we keep the wider source type when type widening is enabled on the table.
+- When updating the table schema at the beginning of MERGE execution, metadata is added to the schema to record type changes.
+
+## How was this patch tested?
+- A new test suite `DeltaTypeWideningSchemaEvolutionSuite` is added to cover type evolution in MERGE
+
+## This PR introduces the following *user-facing* changes
+The table feature is available in testing only, there are no user-facing changes as of now.
+
+When automatic schema evolution is enabled in MERGE and the source schema contains a type that is wider than the target schema:
+
+With type widening disabled: the type in the target schema is not changed. the ingestion behavior follows the `storeAssignmentPolicy` configuration:
+- LEGACY: source values that overflow the target type are stored as `null`
+- ANSI: a runtime check is injected to fail on source values that overflow the target type.
+- STRICT: the MERGE operation fails during analysis.
+
+With type widening enabled: the type in the target schema is updated to the wider source type. The MERGE operation always succeeds:
+```
+-- target: key int, value short
+-- source: key int, value int
+MERGE INTO target
+USING source
+ON target.key = source.key
+WHEN MATCHED THEN UPDATE SET *
+```
+After the MERGE operation, the target schema is `key int, value int`.
+
+

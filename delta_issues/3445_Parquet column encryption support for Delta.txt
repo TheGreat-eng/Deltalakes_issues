@@ -1,0 +1,11 @@
+Recently, parquet added support for columnar/modular encryption in version parquet-mr 1.12 ([IBM](https://www.ibm.com/docs/en/cloud-paks/cp-data/4.0?topic=scripts-parquet-encryption), [GitHub](https://github.com/apache/parquet-mr/blob/master/CHANGES.md)), meaning that only the footer file and certain columns of the parquet file are encrypted, minimising encrypt/decrypt overhead while keeping sensitive columns safe. Since Delta is built on top of parquet files and this encryption method became available in Spark 2.3.0 (which the latest Delta version supports), I was wondering if Delta already supports this due to being built on the parquet format or if there is a way to make it work. For my application that would be the perfect combination! (incrementally adding rows while keeping some columns encrypted to keep PII safe).
+
+`df.write.option("parquet.encryption.footer.key", "k1").option("parquet.encryption.column.keys", "k2:DeviceName,image_id").parquet(STORE_PATH`
+
+This is how it works with spark dataframes in Databricks (which is what I am using). I tried to do something very similar for Delta as follows:
+
+`df.write.option("parquet.encryption.footer.key", "k1").option("parquet.encryption.column.keys", "k2:DeviceName,image_id").format("delta").mode("overwrite").save(STORE_PATH_DELTA)`
+
+This did work but the Delta table was able to be opened from a cluster not having the encryption keys, meaning the encryption did not actually work. I also tried to use DeltaTable.convertToDelta() on the encrypted parquet files (both in scala spark and PySpark) and this also did not work as the Delta table was not encrypted.
+
+Any help with getting it to work with Delta would be highly appreciated, but learning that this is no (yet) supported and that there is no workaround would also be helpful since I can then look at different options. Thanks in advance!

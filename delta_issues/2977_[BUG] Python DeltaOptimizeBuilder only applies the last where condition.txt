@@ -1,0 +1,64 @@
+## Bug
+
+With python API, when specifying several partition filters with several `where(partitionFilter: str)`, only the last one is taken into account on execution.
+
+### Describe the problem
+
+`DeltaOptimizeBuilder` can chain `where` functions but applies only the last one for execution
+
+#### Steps to reproduce
+
+1. create a delta table partitioned by `year/month/day`, for example : 
+```python
+DeltaTable.create(spark) \
+  .tableName("events") \
+  .addColumn("eventId", "BIGINT") \
+  .addColumn("eventTime", "TIMESTAMP") \
+  .addColumn("year", "INT", generatedAlwaysAs="YEAR(eventTime)") \
+  .addColumn("month", "INT", generatedAlwaysAs="MONTH(eventTime)") \
+  .addColumn("day", "INT", generatedAlwaysAs="DAY(eventTime)") \
+  .partitionedBy("year", "month", "day") \
+  .location("/data/events")
+  .execute()
+```
+2. fill table with at least 2 months of data, for example 2022-01 and 2019-02
+3. optimize only one daily partition
+```python
+DeltaTable.forPath(spark, "/data/events").optimize()
+        .where(f"year=2022)
+        .where(f"month=01")
+        .where(f"day=01")
+        .executeZOrderBy("evenId")
+```
+
+
+#### Observed results
+
+Both `/year=2022/month=1/day=1` and `/year=2019/month=2/day=1` partitions are optimized. Only the `day` condition is taken into account when executing optimize
+
+#### Expected results
+
+Only `/year=2022/month=1/day=1` should be optimized
+
+#### Further details
+
+Expected results can be obtained with the following code :
+```python
+DeltaTable.forPath(spark, "/data/events").optimize()
+        .where(f"year=2022 AND month=1 AND day=1")
+        .executeZOrderBy("evenId")
+```
+
+### Environment information
+
+* Delta Lake version: 2.0.0
+* Spark version: 3.2.0 (AWS EMR 6.7.0)
+* Scala version: ?
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [ ] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [x] No. I cannot contribute a bug fix at this time.

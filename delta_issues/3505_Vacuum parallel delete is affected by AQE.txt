@@ -1,0 +1,8 @@
+Currently the `vacuum.parallelDelete.enabled` flag uses the default shuffle partitions as the parallelism control for deleting, since it is the result of a join. However, when the adaptive query engine is enabled, this affects the partitioning of the join, and since it is purely on file metadata, the resulting shuffle is small and AQE will merge these to a very small number of partitions regardless of your default partition setting.
+
+This wasn't a huge deal since AQE is disabled by default, but in Spark 3.2 it will be enabled by default so this will affect more people.
+
+Possible solutions:
+- Log something if AQE is enabled saying it will affect the parallelism of the delete
+- Try to temporarily turn off AQE while doing the vacuum
+- Change the existing setting or add a new setting for exactly how many partitions you want, and just do a repartition before deleting to the count

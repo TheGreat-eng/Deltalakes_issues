@@ -1,0 +1,31 @@
+## Bug
+
+#### Which Delta project/connector is this regarding?
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+### Describe the problem
+In Delta build script: https://github.com/delta-io/delta/blob/b19b529e359a9986c390f5f6c8f6d0c87abe0f0d/icebergShaded/generate_iceberg_jars.py#L31C1-L31C69
+We use commit https://github.com/apache/iceberg/commit/ede085d0f7529f24acd0c81dd0a43f7bb969b763, from Nov 2022, Iceberg 1.1.0.
+
+It uses old components, for example pyarrow 4.0.1 which has critical security issues: https://github.com/advisories/GHSA-5wvp-7f3h-6wmm - https://nvd.nist.gov/vuln/detail/CVE-2023-47248
+
+PyArrow reference in Iceberg: https://github.com/apache/iceberg/blob/ede085d0f7529f24acd0c81dd0a43f7bb969b763/python_legacy/setup.py#L39
+
+The python_legacy folder is removed here: https://github.com/apache/iceberg/pull/6960
+
+### Environment information
+
+* Delta Lake version: 3.0.0
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [ ] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [X] No. I cannot contribute a bug fix at this time.

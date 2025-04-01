@@ -1,0 +1,60 @@
+## Bug
+
+### Describe the problem
+File stats skipping is causing two `filesForScan` operations.
+
+#### Steps to reproduce
+```
+from pyspark.sql import SparkSession
+import pyspark.sql.functions as F
+
+spark = SparkSession.builder.getOrCreate()
+
+df = spark.range(5).select(F.struct(F.lit('test').alias('test'), F.col('id').cast("string").alias('id')).alias('nested'))
+df.write.format('delta').save('test')
+
+spark.read.format('delta').load('test').filter('nested.id = "2"').count()
+```
+
+<!--
+Please include copy-pastable code snippets if possible.
+1. _____
+2. _____
+3. _____
+-->
+
+#### Observed results
+There are two scan stages, caused by hitting [this](https://github.com/delta-io/delta/blob/f598157fb188daa32b1c5912ce2599feab24984e/core/src/main/scala/org/apache/spark/sql/delta/stats/PrepareDeltaScan.scala#L326) line of code. Example output:
+
+```
+Prepared scan does not match actual filters. Reselecting files to query.
+Prepared: ExpressionSet((nested#457.id = 2), isnotnull(nested#457))
+Actual: ExpressionSet(isnotnull(nested#457), (nested#457.id = 2))
+```
+
+<!-- What happened?  This could be a description, log output, etc. -->
+
+#### Expected results
+The expression sets are the same so it shouldn't trigger a second file scan.
+
+<!-- What did you expect to happen? -->
+
+#### Further details
+
+<!--
+Include any additional details that may be useful for diagnosing the problem here. If including tracebacks, please include the full traceback. Large logs and files should be attached.
+-->
+
+### Environment information
+
+* Delta Lake version: 1.2.0
+* Spark version: 3.2.1
+* Scala version: 2.12
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [ ] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute a bug fix at this time.

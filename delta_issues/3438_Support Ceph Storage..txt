@@ -1,0 +1,1 @@
+We supported the storage of Ceph. Data connection between Delta Lake and Object store system Ceph RGW is established by Openstack Swift API. Path’s scheme is "ceph". Full path is "ceph://{your-cephrgw-container}/{path-to-delta-table}". Please refer to testing file for more detailed configurations. Logstore can use class S3SingleDriverLogStore.

@@ -1,0 +1,60 @@
+## Bug
+
+### Describe the problem
+I try to load a deltaTable using its name.
+#### Steps to reproduce
+I initially created it via 
+```
+df.write.format("delta").mode('append').saveAsTable(table_name)
+```
+
+AfterAfterwardnt to load it again via 
+```
+dt = delta.DeltaTable.forName(spark, table_name)
+```
+
+#### Observed results
+The following error occurs:
+
+```
+Traceback (most recent call last):
+  File "C:\Program Files\JetBrains\PyCharm Community Edition 2022.2.1\plugins\python-ce\helpers\pydev\_pydevd_bundle\pydevd_exec2.py", line 3, in Exec
+    exec(exp, global_vars, local_vars)
+  File "<input>", line 1, in <module>
+  File "...\lib\site-packages\delta\tables.py", line 375, in forName
+    jdt = jvm.io.delta.tables.DeltaTable.forName(jsparkSession, tableOrViewName)
+  File "....\lib\site-packages\py4j\java_gateway.py", line 1304, in __call__
+    return_value = get_return_value(
+  File "...\lib\site-packages\pyspark\sql\utils.py", line 117, in deco
+    return f(*a, **kw)
+  File ...\lib\site-packages\py4j\protocol.py", line 326, in get_return_value
+    raise Py4JJavaError(
+py4j.protocol.Py4JJavaError: An error occurred while calling z:io.delta.tables.DeltaTable.forName.
+: java.lang.UnsupportedOperationException
+	at io.delta.tables.DeltaTable$.forName(DeltaTable.scala:659)
+	at io.delta.tables.DeltaTable.forName(DeltaTable.scala)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(Unknown Source)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(Unknown Source)
+	at java.base/java.lang.reflect.Method.invoke(Unknown Source)
+	at py4j.reflection.MethodInvoker.invoke(MethodInvoker.java:244)
+	at py4j.reflection.ReflectionEngine.invoke(ReflectionEngine.java:380)
+	at py4j.Gateway.invoke(Gateway.java:295)
+	at py4j.commands.AbstractCommand.invokeMethod(AbstractCommand.java:132)
+	at py4j.commands.CallCommand.execute(CallCommand.java:79)
+	at py4j.ClientServerConnection.waitForCommands(ClientServerConnection.java:195)
+	at py4j.ClientServerConnection.run(ClientServerConnection.java:115)
+	at java.base/java.lang.Thread.run(Unknown Source)
+table
+'table_name'
+````
+#### Expected results
+
+A delta object I can work with
+
+
+
+### Environment information
+
+Using databricks-connect 10.4.12
+

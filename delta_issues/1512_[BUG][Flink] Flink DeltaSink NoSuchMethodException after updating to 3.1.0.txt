@@ -1,0 +1,143 @@
+## Bug
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the issue title
+For example: [BUG][Spark] Title of my issue
+-->
+
+- [ ] Spark
+- [ ] Standalone
+- [x] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+### Describe the problem
+After upgrading `io.delta:delta-flink` dependency from `3.0.0` to `3.1.0`, my Flink job fails to run. My Flink job simply ingests records from Kafka then writes them into Delta Lake using the DeltaSink.
+
+#### Steps to reproduce
+
+<!--
+Please include copy-pastable code snippets if possible.
+-->
+```
+import io.delta.flink.sink.DeltaSink;
+import org.apache.flink.core.fs.Path;
+import org.apache.flink.streaming.api.datastream.DataStream;
+import org.apache.flink.table.data.RowData;
+import org.apache.flink.table.types.logical.RowType;
+import org.apache.hadoop.conf.Configuration;
+
+public DataStream<RowData> createDeltaSink(
+        DataStream<RowData> stream,
+        String deltaTablePath,
+        RowType rowType) {
+    Configuration conf = new Configuration();
+    conf.set(...) // here I set my aws related configs
+    DeltaSink<RowData> deltaSink = DeltaSink
+        .forRowData(
+            new Path(deltaTablePath),
+            conf,
+            rowType)
+        .build();
+    stream.sinkTo(deltaSink);
+    return stream;
+}
+```
+in pom.xml:
+```
+            <dependency>
+                <groupId>io.delta</groupId>
+                <artifactId>delta-flink</artifactId>
+                <version>3.1.0</version>
+            </dependency>
+            <dependency>
+                <groupId>io.delta</groupId>
+                <artifactId>delta-standalone_2.12</artifactId>
+                <version>3.1.0</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.hadoop</groupId>
+                <artifactId>hadoop-client</artifactId>
+                <version>3.3.6</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.hadoop</groupId>
+                <artifactId>hadoop-aws</artifactId>
+                <version>3.3.6</version>
+            </dependency>
+```
+
+#### Observed results
+
+<!-- What happened?  This could be a description, log output, etc. --> 
+Here is the root cause from the exception stack trace:
+```
+Caused by: java.lang.NoSuchMethodError: 'java.lang.Object[] org.apache.hadoop.util.functional.RemoteIterators.toArray(org.apache.hadoop.fs.RemoteIterator, java.lang.Object[])'
+	at org.apache.hadoop.fs.s3a.S3AUtils.iteratorToStatuses(S3AUtils.java:1436)
+	at org.apache.hadoop.fs.s3a.S3AFileSystem.lambda$null$22(S3AFileSystem.java:3346)
+	at org.apache.hadoop.fs.s3a.Invoker.once(Invoker.java:122)
+	at org.apache.hadoop.fs.s3a.S3AFileSystem.lambda$listStatus$23(S3AFileSystem.java:3345)
+	at org.apache.hadoop.fs.statistics.impl.IOStatisticsBinding.lambda$trackDurationOfOperation$5(IOStatisticsBinding.java:489)
+	at org.apache.hadoop.fs.statistics.impl.IOStatisticsBinding.trackDuration(IOStatisticsBinding.java:434)
+	at org.apache.hadoop.fs.s3a.S3AFileSystem.trackDurationAndSpan(S3AFileSystem.java:2480)
+	at org.apache.hadoop.fs.s3a.S3AFileSystem.trackDurationAndSpan(S3AFileSystem.java:2499)
+	at org.apache.hadoop.fs.s3a.S3AFileSystem.listStatus(S3AFileSystem.java:3344)
+	at io.delta.storage.S3SingleDriverLogStore.listFromInternal(S3SingleDriverLogStore.java:212)
+	at io.delta.storage.S3SingleDriverLogStore.listFrom(S3SingleDriverLogStore.java:306)
+	at io.delta.standalone.internal.storage.DelegatingLogStore.listFrom(DelegatingLogStore.scala:95)
+	at io.delta.standalone.internal.SnapshotManagement.getLogSegmentForVersion(SnapshotManagement.scala:123)
+	at io.delta.standalone.internal.SnapshotManagement.getLogSegmentForVersion$(SnapshotManagement.scala:116)
+	at io.delta.standalone.internal.DeltaLogImpl.getLogSegmentForVersion(DeltaLogImpl.scala:42)
+	at io.delta.standalone.internal.SnapshotManagement.getSnapshotAtInit(SnapshotManagement.scala:223)
+	at io.delta.standalone.internal.SnapshotManagement.getSnapshotAtInit$(SnapshotManagement.scala:221)
+	at io.delta.standalone.internal.DeltaLogImpl.getSnapshotAtInit(DeltaLogImpl.scala:42)
+	at io.delta.standalone.internal.SnapshotManagement.$init$(SnapshotManagement.scala:37)
+	at io.delta.standalone.internal.DeltaLogImpl.<init>(DeltaLogImpl.scala:47)
+	at io.delta.standalone.internal.DeltaLogImpl$.apply(DeltaLogImpl.scala:263)
+	at io.delta.standalone.internal.DeltaLogImpl$.forTable(DeltaLogImpl.scala:245)
+	at io.delta.standalone.internal.DeltaLogImpl.forTable(DeltaLogImpl.scala)
+	at io.delta.standalone.DeltaLog.forTable(DeltaLog.java:176)
+	at io.delta.flink.sink.internal.committer.DeltaGlobalCommitter.<init>(DeltaGlobalCommitter.java:135)
+	at io.delta.flink.sink.internal.DeltaSinkBuilder.createGlobalCommitter(DeltaSinkBuilder.java:276)
+	at io.delta.flink.sink.internal.DeltaSinkInternal.createGlobalCommitter(DeltaSinkInternal.java:172)
+	at org.apache.flink.streaming.api.transformations.SinkV1Adapter$GlobalCommitterAdapter.<init>(SinkV1Adapter.java:428)
+	at org.apache.flink.streaming.api.transformations.SinkV1Adapter$GlobalCommittingSinkAdapter.lambda$addPostCommitTopology$794d7f59$1(SinkV1Adapter.java:367)
+	at org.apache.flink.streaming.api.connector.sink2.GlobalCommitterOperator.setup(GlobalCommitterOperator.java:90)
+	at org.apache.flink.streaming.api.operators.SimpleOperatorFactory.createStreamOperator(SimpleOperatorFactory.java:84)
+	at org.apache.flink.streaming.api.operators.StreamOperatorFactoryUtil.createOperator(StreamOperatorFactoryUtil.java:81)
+	at org.apache.flink.streaming.runtime.tasks.OperatorChain.<init>(OperatorChain.java:214)
+	at org.apache.flink.streaming.runtime.tasks.RegularOperatorChain.<init>(RegularOperatorChain.java:60)
+	at org.apache.flink.streaming.runtime.tasks.StreamTask.restoreInternal(StreamTask.java:709)
+	at org.apache.flink.streaming.runtime.tasks.StreamTask.restore(StreamTask.java:693)
+	at org.apache.flink.runtime.taskmanager.Task.runWithSystemExitMonitoring(Task.java:953)
+	at org.apache.flink.runtime.taskmanager.Task.restoreAndInvoke(Task.java:922)
+	at org.apache.flink.runtime.taskmanager.Task.doRun(Task.java:746)
+	at org.apache.flink.runtime.taskmanager.Task.run(Task.java:562)
+	at java.base/java.lang.Thread.run(Unknown Source)
+```
+
+#### Expected results
+
+<!-- What did you expect to happen? -->
+I expected my Flink job to successfully run, as it did on `3.0.0`.
+
+#### Further details
+
+<!--
+Include any additional details that may be useful for diagnosing the problem here. If including tracebacks, please include the full traceback. Large logs and files should be attached.
+-->
+
+### Environment information
+
+* Delta Lake version: 3.0.0
+* Spark version: n/a
+* Scala version: 2.12
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [x] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute a bug fix at this time.

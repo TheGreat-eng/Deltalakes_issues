@@ -1,0 +1,6 @@
+- Modified old tests to work with Spark 3.0 by adding the right spark conf
+- Added a new test to test SQL on metastore tables and paths
+- Updated integration testing script to run the examples in a fine-grained manner.
+
+Originally done by @rahulsmahadev in #426
+

@@ -1,0 +1,18 @@
+Current Delta support non-correlated scalar subquery in the UPDATE SET clause.
+```sql
+UPDATE target as t
+SET t.value = (SELECT max(s.value) FROM source s)
+```
+This PR makes it to support correlated scalar subquery:
+```sql
+UPDATE target as t
+SET t.value =
+ (
+   SELECT sum(s.value)
+   FROM source s WHERE s.key1 = t.key2
+ )
+```
+Without the PR, it will throw
+```
+Correlated scalar sub-queries can only be used in a Filter/Aggregate/Project and a few commands
+```

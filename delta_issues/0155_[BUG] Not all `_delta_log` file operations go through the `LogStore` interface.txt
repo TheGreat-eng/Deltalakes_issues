@@ -1,0 +1,51 @@
+## Bug
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the issue title
+For example: [BUG][Spark] Title of my issue
+-->
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+### Describe the problem
+
+While trying to implement a custom [LogStore](https://github.com/delta-io/delta/blob/master/storage/src/main/java/io/delta/storage/LogStore.java#L57) I realized that not all operations accessing files in the `_delta_log` directory go through the store.
+
+Specifically, reads of the delta log entries, `<version>.json` don't use the `LogStore` at all and instead are read directly using the Hadoop Filesystem ([see an example here in the `Snapshot` code](https://github.com/delta-io/delta/blob/master/spark/src/main/scala/org/apache/spark/sql/delta/Snapshot.scala#L443-L454)). I assume this is because we want to read the delta log entries in parallel.
+
+**Question:** is this the intended behavior of `LogStore`, or is it a bug? I need to extend a bit how we access the delta log and wondering whether I should just do this at the Filesystem layer.
+
+#### Steps to reproduce
+
+I reproduced this by doing the following:
+
+1. Create a pass-through `LogStore` implementation
+2. Set `spark.delta.logStore.class` to the classname of my custom `LogStore`
+3. Set checkpoints on all methods of `LogStore` to find out when each file is accessed
+
+#### Observed results
+
+Some files are read using the `LogStore`, like the checkpoing `<version>.crc` files, but not the `<version>.json` files.
+
+#### Expected results
+
+Expected all files in `_delta_log` to be read from the `LogStore`.
+
+### Environment information
+
+* Delta Lake version: 3.2
+* Spark version: 3.5
+* Scala version: 2.12
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [x] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute a bug fix at this time.

@@ -1,0 +1,16 @@
+
+### Describe the problem
+When the delta log log becomes larger, it is found that during the process of executing the compute snapshot, the operation task execution has obvious data skew, and the data volume of each task varies greatly.
+
+#### Further details
+![image](https://user-images.githubusercontent.com/28140815/174937905-0aa34ecb-5f90-451d-90d2-0db72d7e6ffb.png)
+
+![image](https://user-images.githubusercontent.com/28140815/174938113-f6ceac13-e59a-47e0-b513-4e45506d42c8.png)
+
+It is found that the data volume of each task varies greatly, there is obvious data skew, and the resource utilization is insufficient. Does this really happen in the log compact stage of delta lake? Is there any way to handle this effectively?
+
+### Environment information
+
+* Delta Lake version: 1.0.1
+* Spark version: 3.1.1
+* Scala version: 2.12.8

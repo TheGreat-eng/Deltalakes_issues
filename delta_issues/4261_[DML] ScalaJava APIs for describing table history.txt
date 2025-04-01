@@ -1,0 +1,1 @@
+Official issue for tracking work for building Scala APIs for describe table history. 

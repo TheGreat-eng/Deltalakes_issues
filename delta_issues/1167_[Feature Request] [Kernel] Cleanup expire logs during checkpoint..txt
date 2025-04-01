@@ -1,0 +1,1 @@
+If the table config `delta.enableExpiredLogCleanup`, we should clean up the expired logs during checkpoint.

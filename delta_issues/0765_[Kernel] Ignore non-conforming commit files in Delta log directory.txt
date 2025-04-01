@@ -1,0 +1,40 @@
+## Description
+Support for coordinated commit introduced an issue where a Delta file in `_delta_log` that doesn't conform to the expected file name format (`%020d.json`) is considered part of the Delta history. 
+
+We use the following method to test whether a file is a `commit` file.
+
+Before coordinated commit support:
+
+```
+  public static boolean isCommitFile(String filePath) {
+    String fileName = ..
+    return Pattern.compile("\\d+\\.json").matcher(fileName).matches();
+  }
+```
+
+After the coordinated commit support:
+```
+  public static boolean isCommitFile(String filePath) {
+    String fileName = ..
+    return Pattern.compile("\\d+\\.json").matcher(fileName).matches() || // backfilled commit file
+        Pattern.compile("(\\d+)\\.([^\\.]+)\\.json").matcher(fileName).matches() // un-backfilled commit file
+  }
+```
+
+For example, if the `_delta_log` has a file with name `0000x.uuid.json`, it will be considered to be part of the delta file, but it is not. The commit files of format `%20d.uuid.json` are considered part of the table history only if the parent directory name is `_commit`.
+
+Update the above method as follows (this is in line with the Delta-Spark)
+
+```
+  public static boolean isCommitFile(String filePath) {
+    String fileName = ...
+    String parentDirName = ...
+    return Pattern.compile("\\d+\\.json").matcher(fileName).matches() || // backfilled commit file
+        (parentDirName == "_commit" &&
+            Pattern.compile("(\\d+)\\.([^\\.]+)\\.json").matcher(fileName).matches()) // un-backfilled commit file
+  }
+```
+
+
+## How was this patch tested?
+Unit test that reproes the issue without the fix

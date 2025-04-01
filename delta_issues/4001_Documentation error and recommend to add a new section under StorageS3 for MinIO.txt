@@ -1,0 +1,22 @@
+I have noticed a small error in the documentation around S3 configurations:
+https://docs.delta.io/latest/delta-storage.html#amazon-s3 
+
+On the read part, it should be `load` and not `save`:
+`spark.read.format("delta").load("s3a://<your-s3-bucket>/<path>/<to>/<delta-table>")`
+
+Also, I have successfully tested Delta 0.5.0 with on-premise S3 - https://min.io 
+There were some quirks around the S3 region settings (by default Hadoop S3 lacks specific region setting API, instead it gets interpreted thru `spark.hadoop.fs.s3a.endpoint`:
+
+```
+./spark-shell  \
+>  --master spark://<spark-master>:7077 \
+>  --conf spark.hadoop.fs.s3a.endpoint= http://s3.<aws-region>.<minio-server:port> \
+>  --conf spark.hadoop.fs.s3a.access.key=<access.key> \
+>  --conf spark.hadoop.fs.s3a.secret.key=<secret.key> \
+>  --conf spark.hadoop.fs.s3a.path.style.access=true \
+>  --conf spark.hadoop.fs.s3a.impl=org.apache.hadoop.fs.s3a.S3AFileSystem
+```
+
+I can contribute a section in the Storage Configuration around how to make Delta work with MinIO-S3 (apart from the AWS-S3 that is currently available), if that would be of any use to the community.
+
+Also, how can one contribute to the docs.delta.io documentation? 

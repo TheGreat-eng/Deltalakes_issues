@@ -1,0 +1,3 @@
+As mentioned in this github PR review, please refactor this class and document the methods.
+
+https://github.com/delta-io/connectors/pull/284#discussion_r814207060

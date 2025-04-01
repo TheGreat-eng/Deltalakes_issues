@@ -1,0 +1,36 @@
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+Avoid using attributes with outdated expression IDs in internal Delta DataFrame operations.
+
+In this example:
+```
+val resolvedPlan = Dataset.ofRows(spark, LocalRelation(statsDataSchema)).select(to_json(statsCollection.statsCollector)).queryExecution.analyzed
+```
+
+the Analyzer might regenerate expression IDs (this is an implementation-specific behavior), and `statsDataSchema` may not be used along with `resolvedPlan.expressions.head`, because they will have different expression IDs associated with those expression trees. It would be correct to use `resolvedPlan.children.head.output` from that `LocalRelation`.
+
+The issue might happen later when these attributes are passed to `DeltaJobStatisticsTracker` -> `DeltaTaskStatisticsTracker` -> `JoinedProjection.bind` along with the resolved `to_json(statsCollection.statsCollector)` expression.
+
+The issue was found during single-pass Analyzer development, because single-pass Analyzer aggressively regenerates expression IDs, and fixed-point Analyzer preserves expression IDs for this simple DF transformation.
+
+Context: https://issues.apache.org/jira/browse/SPARK-49834
+
+## How was this patch tested?
+
+Existing tests.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No.

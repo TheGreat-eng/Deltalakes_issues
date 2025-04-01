@@ -1,0 +1,21 @@
+## Feature request
+
+### Overview
+
+Official [Delta table properties reference](https://docs.delta.io/latest/table-properties.html#delta-table-properties-reference) is missing lots of [implemented delta configs](https://github.com/delta-io/delta/blob/master/core/src/main/scala/org/apache/spark/sql/delta/DeltaConfig.scala).
+For example:
+- `checkpointInterval`
+- `enableExpiredLogCleanup`
+- `enableDeletionVectors`
+- `enableFullRetentionRollback`
+- `enableRowIds`
+
+I was wondering if it was not possible to **generate** the documentation from the documented source code **automatically**.
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [ ] Yes. I can contribute this feature independently.
+- [ ] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [x] No. I cannot contribute this feature at this time.

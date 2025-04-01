@@ -1,0 +1,5 @@
+## Description
+We are using `==` to compare strings. It worked because we used the same static variable everywhere.
+
+## How was this patch tested?
+Existing tests.

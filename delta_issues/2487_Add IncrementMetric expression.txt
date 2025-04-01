@@ -1,0 +1,6 @@
+## Description
+This change introduces a new expression `IncrementMetric` to support the frequent use case of incrementing metrics in Merge, Update and Delete. It replaces the use of UDFs to achieve that goal.
+
+## How was this patch tested?
+Added IncrementMetricSuite to cover usage of the newly introduced expression.
+Metrics correctness is covered in existing test suites `MergeIntoMetricsBase`, `UpdateMetricsSuite` and `DeleteMetricsSuite`.

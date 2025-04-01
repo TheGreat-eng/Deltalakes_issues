@@ -1,0 +1,13 @@
+This PR adds SQL support for Delta. The user can set `spark.sql.extensions` to `io.delta.sql.DeltaSparkSessionExtension` to enable Delta's SQL commands (`vacuum` command is added in this PR as well to show how this works).
+
+`io.delta.sql.DeltaSparkSessionExtension` is the only public API added by this PR. This is a Spark extension to make Spark SQL understand Delta's SQL commands. This will will inject a new parser defined by `DeltaSqlBase.g4`, and it will parse SQL text before Spark SQL. If it finds any Delta's commands, it will forward the calls to the corresponding Delta commands. Otherwise, we just delegate the calls to Spark SQL.
+
+In addition, this PR adds `vacuum` SQL support. There are two ways to use this SQL command:
+
+```
+vacuum '/foo/bar';
+vacuum delta.`/foo/bar`;
+```
+This is currently not support tables because we cannot add a Delta table to Hive right now.
+
+Lastly, there is a known issue: `spark.sql.extensions` is not picked up in PySpark. See https://issues.apache.org/jira/browse/SPARK-25003.

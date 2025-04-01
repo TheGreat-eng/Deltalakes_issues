@@ -1,0 +1,5 @@
+This PR adds an API that creates an empty DeltaTable with a provided schema at a provided file path. 
+
+This API is useful in notebook scenarios where you want to create an empty DeltaTable and then add data to it later. 
+
+(The other code formatting changes in this PR were auto-applied by IntelliJ.  If folks don't like them, I can revert them.)

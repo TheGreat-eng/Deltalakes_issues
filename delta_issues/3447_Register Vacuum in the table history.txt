@@ -1,0 +1,5 @@
+In Databricks Delta, Vacuum operation is recorded in the delta log, but not in OSS delta.
+
+https://delta-users.slack.com/archives/CJ70UCSHM/p1639536627227800
+
+This tracks the OSS work to make it work in oss Delta.

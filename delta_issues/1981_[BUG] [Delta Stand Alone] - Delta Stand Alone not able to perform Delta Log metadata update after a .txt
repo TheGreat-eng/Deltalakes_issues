@@ -1,0 +1,53 @@
+## Bug
+
+#### Which Delta project/connector is this regarding?
+
+- [ ] Spark
+- [X] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+### Describe the problem
+Not able to make table metadata updates (like adding/ removing/ renaming a column) using delta standalone after a checkpoint is created in AWS S3.
+
+#### Steps to reproduce
+
+1. Create a table using delta stand alone.
+2. Perform update table actions delta standalone optimistic transaction method call.
+3. Each action will create a new json in the _Delta_log folder of that table.
+4. After 10th action, a checkpoint will be created.
+<img width="1240" alt="image" src="https://github.com/delta-io/delta/assets/49706774/b2ab2ea3-27de-43aa-b6ed-b9623d6324ad">
+5. Hit the same update table action again and it fails to update the delta log and no additional json is created.
+6. Table update fails with a null pointer exception, screenshot below
+<img width="1240" alt="image" src="https://github.com/delta-io/delta/assets/49706774/ccecd73f-3b7a-40de-8659-42470d648870">
+
+
+
+#### Observed results
+
+<!-- What happened?  This could be a description, log output, etc. -->
+Delta Table updates cannot be performed after a checkpoint is created. until the checkpoint creation it worked fine.
+
+Any data append, merge, delete jobs have no impact from this checkpoint (may be since it uses spark to perform data ingestion), only log update thru Delta Stand Alone is failing.
+
+#### Expected results
+
+<!-- What did you expect to happen? -->
+Delta Log meta data update should happen as it would before checkpoint creation.
+#### Further details
+
+
+### Environment information
+
+* Delta Stand Alone version: 2.12
+* Delta Lake version:2.3
+* Spark version:3.3.1
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [X] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute a bug fix at this time.

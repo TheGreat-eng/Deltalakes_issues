@@ -1,0 +1,20 @@
+## Protocol Change Request
+
+### Description of the protocol change
+
+Spark is introducing support for collated Strings (see [SPARK-46830](https://issues.apache.org/jira/browse/SPARK-46830)) and we should support collated columns and fields in Delta tables as well. This will require changes to two parts of the Delta protocol
+
+* The schema: To store collation information for columns and fields
+* Statistics: Collations, for example in [ICU](https://icu.unicode.org/), are versioned and the collation rules can change between versions. To ensure correctness of data skipping, we have to annotate statistics with the version of the collation that was used to generate them. We should also consider to support storing statistics for multiple versions at the same time to have a nice update path and make it easier for clients that have different versions of a collation available to do data skipping.
+
+More details about the idea can be found in the [Design Doc](https://docs.google.com/document/d/1cwztlKt7b2hWF6Uu1S895ko6jPfRlP9x-V5POUcXtXk/edit?usp=sharing)
+
+### Willingness to contribute
+
+The Delta Lake Community encourages protocol innovations. Would you or another member of your organization be willing to contribute this feature to the Delta Lake code base?
+
+- [x] Yes. I can contribute.
+- [ ] Yes. I would be willing to contribute with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute at this time.
+
+

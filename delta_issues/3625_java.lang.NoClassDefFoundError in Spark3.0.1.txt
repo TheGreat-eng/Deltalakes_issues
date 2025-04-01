@@ -1,0 +1,67 @@
+Below is my `build.sbt`
+
+```scala
+name := "Streaming"
+
+version := "0.1"
+
+scalaVersion := "2.12.10"
+
+val sparkVersion = "3.0.1"
+val deltaVersion = "1.0.0"
+
+libraryDependencies ++= Seq(
+  // spark core
+  "org.apache.spark" %% "spark-core" % sparkVersion,
+  "org.apache.spark" %% "spark-sql" % sparkVersion,
+  "io.delta" %% "delta-core" % deltaVersion
+
+)
+```
+
+I'm just trying the quick start guide
+
+```scala
+val data = spark.range(0, 5)
+data.write.format("delta").save("/tmp/delta-table")
+```
+
+Below is the complete error
+
+```
+Exception in thread "main" java.lang.NoClassDefFoundError: org/apache/spark/sql/connector/catalog/V2TableWithV1Fallback
+	at java.lang.ClassLoader.defineClass1(Native Method)
+	at java.lang.ClassLoader.defineClass(ClassLoader.java:756)
+	at java.security.SecureClassLoader.defineClass(SecureClassLoader.java:142)
+	at java.net.URLClassLoader.defineClass(URLClassLoader.java:468)
+	at java.net.URLClassLoader.access$100(URLClassLoader.java:74)
+	at java.net.URLClassLoader$1.run(URLClassLoader.java:369)
+	at java.net.URLClassLoader$1.run(URLClassLoader.java:363)
+	at java.security.AccessController.doPrivileged(Native Method)
+	at java.net.URLClassLoader.findClass(URLClassLoader.java:362)
+	at java.lang.ClassLoader.loadClass(ClassLoader.java:418)
+	at sun.misc.Launcher$AppClassLoader.loadClass(Launcher.java:355)
+	at java.lang.ClassLoader.loadClass(ClassLoader.java:351)
+	at org.apache.spark.sql.delta.sources.DeltaDataSource.getTable(DeltaDataSource.scala:68)
+	at org.apache.spark.sql.execution.datasources.v2.DataSourceV2Utils$.getTableFromProvider(DataSourceV2Utils.scala:83)
+	at org.apache.spark.sql.DataFrameWriter.getTable$1(DataFrameWriter.scala:323)
+	at org.apache.spark.sql.DataFrameWriter.save(DataFrameWriter.scala:385)
+	at org.apache.spark.sql.DataFrameWriter.save(DataFrameWriter.scala:288)
+	at wev.streaming.DataStreaming$.readTables(DataStreaming.scala:25)
+	at wev.streaming.DataStreaming$.delayedEndpoint$wev$streaming$DataStreaming$1(DataStreaming.scala:52)
+	at wev.streaming.DataStreaming$delayedInit$body.apply(DataStreaming.scala:8)
+	at scala.Function0.apply$mcV$sp(Function0.scala:39)
+	at scala.Function0.apply$mcV$sp$(Function0.scala:39)
+	at scala.runtime.AbstractFunction0.apply$mcV$sp(AbstractFunction0.scala:17)
+	at scala.App.$anonfun$main$1$adapted(App.scala:80)
+	at scala.collection.immutable.List.foreach(List.scala:392)
+	at scala.App.main(App.scala:80)
+	at scala.App.main$(App.scala:78)
+	at wev.streaming.DataStreaming$.main(DataStreaming.scala:8)
+	at wev.streaming.DataStreaming.main(DataStreaming.scala)
+Caused by: java.lang.ClassNotFoundException: org.apache.spark.sql.connector.catalog.V2TableWithV1Fallback
+	at java.net.URLClassLoader.findClass(URLClassLoader.java:382)
+	at java.lang.ClassLoader.loadClass(ClassLoader.java:418)
+	at sun.misc.Launcher$AppClassLoader.loadClass(Launcher.java:355)
+	at java.lang.ClassLoader.loadClass(ClassLoader.java:351)
+```

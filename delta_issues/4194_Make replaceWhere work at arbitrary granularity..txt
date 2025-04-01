@@ -1,0 +1,3 @@
+The idea here is to be able to use the replaceWhere  syntax without overwriting the entire partition, but only part of the rows.
+
+Thanks

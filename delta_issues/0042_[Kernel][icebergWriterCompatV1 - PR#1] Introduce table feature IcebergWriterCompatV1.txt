@@ -1,0 +1,41 @@
+## 🥞 Stacked PR
+Use this [link](https://github.com/delta-io/delta/pull/4290/files) to review incremental changes.
+- [**stack/introduce-table-feature**](https://github.com/delta-io/delta/pull/4290) [[Files changed](https://github.com/delta-io/delta/pull/4290/files)]
+
+---------
+
+<!--
+Thanks for sending a pull request!  Here are some tips for you:
+  1. If this is your first time, please read our contributor guidelines: https://github.com/delta-io/delta/blob/master/CONTRIBUTING.md
+  2. If the PR is unfinished, add '[WIP]' in your PR title, e.g., '[WIP] Your PR title ...'.
+  3. Be sure to keep the PR description updated to reflect all changes.
+  4. Please write your PR title to summarize what this PR proposes.
+  5. If possible, provide a concise example to reproduce the issue for a faster review.
+  6. If applicable, include the corresponding issue number in the PR title and link it in the body.
+-->
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [x] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+Parent issue https://github.com/delta-io/delta/issues/4289
+
+Adds the writer table feature `IcebergWriterCompatV1` and it's corresponding table config `delta.enableIcebergWriterCompatV1`.
+
+## How was this patch tested?
+
+Updates unit tests. E2E tests writing to tables with this feature will come in follow-up PRs (see the parent issue).
+
+## Does this PR introduce _any_ user-facing changes?
+
+Yes, after all tasks in https://github.com/delta-io/delta/issues/4289 are complete a new writer feature will be supported.

@@ -1,0 +1,63 @@
+## Bug
+
+i am unsure if something is wrong in my environment (Ubuntu 20), but with master branch i can no longer get tests to pass.
+
+### Describe the problem
+
+Multiple tests fail with:
+```DeltaTableFeatureException: Unable to read this table because it requires reader table feature(s) that are unsupported by this version of Delta Lake: testLegacyReaderWriter```
+
+#### Steps to reproduce
+
+i run:
+```
+$ sbt
+sbt:delta> project core
+sbt:delta-core> ++2.13.5
+sbt:delta-core> test
+```
+
+#### Observed results
+
+it runs ok for a while and then i get:
+```
+[info] - restore downgrade protocol with table features (allowed=false) *** FAILED *** (669 milliseconds)                                                               
+[info]   org.apache.spark.sql.delta.DeltaTableFeatureException: Unable to read this table because it requires reader table feature(s) that are unsupported by this version of Delta Lake: testLegacyReaderWriter.                                                                                                                               
+[info]   at org.apache.spark.sql.delta.DeltaErrorsBase.unsupportedReaderTableFeaturesInTableException(DeltaErrors.scala:2083)                                           
+[info]   at org.apache.spark.sql.delta.DeltaErrorsBase.unsupportedReaderTableFeaturesInTableException$(DeltaErrors.scala:2079)                                          
+[info]   at org.apache.spark.sql.delta.DeltaErrors$.unsupportedReaderTableFeaturesInTableException(DeltaErrors.scala:2635)                                              
+[info]   at org.apache.spark.sql.delta.DeltaLog.$anonfun$protocolCheck$3(DeltaLog.scala:351)
+[info]   at org.apache.spark.sql.delta.DeltaLog.protocolCheck(DeltaLog.scala:368)
+[info]   at org.apache.spark.sql.delta.DeltaLog.protocolRead(DeltaLog.scala:402)
+[info]   at org.apache.spark.sql.delta.Snapshot.init(Snapshot.scala:97)
+[info]   at org.apache.spark.sql.delta.Snapshot.<init>(Snapshot.scala:462)
+[info]   at org.apache.spark.sql.delta.SnapshotManagement.$anonfun$createSnapshot$4(SnapshotManagement.scala:334)
+[info]   at org.apache.spark.sql.delta.SnapshotManagement.createSnapshotFromGivenOrEquivalentLogSegment(SnapshotManagement.scala:479)
+[info]   at org.apache.spark.sql.delta.SnapshotManagement.createSnapshotFromGivenOrEquivalentLogSegment$(SnapshotManagement.scala:467)
+[info]   at org.apache.spark.sql.delta.DeltaLog.createSnapshotFromGivenOrEquivalentLogSegment(DeltaLog.scala:67)
+[info]   at org.apache.spark.sql.delta.SnapshotManagement.createSnapshot(SnapshotManagement.scala:326)
+[info]   at org.apache.spark.sql.delta.SnapshotManagement.createSnapshot$(SnapshotManagement.scala:319)
+[info]   at org.apache.spark.sql.delta.DeltaLog.createSnapshot(DeltaLog.scala:67)
+[info]   at org.apache.spark.sql.delta.SnapshotManagement.createSnapshotAfterCommit(SnapshotManagement.scala:667)
+[info]   at org.apache.spark.sql.delta.SnapshotManagement.createSnapshotAfterCommit$(SnapshotManagement.scala:658)
+[info]   at org.apache.spark.sql.delta.DeltaLog.createSnapshotAfterCommit(DeltaLog.scala:67)
+[info]   at org.apache.spark.sql.delta.SnapshotManagement.$anonfun$updateAfterCommit$2(SnapshotManagement.scala:704)
+[info]   at org.apache.spark.sql.delta.metering.DeltaLogging.recordFrameProfile(DeltaLogging.scala:140)
+[info]   at org.apache.spark.sql.delta.metering.DeltaLogging.recordFrameProfile$(DeltaLogging.scala:138)
+[info]   at org.apache.spark.sql.delta.DeltaLog.recordFrameProfile(DeltaLog.scala:67)
+[info]   at org.apache.spark.sql.delta.metering.DeltaLogging.$anonfun$recordDeltaOperationInternal$1(DeltaLogging.scala:133)
+[info]   at com.databricks.spark.util.DatabricksLogging.recordOperation(DatabricksLogging.scala:128)
+[info]   at com.databricks.spark.util.DatabricksLogging.recordOperation$(DatabricksLogging.scala:117)
+```
+#### Expected results
+
+Tests should pass.
+
+Tests did pass for me on branch-2.2 last time i ran them
+
+### Environment information
+
+* Delta Lake version: 2.3.0-SNAPSHOT
+* Spark version:
+* Scala version: 2.13.5
+* Java: openjdk version "1.8.0_352"

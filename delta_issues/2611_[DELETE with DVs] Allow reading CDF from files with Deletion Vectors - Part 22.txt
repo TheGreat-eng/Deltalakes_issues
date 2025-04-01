@@ -1,0 +1,9 @@
+## Description
+
+This PR is part of https://github.com/delta-io/delta/issues/1701.
+
+This is a follow-up of https://github.com/delta-io/delta/pull/1680 to add support to allow reading CDC from files that have DV associated. In this PR we modify the CDC reader to construct in-line DVs diff'ed from two existing DVs, and modify the corresponding FileIndex to use the in-line DV.
+
+## How was this patch tested?
+
+Adding a CDC variant to an existing suite.

@@ -1,0 +1,53 @@
+
+#### Which Delta project/connector is this regarding?
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [x] S3DynamoDBLogStore 
+- [ ] Other (fill in here)
+
+## Description
+
+This PR aims to create a cloud-agnostic solution for the [Delta Lake on S3 Multiple Writers](https://github.com/delta-io/delta/issues/41) issue using ScyllaDB's Alternator. It offers an open-source solution for S3 and S3-compatible storage lacking the `putIfAbsent` functionality.
+The implementation includes the addition of an abstraction layer for DynamoDB LogStore (io.delta.storage.BaseDynamoDBLogStore) and introduces two implementations:
+
+1) **io.delta.storage.DynamoDBLogStore** - for DynamoDB (no configuration changes for DynamoDB implementation).
+2) **io.delta.storage.S3ScyllaDBLogStore** - for Scylla DB
+The configuration details for ScyllaDB are as follows:
+```
+spark.delta.logStore.s3a.impl=io.delta.storage.S3ScyllaDBLogStore
+spark.io.delta.storage.S3ScyllaDBLogStore.ddb.endpoint=<ScyllaDB's Alternator cluster endpoint>
+spark.io.delta.storage.S3ScyllaDBLogStore.credentials.provider=<The AWSCredentialsProvider used by the client, default DefaultAWSCredentialsProviderChain>
+spark.io.delta.storage.S3ScyllaDBLogStore.ddb.tableName=<The name of the Scylla table to use, default delta_log>
+```
+Resolves #2411, #1336, #1441
+
+
+
+## How was this patch tested?
+Unit test - SUCCEEDED
+Manual test :
+
+- Set up ScyllaDB's Alternator cluster on K8s.
+- Write and read to a delta table on S3 storage with the specified configuration:
+   ```
+   spark.delta.logStore.s3a.impl=io.delta.storage.S3ScyllaDBLogStore
+   spark.io.delta.storage.S3ScyllaDBLogStore.ddb.endpoint=<ScyllaDB's Alternator cluster endpoint>
+   ```
+- Verify that the delta_logs table is created in ScyllaDB, and Delta uses this table for reading and writing the logs.
+
+<!--
+If tests were added, say they were added here. Please make sure to test the changes thoroughly including negative and positive cases if possible.
+If the changes were tested in any way other than unit tests, please clarify how you tested step by step (ideally copy and paste-able, so that other reviewers can test and check, and descendants can verify in the future).
+If the changes were not tested, please explain why.
+-->
+
+## Does this PR introduce _any_ user-facing changes?
+No
+<!--
+If yes, please clarify the previous behavior and the change this PR proposes - provide the console output, description and/or an example to show the behavior difference if possible.
+If possible, please also clarify if this is a user-facing change compared to the released Delta Lake versions or within the unreleased branches such as master.
+If no, write 'No'.
+-->

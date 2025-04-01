@@ -1,0 +1,5 @@
+hi Delta community, 
+
+Could we add support for eventual consistent blob storage such as AWS s3?
+
+Thanks

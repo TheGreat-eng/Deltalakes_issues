@@ -1,0 +1,21 @@
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [X] Kernel
+- [ ] Other (fill in here)
+
+## Description
+Extended serialization and deserialization to support collations in metadata.
+
+## How was this patch tested?
+Tests added to `DataTypeJsonSerDe.java` and `StructTypeSuite.scala`.
+
+## Does this PR introduce _any_ user-facing changes?
+No.

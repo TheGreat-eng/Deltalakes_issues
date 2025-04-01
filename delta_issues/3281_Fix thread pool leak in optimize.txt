@@ -1,0 +1,1 @@
+Adds shutting down the thread pool after we're done with it in an optimize job. This is particularly important right now before incremental optimization is implemented, since manual batching will create and leave around a new thread pool per batch.

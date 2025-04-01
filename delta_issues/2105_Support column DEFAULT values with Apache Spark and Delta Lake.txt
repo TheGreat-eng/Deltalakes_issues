@@ -1,0 +1,27 @@
+#### Which Delta project/connector is this regarding?
+
+- [X] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+This PR supports column DEFAULT values with Apache Spark and Delta Lake.
+
+This feature allows users to create or alter tables to assign default value expressions to columns of interest.
+
+After doing so, future INSERT, UPDATE, and MERGE commands may refer to the default value of any column using the DEFAULT keyword, and the query planner will replace each such reference with the result of evaluating the corresponding assigned default value expression (or NULL if there is no such explicit default assignment for that column yet). INSERT commands with user-specified lists of fewer columns than the target table will also add corresponding default values for all remaining non-specified columns.
+
+Note that at the time of this writing, Apache Spark's CSV, JSON, Orc, and Parquet data sources also support ALTER TABLE ADD COLUMN commands with DEFAULT values, but this Delta Lake implementation currently does not. The reason is that such commands update column metadata so that future scans inject the defaults for only those rows where the corresponding values are not present in storage. This requires scan operator support, but the Delta Lake part seemed too complex for this benefit; instead, such commands return detailed error messages instructing the user to first add the column and then alter it to assign the default after.
+
+Please refer to an open design doc [here](https://docs.google.com/document/d/e/2PACX-1vTyozwH8A4lemW_wNq7YC7GpuTzNn19NUZQ_pw9dDJNYBuhmdqDunauqmLr0qIuD8kQRNI7a4x72c55/pub).
+
+## How was this patch tested?
+
+This PR adds unit test coverage.
+
+## Does this PR introduce _any_ user-facing changes?
+
+Yes, see above.

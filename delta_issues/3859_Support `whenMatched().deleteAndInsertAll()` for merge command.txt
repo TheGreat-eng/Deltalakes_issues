@@ -1,0 +1,47 @@
+My goal is to perform the following sequence of actions in single merge transaction:
+1. Join source DF with target Delta table on `id` column
+1. Delete any existing IDs from the target table
+1. Append the source DF into the target table
+
+If my ID column was unique, this could have been achieved with a merge on `id`, followed by `whenMatched().updateAll().whenNotMatched().insertAll()`. However, in my use-case it is very common that I'd have several rows with the same ID, and I can't add any more columns to the merge clause to make it unique. Here's an example to illustrate:
+```scala
+import io.delta.tables._
+case class MetricRow(id: Integer, key: String, value: Double)
+
+val initialDF = spark.createDataFrame(Seq(
+    MetricRow(1, "x", 1),
+    MetricRow(1, "y", 2))
+)
+initialDF.write.format("delta").save("/tmp/delta_merge_example")
+
+val mergeDF = spark.createDataFrame(Seq(
+    MetricRow(1, "x", 3),
+    MetricRow(1, "z", 4),
+    MetricRow(1, "w", 5))
+)
+DeltaTable.forPath("/tmp/delta_merge_example").alias("T")
+    .merge(mergeDF.alias("S"), "S.id=T.id")
+    .whenNotMatched().insertAll()
+    .whenMatched().updateAll()  // this is where the problem lies
+    .execute()
+```
+
+This will raise an `UnsupportedOperationException`:
+```
+Cannot perform MERGE as multiple source rows matched and attempted to update the same
+target row in the Delta table. By SQL semantics of merge, when multiple source rows match
+on the same target row, the update operation is ambiguous as it is unclear which source
+should be used to update the matching target row.
+You can preprocess the source table to eliminate the possibility of multiple matches.
+```
+
+Since I can't deduplication and update are not an option, I thought about adding support for `.deleteAndInsertAll()` command after `.whenMatched()`, because I don't want to delete the files in one transaction, and then insert them in another (due to consistency concerns). It should be logically equivalent to the following code:
+```scala
+DeltaTable.forPath("/tmp/delta_merge_example").alias("T")
+    .merge(mergeDF.alias("S"), "S.id=T.id")
+    .whenMatched().delete()
+    .execute()
+mergeDF.write.format("delta").mode("append").save("tmp/delta_merge_example")
+```
+
+Is it possible to do both of these actions in a single merge command?

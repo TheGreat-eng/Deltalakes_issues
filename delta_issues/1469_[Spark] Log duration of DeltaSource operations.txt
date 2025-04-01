@@ -1,0 +1,19 @@
+#### Which Delta project/connector is this regarding?
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+This PR adds logging the main DeltaSource operations to allow us to measure the duration of these operations.
+
+## How was this patch tested?
+
+Existing tests to make sure nothing breaks.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

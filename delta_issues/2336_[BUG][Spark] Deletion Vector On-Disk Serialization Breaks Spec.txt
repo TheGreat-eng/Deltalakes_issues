@@ -1,0 +1,67 @@
+## Bug
+
+#### Which Delta project/connector is this regarding?
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+### Describe the problem
+The deletion vector spec states that all numerical values should be written in little endian byte order  - `The concrete serialization format is as follows (all numerical values are written in little endian byte order).` However the implementation is serializing the sizeInBytes and checkSum for deletion vectors written to files (non-inline) using FSDataOutputStream::writeInt, which records ints "high byte first" - ie, big endian.
+
+#### Steps to reproduce
+
+1. Use DeletionVectorStore.Writer::write to serialize a deletion vector to a file (source code snippet below):
+
+```
+      override def write(data: Array[Byte]): DeletionVectorStore.DVRangeDescriptor = {
+        if (outputStream == null) {
+          val overwrite = false // `create` Java API does not support named parameters
+          outputStream = path.fs.create(path.path, overwrite)
+          outputStream.writeByte(DeletionVectorStore.DV_FILE_FORMAT_VERSION_ID_V1)
+        }
+        val dvRange = DeletionVectorStore.DVRangeDescriptor(
+          offset = outputStream.size(),
+          length = data.length,
+          checksum = DeletionVectorStore.calculateChecksum(data)
+          )
+        log.debug(s"Writing DV range to file: Path=${path.path}, Range=${dvRange}")
+        outputStream.writeInt(data.length)
+        outputStream.write(data)
+        outputStream.writeInt(dvRange.checksum)
+        dvRange
+      }
+```
+
+#### Observed results
+
+The produced deletion vector records the size and checksum in big endian byte order. The highlighted portion below is the sizeInBytes field in the serialized deletion vector.
+
+![image](https://github.com/delta-io/delta/assets/142525125/ea1e5dcb-8c6e-4b1c-9038-e9f2a1c20774)
+
+
+#### Expected results
+
+The expected result would be for the sizeInBytes and checksum bytes in the sample above to be in little endian byte order, which would read `22 00 00 00` for sizeInBytes as an example.
+
+#### Further details
+
+Relevant Portion of DV Spec: https://github.com/delta-io/delta/blob/master/PROTOCOL.md#Deletion-Vector-Format
+Relevant Source Code: https://github.com/delta-io/delta/blob/adeda1ec5f175bbe551ad56dd12b68153074b6ea/core/src/main/scala/org/apache/spark/sql/delta/storage/dv/DeletionVectorStore.scala#L214
+writeInt Documentation: https://docs.oracle.com/en/java/javase/20/docs/api/java.base/java/io/DataOutputStream.html#writeInt(int)
+
+### Environment information
+
+* Delta Lake version: 2.4
+* Spark version: 3.4
+* Scala version: 2.12
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [ ] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [x] No. I cannot contribute a bug fix at this time.

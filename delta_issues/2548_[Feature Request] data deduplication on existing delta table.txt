@@ -1,0 +1,20 @@
+## Feature request
+
+### Overview
+
+In some cases, we would prefer to do data deduplication on a regular basis rather than when upserting.  A single command for this purpose would be quite useful. 
+
+### Motivation
+
+Several approaches are proposed online with regards to data de-duplication on delta tables. Some target deduplication when inserting, others propose complex merge operations for existing tables. 
+
+
+### Further details
+
+Propose to implement a command in the form
+
+`deltaTable.dropDuplicates(cols, where, keep="first")`
+
+such that rows with duplicates on the columns given by the cols parameter are dropped when the given conditions specified by the where parameter. The conditions should be a filter, on partition columns or other.  
+
+

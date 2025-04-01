@@ -1,0 +1,37 @@
+## [BUG][Spark][Hive] Create a Delta Lake Table in Hive Metastore with saveAsTable() Method
+
+#### Which Delta project/connector is this regarding?
+- [X] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+### Describe the problem
+
+#### Steps to reproduce
+
+1. Open PySpark session
+`pyspark --conf "spark.sql.extensions=io.delta.sql.DeltaSparkSessionExtension" --conf "spark.sql.catalog.spark_catalog=org.apache.spark.sql.delta.catalog.DeltaCatalog"`
+
+2. Sample code 
+  ```
+  from delta import * 
+  
+  data = spark.range(0, 5) 
+  data.write.format("delta").saveAsTable("deltatable")
+  ```
+
+
+#### Observed results
+
+The table gets created with the wrong Input/Output Format classes _Sequence_, so when I try to query the table from Hive I get an error.
+When I use save() method as below, and then create an External table in Hive it works fine.
+`data.write.format("delta").save("/tmp/deltatest/deltatable")`
+
+
+### Environment information
+
+* Delta Lake version: 2.3
+* Spark version: 3.3.1
+* Scala version: 2.12

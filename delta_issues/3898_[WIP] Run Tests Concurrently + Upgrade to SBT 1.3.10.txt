@@ -1,0 +1,11 @@
+This is a work in progress PR that upgrades SBT to 1.3.10. This brings a number of enhancements:
+- Coursier based dependency resolution - Coursier resolves much faster than Ivy. This is true both in CI (when first downloading dependencies) and during local/iterative development (re-resolution on startup and between commands is faster as well)
+- Better Console - The SBT console now shows inprogress compile/test/tasks (similar to Bazel)
+- Parallel Test Execution - This was also available in SBT 0.13.x, but it's now easier to configure and enable across all test projects while still being able to control parallelism
+
+This PR is still WIP as a number of workflows need to be tested and changes need to be verified
+- Releasing a new version of Delta - I had to bump the sbt-release plugin.
+- Ensuring Coursier and Ivy produce the same dependency resolution - it's possible that Delta pulls in artifacts with different versions as a result of the switch to Coursier. If this is the case, we may need to manually pin artifacts & versions.
+- A few test cases fail when run in parallel - we'll need to either fix them tag them to run serially.
+
+The biggest TODO is re-building sbt-spark-package for SBT 1.x - This is the one SBT plugin that doesn't have an SBT 1.x compatible version.

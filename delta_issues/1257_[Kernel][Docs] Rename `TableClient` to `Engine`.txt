@@ -1,0 +1,5 @@
+## Description
+Rename the references of `TableClient` to `Engine`. Follow up to #3015.
+
+## How was this patch tested?
+Just docs change

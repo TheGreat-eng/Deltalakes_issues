@@ -1,0 +1,19 @@
+#### Which Delta project/connector is this regarding?
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+This PR proposes to upgrade the version of delta-sharing-client to 1.2.2, which is compatible with recent change in master branch for Apache Spark. The version can work for both Spark 4.0 and prior.
+
+## How was this patch tested?
+
+Existing tests with CI
+
+## Does this PR introduce _any_ user-facing changes?
+
+No.

@@ -1,0 +1,5 @@
+CONVERT TO DELTA converts a Parquet table into a Delta table in place. This change was implemented in https://github.com/delta-io/delta/commit/b624209cb802e600a9419b2a75e13c54c24eec7d.
+
+DESCRIBE DETAIL shows metadata about a Delta table. This was implemented in https://github.com/delta-io/delta/commit/5b166e5fc7a732b5788ce4bbe995276e1c9e0e48.
+
+Creating and closing an issue so this so it's tracked under the 0.5.0 milestone. cc @pranavanand , @zsxwing 

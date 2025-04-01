@@ -1,0 +1,133 @@
+Hey
+When I'm trying to add new column through overwriteSchema, all fields become nullable. 
+
+Before: 
+```
+root
+ |-- id: integer (nullable = false)
+ |-- name: string (nullable = false)
+ |-- country: string (nullable = false)
+```
+
+After:
+```
+root
+ |-- id: integer (nullable = true)
+ |-- name: string (nullable = true)
+ |-- country: string (nullable = true)
+ |-- new_id: integer (nullable = true)
+```
+
+<details>
+  <summary>Show example source code</summary>
+  
+```scala
+import io.delta.tables.DeltaTable
+import org.apache.spark.sql.functions.col
+import org.apache.spark.sql.types._
+import org.apache.spark.sql.{SaveMode, SparkSession}
+
+object OverrideSchemaTest {
+
+  def main(args: Array[String]): Unit = {
+    val spark = SparkSession
+      .builder
+      .master("local[*]")
+      .appName("spark app")
+      .config("spark.sql.extensions", "io.delta.sql.DeltaSparkSessionExtension")
+      .config("spark.sql.catalog.spark_catalog", "org.apache.spark.sql.delta.catalog.DeltaCatalog")
+      .getOrCreate()
+
+    DeltaTable
+      .create(spark)
+      .location(deltaTablePath)
+      .addColumns(
+        StructType(Seq(
+          StructField("id", IntegerType, nullable=false, new MetadataBuilder()
+            .putString("description", "test")
+            .build()
+          ),
+          StructField("name", StringType, nullable=false),
+          StructField("country", StringType, nullable=false),
+        ))
+      )
+      .partitionedBy("country")
+      .execute()
+
+    import spark.implicits._
+
+    val df = Seq(
+        (1, "foo", "US"),
+        (2, "bar", "US"),
+        (3, "baz", "US"),
+        (4, "foo_uk", "UK")
+      )
+      .toDF("id", "name", "country")
+
+
+    DeltaTable
+      .forPath(deltaTablePath)
+      .as("entry")
+      .merge(
+        df.as("new_entry"),
+        "entry.id = new_entry.id"
+      )
+      .whenMatched()
+      .updateAll()
+      .whenNotMatched()
+      .insertAll()
+      .execute()
+
+    // Before
+    DeltaTable
+      .forPath(spark, deltaTablePath)
+      .toDF
+      .schema
+      .printTreeString()
+
+    val newDf = DeltaTable
+      .forPath(spark, deltaTablePath)
+      .toDF
+
+    newDf
+      .withColumn(
+        "new_id",
+        col("id")
+          .as(
+            "new_id",
+            new MetadataBuilder()
+            .putString("description", "new id")
+            .build()
+          )
+      )
+      .write
+      .format("delta")
+      .option("overwriteSchema", "true")
+      .mode(SaveMode.Overwrite)
+      .partitionBy("country")
+      .save(deltaTablePath)
+
+    // After
+    DeltaTable
+      .forPath(spark, deltaTablePath)
+      .toDF
+      .schema
+      .printTreeString()
+  }
+
+  def deltaTablePath: String = System.getProperty("user.dir") + "/var/names"
+
+  def createSparkSession: SparkSession = {
+    SparkSession
+      .builder
+      .master("local[*]")
+      .appName("spark app")
+      .config("spark.sql.extensions", "io.delta.sql.DeltaSparkSessionExtension")
+      .config("spark.sql.catalog.spark_catalog", "org.apache.spark.sql.delta.catalog.DeltaCatalog")
+      .getOrCreate()
+  }
+}
+```
+</details>
+
+is this an expected behavior? 

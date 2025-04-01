@@ -1,0 +1,17 @@
+This PR adds RESTORE SQL syntax and handling the parsed SQL command to execute the RESTORE using the existing `RestoreTableCommand`.
+
+```
+RESTORE [TABLE] <tableIdentifier> TO VERSION AS OF <versionId>
+ex: RESTORE TABLE delta.`s3://bucket/table/deltatabl1` TO VERSION AS OF 20
+
+RESTORE [TABLE] <tableIdentifier> TO TIMESTAMP AS OF <timestamp string>
+RESTORE TABLE delta.`s3://bucket/table/deltatabl1` TO TIMESTAMP AS OF '2021-11-18'
+```
+
+This PR also refactors the `RestoreTableCommand` to take `DeltaTableV2` with time travel info and both SQL and Scala API to use the same method i.e construct `DeltaTableV2` and pass it to `RestoreTableCommand`.
+
+Also adds a test suite.
+
+This closes https://github.com/delta-io/delta/issues/891
+
+GitOrigin-RevId: 85d85a3f964efe3c2c06de00c7c52d27b349f559

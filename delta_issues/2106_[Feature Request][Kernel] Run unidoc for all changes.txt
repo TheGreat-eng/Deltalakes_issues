@@ -1,0 +1,18 @@
+## Feature request
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the issue title
+For example: [Feature Request][Spark] Title of my issue
+-->
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [x] Kernel
+- [ ] Other (fill in here)
+
+### Overview
+Currently the Kernel or Connector CI job just runs the tests and doesn't generate any docs to make sure there are no errors introduced in the PRs. Doc generation is [done as part of the `delta-spark` tests](https://github.com/delta-io/delta/blob/master/run-tests.py#L72) which are not run if the PR just contains Kernel only changes. 
+
+May be it is better to separate out the unidoc generation into a separate CI workflow that always runs?

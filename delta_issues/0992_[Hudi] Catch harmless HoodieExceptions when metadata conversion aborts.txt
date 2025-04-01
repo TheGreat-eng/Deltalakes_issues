@@ -1,0 +1,54 @@
+<!--
+Thanks for sending a pull request!  Here are some tips for you:
+  1. If this is your first time, please read our contributor guidelines: https://github.com/delta-io/delta/blob/master/CONTRIBUTING.md
+  2. If the PR is unfinished, add '[WIP]' in your PR title, e.g., '[WIP] Your PR title ...'.
+  3. Be sure to keep the PR description updated to reflect all changes.
+  4. Please write your PR title to summarize what this PR proposes.
+  5. If possible, provide a concise example to reproduce the issue for a faster review.
+  6. If applicable, include the corresponding issue number in the PR title and link it in the body.
+-->
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [x] Other (Hudi)
+
+## Description
+
+<!--
+- Describe what this PR changes.
+- Describe why we need the change.
+ 
+If this PR resolves an issue be sure to include "Resolves #XXX" to correctly link and close the issue upon merge.
+-->
+
+This PR adds a clause to catch a few specific HoodieExceptions from the Hudi metadata conversion that are not data-corrupting and only cause the conversion to abort. This is acceptable because the conversion of this commit will just happen in a future Delta commit instead.
+
+These exceptions can occur due to IO failures or multiple writers trying to write to the metadata table at the same time. If multiple writers are writing to the metadata table at the same time, the issue that occurs is that both writers see a failed commit in the Hudi metadata timeline and try to roll it back. The faster writer is able to roll it back with no problem and no exception, but the slower writer will try to roll it back and find that the commit no longer exists (since it was already rolled back by the faster writer). This will lead to an error. However, since the Hudi metadata table is updated within the Hudi commit transaction, the entire transaction will abort if there is a failure in writing to the metadata table. Thus, the commit is not marked as completed and the state of the Hudi table is unchanged. The incompleted commits to both the metadata table and the actual table itself will be cleaned up in a later transaction. The changes that we wanted to make in this commit will be made in the next commit instead since the lastDeltaVersionConverted is unchanged in the table (no new data added).
+
+Also, similar errors can happen after the data is already committed and both writers are trying to clean up the metadata (in function markInstantsAsCleaned). Multiple writers may try to clean up the same Instant and the slower writer will again run into an error. (this is the "Error getting all file groups in pending clustering" error) Again, this does not lead to any data corruption because it is only cleanup step that gets aborted, and the data is already committed to the table. The cleanup will just be performed after a later commit instead.
+
+## How was this patch tested?
+
+<!--
+If tests were added, say they were added here. Please make sure to test the changes thoroughly including negative and positive cases if possible.
+If the changes were tested in any way other than unit tests, please clarify how you tested step by step (ideally copy and paste-able, so that other reviewers can test and check, and descendants can verify in the future).
+If the changes were not tested, please explain why.
+-->
+Unit tests
+
+## Does this PR introduce _any_ user-facing changes?
+
+<!--
+If yes, please clarify the previous behavior and the change this PR proposes - provide the console output, description and/or an example to show the behavior difference if possible.
+If possible, please also clarify if this is a user-facing change compared to the released Delta Lake versions or within the unreleased branches such as master.
+If no, write 'No'.
+-->
+No

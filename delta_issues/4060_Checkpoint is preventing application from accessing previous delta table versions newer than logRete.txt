@@ -1,0 +1,101 @@
+## Example scenario
+Suppose I have a Delta table with a single version (v0) created 30 days ago (considering that the current date is 2019-11-13) and I perform 9 writes today in this same table. The table's history will look something like this:
+```
++-------+-------------------+------+--------+---------+--------------------+----+--------+---------+-----------+--------------+-------------+
+|version|          timestamp|userId|userName|operation| operationParameters| job|notebook|clusterId|readVersion|isolationLevel|isBlindAppend|
++-------+-------------------+------+--------+---------+--------------------+----+--------+---------+-----------+--------------+-------------+
+|      9|2019-11-13 18:14:46|  null|    null|    WRITE|[mode -> Overwrit...|null|    null|     null|          8|          null|        false|
+|      8|2019-11-13 18:14:41|  null|    null|    WRITE|[mode -> Overwrit...|null|    null|     null|          7|          null|        false|
+|      7|2019-11-13 18:14:37|  null|    null|    WRITE|[mode -> Overwrit...|null|    null|     null|          6|          null|        false|
+|      6|2019-11-13 18:14:32|  null|    null|    WRITE|[mode -> Overwrit...|null|    null|     null|          5|          null|        false|
+|      5|2019-11-13 18:14:29|  null|    null|    WRITE|[mode -> Overwrit...|null|    null|     null|          4|          null|        false|
+|      4|2019-11-13 18:14:25|  null|    null|    WRITE|[mode -> Overwrit...|null|    null|     null|          3|          null|        false|
+|      3|2019-11-13 18:14:22|  null|    null|    WRITE|[mode -> Overwrit...|null|    null|     null|          2|          null|        false|
+|      2|2019-11-13 18:14:19|  null|    null|    WRITE|[mode -> Overwrit...|null|    null|     null|          1|          null|        false|
+|      1|2019-11-13 18:14:17|  null|    null|    WRITE|[mode -> Overwrit...|null|    null|     null|          0|          null|        false|
+|      0|2019-10-13 18:14:17|  null|    null|    WRITE|[mode -> Overwrit...|null|    null|     null|       null|          null|        false|
++-------+-------------------+------+--------+---------+--------------------+----+--------+---------+-----------+--------------+-------------+
+```
+At this point, it's still possible to select version 0 of this table via time travel, as expected.
+
+If I perform another write in this table, it will trigger the creation of a checkpoint and a metadata cleanup of the delta files that are older than `logRetentionPeriod` (30 days by default), which will remove version 0 from the history:
+```
++-------+-------------------+------+--------+---------+--------------------+----+--------+---------+-----------+--------------+-------------+
+|version|          timestamp|userId|userName|operation| operationParameters| job|notebook|clusterId|readVersion|isolationLevel|isBlindAppend|
++-------+-------------------+------+--------+---------+--------------------+----+--------+---------+-----------+--------------+-------------+
+|     10|2019-11-13 18:14:53|  null|    null|    WRITE|[mode -> Overwrit...|null|    null|     null|          9|          null|        false|
+|      9|2019-11-13 18:14:46|  null|    null|    WRITE|[mode -> Overwrit...|null|    null|     null|          8|          null|        false|
+|      8|2019-11-13 18:14:41|  null|    null|    WRITE|[mode -> Overwrit...|null|    null|     null|          7|          null|        false|
+|      7|2019-11-13 18:14:37|  null|    null|    WRITE|[mode -> Overwrit...|null|    null|     null|          6|          null|        false|
+|      6|2019-11-13 18:14:32|  null|    null|    WRITE|[mode -> Overwrit...|null|    null|     null|          5|          null|        false|
+|      5|2019-11-13 18:14:29|  null|    null|    WRITE|[mode -> Overwrit...|null|    null|     null|          4|          null|        false|
+|      4|2019-11-13 18:14:25|  null|    null|    WRITE|[mode -> Overwrit...|null|    null|     null|          3|          null|        false|
+|      3|2019-11-13 18:14:22|  null|    null|    WRITE|[mode -> Overwrit...|null|    null|     null|          2|          null|        false|
+|      2|2019-11-13 18:14:19|  null|    null|    WRITE|[mode -> Overwrit...|null|    null|     null|          1|          null|        false|
+|      1|2019-11-13 18:14:17|  null|    null|    WRITE|[mode -> Overwrit...|null|    null|     null|          0|          null|        false|
++-------+-------------------+------+--------+---------+--------------------+----+--------+---------+-----------+--------------+-------------+
+```
+
+### Expected behavior
+At this point, should I be able to select version 1 from this table via time travel (from my understanding of the documentation) since it still appears in the table's history and this version is newer than `logRetentionPeriod`.
+
+### Observed behavior
+Right now, if I try to do this, I get the following error:
+```
+pyspark.sql.utils.AnalysisException: 'Cannot time travel Delta table to version 1. Available versions: [10, 10].;'
+```
+
+### Script to reproduce this scenario 
+Here's a script that can replicate this result locally using PySpark (I've also noticed this same behavior in the cloud using Azure Databricks):
+```
+import os
+import time
+
+from pyspark.sql import SparkSession
+
+
+if __name__ == '__main__':
+    saved_data_path = 'data/delta/test'
+    spark = (
+        SparkSession.builder.appName("TestTimeTravelWithCheckPoint")
+            .master("local[*]")
+            .config('spark.jars.packages', 'io.delta:delta-core_2.11:0.4.0')
+            .getOrCreate()
+    )
+    a_df = spark.sparkContext.parallelize([
+        ["1", "x"],
+        ["2", "y"] ,
+        ["3", "z"]
+    ]).toDF(["COL1", "COL2"])
+
+    # Create version 0
+    a_df.write.format("delta").mode("overwrite").save(saved_data_path)
+
+    # Update the timestamp of this version to more than 30 days ago
+    os.utime('data/delta/test/_delta_log/00000000000000000000.json', (time.time(), time.time() - (31*24*60*60)))
+
+    # Create versions 1-9 with having the current day as timestamp
+    for i in range(9):
+        a_df.write.format("delta").mode("overwrite").save(saved_data_path)
+
+    # History shows versions 0-9
+    spark._jvm.io.delta.tables.DeltaTable.forPath(saved_data_path).history().show()
+    # Still possible to retrieve version 0
+    print('Version 0:')
+    spark.read.format('delta').option('versionAsOf', '0').load(saved_data_path).show()
+
+    # Create a new version (10) which triggers checkpointing and removal of
+    # versions based on logRetentionPeriod (30 days by default)
+    a_df.write.format("delta").mode("overwrite").save(saved_data_path)
+
+    # History now shows only versions 1-10 - version 0 was removed
+    spark._jvm.io.delta.tables.DeltaTable.forPath(saved_data_path).history().show()
+    
+    # Possible to retrieve latest version (10)
+    print('Version 10:')
+    spark.read.format('delta').option('versionAsOf', '10').load(saved_data_path).show()
+    # Not possible to retrieve earliest version (1) despite the fact that its timestamp difference
+    # is less than logRetentionPeriod (30 days)
+    print('Version 1:')
+    spark.read.format('delta').option('versionAsOf', '1').load(saved_data_path).show()
+```

@@ -1,0 +1,35 @@
+## Description
+
+Fix to build the sources using Java 11 (as the target JVM). Otherwise the following errors show up:
+
+```text
+$ sbt kernelApi/Compile/doc
+...
+[error] /Users/jacek/dev/oss/delta/kernel/kernel-api/src/main/java/io/delta/kernel/internal/deletionvectors/RoaringBitmapArray.java:214:1: as of release 9, '_' is a keyword, and may not be used as an identifier
+[error] /Users/jacek/dev/oss/delta/kernel/kernel-api/src/main/java/io/delta/kernel/internal/deletionvectors/RoaringBitmapArray.java:214:1: as of release 9, '_' is a keyword, and may not be used as an identifier
+[error] /Users/jacek/dev/oss/delta/kernel/kernel-api/src/main/java/io/delta/kernel/internal/deletionvectors/RoaringBitmapArray.java:214:1: as of release 9, '_' is a keyword, and may not be used as an identifier
+```
+
+It is only "visible" when you change `build.sbt` to use the following line (which I'm going to submit in a separate PR):
+
+```text
+Compile / compile / javacOptions ++= Seq("-target", "11"),
+```
+
+## How was this patch tested?
+
+A local build with Scala 2.13 (`val default_scala_version = scala213`) and Java 11 (`val targetJvm = "11"` not `"1.8"`) with the dependencies loaded from local-ivy-repo (not central)
+
+```shell
+$ sbt clean publishLocal
+$ ./bin/spark-shell --packages io.delta:delta-spark_2.13:3.0.0rc1 \
+--conf spark.sql.extensions=io.delta.sql.DeltaSparkSessionExtension \
+--conf spark.sql.catalog.spark_catalog=org.apache.spark.sql.delta.catalog.DeltaCatalog
+...
+	found io.delta#delta-spark_2.13;3.0.0rc1 in local-ivy-cache
+	found io.delta#delta-storage;3.0.0rc1 in local-ivy-cache
+```
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

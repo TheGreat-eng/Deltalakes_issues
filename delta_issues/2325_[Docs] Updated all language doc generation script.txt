@@ -1,0 +1,17 @@
+
+#### Which Delta project/connector is this regarding?
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [x] Other: Docs
+
+## Description
+Fixed doc generation scripts to generate and collect all language docs of all modules together in one place.
+
+## How was this patch tested?
+ran locally. 
+
+## Does this PR introduce _any_ user-facing changes?
+No

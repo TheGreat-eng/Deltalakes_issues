@@ -1,0 +1,81 @@
+## Feature request
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the issue title
+For example: [Feature Request][Spark] Title of my issue
+-->
+
+- [ ] Spark
+- [ ] Standalone
+- [x] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+### Overview
+
+Attempting to read from a Delta table with `enableDeletionVectors=true` using Flink, but running into the following error message:
+```
+io.delta.standalone.internal.exception.DeltaErrors$InvalidProtocolVersionException:
+Delta protocol version (3,7) is too new for this version of Delta
+Standalone Reader/Writer (1,2). Please upgrade to a newer release.
+```
+
+### Motivation
+
+<!-- How will this feature be used? Why is it important? Which users will benefit from it? -->
+Flink connectors should be updated to a newer version of Delta so they can read/write to tables using the latest protocol.
+
+### Further details
+
+<!--
+Use this section to include any additional information about the feature. If you have a proposal for how to implement this feature, please include it here. For implementation guidelines, please read our contributor guidelines: https://github.com/delta-io/delta/blob/master/CONTRIBUTING.md
+If there are any specific requirements for this feature that are not immediately obvious please outline them here.
+-->
+
+Logs from Flink job attempting to read from Delta table:
+```
+io.delta.standalone.internal.exception.DeltaErrors$InvalidProtocolVersionException:
+Delta protocol version (3,7) is too new for this version of Delta
+Standalone Reader/Writer (1,2). Please upgrade to a newer release.
+
+        at io.delta.standalone.internal.DeltaLogImpl.assertProtocolRead(DeltaLogImpl.scala:214)
+        at io.delta.standalone.internal.SnapshotImpl.<init>(SnapshotImpl.scala:345)
+        at io.delta.standalone.internal.SnapshotManagement.createSnapshot(SnapshotManagement.scala:287)
+        at io.delta.standalone.internal.SnapshotManagement.getSnapshotAtInit(SnapshotManagement.scala:232)
+        at io.delta.standalone.internal.SnapshotManagement.getSnapshotAtInit$(SnapshotManagement.scala:221)
+        at io.delta.standalone.internal.DeltaLogImpl.getSnapshotAtInit(DeltaLogImpl.scala:42)
+        at io.delta.standalone.internal.SnapshotManagement.$init$(SnapshotManagement.scala:37)
+        at io.delta.standalone.internal.DeltaLogImpl.<init>(DeltaLogImpl.scala:47)
+        at io.delta.standalone.internal.DeltaLogImpl$.apply(DeltaLogImpl.scala:263)
+        at io.delta.standalone.internal.DeltaLogImpl$.forTable(DeltaLogImpl.scala:245)
+        at io.delta.standalone.internal.DeltaLogImpl.forTable(DeltaLogImpl.scala)
+        at io.delta.standalone.DeltaLog.forTable(DeltaLog.java:176)
+        at io.delta.flink.sink.internal.committer.DeltaGlobalCommitter.<init>(DeltaGlobalCommitter.java:135)
+        at io.delta.flink.sink.internal.DeltaSinkBuilder.createGlobalCommitter(DeltaSinkBuilder.java:276)
+        at io.delta.flink.sink.internal.DeltaSinkInternal.createGlobalCommitter(DeltaSinkInternal.java:172)
+        at org.apache.flink.streaming.api.transformations.SinkV1Adapter$GlobalCommitterAdapter.<init>(SinkV1Adapter.java:428)
+        at org.apache.flink.streaming.api.transformations.SinkV1Adapter$GlobalCommittingSinkAdapter.lambda$addPostCommitTopology$794d7f59$1(SinkV1Adapter.java:367)
+        at org.apache.flink.streaming.api.connector.sink2.GlobalCommitterOperator.setup(GlobalCommitterOperator.java:90)
+        at org.apache.flink.streaming.api.operators.SimpleOperatorFactory.createStreamOperator(SimpleOperatorFactory.java:84)
+        at org.apache.flink.streaming.api.operators.StreamOperatorFactoryUtil.createOperator(StreamOperatorFactoryUtil.java:81)
+        at org.apache.flink.streaming.runtime.tasks.OperatorChain.<init>(OperatorChain.java:214)
+        at org.apache.flink.streaming.runtime.tasks.RegularOperatorChain.<init>(RegularOperatorChain.java:60)
+        at org.apache.flink.streaming.runtime.tasks.StreamTask.restoreInternal(StreamTask.java:709)
+        at org.apache.flink.streaming.runtime.tasks.StreamTask.restore(StreamTask.java:693)
+        at org.apache.flink.runtime.taskmanager.Task.runWithSystemExitMonitoring(Task.java:953)
+        at org.apache.flink.runtime.taskmanager.Task.restoreAndInvoke(Task.java:922)
+        at org.apache.flink.runtime.taskmanager.Task.doRun(Task.java:746)
+        at org.apache.flink.runtime.taskmanager.Task.run(Task.java:562)
+        at java.base/java.lang.Thread.run(Unknown Source)
+```
+
+I encountered this error when using delta-flink version 3.0.0 as well as building directly from the latest source (commit `d330cb18e390b8c431697436e9828659be51b26e`).
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [ ] Yes. I can contribute this feature independently.
+- [x] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.

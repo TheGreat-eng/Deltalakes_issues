@@ -1,0 +1,5 @@
+Support DVs in Kernel
+
+- Read the DeletionVectorDescriptors in AddFiles
+- Read DVs into RoaringBitmapArrays using the FileSystemHandler
+- Convert to a selection vector based on row_ids for each DataReadResult

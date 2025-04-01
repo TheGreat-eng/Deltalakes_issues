@@ -1,0 +1,47 @@
+## Feature request
+
+#### Which Delta project/connector is this regarding?
+
+- [ ] Spark
+- [ ] Standalone
+- [x] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+### Overview
+
+We should remove the hardcoded `snappy` compression codec in Flink connector DeltaSink, so that we can support configurable compression codec.
+
+### Motivation
+
+I do not see any specific [design choice](https://docs.google.com/document/d/19CU4eJuBXOwW7FC58uSqyCbcLTsgvQ5P1zoPOPgUSpI/) tying delta lake to using snappy compression for Flink.
+
+Currently, Spark users can configure the compression codec when sinking data to delta Lake, e.g.
+
+dataframe.write.format("delta").option("compression", "zstd")
+
+Or
+
+spark.conf.set("spark.sql.parquet.compression.codec", "zstd")
+
+It was implemented here https://github.com/delta-io/delta/pull/1126
+
+We should allow the Flink users to do the same.
+
+### Further details
+
+Refactor the code in these places to allow configurable compression codec for parquet writer.
+
+https://github.com/delta-io/delta/blob/v3.0.0/connectors/flink/src/main/java/io/delta/flink/sink/RowDataDeltaSinkBuilder.java#L181
+https://github.com/delta-io/delta/blob/v3.0.0/connectors/flink/src/main/java/io/delta/flink/sink/internal/DeltaSinkBuilder.java#L193
+
+Basically,  we may need to support writing checkpoint using snappy (which is hardcoded in delta standalone https://github.com/delta-io/delta/blob/v3.0.0/connectors/standalone/src/main/scala/io/delta/standalone/internal/Checkpoints.scala#L254), but allow user-defined codec when writing the actual data files. We may need to stop sharing the parquet writer instance used to write checkpoint and data files.
+
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [ ] Yes. I can contribute this feature independently.
+- [x] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.

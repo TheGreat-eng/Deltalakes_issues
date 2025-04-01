@@ -1,0 +1,3 @@
+Currently, Delta Lake doesn't seem to support dropping columns without loading the entire dataset into Spark, dropping the columns from the DataFrame and overwriting the original table. If I correctly understand the way the transaction log works, it seems like it could support such a statement by making certain columns unavailable and altering the schema from the drop commit onwards.
+
+Especially in combination with shallow cloning on Databricks (which is a brilliant feature, by the way) this could lead to big efficiency gains, for example when you want to do some dimensional modeling on a shallow clone of a (very denormalized) source table, where you replace multiple columns with one reference ID column without touching the original data.

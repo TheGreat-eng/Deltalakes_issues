@@ -1,0 +1,1 @@
+Finally adding some gitignores that I've kept locally for a VSCode + Scala Metals plugin based setup.

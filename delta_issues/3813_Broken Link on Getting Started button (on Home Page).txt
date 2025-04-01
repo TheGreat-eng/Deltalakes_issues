@@ -1,0 +1,8 @@
+On the **Delta Lake home page**, there is a **broken link** for the **Getting Started** button.
+https://delta.io/
+
+**Get Started**: Links to: (has 'http://' at the end)
+https://docs.delta.io/latest/delta-intro.htmlhttp://
+
+**Should be**: 
+https://docs.delta.io/latest/delta-intro.html

@@ -1,0 +1,5 @@
+We have a customized service monitor _delta_log folder, whenever a new 000000XX.json file appears, the service will parse it and find which parquet files are added factually.
+
+In order to avoid any missing data  (e.g. service load a JSON log file while it is still writing, thus service ends up with a partial read), a straight forward question is do we generate JSON log file atomically?
+
+Thanks

@@ -1,0 +1,7 @@
+## Feature request
+
+Look like in 2.0 and 2.1rc1 the Bloom filters are not opensource
+
+any plan to release them in the open source version of delta ?
+
+Thanks

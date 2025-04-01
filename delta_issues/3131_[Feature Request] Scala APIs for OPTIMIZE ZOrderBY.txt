@@ -1,0 +1,4 @@
+## Feature request
+Currently OPTIMIZE ZORDER can only be triggered using the SQL command. This task is to add a Scala API to trigger the same.
+
+Similar task for OPTIMIZE file compaction https://github.com/delta-io/delta/issues/960

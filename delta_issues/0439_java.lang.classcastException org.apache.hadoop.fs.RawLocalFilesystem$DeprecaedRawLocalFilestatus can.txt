@@ -1,0 +1,5 @@
+java.lang.classcastException: org.apache.hadoop.fs.RawLocalFilesystem$DeprecaedRawLocalFilestatus cannot be cast to org.apache.spark.sq1.execution.datasources.FilestatuswithMetadata
+![c8d1f88344a0282e6b4b00a08759d9c](https://github.com/user-attachments/assets/734bdd82-353b-4c4d-b084-3895b6f4240c)
+
+Hadoop 3.3 Spark 3.4.2 and Delta 3.0 are used for the components
+It seems that the version is incompatible

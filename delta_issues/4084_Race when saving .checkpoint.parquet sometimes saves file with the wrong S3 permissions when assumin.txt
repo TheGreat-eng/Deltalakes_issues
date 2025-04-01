@@ -1,0 +1,23 @@
+Hello,
+
+My organization runs an EMR cluster in one Amazon account, but we save data to an S3 bucket (through EMRFS) in another account. In order to accomplish this, we configure the SparkSession as such...
+
+```
+val FS_S3A_ACCESS_KEY = "spark.hadoop.fs.s3a.access.key"
+val FS_S3A_SECRET_KEY = "spark.hadoop.fs.s3a.secret.key"
+val FS_S3A_SESSION_TOKEN = "spark.hadoop.fs.s3a.session.token"
+ 
+builder.config(FS_S3A_ACCESS_KEY, s3Credentials.getAccessKeyId)
+.config(FS_S3A_SECRET_KEY, s3Credentials.getSecretAccessKey)
+.config(FS_S3A_SESSION_TOKEN, s3Credentials.getSessionToken)
+```
+
+This configuration works fine; however, very occasionally a race occurs when saving the .checkpoint.parquet file in which the file is written with the EMR account's privileges instead of the role-assumed privileges indicated above. I should note that the AWS environment variables (AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, etc.) ARE set for the EMR account's privileges-- this is why we override the s3 keys at runtime, as [by default spark will retrieve s3 keys from the environment](https://github.com/apache/spark/blob/e1ea806b3075d279b5f08a29fe4c1ad6d3c4191a/core/src/main/scala/org/apache/spark/deploy/SparkHadoopUtil.scala#L438).
+
+After investigating the checkpoint logic, I found this parquet file is not written out using the spark configuration. Instead, the [Checkpoints class calls Job.getInstance(), and retrieves a configuration from that](https://github.com/delta-io/delta/blob/adaee91212233ae5391b9bf4e069e680d1fae4da/src/main/scala/org/apache/spark/sql/delta/Checkpoints.scala#L221). This [will be a new configuration](https://github.com/apache/hadoop-mapreduce/blob/trunk/src/java/org/apache/hadoop/mapreduce/Job.java#L169) which does not contain any of the configurations defined in the SparkSession. In the logs, we can see odd things happening, such as the ParquetOutputCommitter being used for writing the .checkpoint.parquet file instead of the EmrOptimizedSparkSqlParquetOutputCommitter as is defined in our configuration.
+
+What I cannot explain is why this error is only occasionally happening. Most of the time the .checkpoint.parquet file is written with the permissions as configured.
+
+I hope this helps.
+
+Thanks

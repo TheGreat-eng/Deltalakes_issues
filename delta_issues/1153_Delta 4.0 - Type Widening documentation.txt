@@ -1,0 +1,2 @@
+## Description
+Update the type widening documentation to list additional type changes supported in Delta 4.0

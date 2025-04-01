@@ -1,0 +1,7 @@
+## Bug
+
+### Describe the problem
+
+Currently the s3 dynamodb log store integration tests are hardcoded to use 2.12. Let's update them to use the input `--scala-version` param.
+
+See https://github.com/delta-io/delta/blob/master/run-integration-tests.py#L117

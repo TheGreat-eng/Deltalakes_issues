@@ -1,0 +1,56 @@
+Hi, 
+
+My setup is:
+
+Spark version 3.1.2
+Using Scala version 2.12.10, OpenJDK 64-Bit Server VM, 11.0.11
+
+pip3 packages:
+delta-spark            1.0.0               
+findspark              1.4.2               
+pyspark                3.1.2 
+
+To my knowledge, these versions should be compatible?
+
+Trying to follow the example like this:
+
+import findspark
+findspark.init('/home/ole/spark-3.0.3-bin-hadoop3.2')
+from pyspark.sql import SparkSession
+from delta import *
+
+builder = SparkSession.builder.appName("MyApp") \
+    .config("spark.sql.extensions", "io.delta.sql.DeltaSparkSessionExtension") \
+    .config("spark.sql.catalog.spark_catalog", "org.apache.spark.sql.delta.catalog.DeltaCatalog")
+
+spark = spark = configure_spark_with_delta_pip(builder).getOrCreate()
+data = spark.range(0,5)
+data.write.format("delta").save("/tmp/delta-table")
+
+Gives me the error:
+Py4JJavaError: An error occurred while calling o123.save.
+: java.lang.NoClassDefFoundError: org/apache/spark/sql/connector/catalog/V2TableWithV1Fallback
+	at org.apache.spark.sql.delta.sources.DeltaDataSource.getTable(DeltaDataSource.scala:68)
+	at org.apache.spark.sql.execution.datasources.v2.DataSourceV2Utils$.getTableFromProvider(DataSourceV2Utils.scala:83)
+	at org.apache.spark.sql.DataFrameWriter.getTable$1(DataFrameWriter.scala:322)
+	at org.apache.spark.sql.DataFrameWriter.save(DataFrameWriter.scala:384)
+	at org.apache.spark.sql.DataFrameWriter.save(DataFrameWriter.scala:287)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at java.base/jdk.internal.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at java.base/jdk.internal.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.base/java.lang.reflect.Method.invoke(Method.java:566)
+	at py4j.reflection.MethodInvoker.invoke(MethodInvoker.java:244)
+	at py4j.reflection.ReflectionEngine.invoke(ReflectionEngine.java:357)
+	at py4j.Gateway.invoke(Gateway.java:282)
+	at py4j.commands.AbstractCommand.invokeMethod(AbstractCommand.java:132)
+	at py4j.commands.CallCommand.execute(CallCommand.java:79)
+	at py4j.GatewayConnection.run(GatewayConnection.java:238)
+	at java.base/java.lang.Thread.run(Thread.java:829)
+
+How can I fix this?
+
+Thanks
+
+
+
+

@@ -1,0 +1,3 @@
+I am aware of a Solution that we can build on top of DeltaLake - proposed here: https://www.youtube.com/watch?v=7y0AAQ6qX5w
+
+But, given that, generally speaking, emitting change data capture is a storage level feature - is there a plan to support this?

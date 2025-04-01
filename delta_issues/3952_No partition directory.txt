@@ -1,0 +1,15 @@
+I use the structured streaming architecture. Datafame specifies the partition to write to HDFS. Why does HDFS have no partition directory
+tableNameToEventRDD.writeStream
+      .format("delta")
+      .foreachBatch {
+        (batchDF: Dataset[(String, Event)], batchId: Long) =>
+          batchDF.persist()
+
+           batchDF    .write
+                  .format("delta")
+                  .mode("append")
+                  .option("mergeSchema", "true")
+                  .partitionBy("delta_processing_date")
+                  .save(tablePath)
+
+}

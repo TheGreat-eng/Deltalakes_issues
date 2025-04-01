@@ -1,0 +1,8 @@
+## Description
+
+Add test cases to `ExternalLogStoreSuite` to ensure that, when writing version N+1
+- if version N doesn't exist in the file system, and its external entry is marked as complete, then throw error
+- if version N doesn't exist in the file system, and its external entry is marked as incomplete, then recover version N before committing version N+1.
+
+## How was this patch tested?
+Unit test.

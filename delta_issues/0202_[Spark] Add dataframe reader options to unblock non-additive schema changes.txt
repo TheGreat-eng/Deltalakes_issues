@@ -1,0 +1,50 @@
+
+
+## Description
+
+Non-additive schema changes - DROP/RENAME and, since https://github.com/databricks-eng/runtime/pull/124363 , type changes - in streaming block the stream until the user sets a SQL conf to unblock them:
+```
+spark.databricks.delta.streaming.allowSourceColumnRename
+spark.databricks.delta.streaming.allowSourceColumnDrop
+spark.databricks.delta.streaming.allowSourceColumnTypeChange
+```
+This change adds dataframe reader options as an alternative to SQL confs to unblock non-additive schema changes:
+```
+spark.readStream
+  .option("allowSourceColumnRename", "true")
+  .option("allowSourceColumnDrop", "true")
+  .option("allowSourceColumnTypeChange", "true")
+```
+
+## How was this patch tested?
+Extended existing tests in `DeltaSourceMetadataEvolutionSupportSuite` to also cover dataframe reader options.
+
+## This PR introduces the following *user-facing* changes
+The error thrown on non-additive schema changes during streaming is updated to suggest dataframe reader options in addition to SQL confs to unblock the stream:
+```
+[DELTA_STREAMING_CANNOT_CONTINUE_PROCESSING_POST_SCHEMA_EVOLUTION]
+We've detected one or more non-additive schema change(s) (DROP) between Delta version 1 and 2 in the Delta streaming source.
+Please check if you want to manually propagate the schema change(s) to the sink table before we proceed with stream processing using the finalized schema at version 2.
+Once you have fixed the schema of the sink table or have decided there is no need to fix, you can set the following configuration(s) to unblock the non-additive schema change(s) and continue stream processing.
+
+<NEW>
+Using dataframe reader option(s):
+  .option("allowSourceColumnDrop", "true")
+<NEW>
+
+Using SQL configuration(s):
+To unblock for this particular stream just for this series of schema change(s):
+  SET spark.databricks.delta.streaming.allowSourceColumnDrop.ckpt_123456 = 2;
+To unblock for this particular stream:
+  SET spark.databricks.delta.streaming.allowSourceColumnDrop.ckpt_123456 = "always";
+To unblock for all streams:
+  SET spark.databricks.delta.streaming.allowSourceColumnDrop= "always";
+
+```
+The user can use the available reader option to unblock a given type of non-additive schema change:
+```
+spark.readStream
+  .option("allowSourceColumnRename", "true")
+  .option("allowSourceColumnDrop", "true")
+  .option("allowSourceColumnTypeChange", "true")
+```

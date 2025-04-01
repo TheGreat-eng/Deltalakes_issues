@@ -1,0 +1,32 @@
+## Bug
+
+My `VACUUM` command on a job is causing this issue.
+
+Getting the error message:
+
+```
+Caused by: com.databricks.sql.io.FileReadException: Error while reading file s3a://REDACTED_BUCKET_NAME/REDACTED_TABLE_NAME/data/_change_data/cdc-00000-bd542b2a-7c0c-487e-a594-8b3fceff97cp.c000.snappy.parquet. A file referenced in the transaction log cannot be found. This occurs when data has been manually deleted from the file system rather than using the table `DELETE` statement. For more information, see https://docs.databricks.com/delta/delta-intro.html#frequently-asked-questions
+```
+
+### Describe the problem
+I've got a suspicion that the `VACUUM` cleaned up the files no longer referenced in the latest table and also removed the relevant data in the `_change_data` folder but the transaction log wasn't changed.
+
+I know that the transaction log keeps history for 30 days. 
+
+When we set `spark.sql.files.ignoreMissingFiles` to `true` we don't get the error anymore.
+Is this the solution here?
+
+### Environment information
+
+* DBR runtime: 10.4 LTS
+* Delta Lake version: ?
+* Spark version: Apache Spark 3.2.1
+* Scala version: Scala 2.12
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [X] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute a bug fix at this time.

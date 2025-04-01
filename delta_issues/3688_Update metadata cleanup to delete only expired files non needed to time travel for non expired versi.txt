@@ -1,0 +1,7 @@
+This PR updates the metadata cleanup behavior to delete only expired files non needed to time travel to non expired version. 
+Current behavior:
+A Delta log is deleted when it's older than the retention period and there's a checkpoint file after it. The problem with such logic is that it can lead to situations where time travel is not available for non expired versions. [this issue](https://github.com/delta-io/delta/issues/255) shows an example of that.
+Proposed behavior: 
+when an expired file is needed to time travel for a non expired version, we keep it in the transaction log. We only cleanup expired logs when they are no longer needed to time travel to any non expired version. 
+ 
+- closes issues #255 and #616 

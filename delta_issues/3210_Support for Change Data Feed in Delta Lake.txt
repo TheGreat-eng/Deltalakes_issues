@@ -1,0 +1,107 @@
+## Overview
+This is the official issue to track interest, feature requests, and progress being made on Change Data Feed in Delta Lake. This feature is part of the Operation Enhancements section of the [Delta Lake 2022 H1 Roadmap](https://github.com/delta-io/delta/issues/920) with a target of 2022 Q3.
+
+## Requirements
+The aim of this project is to allow Delta tables to produce change data capture (CDC), a standard pattern for reading changing data from a table. CDC data consists of an underlying row plus metadata indicating whether the row was added, deleted, updated to, or updated from. That is, an update to a row will produce two CDC events: one containing the row preimage from before the update and one containing the row postimage after the update is applied.
+
+When a CDC read is asked for, we’ll need to look at the Delta log entry for every DML operation and output the data as CDC events rather than raw data.
+
+## Design Sketch
+
+Please see the official design doc [here](https://docs.google.com/document/d/1FQSl0S0Irckim331YvcAKyxxGBhdLiJcJH6v3fEyiC0/edit#).
+
+## API
+
+We’re adding new syntax to existing Spark interfaces for reading Delta table, so there are no additional considerations involved here - CDC just reflects a different view of data which was already available through the same interfaces.
+
+### Enabling CDC for a Delta table
+To enable CDC for a table a table property on that table can be set. The version written following that will start recording change data.
+
+```sql
+ALTER TABLE myDeltaTable SET TBLPROPERTIES (delta.enableChangeDataFeed = true)
+```
+
+This property can be set at the point of table creation as well.
+
+```sql
+CREATE TABLE student (id INT, name STRING, age INT) USING DELTA
+TBLPROPERTIES (delta.enableChangeDataFeed = true)
+```
+
+Additionally, this property can be set for all new tables by default
+```sql
+SET spark.databricks.delta.properties.defaults.enableChangeDataFeed = true;
+```
+
+### APIs for accessing Change Data
+This section talks about the APIs that will allow a user to access changed data
+ 
+#### DataFrame API (Scala/Python)
+
+User provides startingVersion, endingVersion as options and also specifies readChangeFeed as an option.
+
+```scala
+spark.read.format(“delta”)
+    .option(“readChangeFeed”, “true”)
+    .option(“startingVersion”, startingVersion)
+    .option(“endingVersion”, endingVersion)
+    .table(“source”)
+```
+
+Note:
+For timestamp variants we would provide startingTimestamp, endingTimestamp instead. 
+The starting and ending versions and timestamps are inclusive fields to be in line with the   other time travel APIs.
+
+The same API can be used with the DataStream reader as well 
+
+```scala
+spark.readStream
+    .format(“delta”)
+    .option(“readChangeFeed”, “true”)
+    .option(“startingVersion”, startingVersion)
+    .table(“source”)
+```
+
+For Streaming use cases, endingVersion is not required.
+If the startingVersion is not provided the table should load from the earliest available version. A `latest` starting version should also be supported.
+
+### SQL API 
+Currently we do not plan to support a SQL API due to a limitation in Apache Spark’s TableValueFunctions class. Eventually, we’d like the API to be the following.
+
+```sql
+-- providing only the startingVersion/timestamp
+SELECT … FROM table_changes('tableName', startingVersion)
+
+-- version as ints or longs
+SELECT … FROM table_changes('tableName', startingVersion, endingVersion)
+
+-- timestamp as string formatted timestamps
+SELECT … FROM table_changes('tableName', 'startingTimestamp', 'endingTimestamp')
+
+-- database/schema names inside the string for table name, with backticks for escaping dots and special characters
+SELECT … FROM table_changes('dbName.`dotted.tableName`', 'startingTimestamp', 'endingTimestamp')
+
+-- path based tables	
+SELECT … FROM table_changes_by_path('/path', 'startingTimestamp', 'endingTimestamp')
+```
+
+## Project Plan
+
+| Task                             | Description                                                                                                                                                                                        | Status      | PR |
+|----------------------------------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------|----|
+| Basic writing                    | Update TransactionalWrite.scala and DelayedCommitProtocol.scala to support the CDC virtual data partitioning during writes, as described above                                                     | DONE | https://github.com/delta-io/delta/pull/1116   |
+| Batch Reading                    | Implement CDCReader.scala and CDCReaderSuite.scala. We can mock write operations by explicitly partitioning (e.g. _change_type column) some data. Should be able to read basic writes, like INSERT | DONE | https://github.com/delta-io/delta/pull/1116   |
+| DataFrame API                    | Expose the above-mentioned DataFrame APIs as valid options                                                                                                                                         | DONE | #1132    |
+| Protocol support                 | Although Delta Lake does support generated columns (i.e. part of delta protocol writer version 4) it currently fails operations if CDC is discovered in a table. Revert this.                      | DONE | https://github.com/delta-io/delta/pull/1116   |
+| DELETE                           | Update DeleteCommand.scala and implement DeleteCDCSuite.scala. This will be a simple first command to implement and let us test out our reading/writing.                                           | DONE | https://github.com/delta-io/delta/pull/1125   |
+|  | **Milestone 0.1 (May 5 2022, or ~ 1 PW): Basic prototype with DELETE support and DataFrame API** | |
+| MERGE INTO                       | Implement MERGE INTO support for CDC data. MergeIntoCommand.scala                                                                                                                                  | DONE | #1155    |
+| UPDATE                           | Implement UPDATE support for CDC data. UpdateCommand.scala                                                                                                                                         | DONE |  #1146   |
+| VACUUM                           | Implement VACUUM support for CDC data.                                                                                                                                                             | DONE | #1177   |
+| Partition filtering              | Add partition filtering to CDC indexes                                                                                                                                                             | DONE | #1178    |
+| Stream reading                   | Enable `readChangeFeed` streaming API                                                                                                                                                              | DONE | #1154   |
+| Metrics                          | Add metrics to provide visibility into usage and metadata about CDC operations. (Data volumes, types of operations, partitioning, etc.)                                                            | NOT STARTED |    |
+| RESTORE                          | Figure out RESTORE support                                                                                                                                                                         | DONE |  #1212   |
+| Generated Columns                | Verify + solve these cases                                                                                                                                                                         | DONE | #1173    |
+| Evolvability tests               | Add evolvability tests for CDF. EvolvabilitySuite.scala                                                                                                                                            | DONE | #1172    |
+| Checkpoint tests                 | Ensure that checkpoint does not contain CDC field. CheckpointsSuite.scala                                                                                                                          | DONE |  #1180   |

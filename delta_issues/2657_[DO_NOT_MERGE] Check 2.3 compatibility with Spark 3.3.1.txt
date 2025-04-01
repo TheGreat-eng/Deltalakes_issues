@@ -1,0 +1,1 @@
+Verify that `branch-2.3` is compatible with Spark 3.3.1. Reverts one test that was fixed in Spark 3.3.2 (see https://github.com/delta-io/delta/pull/1644)

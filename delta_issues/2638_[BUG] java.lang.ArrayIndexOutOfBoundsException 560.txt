@@ -1,0 +1,55 @@
+## Bug
+A couple of weeks ago, I started a project that uses Synapse Spark 3.3 and has been using MERGE (both pyspark & Spark SQL) feature and has been getting the above error.
+
+### Describe the problem
+The error seems to be related to the number of columns in the table, as the 560 above is the actual size of the table that I am having an issue with, while tables with less than 95 columns do not have the issue. I have seen some reports in the MS community (https://github.com/MicrosoftDocs/azure-docs/issues/104453) about 3.3 not supporting more than 95 columns. 
+
+When I revert to Spark 3.2, running the same code with the snippets below does not throw the error.
+
+#### Steps to reproduce
+`            deltaTable = DeltaTable.forPath(spark, sourcePath)
+            (deltaTable.alias("t").merge(
+                df.alias("s"),
+                "t.meta_DerivedID = s.meta_DerivedID")
+            .whenMatchedUpdate(set =
+                {
+                "meta_active": "s.meta_active",
+                "meta_modified": "s.meta_modified",
+                }
+            )
+            .whenNotMatchedInsertAll()
+            .execute()
+            ) 
+`
+#### Observed results
+
+re: attachment
+
+#### Expected results
+
+Update -  64434
+Change -  64434
+New    -  42
+Total Rows to update -  128910
+orchestrating rawdelta -  <tablename>
+completed rawdelta - <tablename>
+
+#### Further details
+
+re: attachment
+
+### Environment information
+
+* Delta Lake version: 2.2.0
+* Spark version: 3.3.1
+* Scala version: 2.12.15
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [ ] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [x] No. I cannot contribute a bug fix at this time.
+-
+[merge_error.txt](https://github.com/delta-io/delta/files/11130523/merge_error.txt)

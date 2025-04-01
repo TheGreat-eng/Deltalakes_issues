@@ -1,0 +1,8 @@
+
+## Description
+
+Rename CheckpointMetadata class to LastCheckpointInfo since that's what it actually is.
+
+## How was this patch tested?
+
+Existing UTs

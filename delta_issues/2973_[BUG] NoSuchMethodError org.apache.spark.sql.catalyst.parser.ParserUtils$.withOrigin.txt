@@ -1,0 +1,35 @@
+Always get following exception when execute SQL command
+```
+java.lang.NoSuchMethodError: org.apache.spark.sql.catalyst.parser.ParserUtils$.withOrigin(Lorg/antlr/v4/runtime/ParserRuleContext;Lscala/Function0;)Ljava/lang/Object;
+	at io.delta.sql.parser.DeltaSqlAstBuilder.visitSingleStatement(DeltaSqlParser.scala:233)
+	at io.delta.sql.parser.DeltaSqlAstBuilder.visitSingleStatement(DeltaSqlParser.scala:146)
+	at io.delta.sql.parser.DeltaSqlBaseParser$SingleStatementContext.accept(DeltaSqlBaseParser.java:165)
+	at org.antlr.v4.runtime.tree.AbstractParseTreeVisitor.visit(AbstractParseTreeVisitor.java:18)
+	at io.delta.sql.parser.DeltaSqlParser.$anonfun$parsePlan$1(DeltaSqlParser.scala:74)
+	at io.delta.sql.parser.DeltaSqlParser.parse(DeltaSqlParser.scala:103)
+	at io.delta.sql.parser.DeltaSqlParser.parsePlan(DeltaSqlParser.scala:73)
+	at org.apache.spark.sql.SparkSession.$anonfun$sql$2(SparkSession.scala:620)
+	at org.apache.spark.sql.catalyst.QueryPlanningTracker.measurePhase(QueryPlanningTracker.scala:111)
+	at org.apache.spark.sql.SparkSession.$anonfun$sql$1(SparkSession.scala:620)
+	at org.apache.spark.sql.SparkSession.withActive(SparkSession.scala:779)
+	at org.apache.spark.sql.SparkSession.sql(SparkSession.scala:617)
+```
+The reason is different signature of `withOrigin`,
+in 3.2.0:
+```
+withOrigin[T](ctx: ParserRuleContext)(f: => T): T 
+```
+in 3.3.0:
+```
+withOrigin[T](ctx: ParserRuleContext, sqlText: Option[String] = None)(f: => T): T
+```
+
+#### Steps to reproduce
+1. [Configure SparkSession](https://docs.delta.io/latest/delta-batch.html#configure-sparksession)
+2. Execute SQL DDL command by invoking `SparkSession.sql()`
+
+#### Environment information
+
+* Delta Lake version: 1.2.1
+* Spark version: 3.3.0
+* Scala version: 2.12

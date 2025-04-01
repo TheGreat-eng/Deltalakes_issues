@@ -1,0 +1,72 @@
+* Delta Lake 1.0.0
+* Spark 3.1.2
+* Scala 2.12
+* AdoptOpenJDK-11.0.11+9 (build 11.0.11+9)
+
+The following code gives a `NullPointerException`. This is for a directory-based delta table that does not exist and uses a generated column.
+
+```
+import io.delta.tables.DeltaTable
+DeltaTable.create
+  .addColumn(
+    DeltaTable.columnBuilder("value")
+      .generatedAlwaysAs("true")
+      .nullable(true)
+      .build)
+  .location("/tmp/delta/values")
+  .execute
+```
+
+```
+21/06/15 09:14:40 INFO DelegatingLogStore: LogStore org.apache.spark.sql.delta.storage.HDFSLogStore is used for scheme file
+21/06/15 09:14:40 INFO DeltaLog: Creating initial snapshot without metadata, because the directory is empty
+21/06/15 09:14:40 INFO InitialSnapshot: [tableId=43d8c936-59d5-4f98-887b-fe51ede9933b] Created snapshot InitialSnapshot(path=file:/tmp/delta/values/_delta_log, version=-1, metadata=Metadata(0fa68ee4-6a9c-4fda-a8b7-98923a883672,null,null,Format(parquet,Map()),null,List(),Map(),Some(1623741280055)), logSegment=LogSegment(file:/tmp/delta/values/_delta_log,-1,List(),List(),None,-1), checksumOpt=None)
+21/06/15 09:14:40 INFO DeltaLog: No delta log found for the Delta table at file:/tmp/delta/values/_delta_log
+21/06/15 09:14:40 INFO InitialSnapshot: [tableId=0fa68ee4-6a9c-4fda-a8b7-98923a883672] Created snapshot InitialSnapshot(path=file:/tmp/delta/values/_delta_log, version=-1, metadata=Metadata(6451ef8a-edad-455a-a827-a18783907930,null,null,Format(parquet,Map()),null,List(),Map(),Some(1623741280087)), logSegment=LogSegment(file:/tmp/delta/values/_delta_log,-1,List(),List(),None,-1), checksumOpt=None)
+java.lang.NullPointerException
+  at org.apache.spark.sql.types.StructField.jsonValue(StructField.scala:62)
+  at org.apache.spark.sql.types.StructType.$anonfun$jsonValue$2(StructType.scala:412)
+  at scala.collection.TraversableLike.$anonfun$map$1(TraversableLike.scala:238)
+  at scala.collection.Iterator.foreach(Iterator.scala:941)
+  at scala.collection.Iterator.foreach$(Iterator.scala:941)
+  at scala.collection.AbstractIterator.foreach(Iterator.scala:1429)
+  at scala.collection.IterableLike.foreach(IterableLike.scala:74)
+  at scala.collection.IterableLike.foreach$(IterableLike.scala:73)
+  at org.apache.spark.sql.types.StructType.foreach(StructType.scala:102)
+  at scala.collection.TraversableLike.map(TraversableLike.scala:238)
+  at scala.collection.TraversableLike.map$(TraversableLike.scala:231)
+  at org.apache.spark.sql.types.StructType.map(StructType.scala:102)
+  at org.apache.spark.sql.types.StructType.jsonValue(StructType.scala:412)
+  at org.apache.spark.sql.types.StructType.jsonValue(StructType.scala:102)
+  at org.apache.spark.sql.types.DataType.json(DataType.scala:76)
+  at org.apache.spark.sql.delta.commands.CreateDeltaTableCommand.createTransactionLogOrVerify$1(CreateDeltaTableCommand.scala:174)
+  at org.apache.spark.sql.delta.commands.CreateDeltaTableCommand.$anonfun$run$2(CreateDeltaTableCommand.scala:187)
+  at com.databricks.spark.util.DatabricksLogging.recordOperation(DatabricksLogging.scala:77)
+  at com.databricks.spark.util.DatabricksLogging.recordOperation$(DatabricksLogging.scala:67)
+  at org.apache.spark.sql.delta.commands.CreateDeltaTableCommand.recordOperation(CreateDeltaTableCommand.scala:48)
+  at org.apache.spark.sql.delta.metering.DeltaLogging.recordDeltaOperation(DeltaLogging.scala:106)
+  at org.apache.spark.sql.delta.metering.DeltaLogging.recordDeltaOperation$(DeltaLogging.scala:91)
+  at org.apache.spark.sql.delta.commands.CreateDeltaTableCommand.recordDeltaOperation(CreateDeltaTableCommand.scala:48)
+  at org.apache.spark.sql.delta.commands.CreateDeltaTableCommand.run(CreateDeltaTableCommand.scala:104)
+  at org.apache.spark.sql.delta.catalog.DeltaCatalog.org$apache$spark$sql$delta$catalog$DeltaCatalog$$createDeltaTable(DeltaCatalog.scala:147)
+  at org.apache.spark.sql.delta.catalog.DeltaCatalog.createTable(DeltaCatalog.scala:196)
+  at org.apache.spark.sql.execution.datasources.v2.CreateTableExec.run(CreateTableExec.scala:41)
+  at org.apache.spark.sql.execution.datasources.v2.V2CommandExec.result$lzycompute(V2CommandExec.scala:40)
+  at org.apache.spark.sql.execution.datasources.v2.V2CommandExec.result(V2CommandExec.scala:40)
+  at org.apache.spark.sql.execution.datasources.v2.V2CommandExec.doExecute(V2CommandExec.scala:55)
+  at org.apache.spark.sql.execution.SparkPlan.$anonfun$execute$1(SparkPlan.scala:180)
+  at org.apache.spark.sql.execution.SparkPlan.$anonfun$executeQuery$1(SparkPlan.scala:218)
+  at org.apache.spark.rdd.RDDOperationScope$.withScope(RDDOperationScope.scala:151)
+  at org.apache.spark.sql.execution.SparkPlan.executeQuery(SparkPlan.scala:215)
+  at org.apache.spark.sql.execution.SparkPlan.execute(SparkPlan.scala:176)
+  at org.apache.spark.sql.execution.QueryExecution.toRdd$lzycompute(QueryExecution.scala:132)
+  at org.apache.spark.sql.execution.QueryExecution.toRdd(QueryExecution.scala:131)
+  at io.delta.tables.DeltaTableBuilder.$anonfun$execute$4(DeltaTableBuilder.scala:356)
+  at org.apache.spark.sql.execution.SQLExecution$.$anonfun$withNewExecutionId$5(SQLExecution.scala:103)
+  at org.apache.spark.sql.execution.SQLExecution$.withSQLConfPropagated(SQLExecution.scala:163)
+  at org.apache.spark.sql.execution.SQLExecution$.$anonfun$withNewExecutionId$1(SQLExecution.scala:90)
+  at org.apache.spark.sql.SparkSession.withActive(SparkSession.scala:775)
+  at org.apache.spark.sql.execution.SQLExecution$.withNewExecutionId(SQLExecution.scala:64)
+  at io.delta.tables.DeltaTableBuilder.execute(DeltaTableBuilder.scala:356)
+  ... 47 elided
+```

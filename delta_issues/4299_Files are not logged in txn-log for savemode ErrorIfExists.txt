@@ -1,0 +1,4 @@
+Files are not getting logged in the txn-log for savemode, ErrorIfExists. 
+
+- This can hamper the recovery from future partial writes/failed txns.
+- Partial/failed writes can also become visible in this case.

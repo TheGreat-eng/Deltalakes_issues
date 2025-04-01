@@ -1,0 +1,79 @@
+- Python v3.7.5
+- Pyspark v3.1.2
+- delta-spark v1.0.0
+
+Facing an error when using subqueries in where predicate while deleting. This code works fine on databricks but when running it on local machine it raises an error.
+
+Sample code
+```
+from pyspark.sql import SparkSession
+from delta import *
+
+
+builder = SparkSession.builder \
+                    .appName("test") \
+                    .config("spark.sql.extensions", "io.delta.sql.DeltaSparkSessionExtension") \
+                    .config("spark.sql.catalog.spark_catalog", "org.apache.spark.sql.delta.catalog.DeltaCatalog")
+spark = configure_spark_with_delta_pip(builder).getOrCreate()
+
+df = spark.createDataFrame([(1, 2, 3), (4, 5, 6), (7, 8, 9)])
+df.write.format('delta').save('/tmp/temp')
+spark.sql('create table temp using delta location "/tmp/temp"')
+spark.sql('delete from temp where _1 in (select _1 from temp)')
+```
+
+Error log:
+```
+WARNING: An illegal reflective access operation has occurred
+WARNING: Illegal reflective access by org.apache.spark.unsafe.Platform (file:/Users/.virtualenvs/hulk/lib/python3.7/site-packages/pyspark/jars/spark-unsafe_2.12-3.1.2.jar) to constructor java.nio.DirectByteBuffer(long,int)
+WARNING: Please consider reporting this to the maintainers of org.apache.spark.unsafe.Platform
+WARNING: Use --illegal-access=warn to enable warnings of further illegal reflective access operations
+WARNING: All illegal access operations will be denied in a future release
+:: loading settings :: url = jar:file:/Users/.virtualenvs/hulk/lib/python3.7/site-packages/pyspark/jars/ivy-2.4.0.jar!/org/apache/ivy/core/settings/ivysettings.xml
+Ivy Default Cache set to: /Users/.ivy2/cache
+The jars for the packages stored in: /Users/.ivy2/jars
+io.delta#delta-core_2.12 added as a dependency
+:: resolving dependencies :: org.apache.spark#spark-submit-parent-c463827b-108c-4d2e-a2a4-35f41142bb39;1.0
+        confs: [default]
+        found io.delta#delta-core_2.12;1.0.0 in central
+        found org.antlr#antlr4;4.7 in central
+        found org.antlr#antlr4-runtime;4.7 in central
+        found org.antlr#antlr-runtime;3.5.2 in central
+        found org.antlr#ST4;4.0.8 in central
+        found org.abego.treelayout#org.abego.treelayout.core;1.0.3 in central
+        found org.glassfish#javax.json;1.0.4 in central
+        found com.ibm.icu#icu4j;58.2 in central
+:: resolution report :: resolve 275ms :: artifacts dl 8ms
+        :: modules in use:
+        com.ibm.icu#icu4j;58.2 from central in [default]
+        io.delta#delta-core_2.12;1.0.0 from central in [default]
+        org.abego.treelayout#org.abego.treelayout.core;1.0.3 from central in [default]
+        org.antlr#ST4;4.0.8 from central in [default]
+        org.antlr#antlr-runtime;3.5.2 from central in [default]
+        org.antlr#antlr4;4.7 from central in [default]
+        org.antlr#antlr4-runtime;4.7 from central in [default]
+        org.glassfish#javax.json;1.0.4 from central in [default]
+        ---------------------------------------------------------------------
+        |                  |            modules            ||   artifacts   |
+        |       conf       | number| search|dwnlded|evicted|| number|dwnlded|
+        ---------------------------------------------------------------------
+        |      default     |   8   |   0   |   0   |   0   ||   8   |   0   |
+        ---------------------------------------------------------------------
+:: retrieving :: org.apache.spark#spark-submit-parent-c463827b-108c-4d2e-a2a4-35f41142bb39
+        confs: [default]
+        0 artifacts copied, 8 already retrieved (0kB/11ms)
+21/08/03 21:16:10 WARN NativeCodeLoader: Unable to load native-hadoop library for your platform... using builtin-java classes where applicable
+Using Spark's default log4j profile: org/apache/spark/log4j-defaults.properties
+Setting default log level to "WARN".
+To adjust logging level use sc.setLogLevel(newLevel). For SparkR, use setLogLevel(newLevel).
+ANTLR Tool version 4.7 used for code generation does not match the current runtime version 4.8ANTLR Tool version 4.7 used for code generation does not match the current runtime version 4.8Traceback (most recent call last):
+  File "../test.py", line 14, in <module>
+    spark.sql('delete from temp where _1 in (select _1 from temp)')
+  File "/Users/.virtualenvs/hulk/lib/python3.7/site-packages/pyspark/sql/session.py", line 723, in sql
+    return DataFrame(self._jsparkSession.sql(sqlQuery), self._wrapped)
+  File "/Users/.virtualenvs/hulk/lib/python3.7/site-packages/py4j/java_gateway.py", line 1305, in __call__
+    answer, self.gateway_client, self.target_id, self.name)
+  File "/Users/.virtualenvs/hulk/lib/python3.7/site-packages/pyspark/sql/utils.py", line 117, in deco
+    raise converted from None
+pyspark.sql.utils.AnalysisException: Subqueries are not supported in the DELETE (condition = (spark_catalog.default.temp.`_1` IN (listquery()))).
+```

@@ -1,0 +1,14 @@
++ spark-3.2.1-bin-hadoop3.2
++ Scala 3.1.1
+
+I tested it in the local MAC env, write a table to minio, I got this error, but `_delta_log`has been created 
+ 
+```python
+ spark.range(5).write.format("delta").save(
+        "s3a://deltalake/demo")
+```
+
+```
+py4j.protocol.Py4JJavaError: An error occurred while calling o47.save.
+: java.io.FileNotFoundException: No such file or directory: s3a://deltalake/demo/_delta_log
+```

@@ -1,0 +1,14 @@
+## Description
+
+Upgrade antlr4 to 4.9.3 to fix incompatible warning:
+```
+ANTLR Tool version 4.8 used for code generation does not match the current runtime version 4.9.3
+```
+
+## How was this patch tested?
+
+Manual test.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No.

@@ -1,0 +1,19 @@
+#### Which Delta project/connector is this regarding?
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+This PR fixes an unfriendly error message that shows the raw string form of a table feature object. Instead it should show the name of the table feature.
+
+## How was this patch tested?
+
+No because too trivial.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No.

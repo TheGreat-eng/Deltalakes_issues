@@ -1,0 +1,9 @@
+## Bug
+
+(Not really a bug but no idea what to pick to report the finding)
+
+### Describe the problem
+
+Delta Lake 1.2.1
+
+[AlterTableReplaceColumnsDeltaCommand](https://github.com/delta-io/delta/blob/master/core/src/main/scala/org/apache/spark/sql/delta/commands/alterDeltaTableCommands.scala#L517) does not seem to be used as `ALTER TABLE RENAME COLUMN` (that seems to be the command to trigger it) is currently taken care of by [AlterTableChangeColumnDeltaCommand](https://github.com/delta-io/delta/blob/master/core/src/main/scala/org/apache/spark/sql/delta/commands/alterDeltaTableCommands.scala#L331).

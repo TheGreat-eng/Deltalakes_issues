@@ -1,0 +1,50 @@
+## Description
+
+It is currently not possible to build the sources with Java 11 and Scala 2.13 with no changes to `build.sbt`. In order to make Java and Scala versions "settable" (e.g. on command line) this PR introduces two sbt settings:
+
+* `default_scala_version`
+* `targetJvm`
+
+With the settings, it's possible to build the sources with Java 11 and just a single Scala 2.13 (no cross-compiling that would take longer).
+
+```shell
+sbt 'set Global / default_scala_version := "2.13.5"' \
+    'set Global / targetJvm := "11"' \
+    spark/publishLocal storage/publishLocal
+```
+
+Together with https://github.com/delta-io/delta/pull/1882 should make migrating to Java 11 easy (if not done already 😎).
+
+## How was this patch tested?
+
+Various build configurations (valid and invalid, e.g. `targetJvm := "123"`)
+
+Once built, checked the ivy directories and ran `spark-shell`.
+
+```
+ls -l /Users/jacek/.ivy2/local/io.delta/delta-storage/3.0.0-SNAPSHOT/jars
+ls -l /Users/jacek/.ivy2/local/io.delta/delta-spark_2.12/3.0.0-SNAPSHOT/jars
+ls -l /Users/jacek/.ivy2/local/io.delta/delta-spark_2.13/3.0.0-SNAPSHOT/jars
+```
+
+```
+./bin/spark-shell --packages io.delta:delta-spark_2.13:3.0.0-SNAPSHOT \
+--conf spark.sql.extensions=io.delta.sql.DeltaSparkSessionExtension \
+--conf spark.sql.catalog.spark_catalog=org.apache.spark.sql.delta.catalog.DeltaCatalog
+```
+
+```
+sql("DROP TABLE IF EXISTS demo_001")
+spark.range(0, 5, 1, numPartitions = 1).write.format("delta").saveAsTable("demo_001")
+sql("DESC EXTENDED demo_001").where($"col_name" === "Provider").select("data_type").show
++---------+
+|data_type|
++---------+
+|    delta|
++---------+
+assert(spark.table("demo_001").collect.length == 5)
+```
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

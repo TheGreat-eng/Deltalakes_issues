@@ -1,0 +1,6 @@
+Hi, 
+
+I would like to be able to use DeltaLake with a Scality RING8 system, that should support different protocols (NFS, VMFS, SMB, FUSE, REST and S3.) 
+
+Any info on the compatibility with the S3 LogStore implementation ?
+Or a new specific implementation may be needed ?

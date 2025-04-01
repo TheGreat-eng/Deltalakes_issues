@@ -1,0 +1,8 @@
+## Bug
+
+
+### Describe the problem
+Opening the documentation page gives a 403 error
+![image](https://github.com/delta-io/delta/assets/45840260/6ce61656-1e2a-473f-b2ed-cf42aa50192c)
+
+

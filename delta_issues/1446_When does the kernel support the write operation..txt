@@ -1,0 +1,3 @@
+I read the kernel read process code, it's convinient for the java user, and it's so great. But the kernel doesn't support write operation, I want to introduce kernel library to take place of the standalone library,  but the writer operation is the blocker. 
+
+Does the community is working on write development？And when can I use the write feature？Thanks!

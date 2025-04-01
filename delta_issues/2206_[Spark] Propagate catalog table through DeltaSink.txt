@@ -1,0 +1,19 @@
+#### Which Delta project/connector is this regarding?
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+In order to implement https://github.com/delta-io/delta/issues/2052 for streaming writes, `DeltaSink` needs to track the catalog table, if any, so it can properly initialize the transactions it executes. We can't change the Spark DataSource API that creates the sink, so instead we add logic in `DeltaAnalysis` that extracts the catalog table from the `WriteToStream` and applies it to the underlying `DeltaSink`.
+
+## How was this patch tested?
+
+New unit test.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No.

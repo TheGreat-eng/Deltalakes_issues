@@ -1,0 +1,34 @@
+Uniform: Add support for Timestamp partition values, and move away from using partition string paths to using StructLike partition values in Iceberg..
+
+<!--
+Thanks for sending a pull request!  Here are some tips for you:
+  1. If this is your first time, please read our contributor guidelines: https://github.com/delta-io/delta/blob/master/CONTRIBUTING.md
+  2. If the PR is unfinished, add '[WIP]' in your PR title, e.g., '[WIP] Your PR title ...'.
+  3. Be sure to keep the PR description updated to reflect all changes.
+  4. Please write your PR title to summarize what this PR proposes.
+  5. If possible, provide a concise example to reproduce the issue for a faster review.
+  6. If applicable, include the corresponding issue number in the PR title and link it in the body.
+-->
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ X] Other Uniform
+
+## Description
+This change adds support for timestamp partition values in Delta Uniform and refactors to avoid using partition strings during partition value conversion from Delta->Iceberg. Instead, Delta partition values are deserialized and then converted Iceberg partition values which are stored in StructLike and passed to the DataFile builder during metadata conversion.
+
+## How was this patch tested?
+
+Added unit test which tests different partition data types in addition to the new support for timestamp partitions.
+
+## Does this PR introduce _any_ user-facing changes?
+
+Before this change, the table could successfully be created but writes to the table with timestamp partition would fail. Now, writes to the table with the timestamp partition value will succeed.

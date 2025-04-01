@@ -1,0 +1,59 @@
+## Bug
+
+#### Which Delta project/connector is this regarding?
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [X] Kernel
+- [ ] Other (fill in here)
+
+### Describe the problem
+
+io.delta.kernel.internal.deletionvectors.RoaringBitmapArray create/add methods are broken. Fail with NPE
+
+There are two issues:
+
+1. The `add` and `extendsBitMaps` methods expect the `bitmaps` field to be not null, at least should be an array of 0 length. But the instance created from the `create` method doesn't have the `bitmaps` field initialized.
+2. The `extendsBitMaps` methods, copies the current bitmaps to the new bitmaps, to at the next step overwrite them with empty maps. The method should instead set empty bitmaps from the old length to the new length (instead of from 0 to the old length)
+
+#### Steps to reproduce
+
+```
+    @Test
+    void testCreate() {
+        RoaringBitmapArray underTest = RoaringBitmapArray.create(1L);
+        Assertions.assertTrue(underTest.contains(1L));
+    }
+```
+
+#### Observed results
+
+NPE is thrown:
+```
+java.lang.NullPointerException: Cannot read the array length because "this.bitmaps" is null
+
+	at io.delta.kernel.internal.deletionvectors.RoaringBitmapArray.add(RoaringBitmapArray.java:262)
+	at io.delta.kernel.internal.deletionvectors.RoaringBitmapArray.create(RoaringBitmapArray.java:290)
+```
+
+
+#### Expected results
+
+Test pases
+
+#### Further details
+
+### Environment information
+
+* Delta Lake version: 4.0.0rc1 
+* Spark version:
+* Scala version:
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [X] Yes. I can contribute a fix for this bug independently.
+- [ ] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute a bug fix at this time.

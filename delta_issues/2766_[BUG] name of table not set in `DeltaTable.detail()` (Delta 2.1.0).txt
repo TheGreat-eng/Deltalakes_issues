@@ -1,0 +1,69 @@
+## Bug
+
+### Describe the problem
+
+Delta Lake Python API features a method `DeltaTable.detail()` for retrieving information on a given Delta table
+
+- https://docs.delta.io/2.1.0/delta-utility.html#retrieve-delta-table-details
+- https://docs.delta.io/2.1.0/api/python/index.html#delta.tables.DeltaTable.detail
+
+The documentation claims that this will also return the name of the Delta table.
+My tests showed that this is not the case; `null` is returned.
+
+#### Steps to reproduce
+
+```
+from delta.tables import *
+
+spark.sql("""
+DROP TABLE IF EXISTS test_delta_210
+""")
+spark.sql("""
+CREATE TABLE test_delta_210 (
+    id LONG,
+    desc STRING
+)
+USING delta
+""")
+
+deltaTable = DeltaTable.forName(spark, "test_delta_210")
+
+deltaTable.detail().show(truncate=False, vertical=True)
+```
+
+#### Observed results
+
+```
+ format           | delta                                                                         
+ id               | 4cb0168d-f070-4c56-a17c-a41f303d2354                                          
+ name             | null                                                                          
+ description      | null                                                                          
+ location         | abfss://xxx/test_delta_210 
+ createdAt        | 2023-01-09 12:30:37.285                                                       
+ lastModified     | 2023-01-09 12:30:37                                                           
+ partitionColumns | []                                                                            
+ numFiles         | 0                                                                             
+ sizeInBytes      | 0                                                                             
+ properties       | {}                                                                            
+ minReaderVersion | 1                                                                             
+ minWriterVersion | 2   
+```
+
+#### Expected results
+
+`name` should be `default.test_delta_210`
+
+
+### Environment information
+[Azure Synapse Analytics](https://learn.microsoft.com/en-us/azure/synapse-analytics/spark/apache-spark-33-runtime)
+* Delta Lake version: 2.1.0
+* Spark version: 3.3.1
+* Scala version: 2.12.15
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [ ] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [x] No. I cannot contribute a bug fix at this time.

@@ -1,0 +1,143 @@
+# Overview & Motivation
+Currently, Kernel doesn't do any partition pruning when there is a partition predicate. Partition pruning helps reduce the number of files to scan (-> query performance). This issue is to track the partition pruning development.
+
+# Design
+The output of the scan files `ColumnarBatch` from LogReplay has the following schema
+```
+- root: StructType
+  - add: StructType
+    - path: StringType
+    - partitionValues: MapType(StrigType, StringType) 
+    - deletionVector: StructType
+    - …(more)…
+```
+Each row in the above schema batch corresponds to one scan file. In addition to the scan file `ColumnarBatch`, there is a selection vector that tells which rows (i.e. scan files in this case) from the scan file columnar batch are selected. In partition pruning, the goal is to update the selection vector to not select the rows (i.e. scan files) that do not pass the partition predicate. The advantage of this method is, that it avoids rewriting the scan file `ColumnarBatch` in the `kernel-api` module. In order to compute the selection vector, we make use of the `ExpressionHandler`.
+
+## Decision Decision: How should the `ExpressionHandler` get the data of partition values from scan files?
+The partition values are output as a `map(partition column name -> partition value in string format)`. The `ExpressionHandler` expects the input data as `ColumnarBatch` and an `expression` that refers to columns within the input ColumnarBatch. The decision is how to expose the partition values which are given as a list of strings from LogReplay to `ExpressionHandler`.
+
+### Option 1: Update the given partition expression to refer to partition values within the scan file `ColumnarBatch`.
+The scan file columnar batch has the following schema:
+```
+- root: StructType
+  - add: StructType
+    - path: StringType
+    - partitionValues: MapType(StrigType, StringType) 
+    - deletionVector: StructType
+    - …(more)…
+```
+
+For example, given partition expression from connector: `p1 = “new york” && p2 >= 26` where `p1` is of type `string` and `p2` is of `int`, 
+
+Replace `p1` with `element_at(column(‘add’, ‘partitionValues’), “p1”)
+Replace `p2` with `partitionValue(element_at(column(‘add’, ‘partitionValues’), ‘p2’), “int”)`
+
+We need to add two new expressions:
+* `element_at(map_column, key_value)`: Take input a `map` type column and `key` value, return the `value` for the given `key`. This is similar to Apache Spark UDF for similar purposes.
+* `partition_value(string_type_value, datatype)`: Decode the partition value given as a string into the given datatype format. The interpretation of the string value is according to the Delta protocol.
+
+The rewritten expression will look like this.
+
+```
+Element_At(Column(‘add’, ‘partitionValues’), ‘p1’) = “new york”
+     &&
+partition_value(ListEntry(Column(‘add’, ‘partitionValues’), ‘p2’) as Integer) >= 26 
+```
+
+* Pros
+    * There is no rewriting or generating new columnar batches. The expression will be evaluated on the existing batch. This improves the performance.
+    * Using the connector (through TableClient) for map value look-up and partition value conversions. This helps Kernel leverage the connector capabilities to evaluate these types of expressions efficiently.
+* Cons
+    * Addition expressions (`element_at` and `partition_value`) for the `ExpressionHandler` implementation to support.
+
+### Option 2: Create a ColumnarBatch wrapper around the scan file ColumnarBatch.
+Basically create a new `ColumnarBatch` that exposes the partition values as top-level columns, but underneath it accesses the `ColumnarBatch` from LogReplay to get the partition values and convert it to appropriate types. For the example in this case, the new columnar batch wrapper will look like this:
+```java
+new ColumnarBatch() {
+  private ColumnarBatch scanFileColumnarBatch;
+  private ColumnVector partitionValues = scanFileColumnarBatch.get(0).get(2);
+  
+  StructType getSchema() { return new StructType().add(“p1”, StringType).add(“p2”, IntegerType); }
+
+  // ordinal 0 and 1 corresponds to "p1", "p2"
+  ColumnVector getColumnVector(int ordinal) {
+    new ColumnVector() {
+      DataType getDataType() {
+        switch(ordinal) {
+          case 0: …
+          case 1: IntegerType
+        }
+       }
+       int getInteger(int ordinal) {
+         switch(ordinal) {
+            case 0: return partitionValues.getMap(ordinal).get("p1");
+            case 1: return decodePartitionValue(partitionValues.getMap(ordinal).get("p2");
+         }
+       }
+     }
+  }
+}
+```
+
+* Pros
+   * No additional expressions are needed
+* Cons
+   * Kernel is trying to evaluate expression which may not be the efficient way to do that. This restricts the connector from applying its own efficient expression implementation the expression. There is no alternative to replace the Kernel expression implementations of `partition_value` or `element_at`.
+
+### Conclusion
+It is better to choose the `Option 1` to allow the connector to use its own efficient implementations of the `element_at` and `partition_value` expressions. In `Option 2` this is not possible.
+
+## Extensions to `ExpressionHandler`
+Proposing additional changes to allow efficient manipulation of the selection vector and also avoiding creating vectors in `kernel-api`.
+
+### `ColumnVector ExpressionHandler.createSelectionVector(boolean[] values)`
+Currently the `kernel-api` module creates the selection vector by wrapping the boolean array (see [here](https://github.com/delta-io/delta/blob/master/kernel/kernel-api/src/main/java/io/delta/kernel/internal/replay/ActiveAddFilesIterator.java#L208)). Kernel API module shouldn't create `ColumnVector`s because they are connector dependent.
+
+The above API solves the problem. Doc for the above API.
+```
+/**
+ * Create a selection vector, a boolean type {@link ColumnVector}, with the given array of boolean values. Each value in the given
+ * `boolean` array corresponds to a value in the `ColumnVector` in the order.
+ * 
+ * @param values Array of initial boolean values for the selection vector. The ownership of this array is with the caller and this
+ *  method doesn't depend on it.
+ *  @return A {@link ColumnVector} of boolean type values.
+ */
+```
+### `PredicateEvaluator ExpressionHandler.createPredicateEvaluator(StructType inputSchema, Predicate predicate)`
+Currently the `ExpressionHandler` has a generic interface. The proposal is to add a new API, that works in combination with the selection vector and input columnar batch.
+
+```
+class PredicateEvaluator
+{
+   /**
+    * Evaluate the predicate on given inputData. Combine the existing selection vector with the output of the predicate result and
+    * return a new selection vector.
+    *
+    * @param inputData {@link ColumnarBatch} of data to which the predicate expression refers for input.
+    * @param existingSelectionVector Optional existing selection vector. If not empty, it is combined with the predicate result
+    * The caller is also releasing the ownership of `existingSelectionVector` to this method and it is responsible for closing it.
+    * @return A {@link ColumnVector} of boolean type that captures the predicate result for each row together with the existing
+    * selection vector.
+    */
+   ColumnVector eval(ColumnarBatch inputData, Optional<ColumnVector> existingSelectionVector);
+}
+```
+
+# Task List
+* (Preparatory work) Add a `ExpressionHandler.createBooleanVector(boolean[] arrays)` to create a `ColumnVector` out of an array of booleans. Use this in `LogReplay` to create the selection vector. https://github.com/delta-io/delta/pull/2074
+* (Preparatory work) Update the `Column` to refer to multi-level columns. https://github.com/delta-io/delta/pull/2078
+* New expressions: `element_at` and `partition_value`. https://github.com/delta-io/delta/pull/2096
+* Add a `ExpressionHandler.createPredicateEvaluator(intputSchema, expression)` which returns `PredicateEvaluator` https://github.com/delta-io/delta/pull/2091
+  * Add a `PredicateEvaluator`
+    * eval(ColumnarBatch, Optional<SelectionVector>) -> SelectionVector
+    * Construct a new `ColumnarBatch` by inserting the existing selection vector into the given `ColumnarBatch`
+    * Update the expression `selection(rowId) == true && given predicate expression)
+* Utility methods https://github.com/delta-io/delta/pull/2098
+  * Dividing `Predicate` given to the `ScanBuilder.withFilter` into data column and partition column predicates
+  * Rewrite the partition column `Predicate` to refer to the columns in scan file columnar batch with appropriate deserialization expressions applied.  
+* Final integration (apply partition pruning on LogReplay scan file columnar batch results) https://github.com/delta-io/delta/pull/2099
+
+
+
+

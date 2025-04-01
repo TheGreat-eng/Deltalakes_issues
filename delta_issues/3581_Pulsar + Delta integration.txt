@@ -1,0 +1,10 @@
+*Motivation*
+
+Pulsar is a cloud-native messaging and streaming platform. It has been well adopted by many companies in different regions. There is a need requested from the Pulsar community to have a native integration between Pulsar and Delta lake.
+
+There can be many different integrations between Pulsar and Delta Lake. Here are some ideas:
+
+1. A Pulsar source connector to capture the data changes from a Delta Lake table.
+2. A Pulsar sink connector to write the Pulsar streams to Delta Lake.
+
+This is a master issue for tracking the progress on integrating Pulsar and Delta Lake.

@@ -1,0 +1,1 @@
+Currently these configs are stored in SQL interval format. We could depend on external libraries, but to minimize the dependencies on `kernel-api`, the minimal relevant code is copied from Standalone (which was a copy of Apache Spark code). Also I couldn't find a minimal library that does just the interval parsing.

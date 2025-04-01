@@ -1,0 +1,35 @@
+#### Which Delta project/connector is this regarding?
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+This change addresses an issue where trying to change the key/value of a map or element of an array with ALTER TABLE CHANGE COLUMN would succeed while doing nothing.
+ 
+In addition, a proper error is now thrown when trying to add or drop the key or value of a map or element of an array.
+
+## How was this patch tested?
+
+- Added tests to `DeltaAlterTableTests` to cover changing maps and arrays in ALTER TABLE CHANGE COLUMN.
+- Added tests to `SchemaUtilsSuite` and `DeltaDropColumnSuite` to cover the updated error when trying to add/drop map key/value or array element.
+
+## Does this PR introduce _any_ user-facing changes?
+
+Changing the type of the key or value of a map or of the elements of an array now fails if the type change isn't supported (= anything except setting the same type or moving between char, varchar, string):
+```
+CREATE TABLE table (m map<int, int>) USING DELTA;
+ALTER TABLE table CHANGE COLUMN m.key key long;
+-- Fails with DELTA_UNSUPPORTED_ALTER_TABLE_CHANGE_COL, previously succeeded while applying no change.
+```
+Similarly, adding a comment now also fails.
+
+The error when trying to add or drop a map key/value or array element field is updated:
+```
+CREATE TABLE table (m map<int, int>) USING DELTA;
+ALTER TABLE table ADD COLUMN m.key long;
+-- Now fails with DELTA_ADD_COLUMN_PARENT_NOT_STRUCT instead of IllegalArgumentException: Don't know where to add the column m.key"
+```

@@ -1,0 +1,25 @@
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [x] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+BASED OFF OF #2069; to review changes in this PR select the last 4 commits ([here](https://github.com/delta-io/delta/pull/2087/files/a5073b4c14496314bae1ca97163f9e7bbc67bc6d..d160915717d683ebfd6087a93ccb224a57216d82))
+
+Refactors the ColumnVector and Row `getArray` and `getMap` APIs to return wrapper objects. These wrappers provide APIs to retrieve column vector views of the elements or keys/values of the map/array. 
+
+## How was this patch tested?
+
+Supporting the new APIs in some of the java testing infrastructure was non-trivial, so this PR also moves some tests from TestDeltaTableReads to DeltaTableReadsSuite and adds the complex types to the scala testing infrastructure.
+
+Existing tests have been modified for this PR as well as a few additional checks/tests added.
+
+

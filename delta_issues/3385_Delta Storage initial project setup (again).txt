@@ -1,0 +1,3 @@
+The first PR https://github.com/delta-io/delta/pull/925 was accidentally merged into master and then reverted.
+
+So, here's the same PR again.

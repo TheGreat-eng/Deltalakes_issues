@@ -1,0 +1,65 @@
+## Feature request
+
+#### Which Delta project/connector is this regarding?
+
+- [X] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+### Overview
+
+Today, Liquid Clustering (LC) provides nice space locality features through the use of Hilbert curves to map multi dimensional space a 1 dimensional list of files. 
+
+Sometimes, tables are filtered much more often on some dimensions than on others. LC with Hilbert curves can hinder query performance on those queries, because it tries to evenly spread the data over all dimensions in an equal way. For tables which have dimensions on which filters are applied more often than on other dimensions, another space filling curve could increase performance.
+
+This feature request concerns adding another curve than the Hilbert curve to cluster with.
+
+### Motivation
+
+As an example, let's imagine a table with sensor measurements. Its properties are the following:
+
+#### Schema
+
+- `timestamp`: `org.apache.spark.sql.types.TimestampType` 
+- `signal_name`: `org.apache.spark.sql.types.StringType`
+- `value`: `org.apache.spark.sql.types.StringType`
+
+#### Number of rows
+
+1 trillion (10^12)
+
+#### Cardinality of the `signal_name` column
+
+100k unique values
+
+#### Queries hitting the table
+
+The users of this table are engineers who are interested in a few different signals, but never more than 50. Sometimes, they might only be interested in a specific time range but often they will want to query the full history of the signal.
+
+#### Hilbert curve problem
+
+The issue with the hilbert curve is visualized here:
+
+![image](https://github.com/user-attachments/assets/c2476838-1617-4b6b-8de8-89b5b09644fa)
+
+You see that when filtering on a specific `signal_name` (in red) and not on a timestamp, our query will need to read from data that ends up in very different parts of the hilbert curves (showed with the green circles). This means that we have to read very different parquet files, who also contain data from other signals which are not of our interest in this query.
+
+#### Solution
+
+Give the user the possibility to use another space filling curve with which they can prioritize certain dimensions over others. In the previous example our `signal_name` was the dimension of priority. But to generalise this: Dim 1 would take priority over Dim 2 in the following picture:
+
+![image](https://github.com/user-attachments/assets/761b36e1-e03d-4d9c-84cd-4f7d300fd675)
+
+### Further details
+
+The functionality could be largely equal to what exists today, the only thing that should change is how the `DataFrame` is repartitioned. That means that in [`MultiDimClustering.cluster`](https://github.com/delta-io/delta/blob/c8697c5897e63d64be1a3f79dc292f930de8e333/spark/src/main/scala/org/apache/spark/sql/delta/skipping/MultiDimClustering.scala#L46-L62), a new `case` should be added where we refer to a new object (next to [ZOrderClustering and HilbertClustering](https://github.com/delta-io/delta/blob/c8697c5897e63d64be1a3f79dc292f930de8e333/spark/src/main/scala/org/apache/spark/sql/delta/skipping/MultiDimClustering.scala#L98-L114) ). This is where we would implement that new curve.
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [ ] Yes. I can contribute this feature independently.
+- [X] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.

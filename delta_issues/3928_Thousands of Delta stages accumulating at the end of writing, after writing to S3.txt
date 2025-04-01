@@ -1,0 +1,96 @@
+Hello guys,
+
+We're ingesting to Delta tables (OSS variant, evaluating it against Hudi/Iceberg) and are storing data partitioned by y/m/d/h in S3 via Spark SQL given the "delta" format when writing out. When we initially started, we had about <10 or <15 stages to wait before Delta would ingest a batch of 30 minute data for us. As days went on and we put it to long-running tests, we now currently see a growing number of stages, in the thousands, coming from some code in the Delta logging.
+
+Attached screenshots and our EMR configs for Spark. Any ideas on how to tackle this ever-growing list of jobs/stages? (note we are doing ephemeral, on-demand EMR and each ingestion is done, 15m apart, on a new EMR cluster, but only one single writer at any given time).
+
+[Link to OneDrive public folder for this issue as Github refuses to upload the screenshots](https://1drv.ms/u/s!AvNsBemTe-EZgYkKLhlEenzVItqXCQ?e=F6Laue)
+
+EMR configs:
+```
+"applicationConfigs": {
+    "emrfs-site":{
+      "properties": {
+        "fs.s3.consistent": "true",
+        "fs.s3.consistent.retryPolicyType": "fixed",
+        "fs.s3.consistent.retryPeriodSeconds": "6",
+        "fs.s3.consistent.retryCount": "100",
+        "fs.s3.consistent.fastList.prefetchMetadata": "true",
+        "fs.s3.consistent.notification.SQS": "true",
+        "fs.s3.consistent.notification.SQS.queueName": "emrfs-inconsistency",
+        "fs.s3.consistent.metadata.tableName": "EmrFSMetadata",
+        "fs.s3.consistent.metadata.read.capacity": "500",
+        "fs.s3.consistent.metadata.write.capacity": "500"
+      }
+    },
+    "yarn-site": {
+      "properties": {
+        "yarn.nodemanager.vmem-check-enabled": "false",
+        "yarn.nodemanager.pmem-check-enabled": "false"
+      }
+    },
+    "presto-connector-hive": {
+      "properties": {
+        "hive.metastore": "glue",
+        "hive.metastore.glue.datacatalog.enabled": "true"
+      }
+    },
+    "spark-hive-site": {
+      "properties": {
+        "hive.metastore.client.factory.class": "com.amazonaws.glue.catalog.metastore.AWSGlueDataCatalogHiveClientFactory"
+      }
+    },
+    "hive-site": {
+      "properties": {
+        "hive.metastore.warehouse.dir": "s3://somebucket/someprefix",
+        "hive.metastore.client.factory.class": "com.amazonaws.glue.catalog.metastore.AWSGlueDataCatalogHiveClientFactory",
+        "hive.metastore.schema.verification": "false"
+      }
+    },
+    "spark": {
+      "properties": {
+        "maximizeResourceAllocation": "true"
+      }
+    },
+    "spark-defaults": {
+      "properties": {
+        "spark.rdd.compress": "false",
+        "spark.shuffle.compress": "false",
+        "spark.shuffle.spill.compress": "false",
+        "spark.kryo.unsafe": "true",
+        "spark.sql.shuffle.partitions": 1024,
+        "spark.sql.sources.partitionOverwriteMode": "dynamic",
+        "spark.sql.parquet.compression.codec": "gzip",
+        "spark.sql.parquet.fs.optimized.committer.optimization-enabled": "true",
+        "spark.sql.columnVector.offheap.enabled": "true",
+        "spark.sql.parquet.recordLevelFilter.enabled": "true",
+        "spark.sql.hive.convertMetastoreParquet": "false",
+        "spark.hadoop.pathoutputcommit.reject.fileoutput": "true",
+        "spark.serializer": "org.apache.spark.serializer.KryoSerializer",
+        "spark.delta.logStore.class": "org.apache.spark.sql.delta.storage.S3SingleDriverLogStore",
+        "spark.executor.extraJavaOptions": "-XX:+UseG1GC -XX:MaxGCPauseMillis=600",
+        "spark.driver.extraJavaOptions": "-XX:+UseG1GC -XX:MaxGCPauseMillis=600"
+      }
+    }
+  }
+```
+
+Our writing code is something simple:
+```
+        // Go
+        eventsDataset
+            .write ()
+                .format (TABLE_FORMAT)
+                .partitionBy ("year", "month", "day", "hour")
+            .mode (SaveMode.Append)
+        .save (s3Path);
+
+        // Obtain the reference
+        DeltaTable currentTable = DeltaTable.forPath (jobContext.sparkSession (), s3Path);
+
+        // Clean-up on isle 5, cause we must
+        currentTable.vacuum (10d * 24d); // 7 days by 24h each
+
+        // Generate manifests after cleaning of course
+        currentTable.generate ("symlink_format_manifest");
+```

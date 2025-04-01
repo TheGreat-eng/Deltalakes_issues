@@ -1,0 +1,10 @@
+spark.sql("SELECT max(version) FROM (DESCRIBE HISTORY delta.`/delta/test1` )").show();
+Exception in thread "main" org.apache.spark.sql.catalyst.parser.ParseException:
+missing ')' at 'delta'(line 1, pos 43)
+
+== SQL ==
+SELECT max(version) FROM (DESCRIBE HISTORY delta.`/delta/test1`)
+-------------------------------------------^^^
+
+        at org.apache.spark.sql.catalyst.parser.ParseException.withCommand(ParseDriver.scala:255)
+        at org.apache.spark.sql.catalyst.parser.AbstractSqlParser.parse(ParseDriver.scala:124)

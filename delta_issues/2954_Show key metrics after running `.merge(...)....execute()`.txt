@@ -1,0 +1,189 @@
+## Feature request
+
+### Overview
+
+When executing the [`.execute()`](https://github.com/delta-io/delta/blob/2041c3b7138b9614529540613195d4afd39fde71/python/delta/tables.py#L932) method of the [`DeltaMergeBuilder()`](https://github.com/delta-io/delta/blob/2041c3b7138b9614529540613195d4afd39fde71/python/delta/tables.py#L709) class, please return some statistics about what was actually changed on the target Delta Table. Such as the number of rows deleted/inserted/updated/etc.
+
+### Motivation
+
+I take inspiration from the [`.executeCompaction()`](https://github.com/delta-io/delta/blob/2041c3b7138b9614529540613195d4afd39fde71/python/delta/tables.py#L1239) and [`.executeZOrderBy()`](https://github.com/delta-io/delta/blob/2041c3b7138b9614529540613195d4afd39fde71/python/delta/tables.py#L1252) methods of the [`DeltaOptimizeBuilder()`](https://github.com/delta-io/delta/blob/2041c3b7138b9614529540613195d4afd39fde71/python/delta/tables.py#L1212) class. As documented ([here](https://docs.delta.io/latest/api/python/index.html#delta.tables.DeltaOptimizeBuilder.executeCompaction) and [here](https://docs.delta.io/latest/api/python/index.html#delta.tables.DeltaOptimizeBuilder.executeZOrderBy)), these methods will "DataFrame containing the OPTIMIZE execution metrics".
+
+In a similar context, when I run `deltaTable.merge(...).whenMatchedUpdateAll().whenNotMatchedInsertAll().execute()`, I'd like to know exactly what changes were made to the target Delta table.
+
+Showing things like:
+- How many rows were Updated
+- How many rows were Inserted
+- How many rows were Deleted
+- How many rows were in the Delta Table before the merge
+- How many rows are there in the Delta Table after the merge
+- etc
+
+That way, I can check exactly what changes were made to my table, and how that table is changing over time.
+
+### Further details
+
+To implement this feature, changes will need to be made to the `self._jbuilder` attribute of the `DeltaMergeBuilder()` class.
+
+### Example
+
+#### Setup
+
+```python
+>>> from pyspark.sql import SparkSession
+>>> import pandas as pd
+>>> from delta import DeltaTable
+>>> spark = SparkSession.builder.getOrCreate()
+>>> df1 = spark.createDataFrame(
+...     pd.DataFrame({
+...         "id": [1,2,3,4,5,6,7,8,9,10],
+...         "value": ["1","2","3","4","5","6","7","8","9","10"],
+...     })
+... )
+>>> df2 = spark.createDataFrame(
+...     pd.DataFrame({
+...         "id": [6,7,8,9,10,11,12,13,14,15],
+...         "value": ["16","17","18","19","110","111","112","113","114","115"]
+...     })
+...  )
+>>> df1.write.mode("overwrite").format("delta").save("/temp/df1")
+>>> df3 = DeltaTable.forPath(spark, "/temp/df1")
+>>> df1.show()
++-----+--------+
+|  id |  value |
++-----+--------+
+|   1 |  "1"   |
+|   2 |  "2"   |
+|   3 |  "3"   |
+|   4 |  "4"   |
+|   5 |  "5"   |
+|   6 |  "6"   |
+|   7 |  "7"   |
+|   8 |  "8"   |
+|   9 |  "9"   |
+|  10 |  "10"  |
++-----+--------+
+>>> df2.show()
++-----+--------+
+|  id |  value |
++-----+--------+
+|   6 |  "16"  |
+|   7 |  "17"  |
+|   8 |  "18"  |
+|   9 |  "19"  |
+|  10 |  "110" |
+|  11 |  "111" |
+|  12 |  "112" |
+|  13 |  "113" |
+|  14 |  "114" |
+|  15 |  "115" |
++-----+--------+
+>>> df3.toDF().show()
++-----+--------+
+|  id |  value |
++-----+--------+
+|   1 |  "1"   |
+|   2 |  "2"   |
+|   3 |  "3"   |
+|   4 |  "4"   |
+|   5 |  "5"   |
+|   6 |  "6"   |
+|   7 |  "7"   |
+|   8 |  "8"   |
+|   9 |  "9"   |
+|  10 |  "10"  |
++-----+--------+
+```
+
+#### Current Implementation
+
+```python
+>>> results = (
+...     df3.alias("dlt")
+...     .merge(
+...         df2.alias("spk"),
+...         "dlt.id = spk.id",
+...     )
+...     .whenMatchedUpdateAll()
+...     .whenNotMatchedInsertAll()
+...     .execute()
+... )
+>>> print(results)
+None
+>>> spark.read.format("delta").load("/tmp/df1").show()
++-----+--------+
+|  id |  value |
++-----+--------+
+|   1 |  "1"   |
+|   2 |  "2"   |
+|   3 |  "3"   |
+|   4 |  "4"   |
+|   5 |  "5"   |
+|   6 |  "16"  |
+|   7 |  "17"  |
+|   8 |  "18"  |
+|   9 |  "19"  |
+|  10 |  "110" |
+|  11 |  "111" |
+|  12 |  "112" |
+|  13 |  "113" |
+|  14 |  "114" |
+|  15 |  "115" |
++-----+--------+
+```
+
+#### Future Implementation
+
+The DataFrame in the `results` object is only a suggestion. The future shape/style/metics/etc could be a little bit different. This is just an indication of something like what I'd like to see returned from the `.execute()` method.
+
+```python
+results = (
+    df3.alias("dlt")
+    .merge(
+        df2.alias("spk"),
+        "dlt.id = spk.id",
+    )
+    .whenMatchedUpdateAll()
+    .whenNotMatchedInsertAll()
+    .execute()
+)
+print(results)
++------------------+--------+
+|           metric |  value |
++------------------+--------+
+|  "Starting Rows" |  10    |
+|  "Rows inserted" |  5     |
+|  "Rows updated"  |  5     |
+|  "Rows deleted"  |  0     |
+|  "Ending Rows"   |  15    |
++------------------+--------+
+spark.read.format("delta").load("/tmp/df1").show()
++-----+--------+
+|  id |  value |
++-----+--------+
+|   1 |  "1"   |
+|   2 |  "2"   |
+|   3 |  "3"   |
+|   4 |  "4"   |
+|   5 |  "5"   |
+|   6 |  "16"  |
+|   7 |  "17"  |
+|   8 |  "18"  |
+|   9 |  "19"  |
+|  10 |  "110" |
+|  11 |  "111" |
+|  12 |  "112" |
+|  13 |  "113" |
+|  14 |  "114" |
+|  15 |  "115" |
++-----+--------+
+```
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [ ] Yes. I can contribute this feature independently.
+- [ ] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [x] No. I cannot contribute this feature at this time.
+
+Sorry, I'm not very familiar with Java programming, and I would really struggle to implement this feature on my own.

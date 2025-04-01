@@ -1,0 +1,45 @@
+## Feature request
+
+### Overview
+
+Currently spark SQL's `DESCRIBE TABLE` only returns column name and type for Delta Tables. It is impossible to get info about constraints and partitions through the SQL API.
+
+### Motivation
+
+We are attempting to use Alembic to manage schema for our Delta Tables. Alembic (and SQLAlchemy) use SQL as the interface and cannot use spark to manage table schema.
+
+### Further details
+
+Current behavior:
+```
+spark.sql('DESCRIBE TABLE test_db.test_table').show()
+
++--------------------+---------+-------+
+|            col_name|data_type|comment|
++--------------------+---------+-------+
+|                  id|   bigint|       |
+|         external_id|   string|       |
++--------------------+---------+-------+
+
+```
+
+Desired behavior:
+```
+spark.sql('DESCRIBE TABLE test_db.test_table').show()
+
++--------------------+---------+-------+--------+------------+---------+
+|            col_name|data_type|comment|nullable|is_partition|is_bucket|
++--------------------+---------+-------+--------+------------+---------+
+|                  id|   bigint|       |   False|        True|    False|
+|         external_id|   string|       |    True|       False|    False|
++--------------------+---------+-------+--------+------------+---------+
+
+```
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [ ] Yes. I can contribute this feature independently.
+- [X] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.

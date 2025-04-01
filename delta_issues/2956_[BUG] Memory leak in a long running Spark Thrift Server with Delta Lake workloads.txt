@@ -1,0 +1,85 @@
+## Bug
+
+### Describe the problem
+I'm facing memory leak in a long running Spark Thrift Server (STS) on Kubernetes if Delta Lake tables are used.
+
+RSS (process) memory grows all the time while STS is being used to run workloads with Delta Lake tables. The growth correlates with the frequency of executing sql queries. After few hours, RSS reaches pod memory limit and kubelet kills the pod with `137` exit code and set `OOMKilled` to the pod status.
+
+This default GCP graph demonstrates the issue:
+<img width="1503" alt="Screen Shot 2022-08-23 at 23 43 15" src="https://user-images.githubusercontent.com/36439732/187025876-e2129fb2-2ed7-4134-81a0-1ce5408d50c9.png">
+In VisualVM I see "used memory" growing trend for heap memory, but it doesn't reach heap maximum.
+There is a graph snapshot made a few minutes before kubelet killed executor pod:
+<img width="1501" alt="Screen Shot 2022-08-23 at 23 44 19" src="https://user-images.githubusercontent.com/36439732/187025888-9bd347ca-56b8-4792-b0a4-b1ef4904c8af.png">
+Also there is a growing trend for metaspace:
+<img width="753" alt="Screen Shot 2022-08-23 at 23 44 32" src="https://user-images.githubusercontent.com/36439732/187025895-92d34033-bc0f-4a9b-aa46-8d422d8c0bdc.png">
+
+STS is launched on Kubernetes by executing `sbin/start-thriftserver.sh` on the pod with `spark.master=k8s://https://kubernetes.default.svc`. It runs specified number of executors with the following default memory configuration:
+* `-Xmx=$SPARK_EXECUTOR_MEMORY`
+* `pod memory limit = spark.executor.memory + (spark.executor.memory * spark.executor.memoryOverheadFactor)`
+
+I have tried to increase `memoryOverheadFactor` from default 10% to 20%, 30% and 50%, but it didn't solve the issue, because RSS just has more space to grow, so kubelet kills it just a bit later.
+
+If I change Delta Lake to Parquet, then STS works fine for many hours without visible memory leak:
+<img width="1498" alt="Screen Shot 2022-08-21 at 11 41 43" src="https://user-images.githubusercontent.com/36439732/187025946-a33331bd-9add-4059-a795-ab64427ceca1.png">
+
+The issue has been existing for more than a year, so it affects at least the following Spark+Delta bundles:
+* Spark 3.3.0 + Delta Lake 2.1.0rc1
+* Spark 3.2.X + Delta Lake 2.0.0
+* Spark 3.2.X + Delta Lake 1.2.1
+* Spark 3.2.X + Delta Lake 1.1.0
+
+#### Steps to reproduce
+
+1. Start Spark Thrift Server in Kubernetes cluster by executing `sbin/start-thriftserver.sh`
+2. Continuously execute read/write/merge queries with Delta Lake tables
+3. Observe growing RSS and pod memory for executors:
+    * `ps o pid,rss -p $(pidof java)`
+    * `kubectl top pod`
+    * other tools you have
+
+#### Expected results
+
+RSS memory should not continuously grow.
+
+#### Further details
+
+I have two STS instances running different queries, but both have the issue:
+STS_1
+```
+CREATE TEMPORARY VIEW ${source}
+    USING JDBC
+    ...
+--
+CREATE OR REPLACE TABLE ${table}
+    USING DELTA
+    ...
+--
+CREATE TABLE IF NOT EXISTS ${table}
+    USING DELTA
+    ...
+--
+MERGE INTO ${table}
+    ...
+```
+STS_2
+```
+SELECT ... FROM ${table}
+--
+CREATE OR REPLACE TABLE ${table}
+    USING DELTA
+    ...
+```
+
+### Environment information
+
+* Delta Lake version: 2.1.0rc1, 2.0.0, 1.2.1, 1.1.0
+* Spark version: 3.3.0, 3.2.2, 3.2.1, 3.2.0
+* Scala version: 2.12
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [ ] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [X] No. I cannot contribute a bug fix at this time.

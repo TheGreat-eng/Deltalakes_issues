@@ -1,0 +1,5 @@
+## Description
+Add a documentation page for the type widening table feature, in preview in Delta. 3.2
+
+## How was this patch tested?
+N/A

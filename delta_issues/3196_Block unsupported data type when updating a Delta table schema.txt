@@ -1,0 +1,26 @@
+## Description
+
+Currently Delta doesn't do a data type check hence any data type added by Spark will be supported by Delta automatically. This causes Delta support the following types unintentionally:
+  - YearMonthIntervalType
+  - DayTimeIntervalType
+  - UserDefinedType 
+
+
+In order to prevent such issue from happening, this PR will:
+- Add a data type check to only allow the following data types in a Delta table.
+The data types defined in the [Protocol](https://github.com/delta-io/delta/blob/6905ce757f67935960a9a13ecb6854d53c117d31/PROTOCOL.md#schema-serialization-format).
+  - YearMonthIntervalType
+  - DayTimeIntervalType
+  - UserDefinedType
+
+- Add an internal flag `spark.databricks.delta.schema.typeCheck.enabled` to allow users to disable the check in case it’s needed.
+- Any new data type added in future will be blocked by default.
+- `TimestampNTZType` will be rejected given that a user cannot read/write a Delta table using `TimestampNTZType` today.
+
+## How was this patch tested?
+
+New added tests.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No. This is not a user facing change because we don't expect this would break any existing workflows.

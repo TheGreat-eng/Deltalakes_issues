@@ -1,0 +1,63 @@
+## Bug
+
+### Describe the problem
+
+The `generate("symlink_format_manifest")` does not properly delete outdated manifest files that have special characters in partition names.
+
+#### Steps to reproduce
+
+In spark-shell:
+
+```scala
+import io.delta.tables.DeltaTable
+
+val df = spark.createDataFrame(Seq(("foo bar", "baz"))).toDF("myPartition", "value")
+df.write.format("delta").partitionBy("myPartition").save("/tmp/delta-table")
+val dt = DeltaTable.forPath("/tmp/delta-table")
+dt.generate("symlink_format_manifest")
+
+dt.update(col("myPartition") === "foo bar", Map("myPartition" -> lit("baz bax")))
+dt.generate("symlink_format_manifest")
+```
+
+#### Observed results
+
+The contents of /tmp/delta-table/_symlink_format_manifest will then be:
+
+```
+.
+├── myPartition=baz bax
+│  └── manifest
+└── myPartition=foo bar
+   └── manifest
+```
+
+#### Expected results
+
+The old `myPartition=foo bar` still exists when it should not. If I remove the _symlink_format_manifest directory and regenerate the manifest, I will get:
+
+```
+.
+└── myPartition=baz bax
+   └── manifest
+```
+
+Which is expected.
+
+#### Further details
+
+The problem seems to occur if there are spaces, punctuation, or other special characters in the name of a partition. The `generate("symlink_format_manifest")` does not delete the outdated manifest files in these partitions.
+
+### Environment information
+
+* Delta Lake version: 1.2.1
+* Spark version: 3.2.1
+* Scala version: 2.12.15
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [x] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute a bug fix at this time.

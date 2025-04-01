@@ -1,0 +1,41 @@
+When I define a table where some columns are calculated from others using the `GENERATED ALWAYS AS` function (https://docs.delta.io/latest/delta-batch.html#-deltausegeneratedcolumns), I can't retrieve any reference to that in the table schema (`DESCRIBE [table_name]`), the generated columns appear to be as standard ones.
+
+It would be great if the `DESCRIBE` function could add a section "Generated columns" reporting all the columns that are generated and their generating functions, similar to the existing "Partitioning" section.  
+This could help have a better and more complete introspection power for Delta tables.
+
+Example:
+```
+CREATE TABLE test(
+  timestamp_utc TIMESTAMP,
+  timestamp_utc_date DATE GENERATED ALWAYS AS (DATE(timestamp_utc))
+)
+USING DELTA
+PARTITIONED BY (timestamp_utc_date)
+;
+
+DESCRIBE test
+;
+```
+
+Current result:
+```
+col_name	data_type	comment
+timestamp_utc	timestamp	
+timestamp_utc_date	date	
+		
+# Partitioning		
+Part 0	timestamp_utc_date	
+```
+
+Expected result:
+```
+col_name	data_type	comment
+timestamp_utc	timestamp	
+timestamp_utc_date	date	
+		
+# Partitioning		
+Part 0	timestamp_utc_date	
+
+# Generated columns
+timestamp_utc_date	DATE(timestamp_utc)
+```

@@ -1,0 +1,16 @@
+Support SQL `SHOW COLUMNS` to display information about the columns in a given Delta table, since currently `SHOW COLUMNS` is not supported in Spark for V2 tables.
+
+Example usage:
+```
+spark.CreateDataFrame([[0, "Mike"], [1, "Mel"]], ["id", "name"]).write.mode("overwrite").format("delta").save("/tmp/showcolumns")
+spark.sql("SHOW COLUMNS in delta.`/tmp/showcolumns`")
+
+  +---------+
+  |col_name |
+  +---------+
+  |id       |
+  |name     |
+  +---------+
+```
+
+Syntax details: [SHOW COLUMNS](https://spark.apache.org/docs/3.0.0-preview/sql-ref-syntax-aux-show-columns.html)

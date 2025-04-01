@@ -1,0 +1,34 @@
+Resolves #41 
+
+## Description
+
+This PR addresses issue #41 - Support for AWS S3 (multiple clusters/drivers/JVMs).
+
+It implements few ideas from #41 discussion:
+
+- provides generic base class BaseExternalLogStore for storing listing of commit files
+in external DB. This class may be easily extended for specific DB backend
+- stores contents of commit in temporary file and links to it in DB's row
+to be able to finish uncompleted write operation while reading
+- provides concrete DynamoDBLogStore implementation extending BaseExternalLogStore
+- implementations for other DB backends should be simple to implement
+(ZooKeeper implementation is almost ready, I can create separate PR if anyone is interested)
+
+## How was this patch tested?
+
+- unit tests in `ExternalLogStoreSuite` which uses `InMemoryLogStore` to mock `DynamoDBLogStore`
+- python integration test inside of `storage-dynamodb/integration_test/dynamodb_logstore.py` which tests concurrent readers and writers
+- that integration test can also run using `FailingDynamoDBLogStore` which injects errors into the runtime execution to test error edge cases
+- This solution has been also stress-tested (by SambaTV) on Amazon's EMR cluster
+(multiple test jobs writing thousands of parallel transactions to single delta table)
+and no data loss has beed observed so far
+
+## Does this PR introduce _any_ user-facing changes?
+
+To enable DynamoDBLogStore set following spark property:
+`spark.delta.logStore.class=io.delta.storage.DynamoDBLogStore`
+
+Following configuration properties are recognized:
+
+io.delta.storage.DynamoDBLogStore.tableName - table name (defaults to 'delta_log')
+io.delta.storage.DynamoDBLogStore.region - AWS region (defaults to 'us-east-1')

@@ -1,0 +1,11 @@
+## Description
+Add log4j logging in the following cases:
+1) Time taken to get the version for a given timestamp in time travel
+2) When the `_last_checkpoint` metadata file is missing or corrupted.
+3) Time to find the last completed checkpoint before a version.
+4) Time to list the delta files after a given last checkpoint
+5) Time to construct a `LogSegment`
+6) Time to construct a snapshot with a `LogSegment` (includes loading P&M)
+
+## How was this patch tested?
+Manually verified.

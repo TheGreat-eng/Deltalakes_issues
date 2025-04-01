@@ -1,0 +1,8 @@
+## Description
+Re-enabled the iceberg module using iceberg-1.3 on spark 3.4
+
+## How was this patch tested?
+Existing unit tests.
+
+## Does this PR introduce _any_ user-facing changes?
+No

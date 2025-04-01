@@ -1,0 +1,53 @@
+<!--
+Thanks for sending a pull request!  Here are some tips for you:
+  1. If this is your first time, please read our contributor guidelines: https://github.com/delta-io/delta/blob/master/CONTRIBUTING.md
+  2. If the PR is unfinished, add '[WIP]' in your PR title, e.g., '[WIP] Your PR title ...'.
+  3. Be sure to keep the PR description updated to reflect all changes.
+  4. Please write your PR title to summarize what this PR proposes.
+  5. If possible, provide a concise example to reproduce the issue for a faster review.
+  6. If applicable, include the corresponding issue number in the PR title and link it in the body.
+-->
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [x] Storage-s3-dynamodb
+- [ ] Other (fill in here)
+
+## Description
+
+<!--
+- Describe what this PR changes.
+- Describe why we need the change.
+ 
+If this PR resolves an issue be sure to include "Resolves #XXX" to correctly link and close the issue upon merge.
+-->
+The AWS SDK for Java 1.x is being deprecated will enter maintenance mode. To address the package deprecation, we’ll need to upgrade AWS SDK Java 1.x in delta to AWS SDK Java 2.x.
+
+Delta is undergoing an upgrade from AWS SDK Java version 1.x to version 2.x, aiming to leverage the enhanced features and improvements introduced in the latest SDK. The transition involves significant changes in the codebase, including the adoption of a builder pattern for constructing requests, a more functional programming approach utilizing lambda expressions, adjustments in response handling, and a new exception handling hierarchy (SdkServiceException). These changes contribute to improved code readability, flexibility, and compatibility with the latest AWS SDK practices.
+
+## How was this patch tested?
+
+<!--
+If tests were added, say they were added here. Please make sure to test the changes thoroughly including negative and positive cases if possible.
+If the changes were tested in any way other than unit tests, please clarify how you tested step by step (ideally copy and paste-able, so that other reviewers can test and check, and descendants can verify in the future).
+If the changes were not tested, please explain why.
+-->
+Testing:
+1. Unit test - SUCCEEDED
+2. Manual test :
+```
+spark-shell --packages io.delta:delta-spark_2.12:3.0.0,io.delta:delta-storage-s3-dynamodb:3.0.0 --conf spark.delta.logStore.s3a.impl=io.delta.storage.S3DynamoDBLogStore --conf spark.io.delta.storage.S3DynamoDBLogStore.ddb.tableName=delta_log --conf spark.io.delta.storage.S3DynamoDBLogStore.ddb.region=us-east-1 --conf spark.sql.extensions=io.delta.sql.DeltaSparkSessionExtension --conf spark.sql.catalog.spark_catalog=org.apache.spark.sql.delta.catalog.DeltaCatalog
+
+spark.range(5).write.format("delta").save("s3a://<your-s3-bucket>/<path-to-delta-table>")
+
+spark.read.format("delta").load("s3a://<your-s3-bucket>/<path-to-delta-table>").show()
+```
+

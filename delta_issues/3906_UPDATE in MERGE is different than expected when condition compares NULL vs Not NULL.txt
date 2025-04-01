@@ -1,0 +1,52 @@
+Let's say if we match using a condition, but in update we only want to update when another condition is met.
+
+Let's say that condition is `target.A != updates.A`, i.e update only when col `A` is different. This works in common cases, but not  when `target.A is NULL` and `updates.A is NOT NULL`.
+
+The example below can reproduce it.
+
+
+```python
+schema = StructType(fields=[StructField("_id", IntegerType()),
+                            StructField("name", StringType()),
+                            StructField("title", StringType())
+                           ])
+
+
+target_json = [{"_id" : 1, "name" : "Name1", "title" : "Title1"}, 
+              {"_id" : 2, "name" : "Name2", "title" : "Title2"},
+              {"_id" : 3, "name" : None, "title" : "Title3"}]
+
+target = spark.createDataFrame(target_json, schema=schema)
+
+target.write.format("delta").mode("overwrite").saveAsTable(TABLE_NAME)
+
+update_json = [{"_id" : 1, "name" : "Name1", "title" : "Title1_"},
+                {"_id" : 2, "name" : "Name2_", "title" : "Title2_"},
+                {"_id" : 3, "name" : "Name3", "title" : "Title3_"},
+                {"_id" : 4, "name" : "Name4", "title" : "Title4"}]
+
+update = spark.createDataFrame(update_json)
+
+deltaTable = DeltaTable.forName(spark, TABLE_NAME)
+
+deltaTable.alias("target") \
+    .merge(update.alias("updates"), "target._id = updates._id") \
+    .whenMatchedUpdateAll(condition="target.name != updates.name") \
+    .whenNotMatchedInsertAll() \
+    .execute()
+```
+
+
+
+```python
+output = sorted([row.asDict() for row in spark.table(TABLE_NAME).collect()], key=lambda x: x['_id'])
+
+expected_answer = [{"_id" : 1, "name" : "Name1", "title" : "Title1"}, 
+                   {"_id" : 2, "name" : "Name2_", "title" : "Title2_"}, 
+                   {"_id" : 3, "name" : "Name3", "title" : "Title3_"}, 
+                   {"_id" : 4, "name" : "Name4", "title" : "Title4"}]
+
+assert output == expected_answer
+```
+
+I'm not sure if this is the desired behaviour since for `_id3` None != "Name3", therefore an update should've happened. But in output row for `_id3` remains unchanged.

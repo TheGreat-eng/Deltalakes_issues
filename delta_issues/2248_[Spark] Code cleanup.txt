@@ -1,0 +1,21 @@
+#### Which Delta project/connector is this regarding?
+
+- Spark
+
+## Description
+
+There are various code cleanups to make reading the code easier:
+
+1. Remove unnecessary type annotations
+2. Typo fixes
+3. Code formatting
+4. Replacing `Literal(true)` with `Literal.TrueLiteral`
+5. Replacing `new Column` with `Column` (object)
+
+## How was this patch tested?
+
+Local build. Expecting more to come from the official checks on github
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

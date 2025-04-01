@@ -1,0 +1,7 @@
+This pull request enhances `configure_spark_with_delta_pip` function to add an optional parameter extra_packages to allow for users to add their custom jars as required.
+
+A test was added class was added `PipUtilsCustomJarsTests` to unit test by adding a duplicate of the delta jar and see if spark conf contained both jars in the assertion.
+
+A new test class was added due to having to modify the spark session rather than using the existing test class. 
+
+This resolves issue #889.

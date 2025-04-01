@@ -1,0 +1,16 @@
+Hi 
+
+I am enjoying working with the delta format and I believe it is the right table format for my use case.
+
+I have a question about the  transactional guarantees with concurrent spark streaming writes in Minio with HMS
+
+The pipeline is like this: 
+1- Multiple spark streaming jobs write "upsert" to a single delta table stored in Minio "S3 compatible object store"
+2- Querying the delta tables using Trino with HMS
+
+I am worried about the notes in delta docs 
+https://docs.delta.io/latest/delta-storage.html#-delta-storage-s3
+
+“This multi-cluster writing solution is only safe when all writers use this LogStore implementation as well as the same DynamoDB table and region. If some drivers use out-of-the-box Delta Lake while others use this experimental LogStore, then data loss can occur.”
+
+How I can implement the multi-cluster setup in my envairemnt without DynamoDB to have transactional guarantees?

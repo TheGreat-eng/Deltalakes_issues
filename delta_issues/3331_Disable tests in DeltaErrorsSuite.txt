@@ -1,0 +1,1 @@
+- delta.io is down 😢  let's disable tests which depend on checking that URL

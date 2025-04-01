@@ -1,0 +1,14 @@
+## Description
+This change implements assigning unique fresh Row IDs when committing files on tables that support Row Ids:
+- Set the `baseRowId` field of every `add` and `remove` actions in commits.
+- Generate `highWaterMark` action to update the Row ID high watermark. 
+- Gracefully resolve conflicts between transactions by reassigning overlapping Row IDs before committing.
+
+## How was this patch tested?
+- Adding tests to RowIdSuite to cover assigning fresh Row IDs.
+- Adding tests to CheckpointSuite to ensure `baseRowId` and `highWaterMark` information survives checkpointing.
+
+
+## Does this PR introduce _any_ user-facing changes?
+No, assigning fresh row ids is hidden from users. Reading row ids will come in a follow-up PR.
+Note that row ids are currently hidden behind property `spark.databricks.delta.rowIds.allowForDevOnly` to avoid leaking a partial implementation.

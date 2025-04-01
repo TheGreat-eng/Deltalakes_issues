@@ -1,0 +1,14 @@
+Hi Delta team,
+
+I tried delta, interesting. I have few questions.
+
+Even though we use "delta" format, its underlying format is "parquet". So is it possible to use this Spark Delta format to read my existing parquet data written without using this Delta.
+
+Why its supporting only delta for parquet? Why not for other spark supported formats? Do you have them in future?
+
+I'm able to read and write data from and to this Delta lake. Is it possible to see that data in Delta lake just like we can see HDFS data from HUE ui.
+
+Many thanks,
+Ram
+
+

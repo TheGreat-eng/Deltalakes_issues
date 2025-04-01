@@ -1,0 +1,9 @@
+we prefer to build against spark master and do our own internal releases from spark master. we have had no problems doing this while also leveraging many other open source projects that relate to spark (datasources, machine learning libraries, etc.), we build these other projects ourselves for spark master and our internal spark releases.
+
+then we added support for delta and things changed. delta's source code lives mostly in org.apache.spark.sql and ties deeply into spark using unstable apis. it is as if there is another piece of spark now that is out of sync with spark master. compiling delta for spark master seems non-trivial and this project does not maintain an active branch for spark master/snapshot. suddenly it became difficult for us to update spark to latest snapshot or a a new internal release based off spark master.
+
+one might think our case is somewhat unusual. but there are a lot of companies that like us build against spark master. this is important for the spark community as we help find (performance/correctness) issues in spark.
+
+please have an active branch that is maintained against spark master. or refactor delta so its not so deeply tied into spark itself. or merge delta into spark so its maintained together.
+
+thanks!

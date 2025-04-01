@@ -1,0 +1,18 @@
+#### Which Delta project/connector is this regarding?
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [X] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+Fix a minor typo in TableFeaturesSuite
+
+## How was this patch tested?
+
+$ build/sbt kernelGroup/test
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

@@ -1,0 +1,26 @@
+This PR proposes to fix the `AnalysisException` message in `DeltaErrors.configureSparkSessionWithExtensionAndCatalog`.
+
+Before:
+```
+org.apache.spark.sql.AnalysisException: This Delta operation requires the SparkSession to be configured with the
+    DeltaSparkSessionExtension and the DeltaCatalog. Please set the necessary
+    configurations when creating the SparkSession as shown below.
+    
+      SparkSession.builder()
+        .option("spark.sql.extensions", "io.delta.sql.DeltaSparkSessionExtension")
+        .option("spark.sql.catalog.spark_catalog", "org.apache.spark.sql.delta.catalog.DeltaCatalog"
+        ...
+        .build()
+```
+After fix:
+```
+org.apache.spark.sql.AnalysisException: This Delta operation requires the SparkSession to be configured with the
+    DeltaSparkSessionExtension and the DeltaCatalog. Please set the necessary
+    configurations when creating the SparkSession as shown below.
+    
+      SparkSession.builder()
+        .option("spark.sql.extensions", "io.delta.sql.DeltaSparkSessionExtension")
+        .option("spark.sql.catalog.spark_catalog", "org.apache.spark.sql.delta.catalog.DeltaCatalog")
+        ...
+        .build()
+```

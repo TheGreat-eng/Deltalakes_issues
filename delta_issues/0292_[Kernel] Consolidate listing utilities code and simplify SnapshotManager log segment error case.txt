@@ -1,0 +1,25 @@
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [X] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+We used to have several duplicated log directory listing utilities. This PR cleans that up so there's just one utility method.
+
+I also got rid of the listing utility that returns an `Optional<List<FileStatus>>`. If we cannot find the `_delta_log` folder, we throw an exception. If the `_delta_log` folder is empty, we should return an empty list.
+
+## How was this patch tested?
+
+Just a refactor. Existing UTs.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No.

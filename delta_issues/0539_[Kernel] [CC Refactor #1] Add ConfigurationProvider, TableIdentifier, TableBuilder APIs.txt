@@ -1,0 +1,31 @@
+**NOTE: I won't be merging any of these PRs until the entire e2e implementation is complete and all PRs are approved**
+
+This is part of some stacked PRs:
+1. https://github.com/delta-io/delta/pull/3781
+2. https://github.com/delta-io/delta/pull/3782
+
+#### Which Delta project/connector is this regarding?
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [X] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+### New Interfaces/Classes
+- adds a new `ConfigurationProvider` interface, that will let kernel get per-session configurations in the future
+- adds a new `TableIdentifier` class, that kernel will pass on to Commit Coordinator services
+- adds a new `TableBuilder` interface, that that constructs kernel `Table` instances, with optional `config` and `tableId` params
+
+### Cleanup
+- Remove unecessary test references to code like `TableImpl.forPath(engine, tablePath, () => System.currentTimeMillis)` --> the System.currentTimeMilis is the default clock, anyways. No need to point to an internal API for that, too.
+
+## How was this patch tested?
+
+Existing UTs.
+
+## Does this PR introduce _any_ user-facing changes?
+
+Yes. New `ConfigurationProvider` interface, new `TableIdentifier` class, new `TableBuilder` interface

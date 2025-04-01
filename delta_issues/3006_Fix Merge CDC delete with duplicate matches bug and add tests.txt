@@ -1,0 +1,3 @@
+Resolves #1274.
+
+This adds tests for a Merge + CDF bug for delete merges with duplicate matches and as well as a fix for it. Implementation details are explained throughout the code in comments.

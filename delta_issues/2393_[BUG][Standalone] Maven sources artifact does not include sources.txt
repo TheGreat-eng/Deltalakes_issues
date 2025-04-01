@@ -1,0 +1,48 @@
+## Bug
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the issue title
+For example: [BUG][Spark] Title of my issue
+-->
+
+- [ ] Spark
+- [X] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+### Describe the problem
+
+Hi, delta-standalone published artifacts for version >= 0.3.0 includes an empty sources jar, so no sources are available 
+Thanks in advance!
+
+#### Steps to reproduce
+
+* Download sources artifacts for any version >= 0.3.0:
+  * for example https://repo1.maven.org/maven2/io/delta/delta-standalone_2.12/0.3.0/delta-standalone_2.12-0.3.0-sources.jar
+
+#### Observed results
+
+The downloaded jar only contains the META-INF/MANIFEST-MF file
+
+#### Expected results
+
+The jar should include all sources for that version, like versions <= 0.2.0:
+* https://repo1.maven.org/maven2/io/delta/delta-standalone_2.12/0.2.0/delta-standalone_2.12-0.2.0-sources.jar
+
+#### Further details
+
+<!--
+Include any additional details that may be useful for diagnosing the problem here. If including tracebacks, please include the full traceback. Large logs and files should be attached.
+-->
+
+### Environment information N/A
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [X] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute a bug fix at this time.

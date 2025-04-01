@@ -1,0 +1,35 @@
+<!--
+Thanks for sending a pull request!  Here are some tips for you:
+  1. If this is your first time, please read our contributor guidelines: https://github.com/delta-io/delta/blob/master/CONTRIBUTING.md
+  2. If the PR is unfinished, add '[WIP]' in your PR title, e.g., '[WIP] Your PR title ...'.
+  3. Be sure to keep the PR description updated to reflect all changes.
+  4. Please write your PR title to summarize what this PR proposes.
+  5. If possible, provide a concise example to reproduce the issue for a faster review.
+  6. If applicable, include the corresponding issue number in the PR title and link it in the body.
+-->
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+ * Do not use the literal "testId" for every single tahoeId in testing. This can hide issues where we use the wrong id (for example as key in a map).
+ * Fix one of these issues with the partition stats for auto compaction, where we used a completely random tableId as the key, rather than than the tableId that commitLarge just wrote.
+ * Add a (temporary) flag to not include the tahoeId in the equals and hashCode methods of TahoeLogFileIndex. Having an unstable external field there is prone to race conditions (of the form this != this) and losing instances in hash sets/maps. So ideally we should make this the default.
+
+## How was this patch tested?
+
+Testing-only PR.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No.

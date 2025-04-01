@@ -1,0 +1,85 @@
+This PR implements Table Features proposed in the feature request [[Feature Request] Table Features to specify the features needed to read/write to a table](https://github.com/delta-io/delta/issues/1408) and the PROTOCOL doc: [Protocol update for Table Features](https://github.com/delta-io/delta/pull/1450).
+
+This PR implements the basic functionality, including
+- The protocol structure and necessary APIs
+- Protocol upgrade logic
+- Append-only feature ported to Table Features
+- Protocol upgrade path
+- User-facing APIs, such as allowing referencing features manually
+- Partial test coverage
+
+Not covered by this PR:
+- Adapt all features
+- Full test coverage
+- Make `DESCRIBE TABLE` show referenced features
+- Enable table clone and time travel paths
+
+### Introduction
+
+Table Features support starts from reader protocol version `3` and writer version `7`. When supported, features can be **referenced** by a protocol by placing a `DeltaFeatureDescriptor` into the protocol's `readerFeatures` and/or `writerFeatures`.
+
+A feature can be one of two types: writer-only and reader-writer. The first type means that only writers must care about such a feature, while the latter means that in addition to writers, readers must also be aware of the feature to read the data correctly. We now have the following features released:
+
+- `appendOnly`: legacy, writer-only
+- `invariants`: legacy, writer-only
+- `checkConstriants`: legacy, writer-only
+- `changeDataFeed`: legacy, writer-only
+- `generatedColumns`: legacy, writer-only
+- `columnMapping`: legacy, reader-writer
+- `identityColumn`: legacy, writer-only
+- `deletionVector`: native, reader-writer
+
+Some examples of the `protocol` action:
+
+```scala
+// Valid protocol. Both reader and writer versions are capable.
+Protocol(
+  minReaderVersion = 3,
+  minWriterVersion = 7,
+  readerFeatures = {(columnMapping,enabled), (changeDataFeed,enabled)},
+  writerFeatures = {(appendOnly,enabled), (columnMapping,enabled), (changeDataFeed,enabled)})
+
+// Valid protocol. Only writer version is capable. "columnMapping" is implicitly enabled by readers.
+Protocol(
+  minReaderVersion = 2,
+  minWriterVersion = 7,
+  readerFeatures = None,
+  writerFeatures = {(columnMapping,enabled)})
+
+// Invalid protocol. Reader version does enable "columnMapping" implicitly.
+Protocol(
+  minReaderVersion = 1,
+  minWriterVersion = 7,
+  readerFeatures = None,
+  writerFeatures = {(columnMapping,enabled)})
+```
+
+When reading or writing a table, clients MUST respect all enabled features.
+
+Upon table creation, the system assigns the table a minimum protocol that satisfies all features that are **automatically enabled** in the table's metadata. This means the table can be on a "legacy" protocol with both `readerFeatures` and `writerFeatures` set to `None` (if all active features are legacy, which is the current behavior) or be on a Table Features-capable protocol with all active features explicitly referenced in `readerFeatures` and/or `writerFeatures` (if one of the active features is Table Features-native or the user has specified a Table Features-capable protocol version).
+
+It's possible to upgrade an existing table to support table features. The update can be either for writers or for both readers and writers. During the upgrade, the system will explicitly reference all legacy features that are implicitly supported by the old protocol.
+
+Users can mark a feature to be required by a table by using the following commands:
+```sql
+-- for an existing table
+ALTER TABLE table_name SET TBLPROPERTIES (delta.feature.featureName = 'enabled')
+-- for a new table
+CREATE TABLE table_name ... TBLPROPERTIES (delta.feature.featureName = 'enabled')
+-- for all new tables
+SET spark.databricks.delta.properties.defaults.feature.featureName = 'enabled'
+```
+When some features are set to `enabled` in table properties and some others in Spark sessions, the final table will enable all features defined in two places:
+```sql
+SET spark.databricks.delta.properties.defaults.feature.featureA = 'enabled';
+CREATE TABLE table_name ... TBLPROPERTIES (delta.feature.featureB = 'enabled')
+--- 'table_name' will have 'featureA' and 'featureB' enabled.
+```
+
+## How was this patch tested?
+
+New unit tests.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No.

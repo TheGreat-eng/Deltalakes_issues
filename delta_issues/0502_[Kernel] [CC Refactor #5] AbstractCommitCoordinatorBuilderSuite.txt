@@ -1,0 +1,21 @@
+This is a stacked PR. Please view this PR's diff here: https://github.com/scottsand-db/delta/compare/delta_kernel_cc_4...delta_kernel_cc_5
+
+#### Which Delta project/connector is this regarding?
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [X] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+Move some CCBuilder utility methods from CommitCoordinatorUtils to AbstractCommitCoordinatorBuilder, then delete CommitCoordinatorProviderSuite, then create AbstractCommitCoordinatorBuilderSuite
+
+## How was this patch tested?
+
+Trivial changes + test changes.
+
+## Does this PR introduce _any_ user-facing changes?
+
+Refactored where utils exist.

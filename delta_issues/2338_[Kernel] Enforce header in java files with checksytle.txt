@@ -1,0 +1,15 @@
+#### Which Delta project/connector is this regarding?
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [x] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+Adds header to the java checkstyle for Kernel. Fixes instances where missing.
+
+## How was this patch tested?
+
+Checkstyle passes

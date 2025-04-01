@@ -1,0 +1,12 @@
+ * Add possibility to restore delta table using version or timestamp from pyspark
+   Examples:
+   ```
+   DeltaTable.forPath(spark, path).restoreToVersion(0)
+   DeltaTable.forPath(spark, path).restoreToTimestamp('2021-01-01 01:01-01')
+   ```
+
+Tested by unit tests.
+
+Fixes https://github.com/delta-io/delta/issues/890
+
+Signed-off-by: Maksym Dovhal <maksym.dovhal@gmail.com>

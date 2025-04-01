@@ -1,0 +1,4 @@
+Made some quick and dirty change to test the following functions with Spark 3.1.0 RC1
+- DataStreamReader.table
+- DataStreamWriter.toTable
+- DataFrameReader.table should pass time travel options to DeltaDataSource.

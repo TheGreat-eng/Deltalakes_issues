@@ -1,0 +1,15 @@
+## Feature request
+
+### Overview
+
+[mack](https://github.com/MrPowers/mack/issues/110) is considering adding `DeltaTable.alter` to their Python API but I think it belongs here.
+
+### Motivation
+
+If [mack](https://github.com/MrPowers/mack/issues/110) considers it worth discussing perhaps there are other teams as well.
+
+The change would also complement the API to match SQL.
+
+### Willingness to contribute
+
+- Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.

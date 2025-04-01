@@ -1,0 +1,21 @@
+#### Which Delta project/connector is this regarding?
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [X] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+Kernel had two very similar `verifyDeltaVersions` functions which verify that the input versions are contiguous.
+
+This PR removes one of them, cleaning up the extra & unneeded tests and making minor code improvements along the way.
+
+## How was this patch tested?
+
+Existing UTs.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No.

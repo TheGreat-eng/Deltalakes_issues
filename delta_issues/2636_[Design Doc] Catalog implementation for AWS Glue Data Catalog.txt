@@ -1,0 +1,114 @@
+Authors: Noritaka Sekiyama, Bhavay Pahuja
+
+## Motivation
+
+As [this PR](https://github.com/delta-io/delta/pull/1579) describes, there are two issues when creating Delta table definition in an external catalog.
+
+* Issue 1: Schema cannot be recognized and automatically falls back to `col (array)`
+* Issue 2: The error `IllegalArgumentException: Can not create a Path from an empty string` occurs when database does not have its location
+
+These issues are causing bad customer experiences:
+
+* Need to configure location for database even when it is not needed.
+* Schema cannot be saved through `saveAsTable`, instead the schema needs to be maintained by the user manually.
+
+Initially, in the PR, we tried to solve that by introducing two extra parameters to change the behavior in creating Delta tables on the metastore. However, it caused extra issue.
+
+* Issue 2’: When we use parquet as tableProvider instead of delta, several capabilities `e.g. schema evolution` did not work because additional functionalities are built on [DeltaParquetFileFormat](https://github.com/delta-io/delta/blob/master/core/src/main/scala/org/apache/spark/sql/delta/DeltaParquetFileFormat.scala).
+
+Since Delta Tables do not provide native Hive Serde, it is not straightforward to solve all those issues with current implementation.
+
+
+## Proposal
+
+This proposal is to add Spark native catalog implementation for AWS Glue Data Catalog into Delta package. The new catalog will be extension of [DeltaCatalog](https://github.com/delta-io/delta/blob/master/core/src/main/scala/org/apache/spark/sql/delta/catalog/DeltaCatalog.scala).
+
+AWS Glue Data Catalog is a serverless, Hive-metastore compatible service in AWS. It is widely used in different engines like Amazon EMR, Amazon Athena, AWS Glue, Amazon Redshift Spectrum, and also in OSS Spark, Hive, and so on.
+
+The new catalog class (let’s call it **`GlueDeltaCatalog`**) implements `createTable`, `alterTable`, `dropTable`, etc. In this approach, `GlueDeltaCatalog` will be specified by the user as the spark catalog to be used for the spark session. This catalog will directly interact with AWS Glue Data Catalog bypassing the Hive client and thus its limitations. Glue AWS SDK Client will be used to connect to AWS Glue Data Catalog, and store the table details with correct schema information in the Glue database. The common methods for creating the delta lake table will be abstracted out in a new `BaseDeltaCatalog` class and `DeltaCatalog` and `GlueDeltaCatalog` will extend this. If users want to, they can still rely on the old catalog and use Hive client to contact AWS Glue Data Catalog. Extra translation utility methods will be required to convert a Delta lake table to Glue Data Catalog table.
+
+![GlueDeltaCatalog](https://user-images.githubusercontent.com/1304020/229789234-0e23977f-ed4c-41ea-a368-f0cef20509b8.png)
+
+In this approach, we will be able to call Delta Lake’s [CreateDeltaTableCommand](https://github.com/delta-io/delta/blob/master/core/src/main/scala/org/apache/spark/sql/delta/commands/CreateDeltaTableCommand.scala) directly instead of using Hive metastore compatible class. This approach solves both issue 1 and issue 2, and also it does not cause issue 2’. Moreover, this approach allows Delta Lake to manage any other enhancement without being impacted by Hive metastore client side limitation.
+
+
+## Requirements
+
+**MUST**: 
+
+* Users can save correct table schema information in an external catalog using `saveAsTable`.
+* Users can create Delta table definitions under a database without database location.
+* Not break compatibility: Users can still perform standard catalog operations like `createTable`, `updateTable`, `deleteTable`, and so on.
+
+## PoC
+
+We have verified that a simple PoC implementation of `GlueDeltaCatalog` was able to solve Issue 2. 
+Note: Issue 1 requires extra implementation to automatically convert the schema information.
+
+Below is a simple implementation of `GlueDeltaCatalog.createTable`
+
+```
+  override def createTable(tableDefinition: CatalogTable, ignoreIfExists: Boolean): Unit = {
+    glue = GlueClient.builder().build()
+    assert(tableDefinition.identifier.database.isDefined)
+    val db = tableDefinition.identifier.database.get
+    val table = tableDefinition.identifier.table
+//    requireDbExists(db)
+
+//    if (tableExists(db, table) && !ignoreIfExists) {
+//      throw new TableAlreadyExistsException(db = db, table = table)
+//    }
+    val needDefaultTableLocation = tableDefinition.tableType == MANAGED &&
+      tableDefinition.storage.locationUri.isEmpty
+
+    val tableLocation = if (needDefaultTableLocation) {
+      Some(CatalogUtils.stringToURI(defaultTablePath(tableDefinition.identifier)))
+    } else {
+      tableDefinition.storage.locationUri
+    }
+
+    val tableWithDataSourceProps = tableDefinition.copy(
+      storage = tableDefinition.storage.copy(locationUri = tableLocation))
+
+    val tableInputBuilder = TableInput.builder
+      .tableType(tableWithDataSourceProps.tableType.name)
+      .parameters( mapAsJavaMap( tableWithDataSourceProps.properties))
+      .name(tableWithDataSourceProps.identifier.table)
+      .storageDescriptor( StorageDescriptor.builder
+        .parameters( mapAsJavaMap( tableWithDataSourceProps.storage.properties ) )
+        .location( tableWithDataSourceProps.location.toString )
+        .build()
+      )
+
+    glue.createTable(CreateTableRequest.builder
+      .databaseName(tableWithDataSourceProps.database)
+      .tableInput(tableInputBuilder.build())
+      .build)
+
+  }
+```
+
+`requireDb` and `tableExists` are commented as they were not implemented for this PoC.
+I hard coded the call to createTable for POC purposes in `CreateDeltaTableCommand.updateCatalog` 
+
+```
+case TableCreationModes.Create =>
+  (new GlueCatalog).createTable(
+    cleaned,
+    ignoreIfExists = existingTableOpt.isDefined)
+```
+
+As a result of this PoC
+<img width="1133" alt="image (11)" src="https://user-images.githubusercontent.com/1304020/229789486-2348a57c-181f-4444-8239-c15c8e03de79.png">
+In a Glue database without having an explicit location, i was able to create a table using the following command:
+
+```
+use tvkalyan_deltadb_withoutlocation;
+create table e1 (id1 int, id2 int) using delta location "s3://bhavayp-emr-dev/delta-table-e1";
+```
+
+<img width="1106" alt="image (12)" src="https://user-images.githubusercontent.com/1304020/229789562-6ef5c2f8-605a-4de6-9351-ea14107692e7.png">
+As shown above, the table created got updated with correct location in the Glue database.
+
+
+cc: @dennyglee

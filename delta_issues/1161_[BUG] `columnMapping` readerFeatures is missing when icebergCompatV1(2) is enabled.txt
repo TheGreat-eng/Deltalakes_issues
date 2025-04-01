@@ -1,0 +1,67 @@
+## Bug
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the issue title
+For example: [BUG][Spark] Title of my issue
+-->
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+### Describe the problem
+
+[Writer Requirements for Column Mapping](https://github.com/delta-io/delta/blob/master/PROTOCOL.md#writer-requirements-for-column-mapping) mentions:
+> write a protocol action to add the feature columnMapping to both readerFeatures and writerFeatures
+
+However, `protocol` entry doesn't have `columnMapping` in `readerFeatures` field. 
+
+#### Steps to reproduce
+
+1. Create a new table with icebergCompatV1 feature:
+```sql
+CREATE TABLE default.test_iceberg
+(a INT)
+USING DELTA
+LOCATION 's3://test-bucket/test_iceberg'
+TBLPROPERTIES ('delta.enableIcebergCompatV1'=true);
+```
+
+2. Confirm transaction log:
+```json
+{"commitInfo":{"timestamp":1716541145876,"operation":"CREATE TABLE","operationParameters":{"isManaged":"false","description":null,"partitionBy":"[]","properties":"{\"delta.enableIcebergCompatV1\":\"true\",\"delta.columnMapping.mode\":\"name\",\"delta.columnMapping.maxColumnId\":\"1\"}"},"isolationLevel":"Serializable","isBlindAppend":true,"operationMetrics":{},"engineInfo":"Apache-Spark/3.5.0 Delta-Lake/3.1.0","txnId":"b172aa56-9393-4750-ac30-2c1996497efb"}}
+{"metaData":{"id":"8d56ae44-1648-4fd5-a920-81f5f0725ab5","format":{"provider":"parquet","options":{}},"schemaString":"{\"type\":\"struct\",\"fields\":[{\"name\":\"a\",\"type\":\"integer\",\"nullable\":true,\"metadata\":{\"delta.columnMapping.id\":1,\"delta.columnMapping.physicalName\":\"col-39727da2-bc31-4d96-a0a9-b3f16113fde2\"}}]}","partitionColumns":[],"configuration":{"delta.enableIcebergCompatV1":"true","delta.columnMapping.mode":"name","delta.columnMapping.maxColumnId":"1"},"createdTime":1716541145862}}
+{"protocol":{"minReaderVersion":2,"minWriterVersion":7,"writerFeatures":["columnMapping","icebergCompatV1"]}}
+
+```
+
+#### Observed results
+
+<!-- What happened?  This could be a description, log output, etc. -->
+
+#### Expected results
+
+icebergCompatV1 or icebergCompatV2 exists in readerFeatures. 
+
+#### Further details
+
+<!--
+Include any additional details that may be useful for diagnosing the problem here. If including tracebacks, please include the full traceback. Large logs and files should be attached.
+-->
+
+### Environment information
+
+* Delta Lake version: 3.1.0
+* Spark version: 3.5.0
+* Scala version: 2.12
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [ ] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [x] No. I cannot contribute a bug fix at this time.

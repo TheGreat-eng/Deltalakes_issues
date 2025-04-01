@@ -1,0 +1,13 @@
+## Description
+
+This PR patches the check in DeltaColumnMapping.verifyAndUpdateMetadataChange. Table protocols should not need to support both reader table features and writer table features for it to support Column Mapping.
+
+For example, if a table has protocol version minReaderVersion=2 and minWriterVersion=7, it should be able to upgrade to column mapping. Right now, the system asks the user to upgrade to minReaderVersion=3, which is unnecessary.
+
+## How was this patch tested?
+
+New test.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

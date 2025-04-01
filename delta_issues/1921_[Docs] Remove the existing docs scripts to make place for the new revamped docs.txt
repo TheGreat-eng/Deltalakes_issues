@@ -1,0 +1,2 @@
+## Description
+Delta docs are getting revamped as part of the PR delta-io/delta#2352 which is adding new doc source code and combining both the docs on delta.io website and API docs generation together.

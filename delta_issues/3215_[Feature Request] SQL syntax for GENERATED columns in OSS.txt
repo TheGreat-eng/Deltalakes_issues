@@ -1,0 +1,42 @@
+## Bug
+Using SQL it is not possible to `CREATE` or `INSERT` into a table with `GENERATED` columns with spark 3.2.1 and delta 1.2.0.
+
+### Describe the problem
+
+#### Steps to reproduce
+1. download latest spark-3.2.1-bin-hadoop3.2-scala2.13
+2. start with
+```bash
+bin/spark-sql --packages io.delta:delta-core_2.13:1.2.0 --conf spark.sql.extensions=io.delta.sql.DeltaSparkSessionExtension --conf spark.sql.catalog.spark_catalog=org.apache.spark.sql.delta.catalog.DeltaCatalog
+```
+
+4. try creating a table with a generated column:
+```sql
+CREATE TABLE `everts` (
+ event_time TIMESTAMP NOT NULL,
+ event_month DATE GENERATED ALWAYS AS (CAST(event_time AS DATE))
+)
+USING DELTA
+;
+```
+5. try `INSERT INTO`
+```sql
+INSERT INTO TABLE default.events (event_time) 
+VALUES (timestamp(now()))
+;
+```
+#### Observed results
+neither the `CREATE` nor the `INSERT` (for the case the table was created with `DeltaTableBuilder`) would succeed.
+#### Expected results
+Would be really great if the Delta OSS supports more of the feature announced by Databricks (otherwise it would help to communicate explicitly which features are Databricks exclusive and which are also available in the Delta OSS).
+#### Further details
+
+Could it be that the SQL GENERATED column syntax is supported on databricks only? Or am I missing something?
+I cannot find any 'GENERATED ALWAYS ...' related grammar in `DeltaSqlBase.g4` either?
+
+### Environment information
+
+* Delta Lake version: 1.2.0
+* Spark version: 3.2.1
+* Scala version: 2.13.5
+

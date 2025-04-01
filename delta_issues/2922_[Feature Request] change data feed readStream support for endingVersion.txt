@@ -1,0 +1,30 @@
+## Feature request
+
+### Overview
+
+Today, when you pass "endingVersion" to DataStreamReader on a Delta Table with "Change Data Feed" enabled, it is just ignored.
+The current supported options for CDF streams are documented here: https://docs.databricks.com/delta/delta-change-data-feed.html#read-changes-in-streaming-queries
+I would like to write:
+```
+spark.readStream.format("delta")
+  .option("readChangeFeed", "true")
+  .option("endingVersion", 9)
+   .table("myDeltaTable")
+```
+
+### Motivation
+
+Although it seems counter-intuitive to put an upper bound to a stream, it would solve a lot of our tables inconsistencies and synchronization issues. Actually, we would not require complex workflows with scheduling, race conditions, multi-tables transactions, synchronization and concurrency handling: all would be data driven. And we would still benefit from Delta powerful features like data bookkeeping/checkpointing. Ultimately, it would allow to achieve the transition from "scheduled/trigger once" to "trigger processing time" streaming.
+
+### Further details
+
+I think the implementation of the fix is only one line of code at the good place + code for parsing and checking the option value. Ideally, I would like this option to be read dynamically at each trigger (with processing time).
+I will require help on unit tests likely.
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [ ] Yes. I can contribute this feature independently.
+- [X] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.

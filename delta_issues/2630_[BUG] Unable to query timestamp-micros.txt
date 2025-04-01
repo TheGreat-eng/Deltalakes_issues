@@ -1,0 +1,41 @@
+## Bug
+
+### We are using delta standalone library to write data to ADLS, we are using timestamp-micros to sync timestamp columns, but looks like the library is unable to read the data. 
+
+Exception:
+
+```
+scala.MatchError: LongValue(1677595007976000) (of class shadedelta.com.github.mjakubowski84.parquet4s.LongValue)
+```
+
+StackTrace:
+```
+0 = {StackTraceElement@18976} "shadedelta.com.github.mjakubowski84.parquet4s.TimeValueCodecs$.com$github$mjakubowski84$parquet4s$TimeValueCodecs$$decodeLocalDateTime(ValueCodec.scala:203)"
+1 = {StackTraceElement@18977} "shadedelta.com.github.mjakubowski84.parquet4s.TimeValueCodecs$$anon$12.decodeNonNull(ValueCodec.scala:284)"
+2 = {StackTraceElement@18978} "shadedelta.com.github.mjakubowski84.parquet4s.TimeValueCodecs$$anon$12.decodeNonNull(ValueCodec.scala:281)"
+3 = {StackTraceElement@18979} "shadedelta.com.github.mjakubowski84.parquet4s.OptionalValueCodec$class.decode(ValueCodec.scala:89)"
+4 = {StackTraceElement@18980} "shadedelta.com.github.mjakubowski84.parquet4s.TimeValueCodecs$$anon$12.decode(ValueCodec.scala:281)"
+5 = {StackTraceElement@18981} "io.delta.standalone.internal.data.RowParquetRecordImpl.io$delta$standalone$internal$data$RowParquetRecordImpl$$decode(RowParquetRecordImpl.scala:181)"
+6 = {StackTraceElement@18982} "io.delta.standalone.internal.data.RowParquetRecordImpl.getAs(RowParquetRecordImpl.scala:168)"
+7 = {StackTraceElement@18983} "io.delta.standalone.internal.data.RowParquetRecordImpl.getString(RowParquetRecordImpl.scala:111)"
+8 = {StackTraceElement@18984} "com.fivetran.warehouses.adls.ADLSTestWarehouse.getValue(ADLSTestWarehouse.java:117)"
+9 = {StackTraceElement@18985} "com.fivetran.warehouses.adls.ADLSTestWarehouse.queryTable(ADLSTestWarehouse.java:79)"
+```
+
+Our table has the below schema 
+
+```
+{"commitInfo":{"timestamp":1680768612881,"operation":"WRITE","operationParameters":{},"isolationLevel":"Serializable","isBlindAppend":true,"operationMetrics":{},"engineInfo":"DuckDB/0.6.1 Delta-Standalone/0.6.0"}}
+{"protocol":{"minReaderVersion":1,"minWriterVersion":2}}
+{"metaData":{"id":"b5979d93-b095-45df-8bae-021ef740b4d9","format":{"provider":"parquet","options":{}},"schemaString":"{\"type\":\"struct\",\"fields\":[{\"name\":\"id\",\"type\":\"integer\",\"nullable\":true,\"metadata\":{}},{\"name\":\"timestamp\",\"type\":\"timestamp\",\"nullable\":true,\"metadata\":{}},{\"name\":\"_fivetran_synced\",\"type\":\"timestamp\",\"nullable\":true,\"metadata\":{}}]}","partitionColumns":[],"configuration":{},"createdTime":1680768430123}}
+{"add":{"path":"2023-04-06T08-07-10.129053Z_1.parquet","partitionValues":{},"size":1114,"modificationTime":1680768611034,"dataChange":true}}
+```
+
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [x] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute a bug fix at this time.

@@ -1,0 +1,1 @@
+While digging into delta's code, I found a typing mistake in the javadoc of ```WriteIntoDelta``` which I fixed in this Pull Request.

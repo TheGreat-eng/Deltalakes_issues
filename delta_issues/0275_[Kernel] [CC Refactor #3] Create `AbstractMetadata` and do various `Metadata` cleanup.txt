@@ -1,0 +1,18 @@
+#### Which Delta project/connector is this regarding?
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [X] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+Add AbstractMetadata interface and clean up our Metadata implementation.
+
+## How was this patch tested?
+
+Just an interface and a minor refactor. Existing UTs.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No.

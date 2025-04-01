@@ -1,0 +1,4 @@
+`DELETE FROM myTable1 WHERE EXISTS (Select 1 from myTable2 where myTable2.key = myTable1.key)`
+
+This query will currently throw an error, "Subqueries are not supported in the DELETE" 
+We want to support subqueries in Delete and Update.

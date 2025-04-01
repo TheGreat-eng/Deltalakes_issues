@@ -1,0 +1,37 @@
+This PR addresses the resolution of certain issues experienced during the merge operation for a table with a large number of columns (similar issues have been described by another user: https://github.com/delta-io/delta/issues/479). It might be possible to improve furtherly this solution both from execution time and memory consumption points of view in future PRs.
+
+### Changes
+* This PR introduces a map to perform search through output attributes of the target table in order to reduce the time complexity.
+
+### Tests
+The PR was tested with an additional test case (not included in the PR because of its intrinsic slowness) which generates a table with a lot of columns and tries to perform a merge on it:
+
+```
+test("updateAll and insertAll with a huge number of columns") {
+    withTempPath { targetDir =>
+      val targetPath = targetDir.getCanonicalPath
+      val columns = col("key") +: (1 to 1500).map(c => col("value") as s"value_${c}")
+      val df = Seq((1, 10)).toDF("key", "value").select(columns: _*)
+      df.write.format("delta").save(targetPath)
+      val t = io.delta.tables.DeltaTable.forPath(spark, targetPath).as("t")
+
+      val source = Seq((1, 11)).toDF("key", "value").select(columns: _*)
+
+      t.as("t")
+        .merge(source.as("s"), "t.key = s.key")
+        .whenMatched()
+        .updateAll()
+        .whenNotMatched()
+        .insertAll()
+        .execute()
+
+      checkAnswer(
+        readDeltaTable(targetPath),
+        source.collect().toSeq
+      )
+    }
+  }
+  ```
+Moreover, the PR was also tested in a real case scenario, preventing effectively the merge operation from "hanging".
+
+Signed-off-by: Fabio Badali <fabio.badali@gmail.com>

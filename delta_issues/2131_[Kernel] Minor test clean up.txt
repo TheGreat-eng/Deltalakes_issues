@@ -1,0 +1,5 @@
+## Description
+Remove the golden table `dv-with-columnmapping` from the `kernel` module and add it the `golden-tables` module (generated using `GoldenTables.scala`. This was done originally because of delta-io/delta#1886 which was fixed in the current master.
+
+## How was this patch tested?
+Ran the `DeletionVectorSuite` and it passes.

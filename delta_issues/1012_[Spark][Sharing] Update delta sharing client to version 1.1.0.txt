@@ -1,0 +1,19 @@
+
+#### Which Delta project/connector is this regarding?
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+Upgrade delta-sharing-client to v1.1.0
+
+## How was this patch tested?
+
+Existing test
+
+## Does this PR introduce _any_ user-facing changes?
+
+No.

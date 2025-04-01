@@ -1,0 +1,35 @@
+## Feature request
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the issue title
+For example: [Feature Request][Spark] Title of my issue
+-->
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+### Overview
+
+We currently support `schemaTrackingLocation` ([doc](https://docs.delta.io/latest/delta-streaming.html#tracking-non-additive-schema-changes)) that allows Delta streaming source to track additive **and non-additive** schema changes during streaming from a Delta table.
+
+Right now, every single schema changes would cause a new schema version to be generated in the tracking location, however, it might not be necessary for non-backward incompatible changes like ADD COLUMN. One way is to speculate ahead in the Delta log, skip over the ADD COLUMN schema changes, and use the encompassing schema as the stream read schema. 
+
+### Motivation
+
+This could allow possibly a lot fewer stream restarts due to ADD COLUMN schema changes.
+
+### Further details
+
+The speculation ahead can be potentially implemented [here](https://github.com/delta-io/delta/blob/a24a857d27bbb4b3585814c35fa3002cee929fec/spark/src/main/scala/org/apache/spark/sql/delta/sources/DeltaSourceMetadataTrackingLog.scala#L316)
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [ ] Yes. I can contribute this feature independently.
+- [ ] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.

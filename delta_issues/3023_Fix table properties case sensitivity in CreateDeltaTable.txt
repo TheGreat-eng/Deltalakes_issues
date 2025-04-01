@@ -1,0 +1,11 @@
+## Description
+
+Resolves #1291
+
+## How was this patch tested?
+
+Tested by locally running the patched Delta library and confirming this fixes the issue at hand
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

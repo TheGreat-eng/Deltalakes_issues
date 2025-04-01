@@ -1,0 +1,19 @@
+#### Which Delta project/connector is this regarding?
+
+- [X] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+Introduce `delta.rowTracking.preserved` commit tag that should be set by transactions that preserve Row Tracking. This commit adds only the tag definition and helper code for manipulating tags to prepare for subsequent commits that will actually use it.
+
+## How was this patch tested?
+
+Existing tests.
+
+## Does this PR introduce _any_ user-facing changes?
+
+N/A

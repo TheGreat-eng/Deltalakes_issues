@@ -1,0 +1,8 @@
+## Description
+
+Converts the partition predicate into a filter on `add.partitionValues_parsed.<partitionPhysicalColName>`. This predicate is pushed to the Parquet reader when reading the checkpoint files during the state reconstruction. This helps prune reading checkpoint files that can't possibly have any scan files satisfying the given partition predicate.
+
+This can be extended in future to even support pushdown of predicate on data columns as well.
+
+## How was this patch tested?
+Unittests

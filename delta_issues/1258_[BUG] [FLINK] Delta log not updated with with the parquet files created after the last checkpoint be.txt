@@ -1,0 +1,37 @@
+## Bug
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the issue title
+For example: [BUG][Spark] Title of my issue
+-->
+
+
+- [ ] Flink - 1.17.0
+- [ ] Delta - 3.0.0
+
+
+### Describe the problem
+I have a delta flink program similar to this. https://learn.microsoft.com/en-us/azure/hdinsight-aks/flink/use-flink-delta-connector . I enabled checkpointing to 1s and job takes around 10 chkpoints and delta_log gets updated 10 times. But after the 10th chkpoint,  one parquet files gets created and i can see one more chkpoint is invoked. Then the job got finished. But somehow, the delta log file is not updated. Please check logs here.
+
+```
+_2024-05-06 21:04:17.884 [] Sink: Global Committer (1/1)#0 INFO  flink io.delta.standalone.internal.OptimisticTransactionImpl 48 [tableId=34e8a131,txnId=cac93905] Committed delta #9 to abfs://appmode@xy.dfs.core.windows.net/delta-session3/_delta_log
+2024-05-06 21:04:17.884 [] Sink: Global Committer (1/1)#0 INFO  flink flink.sink.internal.committer.DeltaGlobalCommitter 450 Successfully committed transaction (appId='45470aec-412d-4f74-87b0-22aa50a8f468', checkpointId='10')
+2024-05-06 21:04:17.886 [] Sink: Global Committer (1/1)#0 INFO  flink apache.flink.runtime.taskmanager.Task 1084 Sink: Global Committer (1/1)#0 (6e0af40e48232d9d6a2de4a6a20d497b_306d8342cb5b2ad8b53f1be57f65bee8_0_0) switched from RUNNING to FINISHED._
+
+```
+
+I mean if there is some config , I am missing.
+
+ABFS storage
+
+![image](https://github.com/delta-io/delta/assets/115492890/ac155003-bcf6-4f79-95c9-1f7f3958f4cb)
+
+![image](https://github.com/delta-io/delta/assets/115492890/40bd4ad7-4df3-4637-bf24-768c6af45891)
+
+
+
+
+
+- [ ] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+

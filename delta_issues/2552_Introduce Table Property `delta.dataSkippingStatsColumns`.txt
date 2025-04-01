@@ -1,0 +1,100 @@
+<!--
+Thanks for sending a pull request!  Here are some tips for you:
+  1. If this is your first time, please read our contributor guidelines: https://github.com/delta-io/delta/blob/master/CONTRIBUTING.md
+  2. If the PR is unfinished, add '[WIP]' in your PR title, e.g., '[WIP] Your PR title ...'.
+  3. Be sure to keep the PR description updated to reflect all changes.
+  4. Please write your PR title to summarize what this PR proposes.
+  5. If possible, provide a concise example to reproduce the issue for a faster review.
+  6. If applicable, include the corresponding issue number in the PR title and link it in the body.
+-->
+
+## Description
+This PR introduces new table property `dataSkippingStatsColumns ` for users to specify the set of columns that collect file skipping statistics.
+
+The syntax of setting this table property is:
+```
+CREATE TABLE <Table Name> (<Column Definition>)
+TBLPROPERTIES('delta.dataSkippingStatsColumns' = '[<column-identifier-1>, …, <column-identifier-N>]');
+
+ALTER TABLE <Table Name>
+SET TBLPROPERTIES ('delta.dataSkippingStatsColumns' = '[<column-identifier-1>, …, <column-identifier-N>]');
+```
+
+The CREATE TABLE and Alter command handler would validates that all `delta.dataSkippingStatsColumns` exists.
+These two commands would error out, when:
+- If any column of `delta.dataSkippingStatsColumns` doesn't exist,
+- If any column of `delta.dataSkippingStatsColumns` doesn't support data skipping,
+- If any column of `delta.dataSkippingStatsColumns` is partitioned column.
+
+If user drops a column, the corresponding entry inside `delta.dataSkippingStatsColumns` would also be removed.
+
+If user renames a column, the corresponding entry inside `delta.dataSkippingStatsColumns` would also be renamed.
+
+The OPTIMIZE ZORDER command also recognizes the `delta.dataSkippingStatsColumns`.
+
+The `delta.dataSkippingStatsColumns` contains a list of column identifiers. Each column identifier is represented as:
+## column-identifier
+An identifier is a string used to identify a database object such as a table, view, schema, column. Both regular identifiers and delimited identifiers are case-insensitive. The Regular Column Identifier contains following characters: `{ letter | digit | '_' } [ , ... ]`. If there is special characters, which include `!@#$%^&*()_+-={}|[]\:";'<>,.?/`, inside the column identifier ` should be used to escape the column name.
+
+### Examples
+#### CREATE TABLE
+```
+CREATE TABLE T1 (c0 long, `c-1` long, `c!@#$`) using delta
+TBLPROPERTIES('delta.dataSkippingStatsColumns' = 'c0, `c-1`, `c!@#$`');
+```
+#### ALTER TABLE
+```
+CREATE TABLE T2 (c0 long, `c-1` long, `c!@#$`) using delta;
+
+ALTER TABLE T2 SET TBLPROPERTIES ('delta.dataSkippingStatsColumns' = 'c0, `c-1`, `c!@#$`');
+```
+#### NESTED COLUMN
+```
+CREATE TABLE T3 (c0 long, c1 STRUCT <c11: String, c12: long, c13 STRUCT <c131: long, c132: long>>) using delta
+TBLPROPERTIES('delta.dataSkippingStatsColumns' = 'c0, c1.c11, c1.c12, c1.c13.c131, c1.c13.c132');
+
+CREATE TABLE T4 (c0 long, c1 STRUCT <c11: String, c12: long, c13 STRUCT <c131: long, c132: long>>) using delta
+TBLPROPERTIES('delta.dataSkippingStatsColumns' = 'c0, c1.c11, c1.c12, c1.c13');
+
+CREATE TABLE T5 (c0 long, c1 STRUCT <c11: String, c12: long, c13 STRUCT <c131: long, c132: long>>) using delta
+TBLPROPERTIES('delta.dataSkippingStatsColumns' = 'c0, c1');
+```
+
+<!--
+- Describe what this PR changes.
+- Describe why we need the change.
+ 
+If this PR resolves an issue be sure to include "Resolves #XXX" to correctly link and close the issue upon merge.
+-->
+
+## How was this patch tested?
+Unit Test:
+1. validates setting table property procedure:
+  1.1. detects non-existing columns,
+  1.2. support nested columns,
+  1.3. detects unsupported column types,
+  1.4. handles columns with special characters,
+  1.5. handles columns with invalid datatype in both nested and un-nested column,
+  1.6. handles partition columns in both nested and un-nested column.
+  1.7. handles duplicated columns in both nested and un-nested columns.
+2. handle drop columns
+2.1. drop nested columns from a table
+2.2. drop flat columns from a table
+3. handle rename columns
+3.1. rename nested columns from a table
+3.2. rename flat columns from a table
+4. optimize z-order can recognize delta statistics columns.
+5. All column mapping modes are supported.
+<!--
+If tests were added, say they were added here. Please make sure to test the changes thoroughly including negative and positive cases if possible.
+If the changes were tested in any way other than unit tests, please clarify how you tested step by step (ideally copy and paste-able, so that other reviewers can test and check, and descendants can verify in the future).
+If the changes were not tested, please explain why.
+-->
+
+## Does this PR introduce _any_ user-facing changes?
+
+<!--
+If yes, please clarify the previous behavior and the change this PR proposes - provide the console output, description and/or an example to show the behavior difference if possible.
+If possible, please also clarify if this is a user-facing change compared to the released Delta Lake versions or within the unreleased branches such as master.
+If no, write 'No'.
+-->

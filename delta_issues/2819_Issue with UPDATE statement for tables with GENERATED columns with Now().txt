@@ -1,0 +1,26 @@
+I created a Delta table with a timestamp column which is defined as GENERATED ALWAYS AS (now()). As per my understanding, this allows, when inserting new records to the table, to automatically assign the current timestamp to the column.
+
+When I'm trying to use the UPDATE command to update, for a given row, another field (not the aforementioned generated column), I receive an InvariantViolationException error referring to the column.
+I find it confusing, as the UPDATE command should only touch the other field.
+Am I misinterpreting the documentation? (https://docs.databricks.com/delta/delta-update.html#update-a-table&language-sql)
+
+Minimal code to reproduce the issue:
+
+CREATE or replace TABLE `test_generated_column_update` (
+    test_string STRING NOT NULL,
+    test_date TIMESTAMP GENERATED ALWAYS AS (now())
+    )
+    USING DELTA
+;
+
+insert into `test_generated_column_update`(test_string) values ('Hello!');
+
+update `test_generated_column_update` set test_string = 'Good bye!' where test_string == 'Hello!';
+
+select * from `test_generated_column_update`;
+Error:
+Error in SQL statement: InvariantViolationException: CHECK constraint Generated Column (test_date <=> now()) violated by row with values:
+
+Tested on AWS Databricks on a single node cluster using Databricks Runtime 9.1
+
+**Do we have any alternate option to update the other (NON GENERATED columns) columns in a row (by keeping the GENERATED ALWAYS AS (now()) ?**

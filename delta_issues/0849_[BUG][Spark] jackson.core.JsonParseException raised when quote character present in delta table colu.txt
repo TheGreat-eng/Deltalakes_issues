@@ -1,0 +1,183 @@
+## Bug
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the issue title
+For example: [BUG][Spark] Title of my issue
+-->
+
+- [X] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+### Describe the problem
+
+If a delta table shared by delta share contains any column that has a `"` character in its comment, `com.fasterxml.jackson.core.JsonParseException` raises an exception.
+
+#### Steps to reproduce
+
+1. Create a delta table (we are using Databricks)
+2. Add a comment in any column:
+![image](https://github.com/user-attachments/assets/2bf336dc-b5fd-4190-995f-b38c38fb87f6)
+3. After creating the share and recipient, with proper privileges, run a query against the object:
+```Python
+table_path = f"{cred_path}#test_share.default.titanic_table"
+df = spark.read.format("deltaSharing").load(table_path)
+
+df.display()
+```
+4. The code raises an exception:
+![image](https://github.com/user-attachments/assets/a7bb18c1-835f-4e55-bb05-cb5029c6552c)
+
+<!--
+Please include copy-pastable code snippets if possible.
+1. _____
+3. _____
+6. _____
+-->
+
+#### Observed results
+This exception is raised:
+```
+---------------------------------------------------------------------------
+Py4JJavaError                             Traceback (most recent call last)
+File <command-3389154566048895>, line 2
+      1 table_path = f"{cred_path}#test_share.default.titanic_table"
+----> 2 df = spark.read.format("deltaSharing").load(table_path)
+      4 df.display()
+
+File /databricks/spark/python/pyspark/instrumentation_utils.py:48, in _wrap_function.<locals>.wrapper(*args, **kwargs)
+     46 start = time.perf_counter()
+     47 try:
+---> 48     res = func(*args, **kwargs)
+     49     logger.log_success(
+     50         module_name, class_name, function_name, time.perf_counter() - start, signature
+     51     )
+     52     return res
+
+File /databricks/spark/python/pyspark/sql/readwriter.py:307, in DataFrameReader.load(self, path, format, schema, **options)
+    305 self.options(**options)
+    306 if isinstance(path, str):
+--> 307     return self._df(self._jreader.load(path))
+    308 elif path is not None:
+    309     if type(path) != list:
+
+File /databricks/spark/python/lib/py4j-0.10.9.7-src.zip/py4j/java_gateway.py:1355, in JavaMember.__call__(self, *args)
+   1349 command = proto.CALL_COMMAND_NAME +\
+   1350     self.command_header +\
+   1351     args_command +\
+   1352     proto.END_COMMAND_PART
+   1354 answer = self.gateway_client.send_command(command)
+-> 1355 return_value = get_return_value(
+   1356     answer, self.gateway_client, self.target_id, self.name)
+   1358 for temp_arg in temp_args:
+   1359     if hasattr(temp_arg, "_detach"):
+
+File /databricks/spark/python/pyspark/errors/exceptions/captured.py:188, in capture_sql_exception.<locals>.deco(*a, **kw)
+    186 def deco(*a: Any, **kw: Any) -> Any:
+    187     try:
+--> 188         return f(*a, **kw)
+    189     except Py4JJavaError as e:
+    190         converted = convert_exception(e.java_exception)
+
+File /databricks/spark/python/lib/py4j-0.10.9.7-src.zip/py4j/protocol.py:326, in get_return_value(answer, gateway_client, target_id, name)
+    324 value = OUTPUT_CONVERTER[type](answer[2:], gateway_client)
+    325 if answer[1] == REFERENCE_TYPE:
+--> 326     raise Py4JJavaError(
+    327         "An error occurred while calling {0}{1}{2}.\n".
+    328         format(target_id, ".", name), value)
+    329 else:
+    330     raise Py4JError(
+    331         "An error occurred while calling {0}{1}{2}. Trace:\n{3}\n".
+    332         format(target_id, ".", name, value))
+
+Py4JJavaError: An error occurred while calling o445.load.
+: com.fasterxml.jackson.core.JsonParseException: Unexpected character ('u' (code 117)): was expecting comma to separate Object entries
+ at [Source: (String)"{"type":"struct","fields":[{"name":"survived","type":"long","nullable":true,"metadata":{"comment":"test"using"doublequote"}},{"name":"pclass","type":"long","nullable":true,"metadata":{}},{"name":"name","type":"string","nullable":true,"metadata":{}},{"name":"sex","type":"string","nullable":true,"metadata":{}},{"name":"age","type":"double","nullable":true,"metadata":{}},{"name":"siblings_spouses_aboard","type":"long","nullable":true,"metadata":{}},{"name":"parents_children_aboard","type":"long","n"[truncated 92 chars]; line: 1, column: 106]
+	at com.fasterxml.jackson.core.JsonParser._constructError(JsonParser.java:2418)
+	at com.fasterxml.jackson.core.base.ParserMinimalBase._reportError(ParserMinimalBase.java:749)
+	at com.fasterxml.jackson.core.base.ParserMinimalBase._reportUnexpectedChar(ParserMinimalBase.java:673)
+	at com.fasterxml.jackson.core.json.ReaderBasedJsonParser._skipComma(ReaderBasedJsonParser.java:2459)
+	at com.fasterxml.jackson.core.json.ReaderBasedJsonParser.nextToken(ReaderBasedJsonParser.java:716)
+	at org.json4s.jackson.JValueDeserializer._deserialize$1(JValueDeserializer.scala:49)
+	at org.json4s.jackson.JValueDeserializer._deserialize$1(JValueDeserializer.scala:48)
+	at org.json4s.jackson.JValueDeserializer._deserialize$1(JValueDeserializer.scala:34)
+	at org.json4s.jackson.JValueDeserializer._deserialize$1(JValueDeserializer.scala:48)
+	at org.json4s.jackson.JValueDeserializer.deserialize(JValueDeserializer.scala:57)
+	at com.fasterxml.jackson.databind.deser.DefaultDeserializationContext.readRootValue(DefaultDeserializationContext.java:323)
+	at com.fasterxml.jackson.databind.ObjectReader._bindAndClose(ObjectReader.java:2105)
+	at com.fasterxml.jackson.databind.ObjectReader.readValue(ObjectReader.java:1546)
+	at org.json4s.jackson.JsonMethods.parse(JsonMethods.scala:33)
+	at org.json4s.jackson.JsonMethods.parse$(JsonMethods.scala:20)
+	at org.json4s.jackson.JsonMethods$.parse(JsonMethods.scala:71)
+	at org.apache.spark.sql.types.DataType$.fromJson(DataType.scala:160)
+	at io.delta.sharing.spark.DeltaTableUtils$.$anonfun$toSchema$1(RemoteDeltaLog.scala:407)
+	at scala.Option.map(Option.scala:230)
+	at io.delta.sharing.spark.DeltaTableUtils$.toSchema(RemoteDeltaLog.scala:406)
+	at io.delta.sharing.spark.RemoteSnapshot.schema$lzycompute(RemoteDeltaLog.scala:199)
+	at io.delta.sharing.spark.RemoteSnapshot.schema(RemoteDeltaLog.scala:199)
+	at io.delta.sharing.spark.RemoteDeltaLog.createRelation(RemoteDeltaLog.scala:98)
+	at io.delta.sharing.spark.DeltaSharingDataSource.createRelation(DeltaSharingDataSource.scala:53)
+	at org.apache.spark.sql.execution.datasources.DataSource.resolveRelation(DataSource.scala:391)
+	at org.apache.spark.sql.DataFrameReader.loadV1Source(DataFrameReader.scala:381)
+	at org.apache.spark.sql.DataFrameReader.$anonfun$load$2(DataFrameReader.scala:337)
+	at scala.Option.getOrElse(Option.scala:189)
+	at org.apache.spark.sql.DataFrameReader.load(DataFrameReader.scala:337)
+	at org.apache.spark.sql.DataFrameReader.load(DataFrameReader.scala:241)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at py4j.reflection.MethodInvoker.invoke(MethodInvoker.java:244)
+	at py4j.reflection.ReflectionEngine.invoke(ReflectionEngine.java:397)
+	at py4j.Gateway.invoke(Gateway.java:306)
+	at py4j.commands.AbstractCommand.invokeMethod(AbstractCommand.java:132)
+	at py4j.commands.CallCommand.execute(CallCommand.java:79)
+	at py4j.ClientServerConnection.waitForCommands(ClientServerConnection.java:199)
+	at py4j.ClientServerConnection.run(ClientServerConnection.java:119)
+	at java.lang.Thread.run(Thread.java:750)
+```
+<!-- What happened?  This could be a description, log output, etc. -->
+
+#### Expected results
+
+We expect the query to run, it does when I change the comment removing the `"`:
+
+![image](https://github.com/user-attachments/assets/394215c0-43b2-4011-97b8-c8733265dfd7)
+
+Running the same code:
+![image](https://github.com/user-attachments/assets/6df39526-50cb-4e0c-85e4-bddbce5f005e)
+
+#### Further details
+I tested adding quotation marks to the table comment (description) and there are no problems, only in the column comments.
+![image](https://github.com/user-attachments/assets/860b27b6-d48e-4f2b-8d33-da0777cb4259)
+
+
+<!--
+Include any additional details that may be useful for diagnosing the problem here. If including tracebacks, please include the full traceback. Large logs and files should be attached.
+-->
+
+### Environment information
+Tested in 2 environments :
+* Databricks Runtime: 13.3 LTS
+* Delta Lake version: 2.4.0
+* Spark version: 3.4.1
+* Scala version: 2.12.15
+
+And
+* Databricks Runtime: 14.3 LTS
+* Delta Lake version: 3.1.0
+* Spark version: 3.5.0
+* Scala version: 2.12.15
+
+
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [ ] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [X] No. I cannot contribute a bug fix at this time.

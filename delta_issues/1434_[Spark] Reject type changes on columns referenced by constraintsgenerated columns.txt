@@ -1,0 +1,21 @@
+## What changes were proposed in this pull request?
+It is generally not safe to change the type of a column or field that is referenced by a CHECK constraint or a generated column. For example, some functions may produce different results depending on the input data type, e.g. `hash`.
+
+This change adds checks to fail when the type of a column or field that is referenced by a CHECK constraint or a generated column is changed:
+- using `ALTER TABLE t CHANGE COLUMN col TYPE type`.
+- using schema evolution, in `ImplicitMetadataOperation.mergeSchema()`.
+
+For the latter, a check for generated columns only was already in place in `SchemaMergingUtils.mergeSchemas`. That check is replaced in favor of the more generic check in `ImplicitMetadataOperation` which reuses existing logic already used to block column rename/drop in `ALTER TABLE`.
+
+## How was this patch tested?
+- Tests for rejecting type changes with CHECK constraints and generated columns added to `DeltaTypeWideningSuite`.
+- Existing tests for rejecting type changes in `GeneratedColumnSuite` are extended.
+- Tests covering the updated and newly added error classes are added to `DeltaErrorsSuite`
+
+## This PR introduces the following *user-facing* changes
+The type widening table feature isn't available publicly yet, this change isn't user-facing in that regard.
+This change update the following error codes:
+- `_LEGACY_ERROR_TEMP_DELTA_0004` -> `DELTA_CONSTRAINT_DEPENDENT_COLUMN_CHANGE`
+- `_LEGACY_ERROR_TEMP_DELTA_0005` -> `DELTA_GENERATED_COLUMNS_DEPENDENT_COLUMN_CHANGE`
+and introduced the following error code:
+- `DELTA_CONSTRAINT_DATA_TYPE_MISMATCH`

@@ -1,0 +1,11 @@
+## Description
+
+I wrote a blog that explains how to configure and troubleshoot the Flink connector. It might be helpful for others to include it in the doc to help them find it.
+
+## How was this patch tested?
+
+n/a
+
+## Does this PR introduce _any_ user-facing changes?
+
+n/a

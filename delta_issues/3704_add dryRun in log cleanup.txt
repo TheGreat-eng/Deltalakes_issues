@@ -1,0 +1,46 @@
+# Problem Statement
+We can run vacuum() command in a dryRun mode on data in delta tables. We cannot do the same with logs. It can be useful to know which logs are gonna be deleted. For example, you can ask for logs to be deleted and can move them to another storage/cloud to bring them back if needed.
+
+# Proposed Solution
+Add dryRun mode on logs
+
+### Usage
+```scala
+import org.apache.spark.sql.SparkSession
+import org.apache.spark.sql.delta.DeltaLog
+
+object Main {
+
+  def main(args: Array[String]): Unit = {
+
+    val spark = SparkSession.builder().master("local[*]").getOrCreate()
+
+    import spark.implicits._
+
+    val df = spark.sparkContext.parallelize(Seq(
+      ("name", "surname")
+    )).toDF()
+
+    val path = "/my/path"
+
+    df.write.format("delta").save(path)
+
+    val deltaLog = DeltaLog.forTable(spark, path)
+
+    deltaLog.doLogCleanup(dryRun = true)
+
+  }
+
+}
+
+```
+
+### Technical Notes
+I just changed the `Checkpoints.doLogCleanp(): Unit` method signature into `Checkpoints.doLogCleanp(dryRun: Boolean): DataFrame` exactly [how the vacuum command does](https://github.com/delta-io/delta/blob/4277443703c5ab59a567c1e80189bbcdb7495817/src/main/scala/org/apache/spark/sql/delta/commands/VacuumCommand.scala#L93).
+
+The default value for dryRun is false to be compatible with all the existing implementations.
+
+### Related Issues:
+Closes: #504 
+
+Signed-off-by: Giuseppe Lorusso giuseppelorusso92@gmail.com

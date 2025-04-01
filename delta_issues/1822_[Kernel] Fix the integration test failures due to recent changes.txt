@@ -1,0 +1,6 @@
+## Description
+Recent data-skipping feature support that went into the master requires few changes in the expected results of integration tests.
+
+## How was this patch tested?
+Ran locally. Will follow up with a PR to enable this as part of the CI.
+`delta/kernel/examples/run-kernel-examples.py --use-local`

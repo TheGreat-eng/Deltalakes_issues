@@ -1,0 +1,3 @@
+- Add a folder, dockerfile, and other content for use with Delta Lake quickstart and current/future hands-on content.  
+- add a binder folder with a dockerfile and instructions as a convenience resource serving the same purpose as the dockerfile mentioned above  to test the binder deployment, use the following link [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/baumanab/delta/feature-binder_quickstart)
+- This request is related to and dependent on #1033 

@@ -1,0 +1,189 @@
+Hi,
+
+I am receiving an error when trying to follow the delta.io quick start found here: https://docs.delta.io/latest/quick-start.html
+
+Versions:
+Spark - 2.4.7.7.1.7.0-551
+Hadoop - 3.1.1.7.1.7.0-551
+Scala - 2.11
+
+
+Steps to reproduce:
+1.)Start pyspark shell
+`pyspark --packages "io.delta:delta-core_2.11:0.6.1" --conf "spark.sql.extensions=io.delta.sql.DeltaSparkSessionExtension" --conf "spark.sql.catalog.spark_catalog=org.apache.spark.sql.delta.catalog.DeltaCatalog"`
+
+1.1) Imported packages
+```
+from pyspark.sql import SparkSession
+import pyspark
+from pyspark.sql.functions import *
+from delta import *
+```
+
+Checked if spark session is up by typing in spark:
+output:
+```
+SparkSession - hive
+
+SparkContext
+
+Spark UI
+
+Version
+v2.4.7.7.1.7.0-551
+Master
+yarn
+AppName
+PySparkShell
+```
+
+2.) Create a table & save
+`data=spark.range(0,5)` --> works
+
+`data.write.format("delta").save("/tmp/delta-table")` --> receiving the following error:
+```
+Py4JJavaError Traceback (most recent call last)
+<ipython-input-3-ef29bcec1966> in <module>
+----> 1 data.write.format("delta").save("/tmp/delta-table")
+
+/opt/cloudera/parcels/CDH-7.1.7-1.cdh7.1.7.p0.15945976/lib/spark/python/pyspark/sql/readwriter.py in save(self, path, format, mode, partitionBy, **options)
+737 self._jwrite.save()
+738 else:
+--> 739 self._jwrite.save(path)
+740
+741 @since(1.4)
+
+/opt/cloudera/parcels/CDH-7.1.7-1.cdh7.1.7.p0.15945976/lib/spark/python/lib/py4j-0.10.7-src.zip/py4j/java_gateway.py in __call__(self, *args)
+1255 answer = self.gateway_client.send_command(command)
+1256 return_value = get_return_value(
+-> 1257 answer, self.gateway_client, self.target_id, self.name)
+1258
+1259 for temp_arg in temp_args:
+
+/opt/cloudera/parcels/CDH-7.1.7-1.cdh7.1.7.p0.15945976/lib/spark/python/pyspark/sql/utils.py in deco(*a, **kw)
+61 def deco(*a, **kw):
+62 try:
+---> 63 return f(*a, **kw)
+64 except py4j.protocol.Py4JJavaError as e:
+65 s = e.java_exception.toString()
+
+/opt/cloudera/parcels/CDH-7.1.7-1.cdh7.1.7.p0.15945976/lib/spark/python/lib/py4j-0.10.7-src.zip/py4j/protocol.py in get_return_value(answer, gateway_client, target_id, name)
+326 raise Py4JJavaError(
+327 "An error occurred while calling {0}{1}{2}.\n".
+--> 328 format(target_id, ".", name), value)
+329 else:
+330 raise Py4JError(
+
+Py4JJavaError: An error occurred while calling o72.save.
+: java.lang.NoClassDefFoundError: com/fasterxml/jackson/module/scala/experimental/ScalaObjectMapper$class
+at org.apache.spark.sql.delta.util.JsonUtils$$anon$1.<init>(JsonUtils.scala:27)
+at org.apache.spark.sql.delta.util.JsonUtils$.<init>(JsonUtils.scala:27)
+at org.apache.spark.sql.delta.util.JsonUtils$.<clinit>(JsonUtils.scala)
+at org.apache.spark.sql.delta.DeltaOperations$Write$$anonfun$1.apply(DeltaOperations.scala:58)
+at org.apache.spark.sql.delta.DeltaOperations$Write$$anonfun$1.apply(DeltaOperations.scala:58)
+at scala.Option.map(Option.scala:146)
+at org.apache.spark.sql.delta.DeltaOperations$Write.<init>(DeltaOperations.scala:58)
+at org.apache.spark.sql.delta.commands.WriteIntoDelta$$anonfun$run$1.apply(WriteIntoDelta.scala:66)
+at org.apache.spark.sql.delta.commands.WriteIntoDelta$$anonfun$run$1.apply(WriteIntoDelta.scala:64)
+at org.apache.spark.sql.delta.DeltaLog.withNewTransaction(DeltaLog.scala:188)
+at org.apache.spark.sql.delta.commands.WriteIntoDelta.run(WriteIntoDelta.scala:64)
+at org.apache.spark.sql.delta.sources.DeltaDataSource.createRelation(DeltaDataSource.scala:134)
+at org.apache.spark.sql.execution.datasources.SaveIntoDataSourceCommand.run(SaveIntoDataSourceCommand.scala:45)
+at org.apache.spark.sql.execution.command.ExecutedCommandExec.sideEffectResult$lzycompute(commands.scala:70)
+at org.apache.spark.sql.execution.command.ExecutedCommandExec.sideEffectResult(commands.scala:68)
+at org.apache.spark.sql.execution.command.ExecutedCommandExec.doExecute(commands.scala:86)
+at org.apache.spark.sql.execution.SparkPlan$$anonfun$execute$1.apply(SparkPlan.scala:141)
+at org.apache.spark.sql.execution.SparkPlan$$anonfun$execute$1.apply(SparkPlan.scala:137)
+at org.apache.spark.sql.execution.SparkPlan$$anonfun$executeQuery$1.apply(SparkPlan.scala:165)
+at org.apache.spark.rdd.RDDOperationScope$.withScope(RDDOperationScope.scala:151)
+at org.apache.spark.sql.execution.SparkPlan.executeQuery(SparkPlan.scala:162)
+at org.apache.spark.sql.execution.SparkPlan.execute(SparkPlan.scala:137)
+at org.apache.spark.sql.execution.QueryExecution.toRdd$lzycompute(QueryExecution.scala:93)
+at org.apache.spark.sql.execution.QueryExecution.toRdd(QueryExecution.scala:91)
+at org.apache.spark.sql.DataFrameWriter$$anonfun$runCommand$1.apply(DataFrameWriter.scala:704)
+at org.apache.spark.sql.DataFrameWriter$$anonfun$runCommand$1.apply(DataFrameWriter.scala:704)
+at org.apache.spark.sql.execution.SQLExecution$$anonfun$withNewExecutionId$1.apply(SQLExecution.scala:80)
+at org.apache.spark.sql.execution.SQLExecution$.withSQLConfPropagated(SQLExecution.scala:127)
+at org.apache.spark.sql.execution.SQLExecution$.withNewExecutionId(SQLExecution.scala:75)
+at org.apache.spark.sql.DataFrameWriter.runCommand(DataFrameWriter.scala:704)
+at org.apache.spark.sql.DataFrameWriter.saveToV1Source(DataFrameWriter.scala:305)
+at org.apache.spark.sql.DataFrameWriter.save(DataFrameWriter.scala:291)
+at org.apache.spark.sql.DataFrameWriter.save(DataFrameWriter.scala:249)
+at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+at java.lang.reflect.Method.invoke(Method.java:498)
+at py4j.reflection.MethodInvoker.invoke(MethodInvoker.java:244)
+at py4j.reflection.ReflectionEngine.invoke(ReflectionEngine.java:357)
+at py4j.Gateway.invoke(Gateway.java:282)
+at py4j.commands.AbstractCommand.invokeMethod(AbstractCommand.java:132)
+at py4j.commands.CallCommand.execute(CallCommand.java:79)
+at py4j.GatewayConnection.run(GatewayConnection.java:238)
+at java.lang.Thread.run(Thread.java:748)
+Caused by: java.lang.ClassNotFoundException: com.fasterxml.jackson.module.scala.experimental.ScalaObjectMapper$class
+at java.net.URLClassLoader.findClass(URLClassLoader.java:382)
+at java.lang.ClassLoader.loadClass(ClassLoader.java:418)
+at java.lang.ClassLoader.loadClass(ClassLoader.java:351)
+... 44 more
+```
+
+I tried running another session with additional packages:
+`pyspark --packages io.delta:delta-core_2.11:0.6.1,com.fasterxml.jackson.core:jackson-core:2.4.4,com.fasterxml.jackson.module:jackson-module-scala_2.10:2.4.4  --conf "spark.sql.extensions=io.delta.sql.DeltaSparkSessionExtension"   --conf "spark.sql.catalog.spark_catalog=org.apache.spark.sql.delta.catalog.DeltaCatalog"`
+
+Get a similar error message but seems like it can't find a method:
+```
+Py4JJavaError: An error occurred while calling o80.saveAsTable.
+: java.lang.NoSuchMethodError: com.fasterxml.jackson.module.scala.util.Implicits$.DEFAULT_CACHE_SIZE()I
+	at com.fasterxml.jackson.module.scala.experimental.ScalaObjectMapper$class.$init$(ScalaObjectMapper.scala:51)
+	at org.apache.spark.sql.delta.util.JsonUtils$$anon$1.<init>(JsonUtils.scala:27)
+	at org.apache.spark.sql.delta.util.JsonUtils$.<init>(JsonUtils.scala:27)
+	at org.apache.spark.sql.delta.util.JsonUtils$.<clinit>(JsonUtils.scala)
+	at org.apache.spark.sql.delta.DeltaOperations$Write$$anonfun$1.apply(DeltaOperations.scala:58)
+	at org.apache.spark.sql.delta.DeltaOperations$Write$$anonfun$1.apply(DeltaOperations.scala:58)
+	at scala.Option.map(Option.scala:146)
+	at org.apache.spark.sql.delta.DeltaOperations$Write.<init>(DeltaOperations.scala:58)
+	at org.apache.spark.sql.delta.commands.WriteIntoDelta$$anonfun$run$1.apply(WriteIntoDelta.scala:66)
+	at org.apache.spark.sql.delta.commands.WriteIntoDelta$$anonfun$run$1.apply(WriteIntoDelta.scala:64)
+	at org.apache.spark.sql.delta.DeltaLog.withNewTransaction(DeltaLog.scala:188)
+	at org.apache.spark.sql.delta.commands.WriteIntoDelta.run(WriteIntoDelta.scala:64)
+	at org.apache.spark.sql.delta.sources.DeltaDataSource.createRelation(DeltaDataSource.scala:134)
+	at org.apache.spark.sql.execution.datasources.DataSource.writeAndRead(DataSource.scala:498)
+	at org.apache.spark.sql.execution.command.CreateDataSourceTableAsSelectCommand.saveDataIntoTable(createDataSourceTables.scala:220)
+	at org.apache.spark.sql.execution.command.CreateDataSourceTableAsSelectCommand.run(createDataSourceTables.scala:179)
+	at org.apache.spark.sql.execution.command.DataWritingCommandExec.sideEffectResult$lzycompute(commands.scala:104)
+	at org.apache.spark.sql.execution.command.DataWritingCommandExec.sideEffectResult(commands.scala:102)
+	at org.apache.spark.sql.execution.command.DataWritingCommandExec.doExecute(commands.scala:122)
+	at org.apache.spark.sql.execution.SparkPlan$$anonfun$execute$1.apply(SparkPlan.scala:141)
+	at org.apache.spark.sql.execution.SparkPlan$$anonfun$execute$1.apply(SparkPlan.scala:137)
+	at org.apache.spark.sql.execution.SparkPlan$$anonfun$executeQuery$1.apply(SparkPlan.scala:165)
+	at org.apache.spark.rdd.RDDOperationScope$.withScope(RDDOperationScope.scala:151)
+	at org.apache.spark.sql.execution.SparkPlan.executeQuery(SparkPlan.scala:162)
+	at org.apache.spark.sql.execution.SparkPlan.execute(SparkPlan.scala:137)
+	at org.apache.spark.sql.execution.QueryExecution.toRdd$lzycompute(QueryExecution.scala:93)
+	at org.apache.spark.sql.execution.QueryExecution.toRdd(QueryExecution.scala:91)
+	at org.apache.spark.sql.DataFrameWriter$$anonfun$runCommand$1.apply(DataFrameWriter.scala:704)
+	at org.apache.spark.sql.DataFrameWriter$$anonfun$runCommand$1.apply(DataFrameWriter.scala:704)
+	at org.apache.spark.sql.execution.SQLExecution$$anonfun$withNewExecutionId$1.apply(SQLExecution.scala:80)
+	at org.apache.spark.sql.execution.SQLExecution$.withSQLConfPropagated(SQLExecution.scala:127)
+	at org.apache.spark.sql.execution.SQLExecution$.withNewExecutionId(SQLExecution.scala:75)
+	at org.apache.spark.sql.DataFrameWriter.runCommand(DataFrameWriter.scala:704)
+	at org.apache.spark.sql.DataFrameWriter.createTable(DataFrameWriter.scala:502)
+	at org.apache.spark.sql.DataFrameWriter.saveAsTable(DataFrameWriter.scala:481)
+	at org.apache.spark.sql.DataFrameWriter.saveAsTable(DataFrameWriter.scala:429)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at py4j.reflection.MethodInvoker.invoke(MethodInvoker.java:244)
+	at py4j.reflection.ReflectionEngine.invoke(ReflectionEngine.java:357)
+	at py4j.Gateway.invoke(Gateway.java:282)
+	at py4j.commands.AbstractCommand.invokeMethod(AbstractCommand.java:132)
+	at py4j.commands.CallCommand.execute(CallCommand.java:79)
+	at py4j.GatewayConnection.run(GatewayConnection.java:238)
+	at java.lang.Thread.run(Thread.java:748)
+```
+
+
+Any help would be appreciated!
+
+Thanks!

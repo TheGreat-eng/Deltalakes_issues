@@ -1,0 +1,15 @@
+Apache hudi (https://hudi.apache.org/) provides a parameter to read “incremental data”, like below:
+```
+ Dataset<Row> hoodieIncViewDF = spark.read()
+     .format("org.apache.hudi")
+     .option(DataSourceReadOptions.VIEW_TYPE_OPT_KEY(),
+             DataSourceReadOptions.VIEW_TYPE_INCREMENTAL_OPT_VAL())
+     .option(DataSourceReadOptions.BEGIN_INSTANTTIME_OPT_KEY(),
+            <beginInstantTime>)
+     .load(tablePath); // For incremental view, pass in the root/base path of dataset
+```
+hoodieIncViewDF will read all new incremental data after `beginInstantTime`.
+
+Can delta support this way also? It maybe helpful when we debug data.
+
+In Kafka source, we have "startingOffsets" and "endingOffsets", they looks like quite similar to this. Another open question maybe how to get offset from Delta?

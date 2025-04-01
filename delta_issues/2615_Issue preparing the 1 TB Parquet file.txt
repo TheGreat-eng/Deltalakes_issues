@@ -1,0 +1,44 @@
+I am trying to reproduce the results of the Delta Vs Iceberg benchmark. Following the steps mentioned in the Primary Readme file, I do this initially for the 1 GB dataset (testing)
+
+- Copy the INPUT data from the DevRel bucket to mine:  aws s3 sync s3://devrel-delta-datasets/tpcds-2.13/tpcds_sf1_parquet/ s3://my-bucket --request-payer requester
+- Prepare the Parquet dataset using 
+```
+./run-benchmark.py \
+    --cluster-hostname <HOSTNAME> \
+    -i <PEM_FILE> \
+    --ssh-user <SSH_USER> \
+    --benchmark-path <BENCHMARK_PATH> \
+    --source-path <SOURCE_PATH> \
+    --cloud-provider <CLOUD_PROVIDER> \
+    --benchmark etl-1gb-parquet-prep
+```
+- And I get the prepped Parquet dataset as the output in this folder: ``` s3://my-bucket/databases/etlprep_sf1_parquet_{timestamp}_etl_1gb_parquet_prep/ ```
+
+This works fine & I was able to run the benchmark & get the desired metrics.
+
+However, when I want to use the 1 TB dataset, I don't end up having the prepped Parquet dataset in the desired folder within this structure: ``` s3://my-bucket/databases/etlprep_sf1000_parquet_{timestamp}_etl_1tb_parquet_prep/``` 
+
+I tried to backtrack a bit and I realized that as part of the 1st step, i.e. copying the input 1 TB data from the DevRel bucket to my bucket, I see a couple of errors like this:
+```
+ "Completed 56.6 KiB/~1.4 GiB (87.9 KiB/s) with ~424 file(s) remaining (calculatincopy failed: s3://devrel-delta-datasets/tpcds-2.13/tpcds_sf1000_parquet/catalog_returns/cr_returned_date_sk=2451245/part-00327-f225bf9c-c6a4-405d-8f26-bc2d38102f99.c000.snappy.parquet to s3://my-bucket/catalog_returns/cr_returned_date_sk=2451245/part-00327-f225bf9c-c6a4-405d-8f26-bc2d38102f99.c000.snappy.parquet An error occurred (AccessDenied) when calling the GetObjectTagging operation: Access Denied" 
+```
+
+However for the 1 GB dataset, there were no errors.
+
+I also checked and compared my the log file output, i.e. 20230418-140357-etl-1tb-parquet-prep-out.txt and see the following message after the every iteration:
+```
+2023-04-18T18:04:44.682 ERROR: etlPrep1-createDenormTable-AllData - iteration 1
+Unable to infer schema for Parquet. It must be specified manually.; line 8 pos 13
+2023-04-18T18:04:44.687 ================================================================================
+2023-04-18T18:04:44.687 START: etlPrep2-createDenormTable-StartData - iteration 1
+2023-04-18T18:04:44.687 SQL:  CREATE TABLE IF NOT EXISTS store_sales_denorm_start USING parquet OPTIONS ('compression'='snappy') LOCATION 's3://dm-iceberg/benchmark_result_1tb//databases/etlprep_sf1000_parquet_20230418_140357_etl_1tb_parquet_prep/store_sales_denorm_start' PARTITIONED BY (ss_sold_date_sk) AS SELECT * FROM store_sales_denorm WHERE MOD(ss_sold_date_sk, 2) <> 0 OR ss_sold_date_sk <= 2452459 OR MOD(ss_sold_time_sk, 5) <> 0 DISTRIBUTE BY ss_sold_date_sk 
+2023-04-18T18:04:44.792 ERROR: etlPrep2-createDenormTable-StartData - iteration 1
+Table or view not found: store_sales_denorm; line 8 pos 13;
+'CreateTable `etlprep_sf1000_parquet`.`store_sales_denorm_start`, Ignore
++- 'RepartitionByExpression ['ss_sold_date_sk]
+   +- 'Project [*]
+      +- 'Filter ((NOT ('MOD('ss_sold_date_sk, 2) = 0) OR ('ss_sold_date_sk <= 2452459)) OR NOT ('MOD('ss_sold_time_sk, 5) = 0))
+         +- 'UnresolvedRelation [store_sales_denorm], [], false
+```
+
+Based on this I am assuming the INPUT files that had the access denied errors weren't copied as expected that results in this issue. Can anyone provide some guidance? Are there any permission issues for this dataset ``` s3://devrel-delta-datasets/tpcds-2.13/tpcds_sf1000_parquet/```  that I need to configure? Or am I doing something wrong?

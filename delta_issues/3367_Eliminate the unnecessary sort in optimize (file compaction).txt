@@ -1,0 +1,4 @@
+This is a follow up from PR #934 review [comment](https://github.com/delta-io/delta/pull/934#issuecomment-1043000967).
+
+Improve the optimize task to avoid unnecessary sort when optimizing a partitioned Delta table.
+

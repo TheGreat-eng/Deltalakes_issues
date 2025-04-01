@@ -1,0 +1,11 @@
+## Description
+
+Adds a github action that can be manually triggered to publish the javadocs using github pages.
+
+This was adapted from the starter workflow suggested by github actions (when you go to the Pages settings and select github actions to deploy).
+
+## How was this patch tested?
+
+Merged this code into my own fork and ran the github actions.
+Action run: https://github.com/allisonport-db/delta/actions/runs/5193716240
+Docs: https://allisonport-db.github.io/delta/snapshot/kernel-api/java/api/index.html

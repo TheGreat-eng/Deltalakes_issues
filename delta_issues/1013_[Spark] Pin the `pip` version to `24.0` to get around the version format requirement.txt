@@ -1,0 +1,15 @@
+... enforced by the `pip` from `24.1`
+
+Recent `delta-spark` [CI jobs](https://github.com/delta-io/delta/actions/runs/9628486756/job/26556785657) are failing with the following error.
+```
+ERROR: Invalid requirement: 'delta-spark==3.3.0-SNAPSHOT': Expected end or semicolon (after version specifier)
+    delta-spark==3.3.0-SNAPSHOT
+               ~~~~~~~^
+```
+
+Earlier [runs](https://github.com/delta-io/delta/actions/runs/9526169441/job/26261227425) had the following warning
+```
+DEPRECATION: delta-spark 3.3.0-SNAPSHOT has a non-standard version number. pip 23.3 will enforce this behaviour change. A possible replacement is to upgrade to a newer version of delta-spark or contact the author to suggest that they release a version with a conforming version number. Discussion can be found at https://github.com/pypa/pip/issues/12063
+```
+
+Pinning the `pip` version to `23.2.1` to let the jobs pass. We need to find a long-term solution on the version of the PyPI generated to avoid this issue but it is a bit complicated as the `delta-spark` PyPI also depends on the delta jars with the same version as the PyPI package name.

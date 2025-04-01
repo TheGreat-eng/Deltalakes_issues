@@ -1,0 +1,50 @@
+I found that Spark dataset (rdd) caching for Delta source can cause some inconsistency problems.
+
+```scala
+spark.range(0, 1).toDF().write.format("delta").save(dataPath)
+
+val df = spark.read.format("delta").load(dataPath)
+df.cache()
+df.show
+
+spark.range(101, 102).toDF().write.mode("append").format("delta").save(dataPath)
+spark.read.format("delta").load(dataPath).show
+```
+
+The code returns the following because the cached data of version 0 is applied to the second scan.
+
+```
++---+
+| id|
++---+
+|  0|
++---+
+
++---+
+| id|
++---+
+|  0|
++---+
+```
+
+The problem is that Spark caching uses "LogicalPlan" (analyzed) as a key for caching, but the logical plan for scanning Delta does not include the table version info to read in case it's not a time travel scan (i.e. TahoeLogFileIndex). 
+Looks like Delta tries recaching data after some of table update operations (NOT ALL like above), there still can be an issue as long as the cache key does not contain the version info. (e.g. concurrent workload/apps to access Delta)
+
+~~It also can affect the result of a time travel query with the latest table version:~~
+
+```scala
+spark.range(0, 1).toDF().write.format("delta").save(dataPath)
+
+val df = spark.read.format("delta").load(dataPath)
+df.cache()
+df.show
+
+spark.range(101, 102).toDF().write.mode("append").format("delta").save(dataPath)
+spark.read.format("delta").option("versionAsOf", 1).load(dataPath).show
+```
+
+~~When Spark tries to compare the plan for applying cached data, the table version of the cached plan will also be "1" as it reads from the latest snapshot at the time.~~
+
+I guess it's for reading the latest snapshot at query time, but it ends up causing the consistency issue with Spark Caching. Seems Databricks Delta also has the same problem. 
+
+We are considering to resolve it by changing `def tableVersion` to `lazy val tableVersion` (or versionToUse) to fix the version at "analyzed" plan level. As it may cause unexpected delta behavior changes, we'd like to hear some opinions and discuss with dev. 

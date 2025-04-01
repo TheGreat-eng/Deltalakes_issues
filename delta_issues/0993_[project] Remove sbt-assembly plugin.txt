@@ -1,0 +1,24 @@
+
+
+
+#### Which Delta project/connector is this regarding?
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [x] Other (project)
+
+## Description
+
+This file no longer exists:
+https://repo1.maven.org/maven2/com/eed3si9n/sbt-assembly_2.12_1.0/0.14.9/sbt-assembly-0.14.9.pom
+
+Prior to this fix, even doing a "sbt clean" would fail when it tried to download that file.
+
+## How was this patch tested?
+
+Tested by running "sbt clean" and "sbt compile".
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

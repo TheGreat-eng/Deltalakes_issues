@@ -1,0 +1,19 @@
+#### Which Delta project/connector is this regarding?
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+This PR replaces all calls to DeltaLog.startTransaction() with calls to DeltaLog.startTransaction(Option[CatalogTable]). This PR is part of https://github.com/delta-io/delta/issues/2105 and ensures that transactions have a valid catalogTable attached to them so Uniform can correctly update the table in the catalog.
+
+## How was this patch tested?
+
+This is a small refactoring change so existing test coverage is sufficient.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

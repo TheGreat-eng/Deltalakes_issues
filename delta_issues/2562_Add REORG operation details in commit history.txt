@@ -1,0 +1,5 @@
+## Description
+`REORG` command was added as part of the delta-io/delta#1732. The operation is recorded as `OPTIMIZE`. This PR changes it to `REORG`
+
+## How was this patch tested?
+Updated existing UTs to verify the Delta table history

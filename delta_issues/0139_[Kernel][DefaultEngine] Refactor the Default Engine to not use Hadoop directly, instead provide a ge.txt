@@ -1,0 +1,27 @@
+## Description
+Currently Hadoop APIs are used throughout the default Engine. This is a problem for connectors that don't want to depend on the Hadoop. This is an attempt to separate out the I/O related functionality into an interface (`FileIO`) and provide Hadoop based implementation of `FileIO` for connector that want to use the default engine with Hadoop. For other connectors that don't want Hadoop, can provide their own implementation of the `FileIO` to the default engine.
+
+For a connector default engine can be created as follows:
+```
+FileIO fileIO = ... create the file IO class ...
+Engine engine = DefaultEngine.create(fileIO);
+
+
+// existing Hadoop based connectors
+Engine engine = DefaultEngine.create(new Configuration()); // Configuration is a Hadoop class that defines config
+
+// internal `DefaultEngine.create(Configuration hadoopConfig)` is implemented as
+{
+   FileIO fileIO = new HadoopFileIO(hadoopConfig);
+   return DefaultEngine.create(fileIO);
+}
+```
+
+
+Followups:
+1) We still have the Hadoop "code" dependency in the default ParquetHandler. We use `parquet-mr` library for Parquer read and write. Parquet-mr has a way to substitute user's own way to get the input stream and outstream, but it doesn't avoid the Hadoop code dependencies. The `parquet-mr` has references to the Hadoop classes. Until we develop our own Parquet reader/writer that is independent of the `parquet-mr`, we can't remove the Hadoop "code" dependency. With the changes in this PR we are providing a way to avoid Hadoop dependency for I/O operations.
+
+2) Once the (1) is solved (i.e native parquet reader/writer without Hadoop code dependency) , separate out the Default engine into two libs (one with generic FileIO and the existing handlers), second one with the Haoop based FileIO. This is in future and lot of work needs to be done before that.
+
+## How was this patch tested?
+Existing tests.

@@ -1,0 +1,3 @@
+That should lower memory requirements (as no extra objects are created) and improve readability
+
+Signed-off-by: Jacek Laskowski <jacek@japila.pl>

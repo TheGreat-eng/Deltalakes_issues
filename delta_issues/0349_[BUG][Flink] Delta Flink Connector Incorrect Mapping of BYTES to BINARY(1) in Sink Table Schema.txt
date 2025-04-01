@@ -1,0 +1,155 @@
+## Bug
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the issue title
+For example: [BUG][Spark] Title of my issue
+-->
+
+- [x ] Flink
+
+### Describe the problem
+
+The Delta Flink connector maps a BYTES type to BINARY(1) in the sink schema, causing schema mismatch errors during an INSERT operation. This behavior persists despite explicitly defining the sink schema or casting the binary_data column in the query. I noticed this when trying to get the raw payload from a kafka topic but I ended up debuging and found that this bug is happening due to something that flink delta connector is doing while creating the mapping at execution plan so I created this sample to show that the schema is not working  
+
+I tried with both datastream api and table api with same results.
+
+#### Steps to reproduce
+
+```python
+from pyflink.table import EnvironmentSettings, TableEnvironment
+
+# Initialize the streaming table environment
+env_settings = EnvironmentSettings.in_streaming_mode()
+table_env = TableEnvironment.create(env_settings)
+
+# Create a source table using the DataGen connector
+table_env.execute_sql("""
+    CREATE TABLE random_source (
+        id BIGINT,
+        binary_data BYTES
+    ) WITH (
+        'connector' = 'datagen',
+        'fields.id.kind' = 'sequence',
+        'fields.id.start' = '1',
+        'fields.id.end' = '8',
+        'fields.binary_data.kind' = 'random',
+        'fields.binary_data.length' = '16'
+    )
+""")
+
+# Create a sink table using the Delta connector
+table_env.execute_sql("""
+    CREATE TABLE print_sink (
+        id BIGINT,
+        binary_data BYTES
+    ) WITH (
+        'connector' = 'delta',
+        'table-path' = '/path/to/delta/table'
+    )
+""")
+
+# Insert data from the source into the sink
+table_env.execute_sql("""
+    INSERT INTO print_sink
+    SELECT id, binary_data
+    FROM random_source
+""").wait()
+
+```
+
+#### Observed results
+
+The schema for the print_sink table is created incorrectly as:
+
+```python
+<Row('id', 'BIGINT', True, None, None, None)>
+<Row('binary_data', 'BINARY(1)', True, None, None, None)>
+```
+
+This causes a schema mismatch error during the INSERT operation:
+```sql
+org.apache.flink.table.api.ValidationException: Column types of query result and sink for 'print_sink' do not match.
+Cause: Incompatible types for sink column 'binary_data' at position 1.
+Query schema: [id: BIGINT, binary_data: BYTES]
+Sink schema: [id: BIGINT, binary_data: BINARY(1)]
+```
+#### Expected results
+
+The binary_data column should be mapped correctly to a type compatible with BYTES (e.g., VARBINARY), avoiding schema mismatch errors.
+
+
+#### Further details
+
+The issue persists even after:
+
+- Explicitly casting binary_data as BYTES in the query.
+- Manually defining the sink schema with binary_data VARBINARY.
+- Using the configuration option 'delta.ignore-schema-check' = 'true'.
+
+When using a temporary table (e.g., memory or blackhole), the schema for binary_data is correctly identified as BYTES. The issue seems to be specific to the Delta connector.
+
+### Environment information
+
+Tested with 
+- Flink 1.19 and 1.20
+
+    <dependencies>
+        <!-- https://mvnrepository.com/artifact/org.apache.flink/flink-connector-kafka/ -->
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-connector-kafka</artifactId>
+            <version>3.4.0-1.20</version>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/io.delta/delta-flink -->
+        <dependency>
+            <groupId>io.delta</groupId>
+            <artifactId>delta-flink</artifactId>
+            <version>3.2.1</version>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.apache.flink/flink-sql-connector-kafka -->
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-sql-connector-kafka</artifactId>
+            <version>3.4.0-1.20</version>            
+        </dependency>
+        
+        <!-- https://mvnrepository.com/artifact/org.apache.flink/flink-sql-parquet -->
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-sql-parquet</artifactId>
+            <version>1.20.0</version>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.apache.flink/flink-table-planner -->
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-table-planner_2.12</artifactId>
+            <version>1.20.0</version>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.apache.flink/flink-clients -->
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-clients</artifactId>
+            <version>1.20.0</version>
+        </dependency>
+
+
+
+        <!-- https://mvnrepository.com/artifact/io.delta/delta-standalone 
+             Required for delta-->
+        <dependency>
+            <groupId>io.delta</groupId>
+            <artifactId>delta-standalone_2.12</artifactId>
+            <version>3.2.1</version>
+        </dependency>
+
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [x] No. I cannot contribute a bug fix at this time.

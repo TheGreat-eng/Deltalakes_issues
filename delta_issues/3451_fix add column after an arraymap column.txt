@@ -1,0 +1,14 @@
+When execute to add column after a column whose dataType is `ArrayType` and the `ArrayType`'s dataType is not `StructType`, an exception will be raised as follow:
+
+`Cannot add col3 because its parent is not a StructType. Found ArrayType(MapType(StringType,StringType,true),true)`.
+
+The codes can reproduce this case are shown:
+
+```
+create table s1 (id int) using delta;
+
+alter table s1 add columns (array_map_col array<map<string,string>>);
+
+alter table s1 add columns (col3 string after array_map_col);
+```
+with tracking the source code, i think adding the `col3` column above after `array_map_col` is considered to be inserted inside `array_map_col`. So open this pr.

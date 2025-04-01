@@ -1,0 +1,142 @@
+## Description
+
+Our unit tests worked well before Delta 0.7.0. After upgrading Delta from 0.7.0 to 0.8.0, we noticed that our unit tests failed due to some `java.lang.NullPointerException` that was thrown during the write of Dataset (https://github.com/SETL-Framework/setl/pull/183).
+
+The test framework we used is ScalaTest 3.2.1. In our tests, we stop the active `SparkSession` at the beginning of each test and re-create a new one with a different `SparkConf`. 
+
+We found that if we shut down the active SparkSession and create a new one, then Datasets/DataFrames could no longer be written. However, if we use the existing one, no `NullPointerException` will be thrown in this situation. Unfortunately, this is not a suitable solution as we need to modify the configuration for each test. 
+
+For other formats, like csv, we don't have any error. I don't know if this is a designed feature of Delta or there is indeed a bug.
+
+## Error Reproduction
+
+Run the following piece of code to reproduce the error.
+
+```scala
+import org.apache.spark.sql.{SaveMode, SparkSession}
+
+object Test {
+
+  val path: String = "src/test/resources/test-delta2"
+  val saveMode: SaveMode = SaveMode.Append
+  val format = "delta"
+
+  def main(args: Array[String]): Unit = {
+
+    val spark = SparkSession.builder().master("local").getOrCreate()
+    spark.range(10)
+      .write
+      .format(format)
+      .mode(saveMode)
+      .save(path)
+    val loaded = spark.read.format(format).load(path)
+
+    loaded.show(false)
+    
+    SparkSession.getActiveSession match {
+      case Some(ss) =>
+        ss.stop()  // if we comment this line, then the program will finish without NullPointerException
+      case _ =>
+    }
+    val spark2 = SparkSession.builder().master("local").getOrCreate()
+    spark2.range(12)
+      .write
+      .format(format)
+      .mode(saveMode)
+      .save(path)
+    val loaded2 = spark2.read.format(format).load(path)
+
+    loaded2.show(false)
+  }
+}
+```
+
+NullPointerException will be thrown with Delta 0.7.0 and 0.8.0 (the code does throw a NullPointerException with Delta 0.7.0 but I don't understand why our unit tests could still pass :p )
+
+```
+Exception in thread "main" java.lang.NullPointerException
+	at org.apache.spark.storage.BlockManagerMaster.removeRdd(BlockManagerMaster.scala:130)
+	at org.apache.spark.SparkContext.unpersistRDD(SparkContext.scala:1814)
+	at org.apache.spark.rdd.RDD.unpersist(RDD.scala:220)
+	at org.apache.spark.sql.delta.util.StateCache.$anonfun$uncache$1(StateCache.scala:104)
+	at scala.collection.mutable.ResizableArray.foreach(ResizableArray.scala:62)
+	at scala.collection.mutable.ResizableArray.foreach$(ResizableArray.scala:55)
+	at scala.collection.mutable.ArrayBuffer.foreach(ArrayBuffer.scala:49)
+	at org.apache.spark.sql.delta.util.StateCache.uncache(StateCache.scala:104)
+	at org.apache.spark.sql.delta.util.StateCache.uncache$(StateCache.scala:101)
+	at org.apache.spark.sql.delta.Snapshot.uncache(Snapshot.scala:52)
+	at org.apache.spark.sql.delta.SnapshotManagement.$anonfun$updateInternal$2(SnapshotManagement.scala:304)
+	at org.apache.spark.sql.delta.util.DeltaProgressReporter.withStatusCode(DeltaProgressReporter.scala:30)
+	at org.apache.spark.sql.delta.util.DeltaProgressReporter.withStatusCode$(DeltaProgressReporter.scala:25)
+	at org.apache.spark.sql.delta.DeltaLog.withStatusCode(DeltaLog.scala:59)
+	at org.apache.spark.sql.delta.SnapshotManagement.$anonfun$updateInternal$1(SnapshotManagement.scala:275)
+	at com.databricks.spark.util.DatabricksLogging.recordOperation(DatabricksLogging.scala:77)
+	at com.databricks.spark.util.DatabricksLogging.recordOperation$(DatabricksLogging.scala:67)
+	at org.apache.spark.sql.delta.DeltaLog.recordOperation(DeltaLog.scala:59)
+	at org.apache.spark.sql.delta.metering.DeltaLogging.recordDeltaOperation(DeltaLogging.scala:103)
+	at org.apache.spark.sql.delta.metering.DeltaLogging.recordDeltaOperation$(DeltaLogging.scala:89)
+	at org.apache.spark.sql.delta.DeltaLog.recordDeltaOperation(DeltaLog.scala:59)
+	at org.apache.spark.sql.delta.SnapshotManagement.updateInternal(SnapshotManagement.scala:275)
+	at org.apache.spark.sql.delta.SnapshotManagement.updateInternal$(SnapshotManagement.scala:273)
+	at org.apache.spark.sql.delta.DeltaLog.updateInternal(DeltaLog.scala:59)
+	at org.apache.spark.sql.delta.SnapshotManagement.$anonfun$update$1(SnapshotManagement.scala:235)
+	at org.apache.spark.sql.delta.DeltaLog.lockInterruptibly(DeltaLog.scala:152)
+	at org.apache.spark.sql.delta.SnapshotManagement.update(SnapshotManagement.scala:235)
+	at org.apache.spark.sql.delta.SnapshotManagement.update$(SnapshotManagement.scala:231)
+	at org.apache.spark.sql.delta.DeltaLog.update(DeltaLog.scala:59)
+	at org.apache.spark.sql.delta.OptimisticTransactionImpl.$anonfun$doCommit$1(OptimisticTransaction.scala:487)
+	at scala.runtime.java8.JFunction0$mcJ$sp.apply(JFunction0$mcJ$sp.java:23)
+	at org.apache.spark.sql.delta.DeltaLog.lockInterruptibly(DeltaLog.scala:152)
+	at org.apache.spark.sql.delta.OptimisticTransactionImpl.doCommit(OptimisticTransaction.scala:464)
+	at org.apache.spark.sql.delta.OptimisticTransactionImpl.doCommit$(OptimisticTransaction.scala:459)
+	at org.apache.spark.sql.delta.OptimisticTransaction.doCommit(OptimisticTransaction.scala:80)
+	at org.apache.spark.sql.delta.OptimisticTransactionImpl.$anonfun$commit$1(OptimisticTransaction.scala:340)
+	at scala.runtime.java8.JFunction0$mcJ$sp.apply(JFunction0$mcJ$sp.java:23)
+	at com.databricks.spark.util.DatabricksLogging.recordOperation(DatabricksLogging.scala:77)
+	at com.databricks.spark.util.DatabricksLogging.recordOperation$(DatabricksLogging.scala:67)
+	at org.apache.spark.sql.delta.OptimisticTransaction.recordOperation(OptimisticTransaction.scala:80)
+	at org.apache.spark.sql.delta.metering.DeltaLogging.recordDeltaOperation(DeltaLogging.scala:103)
+	at org.apache.spark.sql.delta.metering.DeltaLogging.recordDeltaOperation$(DeltaLogging.scala:89)
+	at org.apache.spark.sql.delta.OptimisticTransaction.recordDeltaOperation(OptimisticTransaction.scala:80)
+	at org.apache.spark.sql.delta.OptimisticTransactionImpl.commit(OptimisticTransaction.scala:295)
+	at org.apache.spark.sql.delta.OptimisticTransactionImpl.commit$(OptimisticTransaction.scala:293)
+	at org.apache.spark.sql.delta.OptimisticTransaction.commit(OptimisticTransaction.scala:80)
+	at org.apache.spark.sql.delta.commands.WriteIntoDelta.$anonfun$run$1(WriteIntoDelta.scala:68)
+	at org.apache.spark.sql.delta.commands.WriteIntoDelta.$anonfun$run$1$adapted(WriteIntoDelta.scala:64)
+	at org.apache.spark.sql.delta.DeltaLog.withNewTransaction(DeltaLog.scala:188)
+	at org.apache.spark.sql.delta.commands.WriteIntoDelta.run(WriteIntoDelta.scala:64)
+	at org.apache.spark.sql.delta.sources.DeltaDataSource.createRelation(DeltaDataSource.scala:152)
+	at org.apache.spark.sql.execution.datasources.SaveIntoDataSourceCommand.run(SaveIntoDataSourceCommand.scala:46)
+	at org.apache.spark.sql.execution.command.ExecutedCommandExec.sideEffectResult$lzycompute(commands.scala:70)
+	at org.apache.spark.sql.execution.command.ExecutedCommandExec.sideEffectResult(commands.scala:68)
+	at org.apache.spark.sql.execution.command.ExecutedCommandExec.doExecute(commands.scala:90)
+	at org.apache.spark.sql.execution.SparkPlan.$anonfun$execute$1(SparkPlan.scala:175)
+	at org.apache.spark.sql.execution.SparkPlan.$anonfun$executeQuery$1(SparkPlan.scala:213)
+	at org.apache.spark.rdd.RDDOperationScope$.withScope(RDDOperationScope.scala:151)
+	at org.apache.spark.sql.execution.SparkPlan.executeQuery(SparkPlan.scala:210)
+	at org.apache.spark.sql.execution.SparkPlan.execute(SparkPlan.scala:171)
+	at org.apache.spark.sql.execution.QueryExecution.toRdd$lzycompute(QueryExecution.scala:122)
+	at org.apache.spark.sql.execution.QueryExecution.toRdd(QueryExecution.scala:121)
+	at org.apache.spark.sql.DataFrameWriter.$anonfun$runCommand$1(DataFrameWriter.scala:963)
+	at org.apache.spark.sql.execution.SQLExecution$.$anonfun$withNewExecutionId$5(SQLExecution.scala:100)
+	at org.apache.spark.sql.execution.SQLExecution$.withSQLConfPropagated(SQLExecution.scala:160)
+	at org.apache.spark.sql.execution.SQLExecution$.$anonfun$withNewExecutionId$1(SQLExecution.scala:87)
+	at org.apache.spark.sql.SparkSession.withActive(SparkSession.scala:764)
+	at org.apache.spark.sql.execution.SQLExecution$.withNewExecutionId(SQLExecution.scala:64)
+	at org.apache.spark.sql.DataFrameWriter.runCommand(DataFrameWriter.scala:963)
+	at org.apache.spark.sql.DataFrameWriter.saveToV1Source(DataFrameWriter.scala:415)
+	at org.apache.spark.sql.DataFrameWriter.save(DataFrameWriter.scala:346)
+	at org.apache.spark.sql.DataFrameWriter.save(DataFrameWriter.scala:288)
+	at com.jcdecaux.setl.Test$.main(Test.scala:33)
+	at com.jcdecaux.setl.Test.main(Test.scala)
+```
+
+## Environment
+
+Java 1.8
+Scala 2.12.10
+Spark 3.0.1
+Delta 0.8.0
+ScalaTest 3.2.1
+
+

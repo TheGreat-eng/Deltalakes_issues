@@ -1,0 +1,10 @@
+The docs here: https://docs.delta.io/latest/delta-storage.html
+
+When using ``hadoop-azure-3.3.0.jar`` and ``delta-core_2.12-0.7.0.jar`` with Spark 3, the following error causes PySpark to fail upon the call:
+
+``df = spark.read.format("delta").load("wasbs://{0}@{1}.blob.core.windows.net/{2}".format(container, storage_account_name, table)).limit(100)``
+
+``py4j.protocol.Py4JJavaError: An error occurred while calling o81.load.
+: java.lang.NoClassDefFoundError: org/apache/hadoop/fs/StreamCapabilities``
+
+Any suggestions? Is there an older version of the jars I should use or something?

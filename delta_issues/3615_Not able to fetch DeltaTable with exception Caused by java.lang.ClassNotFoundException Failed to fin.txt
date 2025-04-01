@@ -1,0 +1,35 @@
+Trying to fetch DeltaTable using DeltaTable.forPath(<azure blob storage path>). But getting the following error:
+
+`java.lang.ClassNotFoundException: Failed to find data source: delta. Please find packages at http://spark.apache.org/third-party-projects.html
+	at org.apache.spark.sql.execution.datasources.DataSource$.lookupDataSource(DataSource.scala:689)
+	at org.apache.spark.sql.execution.datasources.DataSource$.lookupDataSourceV2(DataSource.scala:743)
+	at org.apache.spark.sql.DataFrameReader.load(DataFrameReader.scala:266)
+	at org.apache.spark.sql.DataFrameReader.load(DataFrameReader.scala:240)
+	at io.delta.tables.DeltaTable$.forPath(DeltaTable.scala:590)
+	at io.delta.tables.DeltaTable.forPath(DeltaTable.scala)
+	at com.walmart.replenishment.rdl.storage.AzureBlobStorage.getDeltaTableHistory(AzureBlobStorage.java:175)
+	at com.walmart.replenishment.rdl.storage.AzureBlobStorage.read(AzureBlobStorage.java:88)
+	at com.walmart.replenishment.rdl.storage.Reader.execute(Reader.java:28)
+	at com.walmart.replenishment.rdl.storage.Reader.execute(Reader.java:22)
+	at com.walmart.replenishment.rdl.core.JobPlanner.execute(JobPlanner.java:104)
+	at com.walmart.replenishment.rdl.core.JobPlanner.execute(JobPlanner.java:65)
+	at com.walmart.replenishment.rdl.jobs.forecast.SmartForecastDailyJob.run(SmartForecastDailyJob.java:38)
+	at com.walmart.replenishment.rdl.core.RDLDriver.run(RDLDriver.java:68)
+	at com.walmart.replenishment.rdl.core.RDLDriver.main(RDLDriver.java:57)
+Caused by: java.lang.ClassNotFoundException: delta.DefaultSource
+	at java.net.URLClassLoader.findClass(URLClassLoader.java:382)
+	at java.lang.ClassLoader.loadClass(ClassLoader.java:418)
+	at sun.misc.Launcher$AppClassLoader.loadClass(Launcher.java:352)
+	at java.lang.ClassLoader.loadClass(ClassLoader.java:351)
+	at org.apache.spark.sql.execution.datasources.DataSource$.$anonfun$lookupDataSource$5(DataSource.scala:663)
+	at scala.util.Try$.apply(Try.scala:213)
+	at org.apache.spark.sql.execution.datasources.DataSource$.$anonfun$lookupDataSource$4(DataSource.scala:663)
+	at scala.util.Failure.orElse(Try.scala:224)
+	at org.apache.spark.sql.execution.datasources.DataSource$.lookupDataSource(DataSource.scala:663)
+	... 14 more`
+
+
+Spark version: 3.1.1
+Scala version: 2.12
+io.delta version: 1.0.0
+As per new release of delta 1.0.0, it was mentioned that this issue has been fixed already. Though it is still coming.

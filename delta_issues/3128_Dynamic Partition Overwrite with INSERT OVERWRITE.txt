@@ -1,0 +1,12 @@
+## What changes were proposed in this pull request?
+This PR enable Dynamic Partition Overwrite (DPO) to work with SQL `INSERT OVERWRITE`. 
+
+The "clean" way to make partition overwrite to work is that Delta DSv2 implementation specify that it supports the `DYNAMIC_PARTITION` capability, and with its existing capability of `BATCH_WRITE_V1`, Delta can execute DPO using the v1 code paths (i.e., `WriteIntoDelta`). However, Spark currently does not allow fallbacks of dynamic overwrite (which is a surprising gap as it allows all other write fallbacks). 
+
+So instead, in this PR, we handle the `DynamicPartitionOverwrite` logical plan explicitly by converting it to a command `DeltaDynamicPartitionOverwriteCommand` which will produce the `WriteIntoDelta` during execution. This is similar to how we handle MergeIntoTable logical plan -> MergeIntoCommand. 
+
+However, I also added the necessary changes to make it eventually work the "clean" way. 
+
+## How was this patch tested?
+- Enabled existing dynamic partition overwrite tests with INSERT OVERWRITE
+- Also changed tests with `DataFrameWriterV2.overwritePartitions` because it now works though only if the DF schema is exactly same as table schema

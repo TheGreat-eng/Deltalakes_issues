@@ -1,0 +1,14 @@
+On the official Data Lake **Gen2** documentation, it is stated that the Hadoop support is only for versions 3.2+. 
+
+On Delta IO the documentation only refers Azure Data Lake Storage **Gen1**, whose requirements are:  Spark 2.4.2 and above built with Hadoop version 2.9.1 and above **(not 3.x)**
+
+As far as i can tell, Databricks Runtime 5.5 supports Delta Lake Gen2, but Delta Lake open source does not.
+
+At this time, Delta Lake open-source only supports Azure Data Lake Storage Gen1 and Blob Storage? Is this correct?
+
+Can we expect Azure Data Lake Gen2 support anytime soon?
+
+Thank you!
+
+Nuno
+

@@ -1,0 +1,9 @@
+## Description
+Currently, Kernel stops on first failure at loading the `_last_checkpoint` file (which contains info about the last checkpoint). We should have mechanisms to retry just like how Delta-Spark retries on retryable failures. More details are [here](https://docs.google.com/document/d/13Nock1I8-143Dwidj8rMpgt3wAicrOI2OvDJt3OufOQ/edit?usp=sharing).
+
+
+## How was this patch tested?
+Added mock unittests
+
+## Does this PR introduce _any_ user-facing changes?
+

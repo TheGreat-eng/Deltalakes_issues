@@ -1,0 +1,48 @@
+saveAsTable(...) doesn't layout partitioned data even when save(..) does.
+
+```
+val df = spark.read.format("parquet").load("/data")
+df.write.partitionBy("event_month", "event_day").format("delta").option("path", "/delta_as_table").saveAsTable("event")
+```
+
+For saveAsTable(..), directory structure is flat:
+```
+delta_as_table/
+├── _delta_log/
+├── part-0000...parquet
+├── part-0001...parquet
+├── part-0002...parquet
+├── part-0003...parquet
+```
+
+
+`df.write.partitionBy("event_month", "event_day").format("delta").save("/delta")`
+
+For save(..) the directory structure is partitioned
+```
+delta/
+├── _delta_log/
+├── event_month=201812
+│   ├── event_day=20181201
+│   │   ├── part-0000...parquet
+│   │	├── ...
+│   ├── event_day=20181202
+│   │   ├── part-0000...parquet
+│   │	├── ...
+│   ├── event_day=20181203
+│   │   ├── part-0000...parquet
+│   │	├── ...
+```
+
+**When I try to select non-table data:** 
+`spark.read.format("delta").load("/delta").where("event_month=201812 and event_day=20181201").count`
+
+Only parquets from directory `/delta/event_month=201812/event_day=20181201` are accessed.
+
+**When I do the same for table data:**
+`spark.sql("select count(*) from event where event_month=201812 and event_day=20181201").show`
+
+All parquets from "delta_as_table/" directory are accessed (based on last read time `ls -l --time=atime`), which leads me to conclusion **partition pruning is not applied**.
+
+
+ 

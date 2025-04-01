@@ -1,0 +1,71 @@
+Currently, if we create a view over a delta table, then apply UPDATE/DELETE operations on that view, we will get an exception `UPDATE destination only supports Delta sources.` That's what's we want. 
+```sql
+CREATE TABLE delta_table(key INT, value INT) USING delta;
+INSERT INTO delta_table VALUES (1, 1)
+CREATE VIEW temp_view AS SELECT key FROM delta_table;
+UPDATE temp_view SET key=2;
+```
+Throws
+```
+UPDATE destination only supports Delta sources.
+Some(View (`default`.`temp_view`, [key#783])
++- Project [key#784]
+   +- Relation[key#784,value#785] parquet
+)
+```
+But, when we create a **temporary** view instead of a permanent view, there is no exception throws.
+```sql
+CREATE TABLE delta_table(key INT, value INT) USING delta;
+INSERT INTO delta_table VALUES (1, 1)
+CREATE TEMPORARY VIEW temp_view AS SELECT * FROM delta_table;
+UPDATE temp_view SET key=2;
+```
+We can see the `delta_table` is changed:
+```sql
+SELECT * FROM delta_table;
++---+-----+
+|key|value|
++---+-----+
+|  2|    1|
++---+-----+
+```
+That's because Spark just lookup the logical plan in `tempViews` map and replace the temporary view with its logical plan wrapped a `SubqueryAlias`. That means, for a permanent view over delta table, the update plan will be
+```
+DeltaUpdateTable [key#790, value#791], [1, 2]
++- SubqueryAlias v
+   +- SubqueryAlias spark_catalog.default.view1
+      +- View (`default`.`view1`, [key#790,value#791])
+         +- Project [key#792, value#793]
+            +- SubqueryAlias spark_catalog.default.delta_table
+               +- Relation[key#792,value#793] parquet
+```
+For a temporary view over delta table, the update plan will be
+```
+UpdateTable [assignment(key#788, 1), assignment(value#789, 2)]
++- SubqueryAlias v
+   +- SubqueryAlias view2
+      +- Project [key#788, value#789]
+         +- SubqueryAlias spark_catalog.default.delta_table
+            +- Relation[key#788,value#789] parquet
+```
+So, we can apply any UPDATE/DELETE ops on a temporary view over a delta table!
+For above case, there is no correctness problem since the temporary view `temp_view` is just an alias of `delta_table`. But it may still have data correctness issue if we do like this:
+```sql
+CREATE TABLE delta_table(key INT, value INT) USING delta;
+INSERT INTO delta_table VALUES (1, 1)
+CREATE TEMPORARY VIEW temp_view AS SELECT key FROM delta_table;
+UPDATE temp_view SET key=2;
+```
+Then we select delta_table will get an incorrect result!!!
+```sql
+SELECT * FROM delta_table;
++---+-----+
+|key|value|
++---+-----+
+|  2| null|
++---+-----+
+```
+
+The difference is this `temp_view` SELECT only one column from delta_table. That's because it breaks the rule of full scan.
+
+This PR is to fix this problem.

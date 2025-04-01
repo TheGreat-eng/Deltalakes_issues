@@ -1,0 +1,16 @@
+#### Which Delta project/connector is this regarding?
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [x] Kernel
+- [ ] Other (fill in here)
+
+## Description
+Add support for V2 checkpoints. When reconstructing the `LogSegment` of a table at a given version, check if the checkpoint file to be read is a checkpoint manifest. If it is, include the sidecar files referenced by that manifest in the `LogSegment` checkpoint files. See https://github.com/delta-io/delta/issues/2232
+
+## How was this patch tested?
+See changes to `LogReplaySuite`, `SnapshotManagementSuite`, `CheckpointerSuite`, `FileNamesSuite`, and `CheckpointInstanceSuite`.
+
+## Does this PR introduce _any_ user-facing changes?
+No.

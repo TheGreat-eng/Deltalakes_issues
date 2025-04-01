@@ -1,0 +1,203 @@
+Hi Team ,
+
+I am trying to write a very basic Java code to read Stream Data Using Flink and Write to AWS glue but I am getting following error
+
+ERROR StatusLogger No Log4j 2 configuration file found. Using default configuration (logging only errors to the console), or user programmatically provided configurations. Set system property 'log4j2.debug' to show Log4j 2 internal initialization logging. See https://logging.apache.org/log4j/2.x/manual/configuration.html for instructions on how to configure Log4j 2
+Exception in thread "main" org.apache.flink.util.FlinkRuntimeException: Could not create committable serializer.
+	at io.delta.flink.sink.internal.DeltaSinkInternal.getGlobalCommittableSerializer(DeltaSinkInternal.java:181)
+	at org.apache.flink.streaming.api.transformations.SinkV1Adapter.asSpecializedSink(SinkV1Adapter.java:88)
+	at org.apache.flink.streaming.api.transformations.SinkV1Adapter.wrap(SinkV1Adapter.java:70)
+	at org.apache.flink.streaming.api.datastream.DataStreamSink.forSinkV1(DataStreamSink.java:91)
+	at org.apache.flink.streaming.api.datastream.DataStream.sinkTo(DataStream.java:1274)
+	at org.apache.flink.streaming.api.datastream.DataStream.sinkTo(DataStream.java:1254)
+	at com.aws.FlinkJob.main(FlinkJob.java:60)
+Caused by: org.apache.flink.core.fs.UnsupportedFileSystemSchemeException: Could not find a file system implementation for scheme 's3'.
+
+Here is my sample code
+` StreamExecutionEnvironment env = StreamExecutionEnvironment.getExecutionEnvironment();
+        String kafkaTopicName = "hksharma";
+        String kafkaGroupId = "kafkaGroupId";
+
+        KafkaSource<String> kafkaConsumer = createKafkaConsumer(kafkaTopicName, kafkaGroupId);
+
+
+
+
+         RowType rowType = new RowType(Arrays.asList(
+                new RowType.RowField("name", new VarCharType(VarCharType.MAX_LENGTH)),
+                new RowType.RowField("surname", new VarCharType(VarCharType.MAX_LENGTH)),
+                new RowType.RowField("age", new IntType())
+        ));
+
+
+        List<RowData> testData = getTestRowData(10);
+        Configuration configuration = new Configuration();
+         configuration.set("spark.delta.logStore.s3a.impl", "io.delta.storage.S3DynamoDBLogStore");
+        configuration.set("spark.io.delta.storage.S3DynamoDBLogStore.ddb.region", "ap-south-1");
+
+        String deltaTablePath = "s3://awshksharma/";
+
+        DeltaSink<RowData> deltaSink = DeltaSink
+                .forRowData(
+                        new Path(deltaTablePath),
+
+                       // new org.apache.flink.core.fs.Path(deltaTablePath),
+                        configuration,
+                        rowType)
+                .build();
+
+            // Write data to Delta Lake
+
+        env.fromCollection(testData).sinkTo(deltaSink);
+        env.execute("doing well");
+
+
+    }
+
+    private static KafkaSource<String> createKafkaConsumer(String topicName, String kafkaGroupId) {
+        Properties properties = new Properties();
+        properties.setProperty("bootstrap.servers", "localhost:9092");
+        properties.setProperty("group.id", kafkaGroupId);
+
+        return KafkaSource.<String>builder()
+                .setBootstrapServers("localhost:9092")
+                .setTopics(topicName)
+                .setGroupId(kafkaGroupId)
+                .setProperties(properties)
+                .setStartingOffsets(OffsetsInitializer.latest())
+                .setValueOnlyDeserializer(new SimpleStringSchema())
+                .build();
+    }` .
+    
+    my pom contains
+    
+    `<properties>
+    <maven.compiler.source>1.8</maven.compiler.source>
+    <maven.compiler.target>1.8</maven.compiler.target>
+    <scala.main.version>2.12</scala.main.version>
+    <connectors.version>3.1.0</connectors.version>
+    <flink-version>1.16.2</flink-version>
+    <hadoop-version>3.1.0</hadoop-version>
+    <log4j.version>2.12.1</log4j.version>
+    <hadoop-version>3.1.0</hadoop-version>
+  </properties>
+  <dependencies>
+
+
+
+    <dependency>
+      <groupId>io.delta</groupId>
+      <artifactId>delta-flink</artifactId>
+      <version>${connectors.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>io.delta</groupId>
+      <artifactId>delta-standalone_${scala.main.version}</artifactId>
+      <version>${connectors.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+      <version>2.13.5</version>
+    </dependency>
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-annotations</artifactId>
+      <version>2.13.5</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.flink</groupId>
+      <artifactId>flink-clients</artifactId>
+      <version>${flink-version}</version>
+      <scope>${flink.scope}</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.flink</groupId>
+      <artifactId>flink-parquet</artifactId>
+      <version>${flink-version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.hadoop</groupId>
+      <artifactId>hadoop-client</artifactId>
+      <version>${hadoop-version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.flink</groupId>
+      <artifactId>flink-table-common</artifactId>
+      <version>${flink-version}</version>
+      <scope>${flink.scope}</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.flink</groupId>
+      <artifactId>flink-connector-files</artifactId>
+      <version>${flink-version}</version>
+      <scope>${flink.scope}</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.flink</groupId>
+      <artifactId>flink-table-runtime</artifactId>
+      <version>${flink-version}</version>
+      <scope>${flink.scope}</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.flink</groupId>
+      <artifactId>flink-table-planner_2.12</artifactId>
+      <version>${flink-version}</version>
+      <scope>${flink.scope}</scope>
+    </dependency>
+
+    <!-- Add logging framework, to produce console output when running in the IDE. -->
+    <!-- These dependencies are excluded from the application JAR by default. -->
+    <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-slf4j-impl</artifactId>
+      <version>${log4j.version}</version>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-api</artifactId>
+      <version>${log4j.version}</version>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-core</artifactId>
+      <version>${log4j.version}</version>
+      <scope>runtime</scope>
+    </dependency>
+
+    <dependency>
+      <artifactId>flink-streaming-java</artifactId>
+      <groupId>org.apache.flink</groupId>
+      <version>${flink-version}</version>
+
+    </dependency>
+    <dependency>
+      <artifactId>flink-connector-kafka</artifactId>
+      <groupId>org.apache.flink</groupId>
+      <version>${flink-version}</version>
+
+    </dependency>
+    <dependency>
+      <artifactId>flink-core</artifactId>
+      <groupId>org.apache.flink</groupId>
+      <version>${flink-version}</version>
+
+    </dependency>
+
+    <dependency>
+      <groupId>com.github.javafaker</groupId>
+      <artifactId>javafaker</artifactId>
+      <version>1.0.2</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.hadoop</groupId>
+      <artifactId>hadoop-client</artifactId>
+      <version>${hadoop-version}</version>
+     </dependency>
+    <dependency>
+      <groupId>org.apache.hadoop</groupId>
+      <artifactId>hadoop-aws</artifactId>
+      <version>3.3.6</version>
+    </dependency>`

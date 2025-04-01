@@ -1,0 +1,3 @@
+- misc code cleanup
+- update DDB api config prefix to contain `.ddb` in response to TDs delta.io docs PR review
+- add better prints to integration test

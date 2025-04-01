@@ -1,0 +1,13 @@
+### Which Delta project/connector is this regarding?
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [x] Kernel
+- [ ] Other (fill in here)
+
+### Description
+Resolves https://github.com/delta-io/delta/issues/2150
+
+Defines LogReplay assertLogFilesBelongToTable() helper method based on the Spark implementation [here](https://github.com/delta-io/delta/blob/4f9c8b9cc294ec7b321847115bf87909c356bc5a/spark/src/main/scala/org/apache/spark/sql/delta/Snapshot.scala#L430) as specified in issue.
+
+Verifies that a set of delta or checkpoint files to be read actually belong to the transaction log of the delta table. Throws AssertionError if violation detected.

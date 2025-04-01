@@ -1,0 +1,1 @@
+Vacuum deleted versions are not visible in the deltalake history / describe syntax, how to identify what all versions has been deleted by vaccum for audit purpose?

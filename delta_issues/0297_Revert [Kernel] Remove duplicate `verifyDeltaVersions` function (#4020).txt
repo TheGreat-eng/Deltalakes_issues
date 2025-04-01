@@ -1,0 +1,27 @@
+This mostly reverts commit 93746377f096bd74408d5022a399d9d13934531f.
+
+#### Which Delta project/connector is this regarding?
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [X] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+#4020 removed a duplicate `verifyDeltaVersions` function, however this PR reverts that change, as that duplicate function has slightly different semantics. Basically, now this function is called both when asking for the changes of a table between two versions, and when constructing a Snapshot. For example, the error message thrown currently `Requested table changes beginning with startVersion=%s but no log ...` is not applicable for a Snapshot.
+
+I've tried several ways to unify this ... but for now, let's just revert this change and then I can submit a new PR that does this a bit better.
+
+Btw, this PR keeps 2 minor changes from #4020:
+- keeping the rename of "continuous" to "contiguous".
+- keeping the changing of `latestAvailableVersion` from an Optional<Long> to a long in `DeltaErrors::endVersionNotFound`
+
+## How was this patch tested?
+
+Existing UTs.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No.

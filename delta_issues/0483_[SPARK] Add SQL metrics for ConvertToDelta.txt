@@ -1,0 +1,19 @@
+#### Which Delta project/connector is this regarding?
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+Add the metric "numConvertedFiles" to the ConvertToDelta command node
+
+## How was this patch tested?
+
+Added a new test validating the values
+
+## Does this PR introduce _any_ user-facing changes?
+
+The metric become visible in the plan (i.e. Spark UI)

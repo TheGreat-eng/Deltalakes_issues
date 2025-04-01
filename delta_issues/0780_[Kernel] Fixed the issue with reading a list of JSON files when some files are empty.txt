@@ -1,0 +1,20 @@
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [X] Kernel
+- [ ] Other (fill in here)
+
+## Description
+Resolves #2251. Fixed the issue with reading a list of JSON files when some files are empty. Previously, the reading process would stop after encountering an empty file.
+
+## How was this patch tested?
+Test added to `DefaultJsonHandlerSuite.scala`.
+
+## Does this PR introduce _any_ user-facing changes?
+No.

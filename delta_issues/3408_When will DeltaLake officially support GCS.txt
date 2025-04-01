@@ -1,0 +1,1 @@
+I noticed that the support for GCS is new and experimental. Any timeframes on when it might be fully supported ? Is there a dependency on GCP that's blocking it from being supported fully (noticed a Spark version issue with GCP) ?

@@ -1,0 +1,21 @@
+## Feature request 
+
+### Overview
+
+When you copy a delta table from A to B (physically copy the folder, e.g. with az copy) the _delta_log artifacts are written with the new last modified timestamps. In this case you can't know to which timeline does each version corresponds to, thus the timetravel in delta would be much more difficult. 
+
+### Motivation
+
+_delta_log committed artifacts would have wrong timestamp after the table is copied to a new destination.
+
+### Further details
+
+One could build a helper pipeline to read the commit timestamps from json/parquet artifacats within _delta_log and provide this info as extra information to decide which version to use.
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [ ] Yes. I can contribute this feature independently.
+- [x] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.

@@ -1,0 +1,43 @@
+this used to work with older version of delta :
+```
+val data = Seq((1, 1, 1), (2, 2, 2)).toDF("part", "id", "x")
+data.write
+  .format("delta")
+  .partitionBy("part")
+  .save(tempPath)
+val table = io.delta.tables.DeltaTable.forPath(spark, tempPath)
+val tableDf = table.toDF
+val data1  = Seq((2, 2, 4), (2, 3, 6), (3, 3, 9)).toDF("part", "id", "x")
+table.merge(
+  data1,
+  tableDf("part") === data1("part") && tableDf("id") === data1("id")
+)
+  .whenMatched.updateAll
+  .whenNotMatched.insertAll
+  .execute()
+```
+now it produces error:
+```
+org.apache.spark.sql.AnalysisException: cannot resolve `part` in UPDATE clause given columns `_1`, `_2`, `_3`;
+```
+this is because something seems to have changed in table.toDF i think?
+i can get it work again like this:
+```
+val data = Seq((1, 1, 1), (2, 2, 2)).toDF("part", "id", "x")
+data.write
+  .format("delta")
+  .partitionBy("part")
+  .save(tempPath)
+val table = io.delta.tables.DeltaTable.forPath(spark, tempPath)
+val tableDf = table.toDF
+val data1  = Seq((2, 2, 4), (2, 3, 6), (3, 3, 9)).toDF("part", "id", "x")
+table.alias("old").merge(
+  data1.alias("new"),
+  "old.part = new.part AND old.id = new.id"
+)
+  .whenMatched.updateAll
+  .whenNotMatched.insertAll
+  .execute()
+```
+so this relies on the merge condition being a string which is maybe a little less nice i think. does that mean there is no nice way anymore to have the merge condition be an expression (unambiguously referencing dataframes)?
+thanks

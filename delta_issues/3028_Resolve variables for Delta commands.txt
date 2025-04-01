@@ -1,0 +1,14 @@
+Signed-off-by: Denis Krivenko <dnskrv88@gmail.com>
+
+## Description
+
+This PR adds variables substitution to Delta SQL Parser.
+Resolves https://github.com/delta-io/delta/issues/1267 issue.
+
+## How was this patch tested?
+
+DeltaSqlParserSuite was changed to test this PR.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

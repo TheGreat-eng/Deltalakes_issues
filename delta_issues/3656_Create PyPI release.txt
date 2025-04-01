@@ -1,0 +1,13 @@
+Related to #282, contains code from #353.
+
+This PR contains two changes:
+
+- Creates a PyPI release
+- A Python-only function, `delta.get_delta_maven_coordinate()` that gets the currently installed version, to be used in an IDE when initializing a spark session, like: `.config("spark.jars.packages",  delta.get_delta_maven_coordinate())`. The idea here is to allow the package to be self-referential, avoiding version mismatch problems which can be tough to debug. 
+
+A few items need to be addressed:
+
+- Get a username and password for PyPI. The username will be added in config.yml (<username>), whereas the password will be stored in $PYPI_PASSWORD env variable in circleci.
+
+Other notes:
+- This change only targets IDE workflows. Command-line programs like `pyspark` and `spark-submit` will still need to specify the delta.io package on launch, see [quickstart docs](https://docs.delta.io/latest/quick-start.html#pyspark).

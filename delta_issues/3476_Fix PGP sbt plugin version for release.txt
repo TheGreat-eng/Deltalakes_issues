@@ -1,0 +1,7 @@
+When I bumped up our SBT version from 0.13.8 to 1.5.5, I broke the PGP key generation.
+
+Latest: `addSbtPlugin("com.github.sbt" % "sbt-pgp" % "2.1.2")` causes `set pgpReadOnly := false` to fail. We should investigate this later.
+
+Previous: `addSbtPlugin("com.jsuereth" % "sbt-pgp" % "1.0.0")` no longer works with SBT 1.5.5, we get a `coursier.ResolutionException`
+
+sbt-pgp version 1.1.2, according to their docs and via running commands to verify, does work with SBT 1.5.5 and `set pgpReadOnly := false` succeeds.

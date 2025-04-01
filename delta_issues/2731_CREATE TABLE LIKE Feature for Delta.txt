@@ -1,0 +1,19 @@
+## Description 
+This PR aims to enable CREATE TABLE LIKE for Delta. CREATE TABLE LIKE is a SQL DDL that creates an empty new table using the definition and metadata of an existing table or view. CREATE TABLE LIKE is not supported for creating Delta tables. Currently, when a user tries to use CREATE TABLE LIKE with Delta, it throws an exception saying this command is not supported for Delta tables.
+
+## What changes were proposed in this pull request?
+
+This PR aims to enable CREATE TABLE LIKE for Delta. [CREATE TABLE LIKE](https://docs.databricks.com/sql/language-manual/sql-ref-syntax-ddl-create-table-like.html) is a SQL DDL that creates an empty new table using the definition and metadata of an existing table or view. [CREATE TABLE LIKE](https://docs.databricks.com/sql/language-manual/sql-ref-syntax-ddl-create-table-like.html) is not supported for creating Delta tables. Currently, when a user tries to use CREATE TABLE LIKE with Delta, it throws an exception saying this command is not supported for Delta tables.
+
+Specifically, the following table properties are being copied over:
+| Metadata Field/Type  | Non-Delta Tables                                    | Delta Tables |  
+|----------------------|-----------------------------------------------------|--------------|
+| Description(Comment) | Yes                                                 | Yes          |   
+| Schema               | Yes                                                 | Yes          |   |
+| Partition Columns    | Yes                                                 | Yes          |   
+| Configuration        | Yes                                                 | Yes          |   
+| Delta Protocol       | No(Current Default Protocol for that spark session) | Yes          |   
+
+## How was this patch tested?
+
+This patch is tested by adding unit tests for CREATE TABLE LIKE in the DeltaCreateTableLikeSuite.scala file. Other existing tests were modified to reflect the change that Delta Tables are now supported for the Create Table Like Command.

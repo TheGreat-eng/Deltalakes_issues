@@ -1,0 +1,38 @@
+When we drop + create a delta lake table, if the schema defined in the create table statement does not match the schema stored in the distributed file system we get the following exception:
+
+```
+Error in SQL statement: AnalysisException: The specified schema does not match the existing schema at dbfs:/tmp/my.db/test1.
+
+== Specified ==
+root
+-- a: string (nullable = true)
+-- b: map (nullable = true)
+    |-- key: string
+    |-- value: integer (valueContainsNull = true)
+-- c: string (nullable = true)
+-- d: struct (nullable = true)
+    |-- a: string (nullable = true)
+    |-- b: integer (nullable = true)
+
+
+== Existing ==
+root
+-- a: string (nullable = true)
+-- b: string (nullable = true)
+-- c: string (nullable = true)
+-- d: struct (nullable = true)
+    |-- a: string (nullable = true)
+
+
+== Differences==
+- Specified type for b is different from existing schema:
+  Specified: map
+  Existing:  string
+- Specified schema has additional field(s): d.b
+
+If your intention is to keep the existing schema, you can omit the
+schema from the create table command. Otherwise please ensure that
+the schema matches.
+```
+
+**Intended behaviour:** there should be an option similar to spark.databricks.delta.schema.autoMerge.enabled (or even make this option work for create tables) that allows delta lake to evolve the schema while creating a new version of the table through a create table command, otherwise users need to fire several alter table commands to make the schema match. 

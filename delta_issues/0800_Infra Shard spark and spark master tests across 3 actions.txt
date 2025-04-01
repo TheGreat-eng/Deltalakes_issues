@@ -1,0 +1,24 @@
+This change adds a matrix of 3 shards to github CI for the delta spark/spark master tests and plumbs those through to our parallelization strategy which will then select tests to run if they are assigned to that shard. This brings down CI times from ~4 hours to 2 hours.
+
+3 shards seemsd to be the point of diminishing returns, and we should look at the actual tests and possibly higher instance types if we really want to get those down further.
+
+No sharding: 4 hours
+2 shards: 3 hours
+3 shards:  ~2 hours
+4 shards: ~2 hours
+
+
+### How to revert
+
+To undo this change without a full revert commit there are a few ways (in order of recommendation)
+
+1. Remove/comment out *both* 
+the shard row in the GH matrix https://github.com/delta-io/delta/pull/3517/files#diff-b77047dc65c62d814f7f67eec57c23c4cf9d9796e6a8a018558e0e935739d8d8R10-R11
+
+AND
+
+the NUM_SHARDS env variable
+https://github.com/delta-io/delta/pull/3517/files#diff-b77047dc65c62d814f7f67eec57c23c4cf9d9796e6a8a018558e0e935739d8d8R15
+
+2. Comment out this block https://github.com/delta-io/delta/pull/3517/files#diff-00b77d52981e1ba8cc5ac9b80b22d8f7bb9814222121b714269e14e139daaae0R141-R152 in TestParallelization
+

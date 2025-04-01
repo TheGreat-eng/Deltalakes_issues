@@ -1,0 +1,25 @@
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [X] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+Resolves some miscellaneous TODOs in the Kernel code including
+- Moves `MixedDataType` to an internal package since it is a temporary type
+- Change `INSTANCE` to `$TYPENAME` for all simple data types
+- Move `singletonColumnVector` to internal utilities
+- Remove logging to stdout for now
+- Remove miscellaneous TODO comments that don't need to be in the code
+
+## How was this patch tested?
+
+Existing tests suffice.
+

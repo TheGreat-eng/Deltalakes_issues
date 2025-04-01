@@ -1,0 +1,1 @@
+Add missing fields in the RemoveFile of the protocol specification

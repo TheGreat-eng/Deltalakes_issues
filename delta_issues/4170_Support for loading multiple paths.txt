@@ -1,0 +1,13 @@
+Right now, if you try to load multiple paths using `DataFrameReader.load(paths: String*)`, Delta throws `java.lang.IllegalArgumentException: 'path' is not specified`: 
+
+```
+scala> val df = spark.read.format("delta").load("/tmp/delta-table1", "/tmp/delta-table2")
+java.lang.IllegalArgumentException: 'path' is not specified
+  at org.apache.spark.sql.delta.DeltaErrors$.pathNotSpecifiedException(DeltaErrors.scala:221)
+  at org.apache.spark.sql.delta.sources.DeltaDataSource$$anonfun$9.apply(DeltaDataSource.scala:140)
+  at org.apache.spark.sql.delta.sources.DeltaDataSource$$anonfun$9.apply(DeltaDataSource.scala:140)
+```
+
+`DataFrameReader.load(paths: String*)` is a fairly major API, so it seems strange that Delta doesn't support it.  Is it possible to add support for this API? 
+
+Otherwise, can we make the exception message more explicit in explaining why `load(paths: String*)` isn't supported?  I had to thoroughly dig through the Spark and Delta source to figure out why my calls were failing.

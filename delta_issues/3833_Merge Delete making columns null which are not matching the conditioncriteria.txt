@@ -1,0 +1,26 @@
+Hi, 
+
+Recently, I have upgraded to Java 11, Apache Spark 3.0 and Delta Lake 0.7.0. However, I am seeing one strange issue with merge deletes as it is making the columns null which are not matching the conditional criteria. I am doing merge delete as follows.
+
+```
+dT.as("targetData")
+                .merge(
+                        delFrame.as("deleteData"),
+                        condition)
+                .whenMatched()
+                .delete()
+                .execute();
+```
+
+And I have initialised spark context as follows.
+
+```
+SparkSession session = SparkSession.builder().appName("App Name").master("local[*]")
+                .config("spark.sql.extensions", "io.delta.sql.DeltaSparkSessionExtension")
+                .config("spark.sql.catalog.spark_catalog", "org.apache.spark.sql.delta.catalog.DeltaCatalog")
+                .config("spark.sql.shuffle.partitions", "4")
+                .config("spark.databricks.delta.retentionDurationCheck.enabled",false)
+                .getOrCreate();
+```
+
+This used to work with 0.6.0 version. Is there any reported bugs/issues with the newer 0.7.0 version?

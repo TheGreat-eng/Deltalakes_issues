@@ -1,0 +1,18 @@
+#### Which Delta project/connector is this regarding?
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [x] Other (delta sharing)
+
+## Description
+First PR of https://github.com/delta-io/delta/issues/2291: Add util functions for "delta format sharing".
+- DeltaSharingUtils: Util functions such as prepare refresh function, etc.
+- DeltaSharingFileIndex: Used to support batch queries, to do filtering pushdown
+- DeltaSharingLogFileSystem: Used to manage local constructed delta log, handle the read/write with BlockManager.
+
+## How was this patch tested?
+Unit Tests
+
+## Does this PR introduce _any_ user-facing changes?
+No

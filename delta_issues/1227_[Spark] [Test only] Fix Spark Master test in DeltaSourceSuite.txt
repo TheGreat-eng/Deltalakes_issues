@@ -1,0 +1,15 @@
+#### Which Delta project/connector is this regarding?
+
+- [X] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+Fix and re-enable a failing delta-spark test against Spark Master in DeltaSourceSuite
+
+## How was this patch tested?
+
+Test only change.

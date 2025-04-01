@@ -1,0 +1,23 @@
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+This PR is part of https://github.com/delta-io/delta/issues/1959
+
+In this PR, we flip the SQLConf that guards the creation of Identity Column from false to true. Without this, we cannot create identity columns in Delta Spark!
+
+## How was this patch tested?
+
+Existing tests pass.
+## Does this PR introduce _any_ user-facing changes?
+
+Yes, it enables the creation of Identity Columns.

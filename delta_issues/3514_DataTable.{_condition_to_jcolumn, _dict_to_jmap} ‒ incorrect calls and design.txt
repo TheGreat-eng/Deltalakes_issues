@@ -1,0 +1,135 @@
+There are a few places where `DataTable` `@classmethods` are called through `self`:
+
+https://github.com/delta-io/delta/blob/2067d9e0a8860166515df0677de3f6f331d42b78/python/delta/tables.py#L89
+
+https://github.com/delta-io/delta/blob/2067d9e0a8860166515df0677de3f6f331d42b78/python/delta/tables.py#L116-L117
+
+https://github.com/delta-io/delta/blob/2067d9e0a8860166515df0677de3f6f331d42b78/python/delta/tables.py#L188
+
+This will work on runtime, since neither uses `cls`, but should be fixed. 
+
+Furthermore:
+
+- `DataTable._condition_to_jcolumn` should be actually `@staticmethod` (it depends only on `condition`)
+- It might be better to convert `DataTable._dict_to_jmap` to standard method and remove `sparkSession` from the argument list.
+
+Overall, following changes could be made:
+
+```patch
+diff --git a/python/delta/tables.py b/python/delta/tables.py
+index dd703e1..336cb1b 100644
+--- a/python/delta/tables.py
++++ b/python/delta/tables.py
+@@ -86,7 +86,7 @@ class DeltaTable(object):
+         if condition is None:
+             self._jdt.delete()
+         else:
+-            self._jdt.delete(self._condition_to_jcolumn(condition))
++            self._jdt.delete(DeltaTable._condition_to_jcolumn(condition))
+ 
+     @since(0.4)
+     def update(self, condition=None, set=None):
+@@ -113,8 +113,8 @@ class DeltaTable(object):
+                     positional args in same order across languages.
+         :type set: dict with str as keys and str or pyspark.sql.Column as values
+         """
+-        jmap = self._dict_to_jmap(self._spark, set, "'set'")
+-        jcolumn = self._condition_to_jcolumn(condition)
++        jmap = self._dict_to_jmap(set, "'set'")
++        jcolumn = DeltaTable._condition_to_jcolumn(condition)
+         if condition is None:
+             self._jdt.update(jmap)
+         else:
+@@ -185,7 +185,7 @@ class DeltaTable(object):
+         if condition is None:
+             raise ValueError("'condition' in merge cannot be None")
+ 
+-        jbuilder = self._jdt.merge(source._jdf, self._condition_to_jcolumn(condition))
++        jbuilder = self._jdt.merge(source._jdf, DeltaTable._condition_to_jcolumn(condition))
+         return DeltaMergeBuilder(self._spark, jbuilder)
+ 
+     @since(0.4)
+@@ -452,11 +452,12 @@ class DeltaTable(object):
+                              type(writerVersion))
+         jdt.upgradeTableProtocol(readerVersion, writerVersion)
+ 
+-    @classmethod
+-    def _dict_to_jmap(cls, sparkSession, pydict, argname):
++    def _dict_to_jmap(self, pydict, argname):
+         """
+         convert dict<str, pColumn/str> to Map<str, jColumn>
+         """
++        sparkSession = self._spark
++
+         # Get the Java map for pydict
+         if pydict is None:
+             raise ValueError("%s cannot be None" % argname)
+@@ -481,8 +482,8 @@ class DeltaTable(object):
+                 raise TypeError(e)
+         return jmap
+ 
+-    @classmethod
+-    def _condition_to_jcolumn(cls, condition, argname="'condition'"):
++    @staticmethod
++    def _condition_to_jcolumn(condition, argname="'condition'"):
+         if condition is None:
+             jcondition = None
+         elif type(condition) is Column:
+@@ -608,7 +609,7 @@ class DeltaMergeBuilder(object):
+         :type set: dict with str as keys and str or pyspark.sql.Column as values
+         :return: this builder
+         """
+-        jset = DeltaTable._dict_to_jmap(self._spark, set, "'set' in whenMatchedUpdate")
++        jset = self._dict_to_jmap(set, "'set' in whenMatchedUpdate")
+         new_jbuilder = self.__getMatchedBuilder(condition).update(jset)
+         return DeltaMergeBuilder(self._spark, new_jbuilder)
+ 
+@@ -659,7 +660,7 @@ class DeltaMergeBuilder(object):
+         :type values: dict with str as keys and str or pyspark.sql.Column as values
+         :return: this builder
+         """
+-        jvalues = DeltaTable._dict_to_jmap(self._spark, values, "'values' in whenNotMatchedInsert")
++        jvalues = self._dict_to_jmap(values, "'values' in whenNotMatchedInsert")
+         new_jbuilder = self.__getNotMatchedBuilder(condition).insert(jvalues)
+         return DeltaMergeBuilder(self._spark, new_jbuilder)
+ 
+
+```
+
+Alternatively, at least these should be fixed
+
+```patch
+diff --git a/python/delta/tables.py b/python/delta/tables.py
+index dd703e1..a8a631a 100644
+--- a/python/delta/tables.py
++++ b/python/delta/tables.py
+@@ -86,7 +86,7 @@ class DeltaTable(object):
+         if condition is None:
+             self._jdt.delete()
+         else:
+-            self._jdt.delete(self._condition_to_jcolumn(condition))
++            self._jdt.delete(DeltaTable._condition_to_jcolumn(condition))
+ 
+     @since(0.4)
+     def update(self, condition=None, set=None):
+@@ -113,8 +113,8 @@ class DeltaTable(object):
+                     positional args in same order across languages.
+         :type set: dict with str as keys and str or pyspark.sql.Column as values
+         """
+-        jmap = self._dict_to_jmap(self._spark, set, "'set'")
+-        jcolumn = self._condition_to_jcolumn(condition)
++        jmap = DeltaTable._dict_to_jmap(self._spark, set, "'set'")
++        jcolumn = DeltaTable._condition_to_jcolumn(condition)
+         if condition is None:
+             self._jdt.update(jmap)
+         else:
+@@ -185,7 +185,7 @@ class DeltaTable(object):
+         if condition is None:
+             raise ValueError("'condition' in merge cannot be None")
+ 
+-        jbuilder = self._jdt.merge(source._jdf, self._condition_to_jcolumn(condition))
++        jbuilder = self._jdt.merge(source._jdf, DeltaTable._condition_to_jcolumn(condition))
+         return DeltaMergeBuilder(self._spark, jbuilder)
+ 
+     @since(0.4)
+```

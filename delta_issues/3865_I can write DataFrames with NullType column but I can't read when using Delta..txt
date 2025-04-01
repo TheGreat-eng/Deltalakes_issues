@@ -1,0 +1,36 @@
+I have a group of DataFrames where the schema is inferred, so some columns may be inferred as NullType.
+
+I get it that parquet doesn't support NullType columns and Delta drop it before writing, but if Delta let me write NullType columns, I believe I should be able read it, even if the NullType columns was dropped.
+
+What do you think about this behavior?
+
+Code explaning the behavior:
+```
+scala> val df = Seq(("valueA", null)).toDF("columna", "columnb")
+df: org.apache.spark.sql.DataFrame = [columna: string, columnb: null]
+
+scala> df.write.format("delta").save("/tmp/table-a")
+                                                                                
+scala> spark.read.format("delta").load("/tmp/table-a")
+org.apache.spark.sql.AnalysisException: Parquet data source does not support null data type.;
+  at org.apache.spark.sql.execution.datasources.DataSourceUtils$$anonfun$verifySchema$1.apply(DataSourceUtils.scala:69)
+  at org.apache.spark.sql.execution.datasources.DataSourceUtils$$anonfun$verifySchema$1.apply(DataSourceUtils.scala:67)
+  at scala.collection.Iterator$class.foreach(Iterator.scala:891)
+  at scala.collection.AbstractIterator.foreach(Iterator.scala:1334)
+  at scala.collection.IterableLike$class.foreach(IterableLike.scala:72)
+  at org.apache.spark.sql.types.StructType.foreach(StructType.scala:99)
+  at org.apache.spark.sql.execution.datasources.DataSourceUtils$.verifySchema(DataSourceUtils.scala:67)
+  at org.apache.spark.sql.execution.datasources.DataSourceUtils$.verifyReadSchema(DataSourceUtils.scala:41)
+  at org.apache.spark.sql.execution.datasources.DataSource.resolveRelation(DataSource.scala:400)
+  at org.apache.spark.sql.DataFrameReader.loadV1Source(DataFrameReader.scala:223)
+  at org.apache.spark.sql.DataFrameReader.load(DataFrameReader.scala:211)
+  at org.apache.spark.sql.DataFrameReader.load(DataFrameReader.scala:178)
+  ... 53 elided
+
+scala> spark.read.parquet("/tmp/table-a").show()
++-------+
+|columna|
++-------+
+| valueA|
++-------+
+```

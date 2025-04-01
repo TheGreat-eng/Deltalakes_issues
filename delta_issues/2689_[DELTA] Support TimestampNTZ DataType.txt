@@ -1,0 +1,14 @@
+Closes #1627 
+- This change adds support to TimestampNTZ type in Delta
+-  Previously this type was not supported in Spark and Spark 3.3 added support for this
+-  To prevent(gate) older writers/readers from reading to this column we need a protocol(feature) bump that does the gating
+
+* This PR creates a new TableFeature TimestampNTZ feature that is a ReaderWriter feature 
+* This is how to feature is automatically enabled
+<google-sheets-html-origin><style type="text/css"><!--td {border: 1px solid #cccccc;}br {mso-data-placement:same-cell;}--></style>
+
+Scenario | Previously | With this change
+-- | -- | --
+User creates a new table with timestamp NTZ column | AnalysisException saying type not supported | Protocol upgraded to feature vector protocol and TimestampNTZ Feature automatically enabled and DDL successful
+User adds a new column of type TimestampNTZ on legacy protocol version | AnalysisException saying type not supported | Error thrown asking user to enable table feature for TimestampNTZ
+User adds a new column of type TimestampNTZ on table with TimestampNTZFeature enabled on the table | AnalysisException saying type not supported | User DDL completes successful.

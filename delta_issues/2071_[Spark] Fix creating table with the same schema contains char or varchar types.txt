@@ -1,0 +1,12 @@
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+Resolve #2219 
+Fix problem with creating the same schema tables contains char/varchar types
+
+Example
+`CREATE TABLE  test_table1(c_char Char(10),c_varchar VARCHAR(10)) using delta  LOCATION '$path'`
+`CREATE TABLE  test_table2(c_char Char(10),c_varchar VARCHAR(10)) using delta  LOCATION '$path'`

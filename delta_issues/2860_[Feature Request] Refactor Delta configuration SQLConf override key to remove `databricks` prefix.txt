@@ -1,0 +1,11 @@
+## Feature request
+
+### Overview
+
+Currently, Delta configuration properties ([link](https://github.com/delta-io/delta/blob/master/core/src/main/scala/org/apache/spark/sql/delta/DeltaConfig.scala)) can be set and overridden using a global default value from the SQLConf that uses a prefix of `spark.databricks.delta`.
+
+We should refactor this to be only `spark.delta`, while still maintaining support for legacy `spark.databricks.delta` usages.
+
+### Motivation
+
+Delta Lake is an open-source project and we should clean up + refactor code (especially public-facing APIs like a SQL conf) to remove any references to `databricks`.

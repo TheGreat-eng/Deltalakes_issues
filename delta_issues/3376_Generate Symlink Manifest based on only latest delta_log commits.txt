@@ -1,0 +1,2 @@
+Generate Symlink Manifest with Incremental using delta_log based on number of  latest or range of commits/version.
+Need this feature enhanced for Spark-SQL too.

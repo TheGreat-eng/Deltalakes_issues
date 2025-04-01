@@ -1,0 +1,33 @@
+## Overview and Requirements
+
+Hi everyone - help is wanted!
+
+This is the official project plan tracking the work to refactor Delta's `LogStore` classes to a new artifact `delta-storage`, and in Java (instead of Scala). The Delta `LogStore` is a general interface for all critical file system operations required to read and write the Delta log.
+
+There are a variety of reasons for this initiative.
+
+1. Reduce code duplication. Currently, both the [Delta Lake OSS](https://github.com/delta-io/delta) and [Delta Standalone](https://github.com/delta-io/connectors) libraries require access to this interface. However, without any separate `LogStore` artifact to depend on, any implementation needs to be duplicated accross both of these repos. We'd like to avoid that.
+2. Remove the Apache Spark™ dependency. Currently, the `LogStore` interface that the `delta-core` and `delta-contribs` artifacts use is contained within `delta-core`. This means any downstream dependencies will inherintely have to depend on Spark. As Delta Standalone is distinctly Spark-less, the current dependency hierarchy won't work.
+3. No redundant Scala cross publishing. These `LogStore` implementations don't use any fancy Scala language features, and by re-writing the relatively lighweight implementations in Java we can avoid the various headaches and overhead that supporting a cross-published Scala artifact can bring.
+4. This will enable us to support new lightweight and specific `LogStore` artifacts in the future. For example, for our goal to support S3 multi-cluster writes, we aim to have the [DynamoDBLogStore](https://github.com/delta-io/delta/pull/339) (with its unique AWS SDK dependency) as its own artifact. This ensures that the specific AWS dependency isn't brought into other artifacts (e.g. `delta-contribs`).
+
+## How to Contribute
+- For any of the `LogStore`s below, please comment on the issue letting us know you'd like to work on it.
+- Leave the Scala file alone for now, and create the corresponding Java file inside of `storage/src/main/java/io/delta/storage`. Refactor the `LogStore` here.
+- Add a new test suite to `core/src/test/scala/org/apache/spark/sql/delta/LogStoreSuite.scala`, much like `PublicHDFSLogStoreSuite`.
+- Submit your PR for review.
+- See [this PR](https://github.com/delta-io/delta/pull/933) as an example.
+
+
+## Project Status
+
+| LogStore               | Issue | PR | Status      |
+|------------------------|-------|----|-------------|
+| Initial setup. |  N/A |  #925 | DONE |
+HadoopFileSystemLogStore and HDFSLogStore | N/A | #933  | DONE |
+| [S3SingleDriverLogStore](https://github.com/delta-io/delta/blob/master/core/src/main/scala/org/apache/spark/sql/delta/storage/S3SingleDriverLogStore.scala) |  #952      |   #995  | DONE |
+| [AzureLogStore](https://github.com/delta-io/delta/blob/master/core/src/main/scala/org/apache/spark/sql/delta/storage/AzureLogStore.scala)          |  #953   |  #1003   | DONE |
+| [DelegatingLogStore](https://github.com/delta-io/delta/blob/master/core/src/main/scala/org/apache/spark/sql/delta/storage/DelegatingLogStore.scala)     |  #954   |  #1041   | DONE |
+| [LocalLogStore](https://github.com/delta-io/delta/blob/master/core/src/main/scala/org/apache/spark/sql/delta/storage/LocalLogStore.scala)          |   #955    |   #1002  | DONE |
+| [GCSLogStore](https://github.com/delta-io/delta/blob/master/contribs/src/main/scala/io/delta/storage/GCSLogStore.scala)            |  #956   |  #1024   | DONE |
+| S3DynamoDBLogStore | #339  | #1023 |  DONE |

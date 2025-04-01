@@ -1,0 +1,10 @@
+Hello,
+
+In addition to #474, can we define a Delta-computed column that contains the version of the Delta table for the latest update on a row?
+
+```
+SELECT *, delta_version() as version from myTable where version > 10
+```
+
+This would be useful to quickly find out what has changed without working on streams, and can be used in scenario like MERGE INTO that would for example merge the results of the latest nightly batch.
+

@@ -1,0 +1,3 @@
+It is well known that the zorder design works well with multi-column filter predicates, but linear ordering seems more efficient for a single column.
+Is z-order still effective as a means of optimizing MERGE when the key is a single column?
+(Perhaps the lack of the ability to do linear order clustering is the reason for using zorder?)

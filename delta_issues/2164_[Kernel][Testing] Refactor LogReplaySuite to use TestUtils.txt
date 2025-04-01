@@ -1,0 +1,22 @@
+## Feature request
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the issue title
+For example: [Feature Request][Spark] Title of my issue
+-->
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [x] Kernel
+- [ ] Other (fill in here)
+
+### Overview
+
+Refactor LogReplaySuite to use TestUtils
+https://github.com/delta-io/delta/blob/master/kernel/kernel-defaults/src/test/scala/io/delta/kernel/defaults/LogReplaySuite.scala
+
+### Motivation
+
+Use common test utilities

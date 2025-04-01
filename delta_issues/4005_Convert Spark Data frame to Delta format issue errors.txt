@@ -1,0 +1,137 @@
+I am running on Spark 2.4 on Azure and using the example code from Delta documentation to convert spark data frame into delta format but getting the following errors.
+
+This is the code I am using:
+
+```python
+df_sdf.write.format("delta").save("/mnt/.../delta/")
+```
+
+This is the error I am getting:
+
+```python
+Py4JJavaError                             Traceback (most recent call last)
+<command-3011941952225495> in <module>
+----> 1 df_sdf.write.format("delta").save("/mnt/.../delta/")
+
+/databricks/spark/python/pyspark/sql/readwriter.py in save(self, path, format, mode, partitionBy, **options)
+    737             self._jwrite.save()
+    738         else:
+--> 739             self._jwrite.save(path)
+    740 
+    741     @since(1.4)
+
+/databricks/spark/python/lib/py4j-0.10.7-src.zip/py4j/java_gateway.py in __call__(self, *args)
+   1255         answer = self.gateway_client.send_command(command)
+   1256         return_value = get_return_value(
+-> 1257             answer, self.gateway_client, self.target_id, self.name)
+   1258 
+   1259         for temp_arg in temp_args:
+
+/databricks/spark/python/pyspark/sql/utils.py in deco(*a, **kw)
+     61     def deco(*a, **kw):
+     62         try:
+---> 63             return f(*a, **kw)
+     64         except py4j.protocol.Py4JJavaError as e:
+     65             s = e.java_exception.toString()
+
+/databricks/spark/python/lib/py4j-0.10.7-src.zip/py4j/protocol.py in get_return_value(answer, gateway_client, target_id, name)
+    326                 raise Py4JJavaError(
+    327                     "An error occurred while calling {0}{1}{2}.\n".
+--> 328                     format(target_id, ".", name), value)
+    329             else:
+    330                 raise Py4JError(
+
+Py4JJavaError: An error occurred while calling o16328.save.
+: org.apache.spark.SparkException: Job aborted.
+	at org.apache.spark.sql.execution.datasources.FileFormatWriter$.write(FileFormatWriter.scala:201)
+	at com.databricks.sql.transaction.tahoe.files.TransactionalWriteEdge$$anonfun$writeFiles$1$$anonfun$apply$1.apply(TransactionalWriteEdge.scala:160)
+	at com.databricks.sql.transaction.tahoe.files.TransactionalWriteEdge$$anonfun$writeFiles$1$$anonfun$apply$1.apply(TransactionalWriteEdge.scala:133)
+	at org.apache.spark.sql.execution.SQLExecution$$anonfun$withCustomExecutionEnv$1.apply(SQLExecution.scala:111)
+	at org.apache.spark.sql.execution.SQLExecution$.withSQLConfPropagated(SQLExecution.scala:240)
+	at org.apache.spark.sql.execution.SQLExecution$.withCustomExecutionEnv(SQLExecution.scala:97)
+	at org.apache.spark.sql.execution.SQLExecution$.withNewExecutionId(SQLExecution.scala:170)
+	at com.databricks.sql.transaction.tahoe.files.TransactionalWriteEdge$$anonfun$writeFiles$1.apply(TransactionalWriteEdge.scala:133)
+	at com.databricks.sql.transaction.tahoe.files.TransactionalWriteEdge$$anonfun$writeFiles$1.apply(TransactionalWriteEdge.scala:90)
+	at com.databricks.logging.UsageLogging$$anonfun$recordOperation$1.apply(UsageLogging.scala:440)
+	at com.databricks.logging.UsageLogging$$anonfun$withAttributionContext$1.apply(UsageLogging.scala:251)
+	at scala.util.DynamicVariable.withValue(DynamicVariable.scala:58)
+	at com.databricks.logging.UsageLogging$class.withAttributionContext(UsageLogging.scala:246)
+	at com.databricks.spark.util.PublicDBLogging.withAttributionContext(DatabricksSparkUsageLogger.scala:18)
+	at com.databricks.logging.UsageLogging$class.withAttributionTags(UsageLogging.scala:288)
+	at com.databricks.spark.util.PublicDBLogging.withAttributionTags(DatabricksSparkUsageLogger.scala:18)
+	at com.databricks.logging.UsageLogging$class.recordOperation(UsageLogging.scala:421)
+	at com.databricks.spark.util.PublicDBLogging.recordOperation(DatabricksSparkUsageLogger.scala:18)
+	at com.databricks.spark.util.PublicDBLogging.recordOperation0(DatabricksSparkUsageLogger.scala:55)
+	at com.databricks.spark.util.DatabricksSparkUsageLogger.recordOperation(DatabricksSparkUsageLogger.scala:98)
+	at com.databricks.spark.util.UsageLogger$class.recordOperation(UsageLogger.scala:67)
+	at com.databricks.spark.util.DatabricksSparkUsageLogger.recordOperation(DatabricksSparkUsageLogger.scala:67)
+	at com.databricks.spark.util.UsageLogging$class.recordOperation(UsageLogger.scala:342)
+	at com.databricks.sql.transaction.tahoe.OptimisticTransaction.recordOperation(OptimisticTransaction.scala:82)
+	at com.databricks.sql.transaction.tahoe.metering.DeltaLogging$class.recordDeltaOperation(DeltaLogging.scala:108)
+	at com.databricks.sql.transaction.tahoe.OptimisticTransaction.recordDeltaOperation(OptimisticTransaction.scala:82)
+	at com.databricks.sql.transaction.tahoe.files.TransactionalWriteEdge$class.writeFiles(TransactionalWriteEdge.scala:90)
+	at com.databricks.sql.transaction.tahoe.OptimisticTransaction.writeFiles(OptimisticTransaction.scala:82)
+	at com.databricks.sql.transaction.tahoe.files.TransactionalWrite$class.writeFiles(TransactionalWrite.scala:110)
+	at com.databricks.sql.transaction.tahoe.OptimisticTransaction.writeFiles(OptimisticTransaction.scala:82)
+	at com.databricks.sql.transaction.tahoe.commands.WriteIntoDelta.write(WriteIntoDelta.scala:111)
+	at com.databricks.sql.transaction.tahoe.commands.WriteIntoDelta$$anonfun$run$1$$anonfun$apply$1.apply(WriteIntoDelta.scala:71)
+	at com.databricks.sql.transaction.tahoe.commands.WriteIntoDelta$$anonfun$run$1$$anonfun$apply$1.apply(WriteIntoDelta.scala:70)
+	at com.databricks.sql.transaction.tahoe.DeltaLog.withNewTransaction(DeltaLog.scala:409)
+	at com.databricks.sql.transaction.tahoe.commands.WriteIntoDelta$$anonfun$run$1.apply(WriteIntoDelta.scala:70)
+	at com.databricks.sql.transaction.tahoe.commands.WriteIntoDelta$$anonfun$run$1.apply(WriteIntoDelta.scala:69)
+	at com.databricks.sql.acl.CheckPermissions$.trusted(CheckPermissions.scala:824)
+	at com.databricks.sql.transaction.tahoe.commands.WriteIntoDelta.run(WriteIntoDelta.scala:69)
+	at com.databricks.sql.transaction.tahoe.sources.DeltaDataSource.createRelation(DeltaDataSource.scala:128)
+	at org.apache.spark.sql.execution.datasources.SaveIntoDataSourceCommand.run(SaveIntoDataSourceCommand.scala:45)
+	at org.apache.spark.sql.execution.command.ExecutedCommandExec.sideEffectResult$lzycompute(commands.scala:70)
+	at org.apache.spark.sql.execution.command.ExecutedCommandExec.sideEffectResult(commands.scala:68)
+	at org.apache.spark.sql.execution.command.ExecutedCommandExec.doExecute(commands.scala:86)
+	at org.apache.spark.sql.execution.SparkPlan$$anonfun$execute$1.apply(SparkPlan.scala:147)
+	at org.apache.spark.sql.execution.SparkPlan$$anonfun$execute$1.apply(SparkPlan.scala:135)
+	at org.apache.spark.sql.execution.SparkPlan$$anonfun$executeQuery$5.apply(SparkPlan.scala:188)
+	at org.apache.spark.rdd.RDDOperationScope$.withScope(RDDOperationScope.scala:151)
+	at org.apache.spark.sql.execution.SparkPlan.executeQuery(SparkPlan.scala:184)
+	at org.apache.spark.sql.execution.SparkPlan.execute(SparkPlan.scala:135)
+	at org.apache.spark.sql.execution.QueryExecution.toRdd$lzycompute(QueryExecution.scala:118)
+	at org.apache.spark.sql.execution.QueryExecution.toRdd(QueryExecution.scala:116)
+	at org.apache.spark.sql.DataFrameWriter$$anonfun$runCommand$1.apply(DataFrameWriter.scala:710)
+	at org.apache.spark.sql.DataFrameWriter$$anonfun$runCommand$1.apply(DataFrameWriter.scala:710)
+	at org.apache.spark.sql.execution.SQLExecution$$anonfun$withCustomExecutionEnv$1.apply(SQLExecution.scala:111)
+	at org.apache.spark.sql.execution.SQLExecution$.withSQLConfPropagated(SQLExecution.scala:240)
+	at org.apache.spark.sql.execution.SQLExecution$.withCustomExecutionEnv(SQLExecution.scala:97)
+	at org.apache.spark.sql.execution.SQLExecution$.withNewExecutionId(SQLExecution.scala:170)
+	at org.apache.spark.sql.DataFrameWriter.runCommand(DataFrameWriter.scala:710)
+	at org.apache.spark.sql.DataFrameWriter.saveToV1Source(DataFrameWriter.scala:306)
+	at org.apache.spark.sql.DataFrameWriter.save(DataFrameWriter.scala:292)
+	at org.apache.spark.sql.DataFrameWriter.save(DataFrameWriter.scala:235)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at py4j.reflection.MethodInvoker.invoke(MethodInvoker.java:244)
+	at py4j.reflection.ReflectionEngine.invoke(ReflectionEngine.java:380)
+	at py4j.Gateway.invoke(Gateway.java:295)
+	at py4j.commands.AbstractCommand.invokeMethod(AbstractCommand.java:132)
+	at py4j.commands.CallCommand.execute(CallCommand.java:79)
+	at py4j.GatewayConnection.run(GatewayConnection.java:251)
+	at java.lang.Thread.run(Thread.java:748)
+Caused by: org.apache.spark.SparkException: Job aborted due to stage failure: Serialized task 0:0 was 323231103 bytes, which exceeds max allowed: spark.rpc.message.maxSize (268435456 bytes). Consider increasing spark.rpc.message.maxSize or using broadcast variables for large values.
+	at org.apache.spark.scheduler.DAGScheduler.org$apache$spark$scheduler$DAGScheduler$$failJobAndIndependentStages(DAGScheduler.scala:2362)
+	at org.apache.spark.scheduler.DAGScheduler$$anonfun$abortStage$1.apply(DAGScheduler.scala:2350)
+	at org.apache.spark.scheduler.DAGScheduler$$anonfun$abortStage$1.apply(DAGScheduler.scala:2349)
+	at scala.collection.mutable.ResizableArray$class.foreach(ResizableArray.scala:59)
+	at scala.collection.mutable.ArrayBuffer.foreach(ArrayBuffer.scala:48)
+	at org.apache.spark.scheduler.DAGScheduler.abortStage(DAGScheduler.scala:2349)
+	at org.apache.spark.scheduler.DAGScheduler$$anonfun$handleTaskSetFailed$1.apply(DAGScheduler.scala:1102)
+	at org.apache.spark.scheduler.DAGScheduler$$anonfun$handleTaskSetFailed$1.apply(DAGScheduler.scala:1102)
+	at scala.Option.foreach(Option.scala:257)
+	at org.apache.spark.scheduler.DAGScheduler.handleTaskSetFailed(DAGScheduler.scala:1102)
+	at org.apache.spark.scheduler.DAGSchedulerEventProcessLoop.doOnReceive(DAGScheduler.scala:2581)
+	at org.apache.spark.scheduler.DAGSchedulerEventProcessLoop.onReceive(DAGScheduler.scala:2529)
+	at org.apache.spark.scheduler.DAGSchedulerEventProcessLoop.onReceive(DAGScheduler.scala:2517)
+	at org.apache.spark.util.EventLoop$$anon$1.run(EventLoop.scala:49)
+	at org.apache.spark.scheduler.DAGScheduler.runJob(DAGScheduler.scala:897)
+	at org.apache.spark.SparkContext.runJob(SparkContext.scala:2280)
+	at org.apache.spark.sql.execution.datasources.FileFormatWriter$.write(FileFormatWriter.scala:170)
+	... 71 more
+```

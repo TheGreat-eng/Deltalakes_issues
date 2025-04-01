@@ -1,0 +1,20 @@
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+Fixes `DeltaConnectPlannerSuite` by replacing `SessionHolder.forTesting` with a copy of `createDummySessionHolder`, as this method got moved in the Spark master branch: https://github.com/apache/spark/commit/acb2fecb8c174fa4e2f23c843a904161151c8dfa
+
+## How was this patch tested?
+Fixes test.
+
+## Does this PR introduce _any_ user-facing changes?
+No.

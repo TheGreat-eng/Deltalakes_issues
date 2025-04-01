@@ -1,0 +1,53 @@
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [x] Kernel
+- [ ] Other (fill in here)
+
+## Description
+Add the following API to `ParquetHandler` to support writing Parquet files.
+
+```
+    /**
+     * Write the given data batches to a Parquet files. Try to keep the Parquet file size to given
+     * size. If the current file exceeds this size close the current file and start writing to a new
+     * file.
+     * <p>
+     *
+     * @param directoryPath Path to the directory where the Parquet should be written into.
+     * @param dataIter      Iterator of data batches to write.
+     * @param maxFileSize   Target maximum size of the created Parquet file in bytes.
+     * @param statsColumns  List of columns to collect statistics for. The statistics collection is
+     *                      optional. If the implementation does not support statistics collection,
+     *                      it is ok to return no statistics.
+     * @return an iterator of {@link DataFileStatus} containing the status of the written files.
+     * Each status contains the file path and the optionally collected statistics for the file
+     * It is the responsibility of the caller to close the iterator.
+     *
+     * @throws IOException if an I/O error occurs during the file writing. This may leave some files
+     *                     already written in the directory. It is the responsibility of the caller
+     *                     to clean up.
+     * @since 3.2.0
+     */
+    CloseableIterator<DataFileStatus> writeParquetFiles(
+            String directoryPath,
+            CloseableIterator<FilteredColumnarBatch> dataIter,
+            long maxFileSize,
+            List<Column> statsColumns) throws IOException;
+```
+
+The default implementation of the above interface uses `parquet-mr` library.
+
+## How was this patch tested?
+Added support for all Delta types except the `timestamp_ntz`. Tested writing different data types with variations of nested levels, null/non-null values and target file size.
+
+## Followup work
+* Support 2-level structures for array and primitive type data writing
+* Support INT64 format timestamp writing
+* Uniform support to add field id for intermediate elements in `MAP`, `LIST` data types.

@@ -1,0 +1,5 @@
+Includes following fixes:
+- Use StandardCharsets.UTF_8 instead of “utf-8”
+- Remove unnecessary return statement
+- Fix typo in error message
+- Fix warnings

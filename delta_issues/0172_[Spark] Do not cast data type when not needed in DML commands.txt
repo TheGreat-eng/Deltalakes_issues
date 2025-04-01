@@ -1,0 +1,42 @@
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+This PR changes the logic of data type casting in DML operations, so that when the expression has the desired output type no cast will be performed. This is to avoid a performance issue when the expression is slow to evaluate, such as for array functions on an array of structs, i.e., `array_*(array<struct<...>>, ...)`.
+
+For example, given `array_distinct(physical_ids)` inside a WHEN UPDATE clause:
+```
+CASE WHEN (size(physical_ids#270, false) = 0) THEN array_except(physical_ids#1611, []) ELSE [] END
+```
+It will be first transformed into 
+```
+array_distinct(transform(physical_ids, (_, idx) -> physical_ids[idx]))
+```
+and then to 
+```
+transform(
+  when(size(to_add) != 0, array_distinct(physical_ids), to_remove),
+  (_, idx) ->
+    when(size(to_add) != 0, array_distinct(physical_ids), to_remove)[idx]
+```
+which triples the amount of calculations.
+
+After this PR the transformation will not happen again.
+
+## How was this patch tested?
+
+Manually inspecting the query plan.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No.

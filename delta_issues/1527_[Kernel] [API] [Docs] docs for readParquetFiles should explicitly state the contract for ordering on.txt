@@ -1,0 +1,25 @@
+## Feature Request
+
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the issue title
+For example: [BUG][Spark] Title of my issue
+-->
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [X] Kernel
+- [ ] Other (fill in here)
+
+
+
+## Overview
+The kernel docs for [readParquetFiles](https://github.com/delta-io/delta/blob/master/kernel/kernel-api/src/main/java/io/delta/kernel/client/ParquetHandler.java#L65) should explicitly state the contract for ordering on the columns returned.
+
+In particular, the kernel requires that the columns be returned in the order specified in the passed schema.
+
+## Motivation
+
+Clear docs are essential to make sure we have correctly working connectors.

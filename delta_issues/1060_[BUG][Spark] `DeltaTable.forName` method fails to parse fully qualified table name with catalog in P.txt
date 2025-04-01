@@ -1,0 +1,78 @@
+## Bug
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the issue title
+For example: [BUG][Spark] Title of my issue
+-->
+
+- [X] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+### Describe the problem
+
+The `DeltaTable.forName` method from the `delta` Python package fails to parse and retrieve a Delta table created with a fully qualified three-level namespace (`catalog.schema.table`). This results in a syntax error, despite the table being accessible via Spark SQL.
+
+#### Steps to reproduce
+
+1. Install OpenJDK 17 and PySpark
+   ```bash
+   sudo apt update && sudo apt install openjdk-17-jdk -y && pip install pyspark==3.5.1 delta-spark==3.2.0
+   ```
+2. Initializate a PySpark Shell using Delta:
+   ```bash
+   pyspark --packages io.delta:delta-spark_2.12:3.2.0 --conf "spark.sql.extensions=io.delta.sql.DeltaSparkSessionExtension" --conf 
+   "spark.sql.catalog.spark_catalog=org.apache.spark.sql.delta.catalog.DeltaCatalog"
+   ```
+3. Create a new Delta table using Spark SQL with full 3 level namespace specification:
+   ```python
+   spark.sql("CREATE TABLE spark_catalog.default.delta_table (id INT NOT NULL, name STRING) USING DELTA")
+   ```
+4. Now import DeltaTable from delta Python package and try to retrive the newly created table:
+   ```python
+   from delta import DeltaTable
+   dt = DeltaTable.forName(spark, "spark_catalog.default.delta_table")
+   ```
+
+#### Observed results
+
+You will get a Syntax error, with the following traceback:
+```
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+  File "/tmp/spark-1ee53fda-4e6c-4a2a-b8d7-5ed7821ba08a/userFiles-9a4e32cc-8679-43f1-9237-cdea4e229ced/io.delta_delta-spark_2.12-3.2.0.jar/delta/tables.py", line 419, in forName
+  File "/usr/local/lib/python3.11/site-packages/pyspark/python/lib/py4j-0.10.9.7-src.zip/py4j/java_gateway.py", line 1322, in __call__
+  File "/usr/local/lib/python3.11/site-packages/pyspark/errors/exceptions/captured.py", line 185, in deco
+  raise converted from None
+pyspark.errors.exceptions.captured.ParseException:
+[PARSE_SYNTAX_ERROR] Syntax error at or near '.'.(line 1, pos 21)
+
+== SQL ==
+spark_catalog.default.delta_table
+---------------------^^^                                                                                                                                                                                          
+```
+
+#### Expected results
+
+<!-- What did you expect to happen? -->
+
+#### Further details
+
+I should get the same result as using the 2-level syntax (without specifying the catalog). Using Spark SQL I can also access the Delta table correctly. The problem seems to be specific to the Python package API.
+
+### Environment information
+
+* Python version: 3.11.9
+* Delta Lake version: 3.2.0
+* Spark version: 3.5.1
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [ ] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [X] No. I cannot contribute a bug fix at this time.

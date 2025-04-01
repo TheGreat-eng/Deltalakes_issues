@@ -1,0 +1,5 @@
+Convert the tests written in Java to Scala. Scala suites have better test framework and takes few lines to write a test compared to Java.
+
+Java suite: [TestDletaTableReads](https://github.com/delta-io/delta/blob/master/kernel/kernel-defaults/src/test/java/io/delta/kernel/defaults/integration/TestDeltaTableReads.java)
+
+Target Scala suite [DeltaTableReadsSuite](https://github.com/delta-io/delta/blob/master/kernel/kernel-defaults/src/test/scala/io/delta/kernel/defaults/DeltaTableReadsSuite.scala)

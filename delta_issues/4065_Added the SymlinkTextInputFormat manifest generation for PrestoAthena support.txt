@@ -1,0 +1,12 @@
+This PR is the first in the sequence of PRs to add manifest file generation (SymlinkInputFormat) to OSS Delta for Presto/Athena read support (issue https://github.com/delta-io/delta/issues/76). Specifically, this PR adds the core functionality for manifest generation and rigorous tests to verify the contents of the manifest. Future PRs will add the public APIs for on-demand generation. 
+
+- Added post-commit hooks to run tasks after a successful commit.
+
+- Added GenerateSymlinkManifest implementation of post-commit hook to generate the manifests.
+  - Each manifest contains the name of data files to read for querying the whole table or partition
+  - Non-partitioned table produces a single manifest file containing all the data files.
+  - Partitioned table produces partitioned manifest files; same partition structured like the table, each partition directory containing one manifest file containing data files of that partition. This allows Presto/Athena partition-pruned queries to read only manifest files of the necessary partitions.
+  - Each attempt to generate manifest will atomically (as much as possible) overwrite the manifest files in the directories (if they exist) and also delete manifest files of partitions that have been deleted from the table.
+
+Co-authored-by: Tathagata Das <tathagata.das1565@gmail.com>
+Co-authored-by: Rahul Mahadev <rahul.mahadev@databricks.com>

@@ -1,0 +1,4 @@
+To create a Python script to read Delta Lake:
+- executed the manifest file creation (or run its APIs) and 
+- then have Python read the Parquet files directly
+

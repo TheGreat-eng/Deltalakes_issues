@@ -1,0 +1,21 @@
+The feature ask is 
+> to have the ability to define negative version numbers like VERSION AS OF -1 to get the previous version, VERSION AS OF -2 to get the version two commits ago etc... similar to what you can do in Python with arrays to select the trailing elements.
+
+resolves #636 
+
+### Feature Behavior
+Similar to `latest` semantics, reading a negative indexed version won't always return the same version. 
+
+For example, if the sequence of events is 
+1. you query `versionAsOf(-1)`
+2. a process writes to the table thus creating a new version
+3. you query `versionAsOf(-1)` again after the write
+
+your retrieved versions will be different. 
+
+If you query for a negative indexed version that has an absolute value higher than the latest version available, you will get a `VersionNotFoundException` saying something similar to "Cannot time travel Delta table to version -N".
+
+
+### Technical Solution Description
+
+I've done this by resolving negative index version numbers to their positive counterparts in the `DeltaHistoryManager` and allowing negative versions in `DeltaOptions` for streaming scenarios. 

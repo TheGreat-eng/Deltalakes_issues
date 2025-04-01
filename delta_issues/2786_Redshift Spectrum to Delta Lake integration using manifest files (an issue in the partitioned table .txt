@@ -1,0 +1,110 @@
+I am working with Delta Table and Redshift Spectrum and I notice strange behaviour.
+
+I follow this article to set up a Redshift Spectrum to Delta Lake integration using manifest files and query Delta tables: https://docs.delta.io/latest/redshift-spectrum-integration.html
+
+### Environment information
+
+* Delta Lake version: 1.0.1 (io.delta)
+* Spark version: 2.4.3
+* Scala version: 2.12.10
+
+### Describe the problem
+
+In my use case, the delta table is partitioned by 3 columns (year, month and day). Delta table have also the "application_id" column used as the key for the insert/update operations.
+
+```
+
+CREATE EXTERNAL TABLE yyyyy.xxxxxxxx (
+application_id string,
+general_status_startingoffer string,
+general_status_offer string
+)
+PARTITIONED BY (year string, month string, day string)
+ROW FORMAT SERDE 'org.apache.hadoop.hive.ql.io.parquet.serde.ParquetHiveSerDe'
+STORED AS INPUTFORMAT 'org.apache.hadoop.hive.ql.io.SymlinkTextInputFormat'
+OUTPUTFORMAT 'org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat'
+LOCATION 's3://xxxxxxx/v0/data/\_symlink_format_manifest/'
+TBLPROPERTIES ('delta.compatibility.symlinkFormatManifest.enabled'='true');
+```
+
+Furthermore, an external schema has been created in redshift for mirroring data of the last version of the delta table.
+
+```
+
+create external schema yyyyy
+from data catalog database 'yyyyy'
+iam_role '${iam_role}';
+```
+
+We are using Athena and Redshift Editor to query the records.
+
+The issue seems linked to an old partition that was been deleted in the last version of the delta table. In particular, redshift raises an Error whether fetching Delta Lake manifest. 
+
+#### Steps to reproduce
+Following the steps to replicate the error:
+
+ 1. The first glue job run creates 1 record in the following partition: year=2022, month=10, day=5
+
+ 2. Symlink manifest is generated for redshift
+
+    
+![image](https://user-images.githubusercontent.com/38860380/208919086-7399eb86-0e52-4a60-8690-b4fa0c489681.png)
+
+
+ 3. Data has been correctly written
+
+![image](https://user-images.githubusercontent.com/38860380/208919117-fd6de5e6-2e4a-470b-a2d8-2ca5ff397c57.png)
+
+ 4. Delta log shows a newly added partition (year=2022, month=10, day=05)
+
+ 5. Query on Athena shows correct results:
+
+![image](https://user-images.githubusercontent.com/38860380/208919145-76e0ad14-e01a-43a9-a104-67c3d93d4a09.png)
+
+ 6. Query on redshift shows correct results:
+
+![image](https://user-images.githubusercontent.com/38860380/208919183-b09e2c7c-d6e1-43cb-8a6f-4523bd86af0f.png)
+
+ 7. The second glue job run updates this record, changing 2 columns (general_status_offer and day)
+
+ 8. Symlink manifest is re-generated for redshift
+
+![image](https://user-images.githubusercontent.com/38860380/208919423-2f843f7f-6ea2-4284-a252-2c0d4b09399d.png)
+
+ 9. The redshift manifest seems to be correctly updated
+
+    ![image](https://user-images.githubusercontent.com/38860380/208919384-7fcd9492-bbf9-4d17-af5c-b2c4b3edea63.png)
+
+10. Delta log shows a new added partition (year=2022, month=10, day=13) and a deleted partition (year=2022, month=10, day=05). Query on Athena shows correct results:
+
+![image](https://user-images.githubusercontent.com/38860380/208919359-852d670d-7c15-431c-aaa7-f7210f37a875.png)
+
+Query on redshift fails with the following error message:
+```
+
+Caught exception in worker_thread loader thread for location=s3://xxxxxxx/v0/data/\_symlink_format_manifest/year=2022/month=10/day=05: error=DeltaManifest context=Error fetching Delta Lake manifest xxxxx/v0/data/\_symlink_format_manifest/year=2022/month=10/day=05/manifest Message: S3ServiceException:The specified key does not exist.,Status 404,Error NoSuchKey,Rid 8ZCB2E6TTZ7JMHFD,ExtRid vnD7YB7JAPkW/
+
+```
+
+It can be resolved by adding a new symlink folder (year=2022, month=10, day=05) with an empty manifest file or running this statement on redshift:
+```
+
+ALTER TABLE xxxx DROP PARTITION (year='2022', month='10', day='05');
+
+```
+
+We need to automatize this step and it is not easy to recognize which partitions are deleted. Are there any properties that I can set to force the automatic resolution?
+If not, this could be a good enhancement :)
+
+
+  [1]: https://i.stack.imgur.com/s4uZz.png
+  [2]: https://i.stack.imgur.com/f2HlA.png
+  [3]: https://i.stack.imgur.com/BKtUv.png
+  [4]: https://i.stack.imgur.com/MFMvi.png
+  [5]: https://i.stack.imgur.com/YwaHJ.png
+  [6]: https://i.stack.imgur.com/MYfUX.png
+  [7]: https://i.stack.imgur.com/Sx1LK.png
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [x] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute a bug fix at this time.

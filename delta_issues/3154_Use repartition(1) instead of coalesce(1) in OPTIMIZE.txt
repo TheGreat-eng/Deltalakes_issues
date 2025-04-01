@@ -1,0 +1,61 @@
+<!--
+Thanks for sending a pull request!  Here are some tips for you:
+  1. If this is your first time, please read our contributor guidelines: https://github.com/delta-io/delta/blob/master/CONTRIBUTING.md
+  2. If the PR is unfinished, add '[WIP]' in your PR title, e.g., '[WIP] Your PR title ...'.
+  3. Be sure to keep the PR description updated to reflect all changes.
+  4. Please write your PR title to summarize what this PR proposes.
+  5. If possible, provide a concise example to reproduce the issue for a faster review.
+  6. If applicable, include the corresponding issue number in the PR title and link it in the body.
+-->
+
+## Description
+
+<!--
+- Describe what this PR changes.
+- Describe why we need the change.
+ 
+If this PR resolves an issue be sure to include "Resolves #XXX" to correctly link and close the issue upon merge.
+-->
+
+Use repartition(1) instead of coalesce(1) in OPTIMIZE for better performance.
+
+Since it involves shuffle, it might cause some problem when the cluster has not much resources. To avoid it, add a new config to make it switchable:
+
+`spark.databricks.delta.optimize.repartition.enabled` (default: false)
+
+
+#### Reference and quick benchmark result for repartition(1) and coalesce(1)
+
+Spark API documentation: https://spark.apache.org/docs/latest/api/java/org/apache/spark/sql/Dataset.html#coalesce-int-
+> However, if you're doing a drastic coalesce, e.g. to numPartitions = 1, this may result in your computation taking place on fewer nodes than you like (e.g. one node in the case of numPartitions = 1). To avoid this, you can call repartition. This will add a shuffle step, but means the current upstream partitions will be executed in parallel (per whatever the current partitioning is).
+
+Quick benchmark result (spark 3.2):
+use 100 files, ~24MB parquet in total (64.2MB in Dataset)
+<img src="https://user-images.githubusercontent.com/51077614/171086683-8e5febbb-0cfe-4fdb-9886-7733ef4e883c.png" width="400" height="200">
+
+use 100 files, ~240MB parquet in total (640MB in Dataset)
+<img src="https://user-images.githubusercontent.com/51077614/171086861-7fc3f32d-7f35-4da0-b0df-da4e0de196fd.png" width="400" height="200">
+
+Result with 9 executors / 72 cores = enough resources
+
+<img width="154" alt="image" src="https://user-images.githubusercontent.com/51077614/171101808-4e117ff3-eaee-43af-9fd4-81fc81f4f596.png">
+
+
+
+## How was this patch tested?
+
+<!--
+If tests were added, say they were added here. Please make sure to test the changes thoroughly including negative and positive cases if possible.
+If the changes were tested in any way other than unit tests, please clarify how you tested step by step (ideally copy and paste-able, so that other reviewers can test and check, and descendants can verify in the future).
+If the changes were not tested, please explain why.
+-->
+n/a
+
+## Does this PR introduce _any_ user-facing changes?
+
+<!--
+If yes, please clarify the previous behavior and the change this PR proposes - provide the console output, description and/or an example to show the behavior difference if possible.
+If possible, please also clarify if this is a user-facing change compared to the released Delta Lake versions or within the unreleased branches such as master.
+If no, write 'No'.
+-->
+No

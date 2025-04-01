@@ -1,0 +1,5 @@
+In the protocol, it states that:
+
+_"A delta file, n.json, contains an atomic set of [actions](https://github.com/delta-io/delta/blob/master/PROTOCOL.md#Actions) that should be applied to the previous table state, n-1.json, in order to the construct nth snapshot of the table. An action changes one aspect of the table's state, for example, adding or removing a file."_
+
+I think failOnDataLoss being set to false results in [building](https://github.com/delta-io/delta/blob/master/spark/src/main/scala/org/apache/spark/sql/delta/DeltaLog.scala#L292) the state according to the last seen version (ie if n-1 cannot be found, n is built in terms of n-2).  Is this correct? If so, would it be possible to update the protocol using this?

@@ -1,0 +1,46 @@
+## Feature request
+
+#### Which Delta project/connector is this regarding?
+
+This will be a PROTOCOL change.
+
+### Overview
+
+Today’s Delta commit protocol relies on the filesystem to provide commit atomicity. This writer-only table feature request is to allow an external commit-coordinator to decide whether a commit succeeded instead of relying on filesystem atomicity, similar to Iceberg's [metastore tables](https://iceberg.apache.org/spec/#metastore-tables). The filesystem remains the source of truth about the actual content of commits, and (unlike Iceberg metastore tables) filesystem-based readers can still access the table directly. This allows us to deal with various limitations of delta mentioned below in Motivation section.
+
+### Motivation
+
+Today’s Delta commit protocol relies on the filesystem to provide commit atomicity, both for durability and mutual exclusion purposes. This is problematic for several reasons:
+1. No reliable way to involve a catalog with the commit
+1.1. Impossible to keep the catalog and the table state in sync, and the catalog cannot reject commit attempts it wouldn’t like, because it doesn’t even know about them until after they become durable (and visible to readers).
+1.2. No clear path to transactions that could span multiple tables and/or involve catalog updates, because filesystem commits cannot be made conditionally or atomically.
+2. No way to tie commit ownership to a table
+2.1. In general, Delta tables have no way to advertise that they are managed by catalog or LogStore X (at endpoint Y)
+2.2. Today a table could be configured to use different log stores in different clusters. Each of the LogStore implementations tries to implement put-if-absent on their own. Since these implementations are not aware of each other, this leads to lost commits and table corruption.
+2.3. The logStore setting today is cluster-wide, so you can't safely mix tables with different logStores.
+3. No way to do commits over multiple tables atomically
+3.1 We need a way where we can commit to multiple tables at once, allowing us to support multi-table transactions.
+
+### Further details
+
+The detail proposal and the required protocol changes are sketched out [in this doc](https://docs.google.com/document/d/1ZzNwKWrMVrNHc9qfhm7CZEn-AXcnD7NnosL0j6l5Iko/edit?usp=sharing).
+
+
+**At high level**: We propose a new Delta writer table feature, `coordinatedCommits`. The table feature includes the following capabilities:
+1. Conforming Delta clients will refuse to attempt filesystem-based commits against a table that enables `coordinateCommits`. 
+2. A table that uses `coordinated commits` can include metadata (dictated by the table’s commit coordinator) that would-be writers can use to correctly perform a commit.
+3. Delta client passes the actions that need to be committed to the commit-store.
+a. The commit-store writes the actions in a unique commit file.
+b. The commit-store then does a commit as per its spec.
+4. If a commit fails due to physical conflict (e.g. two racing blind appends), the client can verify no logical conflicts exist, rebase their actions and then reattempt the commit with commit-store with an updated version, after.
+5. Once commit V has been ratified, it should be copied to V.json (= “backfilled”) in order to bound the amount of history the commit coordinator is required to keep for each table.
+6. The commit-store maintains information about all the un-backfilled commits which will be used by other other delta clients to access the most recent snapshot of the table.
+7. At some point after backfill completes, the commit coordinator deletes the internal mapping for that commit.
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [X] Yes. I can contribute this feature independently.
+- [ ] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.

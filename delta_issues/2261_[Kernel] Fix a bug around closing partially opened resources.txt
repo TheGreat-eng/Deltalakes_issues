@@ -1,0 +1,17 @@
+#### Which Delta project/connector is this regarding?
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [x] Kernel
+- [ ] Other (fill in here)
+
+## Description
+Fix a bug in resource handling where we are always closing the resources which should be closed only when a failure occurs.
+
+Currently, the code opens two resources, it maintains the opened resource list to close in case the function isn't successful in opening all the required resources. Resources in the maintained list should only be closed when an error occurs (it should be in the `catch` block not in `finally`)
+
+## How was this patch tested?
+Existing tests
+
+## Does this PR introduce _any_ user-facing changes?
+No

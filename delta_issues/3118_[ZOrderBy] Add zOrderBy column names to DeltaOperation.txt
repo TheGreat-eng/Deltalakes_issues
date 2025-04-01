@@ -1,0 +1,6 @@
+## What changes were proposed in this pull request?
+Add zOrderBy columns to DeltaOperation `Optimize`. This will help log the zOrderBy columns in Delta table history
+
+## How was this patch tested?
+Added test for checking the Delta history once the zOrderBy command is complete
+Added test to verify the zOrderBy command output. As part of this test a bug was found where we are assigning the number of zCubes constructed as 1. It should be equal to the number of partitions.

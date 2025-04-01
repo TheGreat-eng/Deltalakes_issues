@@ -1,0 +1,48 @@
+## Feature request
+
+### Overview
+
+<!-- Provide a high-level description of the feature request. -->
+
+As explain in [here](https://docs.databricks.com/delta/delta-streaming.html#idempot-write), a Spark streaming job can perform idempotent table writes in `foreachBatch` by passing option `txnAppId` and `txnVersion` to `DataFrameWriter` to avoid any inconsistent state when one of the write operation failed. For example:
+
+```python
+dataframe.write.format("delta").option("txnVersion", batch_id).option("txnAppId", app_id).save(...)
+```
+
+However, there is no way to pass the same options to the merge operation
+
+```
+DeltaTable.forName(spark, table).merge(...)
+```
+
+This blocks us to perform idempotent writes using Delta merge.
+
+### Motivation
+
+<!-- How will this feature be used? Why is it important? Which users will benefit from it? -->
+A Spark streaming job can use Delta tables as source and sink. This feature allows the job to perform idempotent writes using merge operation to two or more different Delta tables in a single streaming job.
+
+This feature is important because we can use only a single streaming job to perform idempotent writes to two or more Delta tables
+using merge operation, instead of multiple ones. The former will reduce the cost since a single job requires a single `ListObject` S3 API call, for every trigger, to detect any change on the source table. On the other hand, the latter will need multiple API calls.
+
+All users that use merge operation in their Spark streaming job will benefit from this feature.
+
+### Further details
+
+<!--
+Use this section to include any additional information about the feature. If you have a proposal for how to implement this feature, please include it here. For implementation guidelines, please read our contributor guidelines: https://github.com/delta-io/delta/blob/master/CONTRIBUTING.md
+If there are any specific requirements for this feature that are not immediately obvious please outline them here.
+-->
+
+I think there are several ways to implement this feature:
+1. Introduce new method `option(key, value)` to class `DeltaMergeBuilder`, and then pass the option to `DataFrameWriter`.
+2. Introduce new Spark config parameters (`spark.databricks.delta.write.txnAppId`, `spark.databricks.delta.write.txnVersion`) that can be set using `spark.conf.set(key, value)`, and then pass the values to `DataFrameWriter`.
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [ ] Yes. I can contribute this feature independently.
+- [x] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.

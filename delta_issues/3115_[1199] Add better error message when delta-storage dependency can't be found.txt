@@ -1,0 +1,10 @@
+## Description
+
+Resolves #1199 
+ 
+This PR checks that classes within the delta-storage dependency can be properly found. If not, we throw an error message with more information and link on how to solve this problem.
+
+## How was this patch tested?
+Wrote an integration test. In this test, we run a python file using `spark-submit` by passing in the `delta-core` JAR instead of the package. This is not the suggested way to do this. But by doing it this way, we know that the `delta-storage` JAR will be missing, and that we can expect our nice error message to be thrown.
+
+You can execute this test using: `python3 run-integration-tests.py --python-only --use-local`

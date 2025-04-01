@@ -1,0 +1,22 @@
+## Feature request
+
+This is an umberella issue for _Checkpoint V2_ Support.
+
+### Motivation
+
+The current semantics to decide a valid checkpoint and its corresponding files in DeltaLog are weak. Delta relies on directory listing and file naming scheme to decide what a checkpoint consists of (corresponding files, number of parts etc). This slows down the directory listing, and can also lead to bugs around checkpoints being corrupted due to concurrent checkpoint writers.
+    In addition to this, the current checkpoint format doesn’t allow sharing of checkpoint files across different checkpoints, which guarantees storage bloat and blocks any potential optimizations that might reduce that bloat.
+The current Delta Protocol also forbids us from doing checkpoint meta-clustering. As per [Delta Protocol](https://github.com/delta-io/delta/blob/master/PROTOCOL.md#checkpoints-1):
+_When writing multi-part checkpoints, the data must be clustered (either through hash or range partitioning) by the 'path' of an added or removed file, or null otherwise. This ensures deterministic content in each part file in case of multiple attempts to write the files._
+The above clause in the spec is for handling zombie write tasks e.g. when spark tries to rerun the checkpoint write job, old tasks might still be running and compete with the new task. So a deterministic partitioning scheme is necessary to avoid corruption in this scenario and so delta spec doesn’t allow any non-deterministic clustering algorithms. But even with the above constraint, there could still be corruption when there are two concurrent checkpoint  writers from different delta clients where one of them chose range partitioning and another chose hash partitioning. In such a scenario, the end result might have files partially from writer-1 and partially from writer-2.
+
+### Proposal
+
+The proposal is to comeup with a new checkpoint format called Checkpoint _V2_ which overcomes all the above mentioned issue and is flexible enough to incorporate more optimizations.
+ - The format allows checkpoints to be published atomically using sidecars which are linked to a unique parent checkpoint file.
+
+### Further details
+
+The detail proposal and the required protocol changes are sketched out [in this doc](https://docs.google.com/document/d/18D4SiI0_t7ak8sgvyQtH9lBUyGJIp8hyZi2-399uByQ/edit?usp=sharing).
+
+

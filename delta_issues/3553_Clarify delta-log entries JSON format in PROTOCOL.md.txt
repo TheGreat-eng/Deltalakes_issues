@@ -1,0 +1,8 @@
+Could we clarify that delta-log files are JSON line-delimited files in https://github.com/delta-io/delta/blob/master/PROTOCOL.md#delta-log-entries ?
+
+In the PROTOCOL.md file it is not clear what is the format of JSON. Every delta-log entry file is "new-line delimited json file", but this is not specified in this file. Protocol do not explicitly specify that every action is stored as a single-line JSON document and that all actions are separated with NEW-LINE character. We can notice this by inspecting the log entries, but it should be described in the protocol.
+
+Additional confusion causes the section like: https://github.com/delta-io/delta/blob/master/PROTOCOL.md#add-file-and-remove-file where the action is presented as pretty-formatted JSON with newlines and indentation, but in practice this kind of actions are always stored in a single line.
+
+This is the issue for the tools that are parsing JSON entries because a custom parser must know is new-line delimited JSON format expected or need to handle a case where some action is placed in multiple lines. 
+

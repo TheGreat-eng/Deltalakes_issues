@@ -1,0 +1,1 @@
+I am trying to evaluate Delta for our organisation. Is it possible to run the VACCUM command when there are active Data Engineering jobs happening on cluster? Do I need to wait till there are no jobs?

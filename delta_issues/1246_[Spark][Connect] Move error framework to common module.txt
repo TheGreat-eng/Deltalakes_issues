@@ -1,0 +1,19 @@
+#### Which Delta project/connector is this regarding?
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+This PR moves the Spark error framework to a separate module. This will allow Delta Connect to reuse these error classes without having to depend on all of Spark.
+
+## How was this patch tested?
+
+Existing tests
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

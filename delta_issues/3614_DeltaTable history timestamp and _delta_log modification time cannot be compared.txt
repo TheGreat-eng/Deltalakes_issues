@@ -1,0 +1,56 @@
+How can we compare DeltaTable history with the jsons in the _delta_log? Converting the timestamp using long or unix_timestamp is truncated by 3 digits compared to the json modificationTime. I dont think it would be safe to make the assumption that we need to add 3 zeros to timestamp there could be cases where this might fail.
+```
+Delta: 0.8.0
+Spark: 3.1.1
+Scala: 2.12.10
+Java: 11.0.11
+```
+modificationTime from the json:                                                    1623728945356
+timestamp (convert to long or unix_timestamp) from history:    1623728947
+
+```scala
+scala> histDF.select("version", "timestamp", "operationParameters", "userMetadata").withColumn("timestamp", $"timestamp".cast("long")).show(false)
++-------+----------+--------------------------------------------------------------------------------------------+---------------+
+|version|timestamp |operationParameters                                                                         |userMetadata   |
++-------+----------+--------------------------------------------------------------------------------------------+---------------+
+|1      |1623728947|{mode -> Overwrite, partitionBy -> [], predicate -> par_day = '20210501' AND par_hour = '0'}|data compaction|
+|0      |1623400053|{mode -> ErrorIfExists, partitionBy -> ["par_day","par_hour"]}                              |null           |
++-------+----------+--------------------------------------------------------------------------------------------+---------------+
+
+
+scala> jsonDF.select("add.*").where("modificationTime is not null").sort(desc("modificationTime")).show
++----------+----------------+---------------+--------------------+---------+
+|dataChange|modificationTime|partitionValues|                path|     size|
++----------+----------------+---------------+--------------------+---------+
+|      true|   1623728945356|  {20210501, 0}|par_day=20210501/...|985052893|
+|      true|   1623728943952|  {20210501, 0}|par_day=20210501/...|983851523|
+|      true|   1623728934774|  {20210501, 0}|par_day=20210501/...|983636509|
+|      true|   1623728921557|  {20210501, 0}|par_day=20210501/...|983015223|
+|      true|   1623400051981| {20210503, 16}|par_day=20210503/...| 27244020|
+|      true|   1623400048302| {20210501, 14}|par_day=20210501/...| 38653301|
+|      true|   1623400048227| {20210503, 22}|par_day=20210503/...| 17866234|
+|      true|   1623400047843|  {20210501, 3}|par_day=20210501/...|101463290|
+|      true|   1623400047705|  {20210501, 3}|par_day=20210501/...|100298319|
+|      true|   1623400042979|  {20210501, 3}|par_day=20210501/...| 51467169|
+|      true|   1623400041636|  {20210503, 0}|par_day=20210503/...| 62117326|
+|      true|   1623400040757|  {20210503, 0}|par_day=20210503/...| 32437249|
+|      true|   1623400040629| {20210503, 16}|par_day=20210503/...| 12831485|
+|      true|   1623400039716|  {20210501, 9}|par_day=20210501/...| 74579055|
+|      true|   1623400039715|  {20210502, 9}|par_day=20210502/...| 38789701|
+|      true|   1623400039604|  {20210503, 0}|par_day=20210503/...| 63079070|
+|      true|   1623400039599|  {20210501, 9}|par_day=20210501/...| 75488381|
+|      true|   1623400039519|  {20210501, 9}|par_day=20210501/...| 75828477|
+|      true|   1623400039403|  {20210502, 9}|par_day=20210502/...| 77856165|
+|      true|   1623400039293| {20210503, 10}|par_day=20210503/...| 85043359|
++----------+----------------+---------------+--------------------+---------+
+only showing top 20 rows
+
+
+scala> histDF.select("version", "timestamp", "operationParameters", "userMetadata").withColumn("timestamp", unix_timestamp($"timestamp")).show(false)
++-------+----------+--------------------------------------------------------------------------------------------+---------------+
+|version|timestamp |operationParameters                                                                         |userMetadata   |
++-------+----------+--------------------------------------------------------------------------------------------+---------------+
+|1      |1623728947|{mode -> Overwrite, partitionBy -> [], predicate -> par_day = '20210501' AND par_hour = '0'}|data compaction|
+|0      |1623400053|{mode -> ErrorIfExists, partitionBy -> ["par_day","par_hour"]}                              |null           |
++-------+----------+--------------------------------------------------------------------------------------------+---------------+
+```

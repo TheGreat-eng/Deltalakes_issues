@@ -1,0 +1,51 @@
+## Feature request
+
+### Overview & Motivation
+This task is part of the Deletion Vectors to speed up DML operations. Refer to the [umbrella issue](https://github.com/delta-io/delta/issues/1367) for the design and details.
+
+The scope of this issue is to support the DELETE command with Deletion Vectors (DVs). In the curent implementation, DELETE rewrites all files having at least one row that matches the DELETE condition. The rewrite removes the matching rows. This could be an expensive operation if the DELETE is touching only few rows per file. Using DVs, the rewrites can be avoided. DVs are separate metadata files (reference stored in `AddFile` metadata) for each data file containing the indexes of the rows that are marked as deleted. For the protocol details of DVs, see [Deletion Vectors](https://github.com/delta-io/delta/blob/master/PROTOCOL.md#deletion-vector-files)
+
+## High level implementation details
+Current implementation of the DELETE has following steps:
+
+- Step 1: Find the data files in current snapshot that have rows matching the DELETE condition (`deleteCondition`)
+- Step 2: Replace the `TahoeFileIndex` in the original table scan with a `TahoeBatchFileIndex` that contains file list generated in Step 1.
+- Step 3: Rewrite the files using the scan created in Step 2 after `Filter(!deleteCondition)`
+- Step 4: Use the Delta protocol to remove all files from Step 1 and add new files generated in Step 3.
+
+DELETE with DVs modifies the above steps as follows:
+
+- Step 1: (not changed) Find the data files in current snapshot that have rows matching the `deleteCondition`. Call the file list generated as `candidateFiles`.
+- Step 2: Replace the `TahoeFileIndex` in the original table scan with a `TahoeBatchFileIndex` that contains the `candidateFiles` generated in Step 1. In addition, we also modify the `Scan` and `TahoeBatchFileIndex` to select few additional metadata columns.
+   * `_metadata.file_path` - absolute path of the data file
+   * `row_index` - For each this number correspond to the position of this row in the data file from which it is read.
+- Step 3: Has multiple sub-steps
+  * Create a data frame (`targetDf`) from Scan created in Step 2 and with `Filter(deleteCondition)`.
+  * filesWithDvDf = targetDf
+        .select("_metadata.file_path", "row_index")
+        .join(candidateFiles.toDF().select("file_path", "deletionVector", joinExpr = _metadata.file_path = file_path)
+        .agg(new BitmapAggregator(col("row_index")).groupBy("_metadata.file_path, "deletionVector")
+        .select("_metadata.file_path", "bitmap", "bitmapRowCount")
+
+      * In the above map, we are basically aggregating all row_indexes that match the `deleteCondition` into a bitmap. This is a custom UDAF implementation that generates a `RoaringArrayBitmap`.
+     * Before aggregating we join the each file with its existing DV, so that when a new DV is rewritten it includes the existing DVs and the existing rows marked as deleted are still marked as deleted.
+- Step 4: Go through the results in `filesWithDvDf` and generates `AddFile` actions with DVs and also the remove file actions for `candidateFileList`. There are some corner cases here. If the DELETE removes all rows in the file, mark the files as completely deleted using the `RemoveFile` instead of adding a `AddFile` with DV that marks all rows as deleted. Commit the files actions to Delta table using the protocol.
+     
+## Project Plan
+ID| Task description | PR | Status | Author |
+|---|---|---|---|---|
+|1| Bitmap aggregator UDAF |delta-io/delta#1592|DONE|@vkorukanti|
+|2| Update `DeltaParquetFileFormat` to populate row index when the schema contains the columns. In order to generate the row_index, we disable file splitting and filter pushdown into reader. This is temporary until we upgrade to Parquet reader in Spark 3.4 that generates the row_indexes with file splitting and filter pushdown. | delta-io/delta#1593|DONE|@vkorukanti|
+|3| Update `DeleteCommand` to use DVs based on a configuration option and whether DV feature is enabled on the table or not. |delta-io/delta#1596|DONE|@vkorukanti|
+|4| Recompute stats and set `tightBounds=wide` for the data files that have DVs generated. TODO code pointer is [here](https://github.com/delta-io/delta/blob/master/core/src/main/scala/org/apache/spark/sql/delta/commands/DeleteWithDeletionVectorsHelper.scala#L165).  |delta-io/delta#1661|DONE|@xupefei|
+|5| Recalculate stats for files with DVs that don't have stats to begin with |16ca361dc5|DONE|@vkorukanti|
+|6| DV Metrics |||
+|7| Combine multiple DVs into one DV file |delta-io/delta#1670|DONE|@vkorukanti|
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [x] Yes. I can contribute this feature independently.
+- [ ] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.

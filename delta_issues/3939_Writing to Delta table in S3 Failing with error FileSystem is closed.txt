@@ -1,0 +1,49 @@
+I am getting following error while I am writing into delta table in S3.  I don't get any error if I write only 1 day worth of data (2592), but when I write 10 days of data (259200 records) following happens:
+**Note:** When I write it as "Parquet" format no error. This only happens when it is "delta"
+I have tried **reducing the shuffle partitions** to 15, since its not a big data set. Still same error.
+
+java.io.IOException: s3a://delta-uuid-test: !
+	at org.apache.hadoop.fs.s3a.S3AFileSystem.checkNotClosed(S3AFileSystem.java:2549)
+	at org.apache.hadoop.fs.s3a.S3AFileSystem.entryPoint(S3AFileSystem.java:1169)
+	at org.apache.hadoop.fs.s3a.S3AFileSystem.innerGetFileStatus(S3AFileSystem.java:2159)
+	at org.apache.hadoop.fs.s3a.S3AFileSystem.getFileStatus(S3AFileSystem.java:2143)
+	at org.apache.spark.sql.delta.files.DelayedCommitProtocol.$anonfun$commitTask$1(DelayedCommitProtocol.scala:141)
+	at scala.collection.TraversableLike.$anonfun$map$1(TraversableLike.scala:238)
+	at scala.collection.mutable.ResizableArray.foreach(ResizableArray.scala:62)
+	at scala.collection.mutable.ResizableArray.foreach$(ResizableArray.scala:55)
+	at scala.collection.mutable.ArrayBuffer.foreach(ArrayBuffer.scala:49)
+	at scala.collection.TraversableLike.map(TraversableLike.scala:238)
+	at scala.collection.TraversableLike.map$(TraversableLike.scala:231)
+	at scala.collection.AbstractTraversable.map(Traversable.scala:108)
+	at org.apache.spark.sql.delta.files.DelayedCommitProtocol.commitTask(DelayedCommitProtocol.scala:139)
+	at org.apache.spark.sql.execution.datasources.FileFormatDataWriter.commit(FileFormatDataWriter.scala:78)
+	at org.apache.spark.sql.execution.datasources.FileFormatWriter$.$anonfun$executeTask$1(FileFormatWriter.scala:247)
+	at org.apache.spark.util.Utils$.tryWithSafeFinallyAndFailureCallbacks(Utils.scala:1394)
+	at org.apache.spark.sql.execution.datasources.FileFormatWriter$.executeTask(FileFormatWriter.scala:242)
+	at org.apache.spark.sql.execution.datasources.FileFormatWriter$.$anonfun$write$15(FileFormatWriter.scala:177)
+	at org.apache.spark.scheduler.ResultTask.runTask(ResultTask.scala:90)
+	at org.apache.spark.scheduler.Task.run(Task.scala:123)
+	at org.apache.spark.executor.Executor$TaskRunner.$anonfun$run$3(Executor.scala:411)
+	at org.apache.spark.util.Utils$.tryWithSafeFinally(Utils.scala:1360)
+	at org.apache.spark.executor.Executor$TaskRunner.run(Executor.scala:414)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)
+	at java.lang.Thread.run(Thread.java:748)
+20/04/03 00:24:55 ERROR FileFormatWriter: Job job_20200403002442_0021 aborted.
+20/04/03 00:24:55 WARN AWSCredentialProviderList: Credentials requested after provider list was closed
+20/04/03 00:24:55 WARN AWSCredentialProviderList: Credentials requested after provider list was closed
+20/04/03 00:24:55 WARN AWSCredentialProviderList: Credentials requested after provider list was closed
+20/04/03 00:24:55 WARN AWSCredentialProviderList: Credentials requested after provider list was closed
+20/04/03 00:24:55 ERROR Utils: Uncaught exception in thread Executor task launch worker for task 316
+java.lang.NullPointerException
+	at org.apache.spark.scheduler.Task.$anonfun$run$1(Task.scala:144)
+	at org.apache.spark.util.Utils$.tryLogNonFatalError(Utils.scala:1340)
+	at org.apache.spark.scheduler.Task.run(Task.scala:142)
+	at org.apache.spark.executor.Executor$TaskRunner.$anonfun$run$3(Executor.scala:411)
+	at org.apache.spark.util.Utils$.tryWithSafeFinally(Utils.scala:1360)
+	at org.apache.spark.executor.Executor$TaskRunner.run(Executor.scala:414)
+	at java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1142)
+	at java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:617)
+	at java.lang.Thread.run(Thread.java:748)
+20/04/03 00:24:55 ERROR Utils: Aborting task
+java.nio.file.AccessDeniedException: device-metric-observation/date=2020-03-04/part-00014-836c7d33-794c-4623-9d56-86d936eacfd7.c000.snappy.parquet/: org.apache.hadoop.fs.s3a.auth.NoAuthWithAWSException: Credentials requested after provider list was closed

@@ -1,0 +1,58 @@
+
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [X] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+<!--
+- Describe what this PR changes.
+- Describe why we need the change.
+ 
+If this PR resolves an issue be sure to include "Resolves #XXX" to correctly link and close the issue upon merge.
+-->
+
+Resolves #3436
+
+In this implementation, the command checks if all of the parquet files that are referenced in the delta log of the current table exist and removes any references to files that don't exist. A few things to note: 
+- The command only looks at parquet files (missing deletion vectors or delta logs would not be reported). 
+- The references are only removed for the current version of the table. That is, if we run the FSCK command and we decide to time travel to a version that was broken, it will stay broken but a new, fixed, version of the table will be created. This also means that if we restore a broken version of the table and run FSCK, that would fix the restored version of the table.
+- The support for missing deletion vectors in WIP
+
+The logic of the implementation is:
+- Get files that are referenced in the current delta log
+- Check which ones of them are missing using a udf
+- Create remove actions for all of the missing files
+- Record the metrics
+- Commit the result (in case of no DRY RUN)
+
+## How was this patch tested?
+
+The following unit tests were added to ensure correct execution of the command
+
+- FSCK simple test one file removed
+- FSCK simple test multiple files removed
+- FSCK simple test table syntax
+- FSCK with partitions
+- FSCK clone test
+- FSCK Vacuum and restore test
+- FSCK Change DRY RUN limit
+- FSCK Make sure other files are not deleted
+- FSCK DRY RUN test
+- FSCK Call FSCK on partitions
+- FSCK verify output
+- FSCK Remove partition directory
+- FSCK metrics in Delta table history
+
+## Does this PR introduce _any_ user-facing changes?
+
+Yes, it introduces the FSCK REPAIR TABLE command to the users

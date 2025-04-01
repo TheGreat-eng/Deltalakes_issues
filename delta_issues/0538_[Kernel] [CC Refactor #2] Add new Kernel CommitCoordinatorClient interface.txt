@@ -1,0 +1,30 @@
+**NOTE: I won't be merging any of these PRs until the entire e2e implementation is complete and all PRs are approved**
+
+This is part of some stacked PRs:
+1. https://github.com/delta-io/delta/pull/3781
+2. https://github.com/delta-io/delta/pull/3782
+
+To see the diff of only this PR: click [here](https://github.com/scottsand-db/delta/compare/delta_kernel_commit_coordinator_refactor_1...delta_kernel_commit_coordinator_refactor_2)
+
+#### Which Delta project/connector is this regarding?
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [X] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+This PR adds the new `CommitCoordinatorClient` interface into `delta-kernel-api`. Notably I use `#getUnbackfilledCommits` instead of `#getCommits`.
+
+This PR does NOT delete the existing `CommitCoordinatorClientHandler` interface in `delta-kernel-api`.
+
+That will come in the next PR.
+
+## How was this patch tested?
+
+N/A
+
+## Does this PR introduce _any_ user-facing changes?
+
+New `CommitCoordinatorClient` interface into.

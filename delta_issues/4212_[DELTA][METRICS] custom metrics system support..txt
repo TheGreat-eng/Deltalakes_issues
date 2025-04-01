@@ -1,0 +1,2 @@
+add new interface `com.databricks.spark.util.EventLogging`，so that people can custom event data output.
+With these event data, we can do more jobs. e.g we can do automatic optimize.

@@ -1,0 +1,5 @@
+## Description
+Currently two python tests are failing on master branch (986ab1cfa46c93f848ab682880b18dbd5b193059) due to incorrect exception handling. These tests are added as part of 462418c77b0165fbdb1b28d772087a91b559591f. These tests rely [Apache Spark 3.3 python exception handling](https://github.com/apache/spark/blob/master/python/pyspark/sql/utils.py#L156). Currently Delta relies on Apache Spark 3.2.1. Until Delta lake upgrades to 3.3, copy the exception handling cases from Apache Spark 3.3 to Delta Lake python exception handling.
+
+## How was this patch tested?
+Ran the tests in CI and verified all Python tests pass.

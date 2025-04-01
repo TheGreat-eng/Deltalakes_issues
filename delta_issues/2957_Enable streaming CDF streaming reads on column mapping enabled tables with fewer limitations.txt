@@ -1,0 +1,17 @@
+## Description
+Resolves https://github.com/delta-io/delta/issues/1357
+
+As streaming uses the latest schema to read historical data batches and column mapping schema changes (e.g. rename/drop column) can cause latest schema to diverge, we decided to temporarily completely block streaming read on column mapping tables before.
+
+As a close follow up in this PR, we think it is at least possible to enable the following use cases:
+
+Read from a column mapping table without rename or drop column operations.
+Upgrade to column mapping tables.
+Existing compatible schema change operations such as ADD COLUMN.
+
+## How was this patch tested?
+New unit tests.
+
+## Does this PR introduce _any_ user-facing changes?
+No
+

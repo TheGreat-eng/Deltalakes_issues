@@ -1,0 +1,3 @@
+I observed like when I ran the compaction API , my data volume has grown up to 5-times more than that . I just wanted to know It is happening because of more metadata are getting added into file .? 
+
+Note : my retention period is less than 10 sec , So I deleted those files which has marked removed.

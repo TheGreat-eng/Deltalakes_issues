@@ -1,0 +1,9 @@
+Resolves #1349
+
+Due to the unclear behavior of streaming/CDC read on column mapping tables, we decide to temporarily block batch CDC read when user has performed rename or drop column operations after enabling column mapping.
+Note that the following is not blocked:
+1. CDC Read from a column mapping table without rename or drop column operations.
+2. Upgrade to column mapping tables.
+3. Existing compatible schema change operations such as ADD COLUMN.
+
+New unit tests.

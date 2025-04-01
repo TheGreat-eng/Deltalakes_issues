@@ -1,0 +1,19 @@
+#### Which Delta project/connector is this regarding?
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [X] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+- Create `AbstractProtocol` and have `Protocol` implement it
+- Clean up our `Protocol` APIs; add better instantiation checks
+
+## How was this patch tested?
+
+Mainly just a refactor, but added some new test suites for serialization and for instantiation checks
+
+## Does this PR introduce _any_ user-facing changes?
+
+No.

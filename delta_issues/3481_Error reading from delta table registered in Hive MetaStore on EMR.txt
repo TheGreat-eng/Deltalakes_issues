@@ -1,0 +1,36 @@
+Reading from delta table on EMR throws below error:
+
+`pyspark.sql.utils.AnalysisException: Table does not support reads 
+`
+
+Env:
+EMR 6.4 (spark 3.1.2,  HCatalog 3.1.2)
+Delta 1.0.0
+
+Steps to reproduce:
+
+```
+pyspark --packages io.delta:delta-core_2.12:1.0.0
+
+spark = SparkSession \
+  .builder \
+  .config("spark.sql.extensions", "io.delta.sql.DeltaSparkSessionExtension") \
+  .config("spark.sql.catalog.spark_catalog", "org.apache.spark.sql.delta.catalog.DeltaCatalog") \
+  .getOrCreate()
+
+spark.range(0, 5).write.format("delta").mode("overwrite").saveAsTable(test_delta)
+spark.sql("select * from  test_delta").show()
+```
+
+Error:
+```
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+  File "/usr/lib/spark/python/pyspark/sql/dataframe.py", line 485, in show
+    print(self._jdf.showString(n, 20, vertical))
+  File "/usr/lib/spark/python/lib/py4j-0.10.9-src.zip/py4j/java_gateway.py", line 1305, in __call__
+  File "/usr/lib/spark/python/pyspark/sql/utils.py", line 117, in deco
+    raise converted from None
+pyspark.sql.utils.AnalysisException: Table does not support reads: test_delta
+```
+As per the documentation this should work. Am i missing something ? 

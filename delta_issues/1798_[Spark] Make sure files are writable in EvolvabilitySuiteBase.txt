@@ -1,0 +1,19 @@
+#### Which Delta project/connector is this regarding?
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+When running tests with Bazel, in some circumstances the files might be read-only. We make sure to make all the files inside our temporary directory writable so the tests can write to tables.
+
+## How was this patch tested?
+
+Existing tests
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

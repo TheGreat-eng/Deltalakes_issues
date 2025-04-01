@@ -1,0 +1,12 @@
+Maven Reports 2 vulnerabilities for this application [Delta Core](https://mvnrepository.com/artifact/io.delta/delta-core)
+
+* [Scala Library](https://mvnrepository.com/artifact/org.scala-lang/scala-library) » [2.13.5](https://mvnrepository.com/artifact/org.scala-lang/scala-library/2.13.5) has issue https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-36944 
+* [JUnit](https://mvnrepository.com/artifact/junit/junit) » [4.12](https://mvnrepository.com/artifact/junit/junit/4.12) has issue https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-15250
+
+Both have upgraded to newer versions without these vulnerabilities [Scala Library](https://mvnrepository.com/artifact/org.scala-lang/scala-library) » [2.13.10](https://mvnrepository.com/artifact/org.scala-lang/scala-library/2.13.10) and [JUnit](https://mvnrepository.com/artifact/junit/junit) » [4.13.2](https://mvnrepository.com/artifact/junit/junit/4.13.2)
+
+So I was wondering if there was a way to get these dependencies upgraded to remove the 2 vulnerabilities. 
+
+With best regards 
+
+Maccce

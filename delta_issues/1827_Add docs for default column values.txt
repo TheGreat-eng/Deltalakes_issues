@@ -1,0 +1,19 @@
+#### Which Delta project/connector is this regarding?
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [X] Other (Docs)
+
+## Description
+
+This PR adds documentation for default column values for Delta lake added in https://github.com/delta-io/delta/pull/2210. 
+
+## How was this patch tested?
+
+Docs-only changes.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No.

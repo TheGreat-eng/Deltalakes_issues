@@ -1,0 +1,6 @@
+When creating a table in Athena and reading it from Spark (EMR) I get the following error : 
+
+`Caused by: org.apache.spark.SparkException: Job aborted due to stage failure: Task 0 in stage 80.0 failed 4 times, most recent failure: Lost task 0.3 in stage 80.0 (TID 449, ip-172-31-22-178.ec2.internal, executor 2): java.lang.RuntimeException: s3://<path>/BDA/DELTA/CLIENTE/_symlink_format_manifest/PERIODO=202001/manifest is not a Parquet file. expected magic number at tail [80, 65, 82, 49] but found [117, 101, 116, 10]
+`
+
+If I perform the same sql query from Athena there are no problems.

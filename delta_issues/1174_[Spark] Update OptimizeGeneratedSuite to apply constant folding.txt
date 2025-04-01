@@ -1,0 +1,14 @@
+## Description
+The following change in Spark master broke tests in `OptimizeGeneratedColumnSuite`: https://github.com/apache/spark/commit/7974811218c9fb52ac9d07f8983475a885ada81b
+
+It added an execution of the `ConstantFolding` rule after `PrepareDeltaScan`, causing constant expressions in filters on generated columns to be simplified, which `OptimizeGeneratedColumnSuite` heavily used.
+
+This change:
+- updates the expected results in `OptimizeGeneratedColumnSuite` to simplify constant expressions
+- adds a pass of `ConstantFolding` after `PrepareDeltaScan` so that Delta on spark 3.5 behaves the same as Delta on spark master.
+
+## How was this patch tested?
+Updated tests
+
+## Does this PR introduce _any_ user-facing changes?
+No

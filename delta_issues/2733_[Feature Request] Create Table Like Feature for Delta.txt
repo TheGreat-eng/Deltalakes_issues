@@ -1,0 +1,27 @@
+## Feature request
+
+### Overview
+
+[CREATE TABLE LIKE ](https://spark.apache.org/docs/latest/sql-ref-syntax-ddl-create-table-like.html)is a SQL DDL that creates an empty new table using the definition and metadata of an existing table or view. CREATE TABLE LIKE is not supported for creating Delta tables. Currently, when a user tries to use CREATE TABLE LIKE with Delta, it throws an exception saying this command is not supported for Delta tables. I would like to support CREATE TABLE LIKE command for Delta tables aswell.
+
+### Motivation
+
+This command is useful for migrations and creating new instances of tables in Delta format.
+
+### Further details
+
+Specifically, the following table properties should be copied over when CREATE TABLE LIKE is performed:
+| Metadata Field/Type  | Non-Delta Tables                                    | Delta Tables |  
+|----------------------|-----------------------------------------------------|--------------|
+| Description(Comment) | Yes                                                 | Yes          |   
+| Schema               | Yes                                                 | Yes          |   |
+| Partition Columns    | Yes                                                 | Yes          |   
+| Configuration        | Yes                                                 | Yes          |   
+| Delta Protocol       | No(Current Default Protocol for that spark session) | Yes          |   
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [x] Yes. I can contribute this feature independently.
+- [ ] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.

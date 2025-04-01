@@ -1,0 +1,1 @@
+Now, the file scan result didn't contain a tags field. In our case, we define some custom properties in the tags filed, so we want to filter the AddFile according to the custom tags.

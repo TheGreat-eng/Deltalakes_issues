@@ -1,0 +1,18 @@
+#### Which Delta project/connector is this regarding?
+- [X] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+Create a new GitHub action workflow to run delta-spark tests against Spark Master
+
+## How was this patch tested?
+
+Ran CI tests.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

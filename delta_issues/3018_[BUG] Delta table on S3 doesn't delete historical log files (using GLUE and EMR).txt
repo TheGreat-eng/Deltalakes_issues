@@ -1,0 +1,159 @@
+## Bug
+
+Delta table property `'delta.logRetentionDuration'='interval 7 days'` doesn't take effect using AWS glue catalog (external table) and EMR.
+
+### Describe the problem
+
+We are using Databricks Delta lake open source io.delta:delta-core_2.12:1.0.0 on AWS EMR (6.5.0) Spark (3.1.2) integrated with S3, Glue and Athena, with the following properties -
+```
+TBLPROPERTIES (
+  'delta.autoOptimize.autoCompact'='true', 
+  'delta.autoOptimize.optimizeWrite'='true', 
+  'delta.compatibility.symlinkFormatManifest.enabled'='true', 
+  'delta.logRetentionDuration'='interval 7 days', 
+  'spark.databricks.delta.retentionDurationCheck.enabled'='true', 
+  'spark.sql.create.version'='3.1.2-amzn-1', 
+  'spark.sql.partitionProvider'='catalog', 
+  'spark.sql.sources.schema.numPartCols'='1', 
+  'spark.sql.sources.schema.numParts'='1', 
+```
+
+As mentioned at the official doc -
+[delta-vacuum](https://docs.databricks.com/spark/latest/spark-sql/language-manual/delta-vacuum.html)
+[delta-utility](https://docs.databricks.com/delta/delta-utility.html)
+
+For the Log files - "Log files are deleted automatically and asynchronously after checkpoint operations. The default retention period of log files is 30 days, configurable through the delta.logRetentionDuration property which you set with the ALTER TABLE SET TBLPROPERTIES SQL method."
+
+I set the table property as suggested but nevertheless log files for more then 7 days are not being deleted automatically neither after I execute `deltaTable.vacuum(retentionDuration)` or  `deltaTable.generate("symlink_format_manifest")`
+Log files location - `s3://xxxx/database/my_table/_delta_log/`
+
+
+#### Steps to reproduce
+
+1. Launch AWS EMR cluster
+
+2. Launch Spark-shell
+`spark-shell --packages io.delta:delta-core_2.12:1.0.0 --conf spark.sql.extensions=io.delta.sql.DeltaSparkSessionExtension --conf spark.sql.catalog.spark_catalog=org.apache.spark.sql.delta.catalog.DeltaCatalog --conf spark.sql.caseSensitive=true `
+
+3. Initialize delta table with data
+```
+:paste
+val input = "s3://my_bucket/initial_data/"
+
+
+val schema: StructType = StructType(
+      StructField("ts", StringType, nullable = true) ::
+	  StructField("database", StringType, nullable = true) ::
+      StructField("type", StringType, nullable = true) ::
+      StructField("data", StringType, nullable = true) ::
+      StructField("table", StringType, nullable = true) :: Nil)
+
+val key: StructType = StructType(
+    StructField("id", StringType, nullable = true) :: Nil)
+  
+val df2 = spark.read.schema(schema).json(input)
+.withColumn("struct",from_json(col("data"), key))
+.select("table","struct.id","ts","database","type","data")
+df2.printSchema()
+
+
+:paste
+val output = "s3://my_bucket/my_db/delta_table/"
+
+df2
+.write
+.partitionBy("table")
+.format("delta")
+.save(output)
+```
+4. Create glue external table
+```
+:paste
+import io.delta.tables.DeltaTable
+
+val tbl = "delta_table"
+val bucket = "my_bucket"
+val db = "my_db"
+val output_path = s"s3://${bucket}/${db}/maor/${tbl}/"
+val deltaTable = DeltaTable.forPath(output_path)
+
+deltaTable.generate("symlink_format_manifest")
+
+spark.sql(s"""
+CREATE EXTERNAL TABLE ${db}.${tbl}
+(id string, ts string, database string, type string, data string)
+PARTITIONED BY (table string)
+ROW FORMAT SERDE 'org.apache.hadoop.hive.ql.io.parquet.serde.ParquetHiveSerDe'
+STORED AS INPUTFORMAT 'org.apache.hadoop.hive.ql.io.SymlinkTextInputFormat'
+OUTPUTFORMAT 'org.apache.hadoop.hive.ql.io.HiveIgnoreKeyTextOutputFormat'
+LOCATION '${output_path}/_symlink_format_manifest/'
+""")
+
+spark.sql(s"""ALTER TABLE ${db}.${tbl} SET TBLPROPERTIES(delta.compatibility.symlinkFormatManifest.enabled=true)""")
+spark.sql(s"""ALTER TABLE ${db}.${tbl} SET TBLPROPERTIES(delta.logRetentionDuration="interval 1 hours")""")
+spark.sql(s"""ALTER TABLE ${db}.${tbl} SET TBLPROPERTIES(delta.deletedFileRetentionDuration="interval 1 hours")""")
+spark.sql(s"""ALTER TABLE ${db}.${tbl} SET TBLPROPERTIES(spark.databricks.delta.retentionDurationCheck.enabled=true)""")
+spark.sql(s"""ALTER TABLE ${db}.${tbl} SET TBLPROPERTIES(delta.autoOptimize.optimizeWrite=true)""")
+spark.sql(s"""ALTER TABLE ${db}.${tbl} SET TBLPROPERTIES(delta.autoOptimize.autoCompact=true)""")
+
+spark.sql(s"msck repair table ${db}.${tbl}")
+```
+5. Go to Athena and check the table exists
+```
+SELECT 
+    "table", count(*)
+FROM 
+    test_dbl.delta_table
+group by 
+    1
+order by 
+    count(*)
+```
+6. Go back to spark-shell and update the delta table in order to generate new log files.
+```
+import io.delta.tables._
+
+val df = spark.read.json(input)
+.withColumn("struct",from_json(col("data"), key))
+.select("table","struct.id","ts","database","type","data")
+
+val dt = DeltaTable.forPath(output_path)
+val dmb: DeltaMergeBuilder = dt.as("dt_source").merge(df.as("df_new_data"), "dt_source.table = df_new_data.table and dt_source.id = df_new_data.id")
+
+dmb
+.whenMatched.updateAll()
+.whenNotMatched.insertAll()
+.execute()
+```
+
+7. Do step 6 multiple times to produce multiple logs files at -
+`s3://my_bucket/my_db/delta_table/_delta_log/`
+
+8. Expect NOT to see logs files.
+
+#### Observed results
+
+Nothing happens
+
+#### Expected results
+
+I would expect that historical and untracked logs files will be deleted after I execute `deltaTable.vacuum(retentionDuration)` or  `deltaTable.generate("symlink_format_manifest")`
+
+#### Further details
+
+<!--
+Include any additional details that may be useful for diagnosing the problem here. If including tracebacks, please include the full traceback. Large logs and files should be attached.
+-->
+
+### Environment information
+
+* Delta Lake version: io.delta:delta-core_2.12:1.0.0
+* Spark version: 3.1.2
+* Scala version: 2.12
+* EMR version: 6.5.0
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ V ] No. I cannot contribute a bug fix at this time.

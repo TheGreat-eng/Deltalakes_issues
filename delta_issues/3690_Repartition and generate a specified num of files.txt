@@ -1,0 +1,28 @@
+**I do not know why the delta repartition is repartition by partitionColumn, it may lead to data skew, like this:**
+```
+ protected def repartitionIfNeeded(
+      spark: SparkSession,
+      df: DataFrame,
+      partitionColumns: Seq[String]): DataFrame = {
+    if (partitionColumns.nonEmpty && spark.conf.get(DeltaSQLConf.MERGE_REPARTITION_BEFORE_WRITE)) {
+      df.repartition(partitionColumns.map(col): _*)
+    } else {
+      df
+    }
+  }
+```
+**so I do some change, like this:**
+```
+ protected def repartitionIfNeeded(
+    spark: SparkSession,
+    df: DataFrame): DataFrame = {
+    var shuffleNum = spark.conf.get(DeltaSQLConf.MERGE_SHUFFLE_REPARTITION);
+    if (spark.conf.get(DeltaSQLConf.MERGE_REPARTITION_BEFORE_WRITE) && shuffleNum > 0) {
+      df.repartition(shuffleNum)
+    } else {
+      df
+    }
+  }
+```
+**it can repartitioned by hash and generate a specified num of files, this helps me more to control the size and number of small files.
+ does it resonable?**

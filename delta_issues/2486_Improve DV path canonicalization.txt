@@ -1,0 +1,9 @@
+## Description
+
+This PR improves the FILE_PATH canonicalization logic by avoiding calling expensive `Path.toUri.toString` calls for each row in a table. Canonicalized paths are now cached and the UDF just needs to look it up.
+
+Future improvement is possible for handling huge logs: build `canonicalizedPathMap` in a distributed way.
+
+## How was this patch tested?
+
+Existing tests.

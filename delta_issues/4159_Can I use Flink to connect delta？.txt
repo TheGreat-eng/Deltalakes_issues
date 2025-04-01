@@ -1,0 +1,2 @@
+delta's speciality  is very useful；
+can we use flink to operate delta file？

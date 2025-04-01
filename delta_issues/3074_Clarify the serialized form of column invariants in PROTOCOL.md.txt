@@ -1,0 +1,73 @@
+<!--
+Thanks for sending a pull request!  Here are some tips for you:
+  1. If this is your first time, please read our contributor guidelines: https://github.com/delta-io/delta/blob/master/CONTRIBUTING.md
+  2. If the PR is unfinished, add '[WIP]' in your PR title, e.g., '[WIP] Your PR title ...'.
+  3. Be sure to keep the PR description updated to reflect all changes.
+  4. Please write your PR title to summarize what this PR proposes.
+  5. If possible, provide a concise example to reproduce the issue for a faster review.
+  6. If applicable, include the corresponding issue number in the PR title and link it in the body.
+-->
+
+## Description
+
+I've been looking into implementing support for writer protocol V2, and had trouble figuring out the expected format of column invariants. Thankfully, it was clarified in #1239.
+
+Note: the current Spark implementation does not enforce column invariants if column is not nullable (see #1239), but I believe that is a bug, so I didn't include that behavior as part of the updated protocol.
+
+## How was this patch tested?
+
+I was able to verify existing behavior in this script:
+
+<details>
+<summary>
+Example script
+</summary>
+
+```python
+import pyarrow as pa
+import pyspark
+import pyspark.sql.types
+import pyspark.sql.functions as F
+import delta
+from delta.tables import DeltaTable
+
+def get_spark():
+    builder = (
+        pyspark.sql.SparkSession.builder.appName("MyApp")
+        .config("spark.sql.extensions", "io.delta.sql.DeltaSparkSessionExtension")
+        .config(
+            "spark.sql.catalog.spark_catalog",
+            "org.apache.spark.sql.delta.catalog.DeltaCatalog",
+        )
+    )
+    return delta.configure_spark_with_delta_pip(builder).getOrCreate()
+
+spark = get_spark()
+
+schema = pyspark.sql.types.StructType([
+    pyspark.sql.types.StructField(
+        "c1", 
+        dataType = pyspark.sql.types.IntegerType(), 
+        nullable = True, 
+        metadata = { "delta.invariants": "{\"expression\": { \"expression\": \"c1 > 3\"} }" }
+    )
+])
+
+table = DeltaTable.create(spark) \
+    .tableName("testTable") \
+    .addColumns(schema) \
+    .execute()
+
+# This now fails
+spark.createDataFrame([(2,)], schema=schema).write.saveAsTable(
+    "testTable",
+    mode="append",
+    format="delta",
+)
+```
+</details>
+
+
+## Does this PR introduce _any_ user-facing changes?
+
+No, this just documents the existing behavior as the protocol.

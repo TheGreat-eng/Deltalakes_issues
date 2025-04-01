@@ -1,0 +1,9 @@
+I'm looking for some information regarding how the internals of the OPTIMIZE command work. I've been looking for docs on this but haven't found them. 
+
+We have a job that is going to routinely optimize our delta tables based on certain criteria, one of which is the average file size of the table (which we get from  `DESCRIBE DETAIL` cols `numFiles` /  `sizeInBytes`).
+
+I want to make sure I understand how OPTIMIZE will determine which files need to be optimized though, when it's run for a given table, and what affects the time it takes to complete compaction. I've noticed that subsequent optimize commands run after a table has already been optimized will complete much more quickly, so I'm assuming that the `_delta_log` is read first when OPTIMIZE is run and only files that meet a certain threshold are compacted. 
+
+Anyways, any specific docs or code that maintainers could point me to that would have more details would be much appreciated 🙏 
+
+Thanks for all the work on this framework.

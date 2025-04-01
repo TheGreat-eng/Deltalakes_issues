@@ -1,0 +1,17 @@
+
+## Description
+
+Resolves https://github.com/delta-io/delta/issues/1385
+
+This PR gives the option to collect column statistics per file when doing ConvertToDelta operation. The current behaviour should stay the same (meaning that statistics should not be collected on convert).
+
+
+## How was this patch tested?
+
+Current unit tests + added a couple of unit tests to cover this change
+
+## Does this PR introduce _any_ user-facing changes?
+
+Yes. Previously ConvertToDelta command was without the ability to collect statistics. Now, the convert function is overloaded with additional boolean parameter (with false as default) to enable collect statistics.
+When this parameter is set to true, after the creation of the table, delta will compute all the files statistics (using legacy functionality and create another COMPUTE STATS commit to the log)
+

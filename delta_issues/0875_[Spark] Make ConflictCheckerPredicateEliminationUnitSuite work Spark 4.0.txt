@@ -1,0 +1,19 @@
+#### Which Delta project/connector is this regarding?
+
+- [X] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+Update `ConflictCheckerPredicateEliminationUnitSuite` to work with Spark 4.0 where `rand()` returns an `UnresolvedFunction` instead of `Rand()` expression.
+
+## How was this patch tested?
+
+Test-only change.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

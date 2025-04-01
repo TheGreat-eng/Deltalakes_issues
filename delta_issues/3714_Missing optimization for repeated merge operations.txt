@@ -1,0 +1,5 @@
+Context: I am running DeltaLake in standalone mode and performing periodic merges ( https://docs.delta.io/latest/delta-update.html ) consisting of updates, deletes and inserts. My program reads changes from a source, batches up the changes and applies them as periodic merges, all in a loop. My data is being written to s3 using S3SingleDriverLogStore.
+
+Problem: Delta Lake is downloading the entire data set for each merge. While I understand the need to do this for the first run, subsequent runs should avoid doing that since the data was already downloaded by the process and updated during the last run. I confirmed that the entire data set is being downloaded using the spark jobs UI.
+
+Followup: I know there is a feature in databricks ( Caching - https://docs.databricks.com/delta/optimizations/delta-cache.html#delta-and-rdd-cache-comparison ) that should solve this problem, is there a way I could use that in the open source version?

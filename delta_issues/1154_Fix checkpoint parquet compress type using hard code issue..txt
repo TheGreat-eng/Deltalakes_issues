@@ -1,0 +1,20 @@
+we meet a critical issue about the standalone lib, we found that the checkpoint define the snappy compression using hard code. When we integrate our project, we found that it will occur the compress issue.
+Our image didn’t contains the snappy base lib /lib/ld-linux-x86-64.so.2 .
+```
+[main] ERROR org.apache.pulsar.PulsarStandaloneStarter - Failed to start pulsar service.
+java.lang.UnsatisfiedLinkError: /tmp/snappy-1.1.10-b0757287-8557-44b9-9499-afca52f102ec-libsnappyjava.so: Error relocating /lib/ld-linux-x86-64.so.2: unsupported relocation type 37
+	at java.base/jdk.internal.loader.NativeLibraries.load(Native Method) ~[?:?]
+	at java.base/jdk.internal.loader.NativeLibraries$NativeLibraryImpl.open(Unknown Source) ~[?:?]
+	at java.base/jdk.internal.loader.NativeLibraries.loadLibrary(Unknown Source) ~[?:?]
+	at java.base/jdk.internal.loader.NativeLibraries.loadLibrary(Unknown Source) ~[?:?]
+	at java.base/java.lang.ClassLoader.loadLibrary(Unknown Source) ~[?:?]
+	at java.base/java.lang.Runtime.load0(Unknown Source) ~[?:?]
+	at java.base/java.lang.System.load(Unknown Source) ~[?:?]
+	at org.xerial.snappy.SnappyLoader.loadNativeLibrary(SnappyLoader.java:182) ~[org.xerial.snappy-snappy-java-1.1.10.5.jar:1.1.10.5]
+	at org.xerial.snappy.SnappyLoader.loadSnappyApi(SnappyLoader.java:157) ~[org.xerial.snappy-snappy-java-1.1.10.5.jar:1.1.10.5]
+	at org.xerial.snappy.Snappy.init(Snappy.java:70) ~[org.xerial.snappy-snappy-java-1.1.10.5.jar:1.1.10.5]
+	at org.xerial.snappy.Snappy.<clinit>(Snappy.java:47) ~[org.xerial.snappy-snappy-java-1.1.10.5.jar:1.1.10.5]
+	at org.xerial.snappy.SnappyOutputStream.<init>(SnappyOutputStream.java:103) ~[org.xerial.snappy-snappy-java-1.1.10.5.jar:1.1.10.5]
+	at org.xerial.snappy.SnappyOutputStream.<init>(SnappyOutputStream.java:92) ~[org.xerial.snappy-snappy-java-1.1.10.5.jar:1.1.10.5]
+	at org.xerial.snappy.SnappyOutputStream.<init>
+```

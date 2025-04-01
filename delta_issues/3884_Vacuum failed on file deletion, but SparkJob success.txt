@@ -1,0 +1,6 @@
+when executing the Vaccum, the deletion of S3 files failed on some permission errors, but from the frontend, the Spark UI / notebook didn't give me any indicates of the failure, I wouldn't even know my Vacuum failed unless I check the log.
+
+saw the codes here 
+https://github.com/delta-io/delta/blob/1e01dbbc82d2ea897aa204fcf4d39b4109bbbd7d/src/main/scala/org/apache/spark/sql/delta/util/DeltaFileOperations.scala#L219
+,it seems to cover up the failure on purpose 
+So, any plan to make the failure exposed to the user?

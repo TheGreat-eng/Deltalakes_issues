@@ -1,0 +1,7 @@
+## Description
+The type widening table feature has a stable implementation in delta-spark since Delta 3.2 an in Kernel Java/Rust.
+
+This PR proposes to accept the RFC specification of the feature and add it to the Delta protocol.
+
+Type Widening feature request: https://github.com/delta-io/delta/issues/2623
+Related: transitioning table feature from preview to stable: https://github.com/delta-io/delta/pull/4094#issue-2815134778

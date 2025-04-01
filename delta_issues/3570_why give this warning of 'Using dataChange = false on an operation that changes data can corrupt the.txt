@@ -1,0 +1,5 @@
+![image](https://user-images.githubusercontent.com/31644915/128860661-ac796966-f347-4e14-9614-56cc0bd4137b.png)
+https://docs.delta.io/latest/best-practices.html#compact-files
+hello，
+why give this warning? In this description of  'an operation that changes data', does the operation means actions like 'delete，update，merge'  which change the real data?
+expect an answer.

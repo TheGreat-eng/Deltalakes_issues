@@ -1,0 +1,27 @@
+[ I have opened this ticket for a discussion to speed up merging operations ]
+
+**Problem** 
+
+Merging takes too much time because of rescanning of the columns at merging operations. Consider following code:
+
+```
+  deltaTable.as("t")
+    .merge(
+      microBatchOutputDF.as("s"),
+      "s.key = t.key")
+    .whenMatched().updateAll()
+    .whenNotMatched().insertAll()
+    .execute()
+```
+
+`key` always will be scanned through whole data.
+
+**Suggestion**
+
+An indexing mechanism similar to https://github.com/microsoft/hyperspace , could be used at top of delta implementation. If data have been kept tidy, finding and constructing final data can be faster.
+
+```
+val deltaTable = DeltaTable.forPath(spark, "/data/aggregates", indexingColumns = Array("key"))
+```
+
+**Note:** Partitioning is not similar to indexing, may keys vary too much. In this case partitioning can be a performance killer. Even if partitioning speed ups scanning, `key` still will be sought in whole partition & version changes. Reconstructing latest version is expensive at reading stage.

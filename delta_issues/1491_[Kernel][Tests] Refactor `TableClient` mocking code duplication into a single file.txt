@@ -1,0 +1,7 @@
+## Description
+We have been duplicating the mocking `TableClient` across the test suites. Consolidate and make common utilities/classes that allow mocking `TableClient` with minimal code.
+
+`MockTableClientUtils.scala` - is the base trait for mocking `TableClient`.
+
+## How was this patch tested?
+Just a refactor

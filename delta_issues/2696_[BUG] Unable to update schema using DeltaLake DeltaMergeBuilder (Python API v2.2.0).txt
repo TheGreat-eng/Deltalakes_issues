@@ -1,0 +1,51 @@
+I am using DeltaMergeBuilder to perform upsert operation on my delta lake table. However, the source schema can change i.e new columns can be added to my source data frame. Therefore my delta lake tables need to update themselves and add the new underlying columns. According to the [documentation](https://docs.delta.io/latest/delta-update.html#automatic-schema-evolution), I need to update my spark configuration which I did and use 'insertAll'/'updateAll' operation.
+
+ ```python 
+delta_lake_table.alias("main_table").merge(
+            latest_changes_delete_create_df.alias(
+                "update_table"), merge_condition
+        ).whenMatchedDelete(condition="update_table.op = 'd'").whenNotMatchedInsertAll(
+            condition="update_table.op = 'c' OR update_table.op = 'r'"
+        ).execute()
+        # update operation
+        delta_lake_table.alias("main_table").merge(
+            latest_changes_update_df.alias("update_table"), merge_condition
+        ).whenMatchedUpdateAll(
+            condition="update_table.op = 'u' OR update_table.op = 'r'"
+        ).execute()
+```
+
+- ***delta_lake_table***: My target Dataframe
+- ***latest_changes_delete_create_df***: My source Dataframe consists of ids that need to be either deleted or inserted.
+- ***latest_changes_update_df***: My source Dataframe consists of ids whose values need to be updated.
+
+***FYI*** : You might think why I am performing delete/insert and updates in two different actions. This is because each of my sources Dataframe contains streaming **CDC** data, therefore, performing a delete/insert and updates independently is a necessity otherwise I might lose data.
+
+#### Observed results
+Now when a new column comes in despite all of the right configurations, I am facing the following error:
+
+```
+ pyspark.sql.utils.AnalysisException: The schema of your Delta table has changed in an incompatible way since your DataFrame
+or DeltaTable object was created. Please redefine your DataFrame or DeltaTable object.
+Changes:
+Latest schema has additional field(s): new_col
+```
+#### Expected results
+
+new_col gets added to the underlying delta lake table without any error.
+
+#### Further details
+
+The above DeltaMergeBuilder is being called in ![foreachBatch](https://spark.apache.org/docs/3.1.3/api/python/reference/api/pyspark.sql.streaming.DataStreamWriter.foreachBatch.html#pyspark.sql.streaming.DataStreamWriter.foreachBatch) function where source Dataframe is a streaming data frame for which a foreachBatch function is called.
+
+### Environment information
+
+* Delta Lake version: 2.2.0
+* Python version: 3.9.1.5
+* Spark version: 3.3.1
+* Scala version: 2.12.15
+* Delta Lake tables are being stored on Minio Storage (RELEASE.2022-11-26)
+
+### Willingness to contribute
+
+- No. I cannot contribute a bug fix at this time.

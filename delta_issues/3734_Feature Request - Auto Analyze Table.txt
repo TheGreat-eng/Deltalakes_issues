@@ -1,0 +1,3 @@
+It is possible to enable an option to auto analyze a delta table?
+
+For example: `ANALYZE TABLE x COMPUTE STATISTICS FOR ALL COLUMNS`

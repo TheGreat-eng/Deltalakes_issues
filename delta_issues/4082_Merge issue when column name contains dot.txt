@@ -1,0 +1,6 @@
+The updateAll and insertAll looks not to sanityse column names.
+
+as a result a column named "my.column" will fail if it is not properly quoted as "`my.column`".
+in my context the dag before merging does joins on my.column and I found out quoting the column within updateExpr solve the problem
+
+happy to contribute on a pull request if needed

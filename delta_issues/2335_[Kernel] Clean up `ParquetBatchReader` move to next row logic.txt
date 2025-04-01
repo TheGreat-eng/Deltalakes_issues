@@ -1,0 +1,9 @@
+## Description
+Minor cleanups.
+
+* Currently, the `Converter` implementations have a method called `boolean moveToNextRow()`, which returns whether the previous row is `null` after moving the converter state to consume the next row. The return value is unnecessary now after delta-io/delta#1974. This PR removes the return type.
+
+* There is an extra method on `RowConverter` called `boolean moveToNextRow(int rowIndex)`. This method is called to pass the row index of the record that was read. Also, there is an `if..and..else` to call this method or other method depending upon the `Converter`. Remove this extra method and just add one method `boolean finalizeCurrentRow(long currentRowIndex)`. This method sets the row index of the current row depending on the converter type and also finalizes the state of the column read from the current row.
+
+## How was this patch tested?
+Existing tests.

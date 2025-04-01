@@ -1,0 +1,56 @@
+## Bug
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the issue title
+For example: [BUG][Spark] Title of my issue
+-->
+
+- [ ] Spark
+- [ ] Standalone
+- [x] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+### Describe the problem
+I looked at recent PRs and noticed that the Flink test suite runtime (of all PRs) was too long. Then I checked the logs of some PRs from Github Actions, I can see 2 Flink related issues here:
+(1) There are many ERROR logs related to package import errors, for example:
+```
+2024-03-07T02:17:54.4899309Z [0m[[0m[31merror[0m] [0m[0m/home/runner/work/delta/delta/connectors/flink/src/main/java/io/delta/flink/sink/DeltaSink.java:21:1:  error: package io.delta.flink.sink.internal does not exist[0m
+2024-03-07T02:17:54.4915526Z [0m[[0m[31merror[0m] [0m[0m/home/runner/work/delta/delta/connectors/flink/src/main/java/io/delta/flink/sink/RowDataDeltaSinkBuilder.java:21:1:  error: package io.delta.flink.internal.options does not exist[0m
+2024-03-07T02:17:54.4937591Z [0m[[0m[31merror[0m] [0m[0m/home/runner/work/delta/delta/connectors/flink/src/main/java/io/delta/flink/source/DeltaSource.java:3:1:  error: package io.delta.flink.internal.options does not exist[0m
+```
+
+(2) There are some ERROR logs related to networking, for example:
+```
+2024-03-07T02:20:18.5477483Z [0m[[0m[0minfo[0m] [0m[0m2024-03-07 02:20:18 WARN  Task:1091 - Source: delta-source -> Map (4/4)#0 (3c61a16633bec24402cf3677371d70f7_cbc357ccb763df2852fee8c4fc7d55f2_3_0) switched from RUNNING to FAILED with failure cause: org.apache.flink.util.FlinkException: Disconnect from JobManager responsible for 859ea617655f9ffcac469b4409a54ff7.[0m
+...
+2024-03-07T02:20:48.5324962Z [0m[[0m[0minfo[0m] [0m[0m2024-03-07 02:20:48 WARN  SplitFetcherManager:214 - Failed to close the source reader in 30000 ms. There are still 1 split fetchers running[0m
+2024-03-07T02:20:49.1227667Z [0m[[0m[0minfo[0m] [0m[0m2024-03-07 02:20:49 WARN  NettyTransport:119 - Remote connection to [localhost/127.0.0.1:37841] failed with java.io.IOException: Connection reset by peer[0m
+```
+
+#### Steps to reproduce
+Go to Github Actions Workflow of any PR pass all unit tests. Then "Download log archive" to get the log.
+For the log example above, I get it from [here](https://github.com/delta-io/delta/actions/runs/8181763749/job/22372023482?pr=2716)
+<!--
+Please include copy-pastable code snippets if possible.
+1. _____
+2. _____
+3. _____
+-->
+
+#### Observed results
+I have listed the error above.
+<!-- What happened?  This could be a description, log output, etc. -->
+
+#### Expected results
+Error handling, at least import errors. Reduce running time of Flink test suite.
+<!-- What did you expect to happen? -->
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [x] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute a bug fix at this time.

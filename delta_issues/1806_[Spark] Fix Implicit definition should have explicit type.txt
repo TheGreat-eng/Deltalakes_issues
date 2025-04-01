@@ -1,0 +1,19 @@
+#### Which Delta project/connector is this regarding?
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+This PR fixes `Implicit definition should have explicit type` in Scala 2.13.
+
+## How was this patch tested?
+
+Manually tested with Spark build.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No.

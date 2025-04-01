@@ -1,0 +1,88 @@
+## Feature request
+
+### Overview
+
+Opened as Feature Request since I believe the program operates as intended; however, the errors reported from `Spark.(Write|Read)` are inconsistent with `DeltaTable.forPath` for unauthorized requests.
+
+**Observations**
+
+When unauthorized, using Spark to access a table in Azure Gen2 Storage produces an error indicating the request is unauthorized.
+
+When unauthorized, using DeltaTable to declare a table `forPath` in Azure Gen2 Storage produces an error indicating that the table does NOT exist.
+
+### Motivation
+
+I've found multiple Databricks users to lose time chasing the wrong solution due to the error messages.
+
+### Further details
+
+**Example of Observation**
+
+```python
+# ---------------- AUTH BEGIN ---------------- 
+scope = "_"
+tenant_id = dbutils.secrets.get(scope=scope, key="_")
+client_id = dbutils.secrets.get(scope=scope, key="_")
+client_secret = dbutils.secrets.get(scope=scope, key="_")
+account_name = "_"
+spark.conf.set(
+  f"fs.azure.account.auth.type.{account_name}.dfs.core.windows.net",
+  "OAuth"
+)
+spark.conf.set(
+  f"fs.azure.account.oauth.provider.type.{account_name}.dfs.core.windows.net",
+  "org.apache.hadoop.fs.azurebfs.oauth2.ClientCredsTokenProvider"
+)
+spark.conf.set(
+  f"fs.azure.account.oauth2.client.id.{account_name}.dfs.core.windows.net",
+  client_id
+)
+spark.conf.set(
+  f"fs.azure.account.oauth2.client.secret.{account_name}.dfs.core.windows.net",
+  client_secret
+)
+spark.conf.set(
+  f"fs.azure.account.oauth2.client.endpoint.{account_name}.dfs.core.windows.net",
+  f"https://login.microsoftonline.com/{tenant_id}/oauth2/token"
+)
+# ---------------- AUTH END ---------------- 
+
+from pyspark.sql.types import StructType, StructField, StringType
+from delta.tables import *
+
+# create people table schema
+people_schema = StructType([
+  StructField('id', StringType(), False),
+  StructField('firstName', StringType(), False),
+])
+
+# create people dataframe
+peopleDF = spark.createDataFrame([
+  ["1", "alpha"],
+  ["2", "bravo"],
+], people_schema)
+
+# set azure storage table uri
+azure_storage_abfss_uri = f"abfss://container@{account_name}.dfs.core.windows.net/path/to/table"
+
+# Spark FS API Error when using unauthorized spark conf settings:
+# `Operation failed: "This request is not authorized to perform this operation using this permission.", 403, GET`
+(
+  peopleDF.write.format("delta")
+    .mode("overwrite")
+    .save(azure_storage_abfss_uri)
+)
+
+# DeltaTable Error when using unauthorized spark conf settings:
+# `AnalysisException: `abfss://container@account_name.dfs.core.windows.net/path/to/table` is not a Delta table`
+# **NOTE** Delta table needs to actually exist prior to running `forPath` and user unauthorized.
+deltaTablePeople = DeltaTable.forPath(spark, azure_storage_abfss_uri)
+```
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [ ] Yes. I can contribute this feature independently.
+- [x] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.

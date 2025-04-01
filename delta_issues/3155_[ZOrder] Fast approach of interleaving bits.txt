@@ -1,0 +1,72 @@
+<!--
+Thanks for sending a pull request!  Here are some tips for you:
+  1. If this is your first time, please read our contributor guidelines: https://github.com/delta-io/delta/blob/master/CONTRIBUTING.md
+  2. If the PR is unfinished, add '[WIP]' in your PR title, e.g., '[WIP] Your PR title ...'.
+  3. Be sure to keep the PR description updated to reflect all changes.
+  4. Please write your PR title to summarize what this PR proposes.
+  5. If possible, provide a concise example to reproduce the issue for a faster review.
+  6. If applicable, include the corresponding issue number in the PR title and link it in the body.
+-->
+
+## Description
+to resolve https://github.com/delta-io/delta/pull/1149#discussion_r881782878
+
+Improve interleave bits perf, the basic idea is from http://graphics.stanford.edu/~seander/bithacks.html#InterleaveTableObvious
+
+
+## How was this patch tested?
+
+<!--
+If tests were added, say they were added here. Please make sure to test the changes thoroughly including negative and positive cases if possible.
+If the changes were tested in any way other than unit tests, please clarify how you tested step by step (ideally copy and paste-able, so that other reviewers can test and check, and descendants can verify in the future).
+If the changes were not tested, please explain why.
+-->
+
+Existing UTs.
+
+## Does this PR introduce _any_ user-facing changes?
+
+<!--
+If yes, please clarify the previous behavior and the change this PR proposes - provide the console output, description and/or an example to show the behavior difference if possible.
+If possible, please also clarify if this is a user-facing change compared to the released Delta Lake versions or within the unreleased branches such as master.
+If no, write 'No'.
+-->
+
+No.
+
+# Benchmark
+
+Before this PR `spark.databricks.delta.optimize.zorder.fastInterleaveBits.enabled = false`:
+
+```
+[info] Java HotSpot(TM) 64-Bit Server VM 1.8.0_202-b08 on Mac OS X 10.15.5
+[info] Intel(R) Core(TM) i7-6820HQ CPU @ 2.70GHz
+[info] 1000000 rows interleave bits benchmark:   Best Time(ms)   Avg Time(ms)   Stdev(ms)    Rate(M/s)   Per Row(ns)   Relative
+[info] ------------------------------------------------------------------------------------------------------------------------
+[info] sequence - 1 int columns benchmark                  428            440          16          2.3         427.6       1.0X
+[info] sequence - 2 int columns benchmark                  572            605          39          1.7         571.6       0.7X
+[info] sequence - 3 int columns benchmark                  749            768          32          1.3         748.6       0.6X
+[info] sequence - 4 int columns benchmark                  893            934          64          1.1         892.9       0.5X
+[info] random - 1 int columns benchmark                    384            391          11          2.6         383.9       1.1X
+[info] random - 2 int columns benchmark                    551            557           7          1.8         550.9       0.8X
+[info] random - 3 int columns benchmark                    716            722           6          1.4         716.3       0.6X
+[info]  random - 4 int columns benchmark                   922            932          11          1.1         922.4       0.5X
+```
+
+After this PR `spark.databricks.delta.optimize.zorder.fastInterleaveBits.enabled  = true`:
+```
+[info] Java HotSpot(TM) 64-Bit Server VM 1.8.0_202-b08 on Mac OS X 10.15.5
+[info] Intel(R) Core(TM) i7-6820HQ CPU @ 2.70GHz
+[info] 1000000 rows interleave bits benchmark:   Best Time(ms)   Avg Time(ms)   Stdev(ms)    Rate(M/s)   Per Row(ns)   Relative
+[info] ------------------------------------------------------------------------------------------------------------------------
+[info] sequence - 1 int columns benchmark                  299            340          36          3.3         298.5       1.0X
+[info] sequence - 2 int columns benchmark                  423            459          50          2.4         423.5       0.7X
+[info] sequence - 3 int columns benchmark                  560            579          24          1.8         560.4       0.5X
+[info] sequence - 4 int columns benchmark                  694            719          37          1.4         694.0       0.4X
+[info] random - 1 int columns benchmark                    270            274           4          3.7         269.8       1.1X
+[info] random - 2 int columns benchmark                    418            428          13          2.4         418.4       0.7X
+[info] random - 3 int columns benchmark                    548            568          32          1.8         547.6       0.5X
+[info]  random - 4 int columns benchmark                   680            686           6          1.5         679.6       0.4X
+```
+
+cc and thank the Apache Kyuubi interleave bits author @ulysses-you

@@ -1,0 +1,2 @@
+It will be nice to have the transaction working for multiple tables.
+If the data entry in one of the tables fails - all the changes should be roll-back-ed.

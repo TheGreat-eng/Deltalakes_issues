@@ -1,0 +1,8 @@
+Please add support for the time travel functions `TIMESTAMP AS OF`, `VERSION AS OF`~, and `DESCRIBE HISTORY`~.
+
+Time travel is a critical Delta use. 
+
+Cheers.
+
+--
+Updated by @zsxwing : Spark has added the SQL syntax support in https://issues.apache.org/jira/browse/SPARK-37219 . This will be supported when Delta supports Spark 3.3 (#1217).

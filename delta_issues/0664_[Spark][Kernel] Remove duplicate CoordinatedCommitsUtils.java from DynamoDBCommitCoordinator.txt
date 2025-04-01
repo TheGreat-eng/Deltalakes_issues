@@ -1,0 +1,20 @@
+#### Which Delta project/connector is this regarding?
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [x] Kernel
+- [ ] Other
+
+## Description
+
+- Remove duplicate CoordinatedCommitsUtils.java from DynamoDBCommitCoordinator package.
+- Move the common utils to non-test package.
+
+## How was this patch tested?
+
+Compile
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

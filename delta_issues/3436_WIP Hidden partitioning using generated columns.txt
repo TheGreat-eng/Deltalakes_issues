@@ -1,0 +1,5 @@
+Attempt at #490 
+
+I started playing around this and got something working so I wanted to see what others thought of it. It implements very basic hidden partitioning functionality using an optimizer rule on top of generated columns. Just a rough initial implementation, but basically it looks for partition columns that are also generated columns, and if the generation expression matches certain expressions (right now just direct copy and cast), and there are literal filters on the source of the generated expression, a new filter will be added with the generated expression applied to the literal filter and then applied to the generated column, which then gets pushed as a partition filter.
+
+It's very happy path right now, but wanted to see if this even makes sense as an option or if there's something fundamentally that won't work before going any further.

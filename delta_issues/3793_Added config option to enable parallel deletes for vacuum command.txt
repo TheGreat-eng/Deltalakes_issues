@@ -1,0 +1,11 @@
+Resolves #395 
+
+https://github.com/delta-io/delta/pull/416 hasn't been updated in over four months, and it would be a verify useful feature for us to have, so I took my own stab at it. 
+
+- A new config value is added `vacuum.parallelDelete.enabled` that defaults to false
+- I updated the default behavior to be coalesce to 1 instead of iterate on the driver so that you can see something being done by spark in the UI/console instead of it just sitting there. I'm not sure if there's a reason this would cause issues, so happy to revert this back if you think it should be.
+- If `vacuum.parallelDelete.enabled` is set to true, it maintains the existing partitions from the `diff` calculation. Because this is the result of a `join`, your partitions are then based off your `spark.sql.shuffle.partitions`. So your parallelism will be min(number of executors, shuffle partitions), and you can tweak your shuffle partitions if you want more/less parallelism
+
+I removed the delete static method because the number of parameters that had to be passed to it made it seem like too much. Happy to move that back if that's not preferred. 
+
+Also happy to make any updates to the name or description of the new config.

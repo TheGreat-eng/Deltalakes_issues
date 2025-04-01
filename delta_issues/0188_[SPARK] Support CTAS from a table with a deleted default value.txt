@@ -1,0 +1,25 @@
+#### Which Delta project/connector is this regarding?
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+We are currently leaking values using the 'EXISTS_DEFAULT' config key that is used for default columns in Spark into table schemas. The 'EXISTS_DEFAULT' key holds values for rows that existed when a new column with a default value was added to the table. This use case is not supported in Delta.
+
+In this PR, we remove the 'EXISTS_DEFAULT' entries every time we update the metadata of a table. This includes the case when a table is created. This ensures that new tables do not have 'EXISTS_DEFAULT' entries and operations that update metadata remove entries that existed before because previous versions added them.
+
+This change also now allows us to CTAS from a table where a default value existed in the past but has been dropped. It does not enable CTAS from a table with an active default value.
+
+The feature has a kill switch: REMOVE_EXISTS_DEFAULT_FROM_SCHEMA_ON_EVERY_METADATA_CHANGE
+
+## How was this patch tested?
+
+Added new tests
+
+## Does this PR introduce _any_ user-facing changes?
+
+Previously it was not possible to CTAS from a table with a removed default without setting the delta.feature.allowColumnDefaults even though no default value was actually part of the new table. this is now possible.

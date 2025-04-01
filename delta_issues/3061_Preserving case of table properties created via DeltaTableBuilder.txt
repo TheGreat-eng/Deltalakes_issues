@@ -1,0 +1,17 @@
+## Description
+
+This PR makes the DeltaTableBuilder respect the case of table properties written via the builder, while offering an option to fallback to the previous behavior. It also adds tests that sets table property in 4 ways:
+- On Table creation via SQL
+- Altering a Table via SQL
+- Via DeltaTableBuilder, both in the "case sensitive" and "not case sensitive mode"
+
+
+Resolves #1182 
+
+## How was this patch tested?
+
+The DeltaTableBuilderSuite was extended adding one tests that uses four different examples to verify the correct behavior
+
+## Does this PR introduce _any_ user-facing changes?
+
+Yes. The Javadoc has been updated accordingly

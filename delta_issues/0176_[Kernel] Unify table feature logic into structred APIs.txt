@@ -1,0 +1,7 @@
+## Description
+Add APIs to define a table features and various properties/behaviors of the Table features
+
+Check the `TableFeature.java` for the API details. Most of the APIs follow the Delta-Spark model, except Kernel adds two new additional APIs (`hasKernelReadSupport` and `hasKernelWriteSupport`) to make sure the Kernel has the support. This is because Kernel is in the middle of development and not both read and write are implemented for every feature.
+
+## How was this patch tested?
+UTs

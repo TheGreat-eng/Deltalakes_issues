@@ -1,0 +1,2 @@
+Currently, integration tests/examples can only be run manually which doesn't capture any API updates. Make it run as part of the PR CI jobs so that we catch the failures early.
+

@@ -1,0 +1,18 @@
+#### Which Delta project/connector is this regarding?
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [X] Other (Docs)
+
+## Description
+
+Today, `conf.py`'s `version` is hardcoded to `3.0.0`. Let's make this easily configurable (and mandatory) when we generate the docs. This will help prevent us from unintentionally forgetting to update this conf and publishing docs with the incorrect visible version.
+
+## How was this patch tested?
+
+Locally
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

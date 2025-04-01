@@ -1,0 +1,3 @@
+Under the delta.io document https://docs.delta.io/0.6.0/delta-update.html#automatic-schema-evolution first paragraph in the documentation for Automatic schema evolution it states to set spark.databricks.delta.schema.autoMerge to true rather than spark.delta.schema.autoMerge.
+
+I would be happy to assist with this issue if someone might direct me to any instructions on how to update the docs. I am having trouble locating them.

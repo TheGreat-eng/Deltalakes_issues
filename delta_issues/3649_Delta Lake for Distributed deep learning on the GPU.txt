@@ -1,0 +1,21 @@
+I wish to share an interesting use case of Delta.
+
+The premise is that the place I work at has some large-scale datasets stored on delta to be trained on the GPU and they wish to experiment with distributed model training.
+
+Usually, data scientists and researchers would download the entire dataset to local, load everything into memory and carry on training from there but this is extremely inefficient and is unable to scale to the magnitude we require for our use case.
+
+The solution we opted for was to split the dataset into multiple partitions and allocate each partition to a worker. Here's what we did
+
+0. Have the dataset be stored on a distributed filesystem in delta format
+    - We already had our data on HDFS to begin with
+1. Acquire the list of parquet files for the dataset (and version) you want
+    - There are many ways to do this, but we opted to parse through delta logs directly
+2. Use a deterministic program to split the files evenly among the workers
+    - We use the variables `local_rank` and `world_size` and split the files evenly based on their byte size
+3. Iterate through each file and form batches as demanded by the workers
+
+We made the entire above steps into a PyTorch IterableDataset class to make it easy for data scientists to use large-scale datasets directly in their training scripts.
+
+I would really like to see a Python API to list out the parquet files for a particular table.
+This way we can account for changes to https://github.com/delta-io/delta/blob/master/PROTOCOL.md in future versions of Delta.
+Of course, this feature will also depend on how much other users of delta lake will want it as well.

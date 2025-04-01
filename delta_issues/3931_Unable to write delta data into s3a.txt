@@ -1,0 +1,19 @@
+Hi,
+I wanted to write delta data into s3a and encountering the following issue
+
+`filterDF.write().format("delta").mode("overwrite").option("overwriteSchema", "true").save("s3a://selumalai/myTable");
+`
+tried with following versions and results in same error
+
+- hadoop-aws - 2.7.3, 2.8.0
+- delta-core_2.12 - 0.5.0 , 0.2.0
+- aws-java-sdk - 1.7.4
+- spark - 2.4.5
+
+hadoop-aws 2.8.0 didnt help as mentioned in https://github.com/delta-io/delta/issues/68.
+
+Exception in thread "main" java.util.concurrent.ExecutionException: **org.apache.hadoop.fs.UnsupportedFileSystemException: fs.AbstractFileSystem.s3a.impl=null: No AbstractFileSystem configured for scheme: s3a**
+	at com.google.common.util.concurrent.AbstractFuture$Sync.getValue(AbstractFuture.java:306)
+.......
+
+Any suggestions?

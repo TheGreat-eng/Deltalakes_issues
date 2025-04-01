@@ -1,0 +1,15 @@
+#### Which Delta project/connector is this regarding?
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [X] Other (Examples)
+
+## Description
+Previously, the `<delta>/examples/scala` sbt project was using (hardcoded) an older version of delta, which had no `delta-iceberg` artifact. Updated the delta version to be the latest.
+
+## How was this patch tested?
+`cd <delta>/examples/scala && build/sbt compile`
+
+## Does this PR introduce _any_ user-facing changes?
+No

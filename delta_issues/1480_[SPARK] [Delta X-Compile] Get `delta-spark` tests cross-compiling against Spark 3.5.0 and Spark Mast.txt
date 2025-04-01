@@ -1,0 +1,19 @@
+#### Which Delta project/connector is this regarding?
+
+- [X] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+We want Delta to be able to cross-compile against Spark 3.5 and Spark Master (4.0).
+
+Previously we have gotten Delta production code to compile (in a branch that enables shimming).
+
+This PR gets the test code to compile, too, using changes that are forwards-compatible with spark master.
+
+## How was this patch tested?
+
+Existing tests.

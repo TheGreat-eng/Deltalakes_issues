@@ -1,0 +1,45 @@
+## Feature request
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the issue title
+For example: [Feature Request][Spark] Title of my issue
+-->
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+### Overview
+
+Implement bucketing in Delta lake to speed up aggregation and join cases. 
+<!-- Provide a high-level description of the feature request. -->
+
+### Motivation
+Currently, I found that Delta Lake[ doesn’t support bucketing](https://github.com/delta-io/delta/issues/524). This leads to inefficiency for two kinds of use cases: 
+
+- Reduce operation on bucketing columns. If we can have a delta table bucketed by a list of columns, then any aggregation operation on those columns can be speeded up. Without bucketing information, Spark will incur an expensive shuffle operation. 
+- Join two tables bucketed in the same way. If we want to join two tables and those two tables are bucketed in the same way, spark can plan it as a MergeSortJoin. Otherwise, an expensive shuffle is needed.  
+
+
+The bucketing was proposed in spark to solve the above problems (see original[ JIRA](https://issues.apache.org/jira/browse/SPARK-12394) and[ design](https://issues.apache.org/jira/secure/attachment/12778890/BucketedTables.pdf)), so spark has supported bucketing for several years. However, the delta lake does not support bucketing. 
+Delta lake has developed features [Z-ordering](https://docs.google.com/document/d/1TYFxAUvhtYqQ6IHAZXjliVuitA5D1u793PMnzsH_3vs/edit#heading=h.q7ah6pca24ul) and [liquid clustering](https://docs.google.com/document/d/1FWR3odjOw4v4-hjFy_hVaNdxHVs4WuK1asfB6M6XEMw/edit#heading=h.skpz7c7ga1wl), but both features are for data skipping, so both features cannot help avoiding unnecessary shuffles in aggregation & joins.
+<!-- How will this feature be used? Why is it important? Which users will benefit from it? -->
+
+### Further details
+
+The design is [here](https://docs.google.com/document/d/1X6kZAQgAzhyRwNmIcqcDAA__xgSRgqZok4KKuTyfWw0/edit).
+<!--
+Use this section to include any additional information about the feature. If you have a proposal for how to implement this feature, please include it here. For implementation guidelines, please read our contributor guidelines: https://github.com/delta-io/delta/blob/master/CONTRIBUTING.md
+If there are any specific requirements for this feature that are not immediately obvious please outline them here.
+-->
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [ ] Yes. I can contribute this feature independently.
+- [x] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.

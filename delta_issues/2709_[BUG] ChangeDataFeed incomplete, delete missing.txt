@@ -1,0 +1,83 @@
+## Bug
+
+I'm running into an issue that I can not otherwise explain than a bug in the Delta implementation.
+I have a Delta table, with CDF enabled using `.option("delta.enableChangeDataFeed", True)` and I am about to delete rows that are no longer present in the latest snapshot of a table that I have read from the Postgres source table.
+
+# Before delete operation
+
+The latest version of the snapshot delta table is version 37.
+```sql
+select count(*) from table@v37
+-- result: 736
+select count(*) from table@v37 where id = 525
+-- result: 1
+select count(*) from table@v38
+-- Cannot time travel Delta table to version 38. Available versions: [0, 37].
+```
+
+Before the actual delete, I'm printing how many rows are about to be deleted and whether a certain `id` with value `525` is present in this list of rows to be deleted:
+
+```python
+delete_rows = table_df.select("id").exceptAll(updates_df.select("id"))
+print("# rows to delete: ", delete_rows.count())
+print("rows to delete includes id = 525: ", delete_rows.where("id = 525").count())
+# rows to delete:  164
+# rows to delete includes id = 525:  1
+```
+
+# Performing the delete
+
+```python
+updates_df.select("id").createOrReplaceTempView(deletes)    
+spark.sql(f"""
+DELETE FROM {schema}.{table} WHERE NOT id IN (
+    SELECT id FROM {deletes}
+)
+""")
+```
+
+Now I investigate the results:
+
+```sql
+select count(*) from table@v38
+-- 572 (= 736 - 164)
+select count(*) from table@v38 where id = 525
+-- 0
+select count(*) from table_changes("table", 38, 38)
+-- 163 !!!
+select count(*) from table_changes("table", 38, 38) where id = 525
+-- 0 !!!
+```
+
+# reproducability
+
+I've ran this now a couple of times. Removed the specific table from the schema. Removed the files from google cloud storage, so basically providing a clean slate. It's always this specific id `525` (which seems to be the latest id if I print out the list of id's to be deleted instead of printing the count)
+
+# Expected result
+I would expect the deletion of the id with value `525` to be available in the change data feed. The total number of delete rows in the commit version 38 should be **164** and not 163
+
+I would like to be able to rely on the change-data-feed for downstream processing, but that becomes problematic if it's not complete...
+
+#### Further details
+
+<!--
+Include any additional details that may be useful for diagnosing the problem here. If including tracebacks, please include the full traceback. Large logs and files should be attached.
+-->
+
+### Environment information
+
+* Delta Lake version: DBR 12.1 Photon (doesn't display the delta version)
+* Spark version: 3.3.1
+* Scala version: 2.12
+
+```sql
+DESCRIBE EXTENDED table
+-- [delta.enableChangeDataFeed=true,delta.logRetentionDuration=interval 6240 weeks,delta.minReaderVersion=1,delta.minWriterVersion=4]
+```
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [x] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+

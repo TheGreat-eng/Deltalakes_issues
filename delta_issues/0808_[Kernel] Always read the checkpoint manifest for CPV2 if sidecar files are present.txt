@@ -1,0 +1,15 @@
+#### Which Delta project/connector is this regarding?
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [x] Kernel
+- [ ] Other (fill in here)
+
+## Description
+The sidecar actions in the checkpoint manifest of a CPV2 table should always be read regardless of the checkpoint predicate, as actions satisfying the predicate may be found in the sidecar file.
+
+## How was this patch tested?
+See added test.
+
+## Does this PR introduce _any_ user-facing changes?
+No.

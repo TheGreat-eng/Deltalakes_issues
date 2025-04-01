@@ -1,0 +1,22 @@
+#### Which Delta project/connector is this regarding?
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+This is a follow up to 6e9498cfc4559c5e12d8d1594edfdccf86afaca3
+
+The previous commit assumed that that the 'EXISTS_DEFAULT' metadata key is never required in Delta. While that was probably the original intention, tit is possible to create a table that does actually require the key using `CONVERT TO DELTA`.
+With this PR, we do not remove the 'EXISTS_DEFAULT' from a table on every metadata operation anymore, but only when a new table is created using either `CLONE`, `CREATE TABLE`, or `CREATE TABLE AS SELECT`.
+
+## How was this patch tested?
+
+New test coverage
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

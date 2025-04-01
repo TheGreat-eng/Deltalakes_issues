@@ -1,0 +1,4 @@
+The way Delta is designed it is not tied to a particular storage format. The storage format can also be abstracted out just like the storage. If the file format is made configurable, Delta's capabilities will be available with all the file formats. 
+
+See the discussion here: 
+https://groups.google.com/forum/#!topic/delta-users/PI28n6kFfsE  

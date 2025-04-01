@@ -1,0 +1,25 @@
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+This is the first PR in [[Feature Request] Support UPDATE command with Deletion Vectors](https://github.com/delta-io/delta/issues/1923).
+
+This PR introduces a `UPDATE_USE_PERSISTENT_DELETION_VECTORS` config to enable/disable writing DVs for the UPDATE command. In short, rows being updated will be marked as `deleted` by DV, while updated rows will be written to a new file. When CDF is enabled, updated rows and CDC (`preimage` and `postimage`) will be written to the file.
+
+## How was this patch tested?
+
+New, preliminary tests.
+
+## Does this PR introduce _any_ user-facing changes?
+
+Yes. When `UPDATE_USE_PERSISTENT_DELETION_VECTORS` is set to true, `UPDATE` command will not rewrite the whole file but write only the rows being updated.

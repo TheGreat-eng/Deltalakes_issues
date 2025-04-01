@@ -1,0 +1,14 @@
+## Protocol Change Request
+
+### Description of the protocol change
+This change puts added responsibility on CommitStore to return the latestTableVersion in the CommitStore.getCommits API along with the list of Commits. 
+
+Protocol RFC issue: https://github.com/delta-io/delta/issues/2598
+
+### Willingness to contribute
+
+The Delta Lake Community encourages protocol innovations. Would you or another member of your organization be willing to contribute this feature to the Delta Lake code base?
+
+- [x] Yes. I can contribute.
+- [ ] Yes. I would be willing to contribute with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute at this time.

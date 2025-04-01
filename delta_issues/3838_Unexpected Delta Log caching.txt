@@ -1,0 +1,29 @@
+The following has been done in Azure Databricks 6.4 as well as with a Standalone Spark 3.0.0 (Scala 2.12.10) with Delta Core 2.12-0.7.0.
+
+I have found some unexpected behaviour when working on the same Delta Table from multiple Spark sessions. It appears that, if an existing Delta Table (that has once been read by Spark Session B) is removed from the filesystem and recreated from Spark Session A, Spark Session B will not be able to read the Delta Table anymore since the Delta Log is stored somewhere in cache, even after unpersisting the Dataframe.
+
+Steps to reproduce:
+
+1. Start 2 Spark Sessions A (writing) and B (reading)
+2. Let A write some Delta Table
+```scala
+val data = Seq(("a",1), ("b",2), ("c",3))
+val df = spark.createDataFrame(data)
+df.write.format("delta").save("/tmp/test")
+```
+3. Let B read and show the Delta Table
+```scala
+var df = spark.read.format("delta").load("/tmp/test")
+df.show()
+```
+4. Remove the Delta Table from the filesystem and repeat step 2
+5. Repeat step 3
+
+At this point, Spark Session B will throw an exception stating that a Parquet file is missing and unpersisting the DF does not help.
+```
+org.apache.spark.SparkException: Job aborted due to stage failure: Task 0 in stage 18.0 failed 1 times, most recent failure: Lost task 0.0 in stage 18.0 (TID 308, 868fbeb950fc, executor driver): java.io.FileNotFoundException: File file:/tmp/test/part-00001-a6db7bc9-0dad-45c5-8f40-8413514e8e4e-c000.snappy.parquet does not exist
+It is possible the underlying files have been updated. You can explicitly invalidate the cache in Spark by running 'REFRESH TABLE tableName' command in SQL or by recreating the Dataset/DataFrame involved.
+```
+Spark Session A, however, is able to read the Delta Table.
+
+The actual content of the file system is correct and consistent at any point in time. So to me, it seems like the Delta Log is cached and not reloaded in Spark Session B, even after unpersisting the Dataframe.

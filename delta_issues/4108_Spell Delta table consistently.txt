@@ -1,0 +1,1 @@
+Fixes a couple of "delta" and changes Delta Lake table to Delta table.

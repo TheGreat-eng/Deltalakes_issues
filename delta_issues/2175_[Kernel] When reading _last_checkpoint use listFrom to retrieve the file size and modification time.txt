@@ -1,0 +1,17 @@
+## Feature request
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the issue title
+For example: [Feature Request][Spark] Title of my issue
+-->
+
+- [ ] Spark
+- [ ] #2141
+- [ ] Flink
+- [x] Kernel
+- [ ] Other (fill in here)
+
+### Overview
+
+In `Checkpointer::loadMetadataFromFile` we currently don't have real file size and modification time values for the last checkpoint file https://github.com/delta-io/delta/blob/master/kernel/kernel-api/src/main/java/io/delta/kernel/internal/checkpoints/Checkpointer.java#L99. We can use listFrom to get these values.

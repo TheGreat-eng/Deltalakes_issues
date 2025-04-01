@@ -1,0 +1,1 @@
+We observed delta logs are scanned many times during the running of a SQL, which submits too many small queries to spark. The main query was even been blocked by waiting for the scheduler being ready. We'd better make the metadata processing (or get current snapshot) more efficient.

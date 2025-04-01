@@ -1,0 +1,7 @@
+This PR is part of the feature: Support reading Delta tables with deletion vectors (more details at https://github.com/delta-io/delta/issues/1485)
+
+It adds an interface called `RowIndexFilter` which evaluates whether to keep a row in the output or not. `DeletedRowsMarkingFilter` implements `RowIndexFilter` to filter out rows that are deleted from a deletion vector. In the final integration, this filter is used just after fetching the rows from the data parquet file. Refer to task IDs 7 and 8 in the [project plan.](https://github.com/delta-io/delta/issues/1485)
+
+Test suite is added.
+
+GitOrigin-RevId: 0ba60f880f7a83304142f4b021fd71b170d74356

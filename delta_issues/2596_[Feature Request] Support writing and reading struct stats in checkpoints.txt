@@ -1,0 +1,35 @@
+## Feature request
+
+### Overview
+The delta protocol specifies the `partitionValues_parsed` and `stats_parsed` columns to contain partition and column stats in native parquet using a struct type schema. It appears that open source delta does not support writing these columns or using them for data skipping during read operations. 
+
+### Motivation
+According to the Databricks docs its pretty valuable:
+> The struct format makes Delta Lake reads much faster, because:
+> 
+> Delta Lake doesn’t perform expensive JSON parsing to obtain column-level statistics.
+> Parquet column pruning capabilities significantly reduce the I/O required to read the statistics for a column.
+
+https://learn.microsoft.com/en-us/azure/databricks/delta/best-practices#--enhanced-checkpoints-for-low-latency-queries
+
+Probably everyone would get a small performance improvement on reads. It would be particularly beneficial for users with large checkpoint files or large numbers of columns with stats in their tables. Personally my use-case fits both of these. 
+
+### Further details
+When writing delta tables with `delta.checkpoint.writeStatsAsStruct": "true"` both `stats_parsed` and `partitionValues_parsed` should be populated as per https://github.com/delta-io/delta/blob/master/PROTOCOL.md.
+
+The [docs](https://docs.delta.io/latest/table-properties.html#delta-table-properties-reference) seem to suggest that both `stats_parsed` and `partitionValues_parsed` should be written however it looks to me like only `partitionValues_parsed` is supported in reality. 
+
+Additionally it looks to me like neither `partitionValues_parsed` or `stats_parsed` is used when reading delta tables. Ideally these would both be used in preference to the JSON versions whenever they are present for performance reasons. I haven't fully understood the code yet but I expect this part would be more complicated than writing the struct stats. 
+
+<!--
+Use this section to include any additional information about the feature. If you have a proposal for how to implement this feature, please include it here. For implementation guidelines, please read our contributor guidelines: https://github.com/delta-io/delta/blob/master/CONTRIBUTING.md
+If there are any specific requirements for this feature that are not immediately obvious please outline them here.
+-->
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [ ] Yes. I can contribute this feature independently.
+- [x] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.  I'm willing, but there are caveats that I don't know much about scala and I don't know when/if I will find time to contribute something like this. 
+- [ ] No. I cannot contribute this feature at this time.

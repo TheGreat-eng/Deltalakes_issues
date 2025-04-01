@@ -1,0 +1,26 @@
+## Feature request
+
+### Overview
+I would like to have the ability to permanently delete specific records from a delta table while retaining the history of other records. Alternatively, I would like to be able to update all versions of specific records.
+
+### Motivation
+
+All European companies/instances must comply with the General Data Protection Regulation (GDPR). Article 17 of the GDPR states: “The data subject shall have the right to obtain from the controller the erasure of personal data concerning him or her without undue delay and the controller shall have the obligation to erase personal data without undue delay”. This means that a citizen of a European country can ask a European-based company/instances to have their personal data permanently deleted. Company/instances have to oblidge by this rule and need to remove the requested data.
+
+### Further details
+
+Compliance with this law currently requires deleting a record from a delta table and performing a VACUUM on the same table. However, this approach removes the version history of all records in that table, which overshoots the intended goal.
+
+The desired feature is the ability to permanently delete one or more records from the data table, including the history of those records. Alternatively, it should be possible to permanently update one or more records, which would delete all prior versions of those records and replace the record(s) with a passed parameter.
+
+Ideally, the implementation of this feature would be a specific permanent delete/update function that performs the delete/update action based on a filter. In the case of an update, an additional parameter option should be added that contains the updated value. This function would update all parquet files/logs containing data on records that match the filter criteria and, in the case of an update, add the new records.
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [ ] Yes. I can contribute this feature independently.
+- [ ] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [x] No. I cannot contribute this feature at this time.
+
+Would love to help, but I don't have any coding experience in scala/java

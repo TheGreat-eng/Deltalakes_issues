@@ -1,0 +1,19 @@
+#### Which Delta project/connector is this regarding?
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+This is a follow up to #1938 that fixes the Delta version mentioned in the error message and adds more tests for the implicit casting behaviour in MERGE and UPDATE
+
+## How was this patch tested?
+
+Only new tests added
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

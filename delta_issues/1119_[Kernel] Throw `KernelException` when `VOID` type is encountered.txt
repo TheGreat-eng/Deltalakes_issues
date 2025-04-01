@@ -1,0 +1,5 @@
+## Description
+Minor fix to throw `KernelException` when `VOID` type is encountered as it is an unsupported data type in Kernel.
+
+## How was this patch tested?
+Test

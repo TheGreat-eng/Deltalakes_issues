@@ -1,0 +1,55 @@
+## Bug
+
+#### Which Delta project/connector is this regarding?
+
+- [ x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+### Describe the problem
+When I write a delta table to Unity Catalog with the `.saveAsTable()` method, and specify to also include userMetadata, no userMetaData is written. 
+
+I have also posted this issue on [SO](https://stackoverflow.com/q/77053385/5392289). 
+On Databricks I am running DBR 13.3.
+
+
+#### Steps to reproduce
+
+```
+from pyspark.sql.types import StructType, StructField, IntegerType, StringType
+from pyspark.sql.functions import lit
+
+schema = StructType([
+  StructField("id", IntegerType(), True),
+  StructField("name", StringType(), True),
+  StructField("age", IntegerType(), True)])
+
+data = [(1, "Alice", 25),
+        (2, "Bob", 30),
+        (3, "Charlie", 35)]
+
+df = spark.createDataFrame(data, schema)
+
+(df
+ .write
+ .format("delta")
+ .option("userMetadata", "test")
+ .saveAsTable("catalog.schema.table")
+)
+```
+
+### Environment information
+
+* Delta Lake version: 2.4.0
+* Spark version: 3.4.1
+* Scala version: 2.12
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [x] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute a bug fix at this time.

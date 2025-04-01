@@ -1,0 +1,52 @@
+<!--
+Thanks for sending a pull request!  Here are some tips for you:
+  1. If this is your first time, please read our contributor guidelines: https://github.com/delta-io/delta/blob/master/CONTRIBUTING.md
+  2. If the PR is unfinished, add '[WIP]' in your PR title, e.g., '[WIP] Your PR title ...'.
+  3. Be sure to keep the PR description updated to reflect all changes.
+  4. Please write your PR title to summarize what this PR proposes.
+  5. If possible, provide a concise example to reproduce the issue for a faster review.
+  6. If applicable, include the corresponding issue number in the PR title and link it in the body.
+-->
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+
+This PR introduces a new reader-writer table feature "redirection". This table feature would redirect the read and write query from the current storage location to a new storage location  described inside the value of table feature.
+
+The redirection has several phases to ensure no anomaly. To label these phases, we introduces four states:
+
+0. NO-REDIRECT: This state indicates that redirect is not enabled on the table.
+1. ENABLE-REDIRECT-IN-PROGRESS: This state indicates that the redirect process is still going on. No DML or DDL transaction can be committed to the table when the table is in this state.
+2. REDIRECT-READY: This state indicates that the redirect process is completed. All types of queries would be redirected to the table specified inside RedirectSpec object.
+3. DROP-REDIRECT-IN-PROGRESS: The table redirection is under withdrawal and the redirection property is going to be removed from the delta table. In this state, the delta client stops redirecting new queries to redirect destination tables, and only accepts read-only queries to access the redirect source table.
+
+To ensure no undefined behavior, the valid procedures of state transition are:
+
+0. NO-REDIRECT -> ENABLE-REDIRECT-IN-PROGRESS
+1. ENABLE-REDIRECT-IN-PROGRESS -> REDIRECT-READY
+2. REDIRECT-READY -> DROP-REDIRECT-IN-PROGRESS
+3. DROP-REDIRECT-IN-PROGRESS -> NO-REDIRECT
+4. ENABLE-REDIRECT-IN-PROGRESS -> NO-REDIRECT
+
+
+The protocol RFC document is on: https://github.com/delta-io/delta/issues/3702
+
+## How was this patch tested?
+
+Unit Test of transition between different states of redirection.
+
+
+## Does this PR introduce _any_ user-facing changes?
+No

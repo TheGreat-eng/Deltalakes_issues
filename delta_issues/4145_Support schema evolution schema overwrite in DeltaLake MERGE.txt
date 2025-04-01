@@ -1,0 +1,76 @@
+As far as I can tell, schema evolution / schema overwrite in DeltaLake MERGE is not currently supported. The below pyspark code illustrates my issue (Spark 2.4.4, Scala 2.11, DeltaLake 0.3.0): 
+
+```python
+schema1 = StructType([ StructField("id", IntegerType()),
+                       StructField("col1", StringType()),  
+                       StructField("col2", IntegerType())
+                      ])
+# Define DFs
+DF1 = spark.createDataFrame([ [1, "a", 1],
+                              [2, "a", 5], 
+                              [3, "b", 5]], schema=schema1)
+
+schema2 = StructType([
+  StructField("id", IntegerType()),
+  StructField("col1", StringType()),  
+  StructField("col2", DoubleType()),
+  StructField("col3", StringType())  
+])
+
+myDF2 =spark.createDataFrame([ [1, "b", 4.0, "a"],
+                               [2, "c", 5.0, "b"], 
+                               [4, "b", 5.0, "c"]], schema=schema2) 
+
+# Write first DF as a DeltaTable
+DF2.write.format("delta") \
+          .mode("overwrite") \
+          .option("overwriteSchema", "true") \
+          .save("/tmp/delta/testtable")
+
+# DeltaLake merge via py4j
+jvm_for_table = spark._jvm.io.delta.tables.DeltaTable \
+                             .forPath(spark._jsparkSession, "/tmp/delta/testtable")
+
+# workaround to avoid using Python keyword 'as' in JVM method call 
+# (Python interpreter will throw an error.)
+jvm_for_table_as=getattr(jvm_for_table, 'as')("testtable")
+
+# update existing rows and insert new
+jvm_for_table_as.merge(getattr(DF2._jdf, 'as')("updates"), \
+"testtable.id = updates.id").whenMatched().updateAll().execute()
+
+# Read merged table and show
+spark.read.format("delta").load("/tmp/delta/testtable").show()
+```
+
+This quietly outputs:
+```
++---+----+------+
+| id |col1| col2|
++---+----+------+
+|  1|   a  | 1  |
+|  2|   a  | 5  |
+|  3|   b  | 5  |
++---+----+------+
+```
+Would be great, if by option (`.option("overwriteSchema", "true") .option("mergeSchema", "true") `), to support schemaevolution to get instead: 
+```
++---+----+------+------+
+| id |col1| col2| col3 |
++---+----+------+------+
+|  1|   b  | 4.0 |  a  |
+|  2|   c  | 5.0 |  b  |
+|  3|   b  | 5.0 |None |
+|  4|   b  | 5.0 |  c  |
++---+----+------+------+
+```
+
+and a new schema 
+```
+StructType([
+  StructField("id", IntegerType()),
+  StructField("col1", StringType()),  
+  StructField("col2", DoubleType()),
+  StructField("col3", StringType())  
+])
+```

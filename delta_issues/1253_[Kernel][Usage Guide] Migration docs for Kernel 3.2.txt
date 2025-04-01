@@ -1,0 +1,1 @@
+Capture the breaking API changes to enable connectors to migrate to the latest version of Kernel

@@ -1,0 +1,20 @@
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [x] Kernel
+- [ ] Other (fill in here)
+
+## Description
+Part of delta-io/delta#2071 (Partition Pruning in Kernel). We need the following two expressions in order to evaluate predicate on scan file columnar batch data.
+
+* `element_at(map_column, key_value)`: Take input a `map` type column and `key` value, return the `value` for the given `key`. This is similar to Apache Spark UDF for similar purposes. This expression will be used to retrieve the specific partition value from the `(partition column name -> string serialized partition)` map
+* `partition_value(string_type_value, datatype)`: Decode the partition value given as a string into the given datatype format. The interpretation of the string value is according to the Delta protocol.
+
+## How was this patch tested?
+Added UTs

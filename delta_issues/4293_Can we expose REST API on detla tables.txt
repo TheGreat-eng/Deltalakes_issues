@@ -1,0 +1,1 @@
+For provide data to down stream, we are using REST API on NoSQL db. Since detla table is supporting ACID, so there is a view to replace NoSQL db with delta table. Can we point existing REST API to delta table?

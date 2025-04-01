@@ -1,0 +1,13 @@
+I use delta lake 0.8.0 with spark structured streaming on spark 3.0.1, we write the delta lake both on s3 and google storage.
+We query our tables in presto, therefore I created a table on our metastore pointing to the symlink folder on my delta table location, altered the table to  delta.compatibility.symlinkFormatManifest.enabled=true 
+and run once a generate symlink. as described here: https://docs.databricks.com/delta/presto-integration.html.
+
+I expected that each time the structured streaming cycle is done I will have all the partitions manifests under the symlink folder.
+
+what happens is that in each structured streaming cycle it overrides all the partitions with the partitions that exist in the current stream input.
+We are implementing a CDC with structured streaming and delta lake as described here:
+https://delta.io/blog-gallery/simplifying-change-data-capture-with-databricks-delta/
+
+In the final table, the one that the symlink are defined on I write into the delta table in overwrite mode but my spark is configured with spark.sql.sources.partitionOverwriteMode=dynamic, I would expect delta table to treat the symlinks  partitions in the same way spark does when writing data in Override mode with spark.sql.sources.partitionOverwriteMode=dynamic (updating only the partitions in the batch without touching other partitions. 
+It happens on AWS & google cloud storage
+Thanks

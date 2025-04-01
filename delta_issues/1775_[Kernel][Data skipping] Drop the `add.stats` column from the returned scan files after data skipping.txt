@@ -1,0 +1,33 @@
+## Feature request
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the issue title
+For example: [Feature Request][Spark] Title of my issue
+-->
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [x] Kernel
+- [ ] Other (fill in here)
+
+### Overview
+
+Right now we return the `add.stats` field silently at the end of the `add` file schema returned in the scan files. We should drop this `stats` column before returning the scan files [here](https://github.com/delta-io/delta/blob/master/kernel/kernel-api/src/main/java/io/delta/kernel/internal/ScanImpl.java#L104).
+
+### Motivation
+
+Don't expose unnecessary protocol details to connectors.
+
+### Further details
+
+This is currently hard to do since we have no way to drop a nested column. This may be unblocked by an expression on columnarbatch type interface.
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [ ] Yes. I can contribute this feature independently.
+- [ ] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.

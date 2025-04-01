@@ -1,0 +1,3 @@
+... until we have implementation and correct handling of all update operations on Delta tables with deletion vectors.
+
+Users will continue to read tables containing Deletion vectors. 

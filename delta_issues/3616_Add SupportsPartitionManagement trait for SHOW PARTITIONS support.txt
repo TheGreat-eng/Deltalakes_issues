@@ -1,0 +1,7 @@
+Resolves #681 
+
+Adds `SupportsPartitionManagement` trait to the V2 table to support the `SHOW PARTITIONS` SQL command. Most of the methods in the trait simply throw an unsupported exception, as they aren't relevant for Delta. The `listPartitionIdentifiers` is the bulk of the logic. There's a lot of casting between strings and real types, not sure if I implemented everything the best way, so very open to suggestions. Specifically:
+
+- I just added the methods to the end of the DeltaTableV2 class, is there a better/more logical place to put them?
+- Is the file I added the test too the correct place to put them or should they be in a different file?
+- Is there anything more I should test (that other features like add/drop partitions throw exceptions)?

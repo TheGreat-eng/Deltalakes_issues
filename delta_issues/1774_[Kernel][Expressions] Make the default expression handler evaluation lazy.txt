@@ -1,0 +1,76 @@
+## Feature request
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the issue title
+For example: [Feature Request][Spark] Title of my issue
+-->
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [X] Kernel
+- [ ] Other (fill in here)
+
+### Overview
+
+The expression handler should short-circuit on logical operators. This requires making all expression evaluation lazy since evaluation needs to be on a per-row basis.
+
+First step: Convert all comparators (e.g. =, > etc) to be lazy.
+Rough idea on how to do that is:
+* Create a comparator based on the data type of inputs. Both inputs are expected to have the same inputs.
+```
+interface VectorComparator {
+   /*
+    * Compare the entry at given `rowId` in `left` and `right` vectors and return the comparison
+    * result (-1, 0, 1)
+   int compare(ColumnVector left, ColumnVector right, int rowId)
+}
+```
+  * We need utility method that can create these comparator. Pseudo code looks like below
+```
+  DataType dataType = left.getDataType();
+
+   if (dataType instance BooleanType) {
+      return new VectorComparator() {
+        int compare(ColumnVector left, ColumnVector right, int rowId) {
+            boolean leftResult = left.getBoolean(rowId);
+            boolean rightResult = right.getBoolean(rowId);
+            return Boolean.compare(leftResult, rightResult);
+        }
+     } else if (dataType instance of IntegerType) {
+    ....
+     }
+     .. more types...
+   }
+```
+
+* Return a `ColumnVector` that wraps the above created comparator and returns result based on the comparator operator type
+```
+return new ColumnVector() {
+   public getDataType() { return BooleanType.BOOLEAN;}
+
+   public getSize() { argResults.leftResult.getSize(); }
+
+   public isNullAt(int rowId) {
+       boolean isLeftNull = argResults.leftResult.isNullAt(rowId);
+       boolean isRightNull = argResults.rightResult.isNullAt(rowId);
+       return isLeftNull || isRightNull;
+   }
+
+  public getBoolean(int rowId) {
+      // check both are null. if yes return true, otherwise..
+
+     // `==` will change depending upon the operator we are evaluating.
+      compartor.compare(leftResult, rightResult, rowId) == 0
+   }
+}
+```
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [ ] Yes. I can contribute this feature independently.
+- [ ] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [x] No. I cannot contribute this feature at this time.

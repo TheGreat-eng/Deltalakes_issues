@@ -1,0 +1,32 @@
+With following SQL:
+
+`     CREATE TABLE  test_table1(c_char Char(10),c_varchar VARCHAR(10)) using delta  LOCATION '$path'`
+`     CREATE TABLE  test_table2(c_char Char(10),c_varchar VARCHAR(10)) using delta  LOCATION '$path'`
+
+will be thrown The specified schema does not match the existing schema at file:/tmp/spark-86cf54a1-03b7-479a-b857-bcfb619e4473.
+
+== Specified ==
+root
+ |-- c_char: char(10) (nullable = true)
+ |-- c_varchar: varchar(10) (nullable = true)
+
+
+== Existing ==
+root
+ |-- c_char: string (nullable = true)
+ |-- c_varchar: string (nullable = true)
+
+
+== Differences ==
+- Specified metadata for field c_char is different from existing schema:
+  Specified: {}
+  Existing:  {"__CHAR_VARCHAR_TYPE_STRING":"char(10)"}
+- Specified type for c_char is different from existing schema:
+  Specified: char(10)
+  Existing:  string
+- Specified metadata for field c_varchar is different from existing schema:
+  Specified: {}
+  Existing:  {"__CHAR_VARCHAR_TYPE_STRING":"varchar(10)"}
+- Specified type for c_varchar is different from existing schema:
+  Specified: varchar(10)
+  Existing:  string

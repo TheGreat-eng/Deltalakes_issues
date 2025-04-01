@@ -1,0 +1,26 @@
+#### Which Delta project/connector is this regarding?
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [X] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+We are re-thinking the design of the Coordinated Commits table feature (currently still in RFC). Thus, we should remove it from the public Kernel API for Delta 3.3 release.
+
+To summarize the changes of this PR
+
+- I remove `getCommitCoordinatorClientHandler` from the `Engine` interface
+- I move various previously `public` CC interfaces and classes to be `internal` now
+- `SnapshotImpl::getTableCommitCoordinatorClientHandlerOpt` is hardcoded to return an empty optional
+- Delete failing test suites and unapplicable utils
+
+## How was this patch tested?
+
+Existing CI tests.
+
+## Does this PR introduce _any_ user-facing changes?
+
+We remove coordinated commits from the public kernel API.

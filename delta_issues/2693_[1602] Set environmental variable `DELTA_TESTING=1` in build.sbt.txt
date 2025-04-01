@@ -1,0 +1,9 @@
+Resolves #1602 
+
+Some table features tests rely on some "test table features" that are only supported when `DELTA_TESTING=1`. Otherwise tests fail with
+```
+[info]   org.apache.spark.sql.delta.DeltaTableFeatureException: Table features configured in the following Spark configs or Delta table properties are not recognized by this version of Delta Lake: delta.feature.testwriter.
+```
+
+This PR sets this in `build.sbt` and also removes setting it from `run-tests.py` since it should no longer be needed.
+

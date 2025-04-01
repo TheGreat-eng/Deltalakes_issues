@@ -1,0 +1,72 @@
+## Bug
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the issue title
+For example: [BUG][Spark] Title of my issue
+-->
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [X] Delta-Hive Connector
+
+### Describe the problem
+The Delta-Hive connector allows Delta tables to be registered in and queried by Hive in a Hadoop environment.  When a user was comparing the performance and resources involved with querying their Parquet tables and then querying those same tables in Delta format, they found that while the performance was similar it was taking 8-10x more mappers for the Delta queries vs. Parquet.  This represents a significant increase in compute cost.
+
+The Delta queries should not take more compute than the Parquet queries when dealing with identical data.
+
+#### Steps to reproduce
+This was done on EMR emr-5.33.1 using HCatalog 2.3.7, Hadoop 2.10.1, Hive 2.3.7, Zeppelin 0.9.0
+
+1. Upload the connector JAR delta-hive-assembly_2.11-0.6.0.jar to the hadoop user's home directory
+2. Write out some data in one small Parquet file (3 KB is fine) in a directory on S3 called parquetclicks
+3. Write out the same data in a second small Parquet file in a directory on S3 called deltaclicks
+4. Modify hive-site.xml and set the hive.execution.engine property to mr (you'll need to sudo -s to make the modification)
+5. Start the Hive CLI
+6. Create an external Parquet table pointing to the Parquet file that got created.  Example (substitute your own schema):
+    CREATE EXTERNAL TABLE parquet_clicks(userid BIGINT, clickadid BIGINT, clicktimestamp TIMESTAMP)
+    STORED AS PARQUET
+    LOCATION 's3://your/path/here/parquetclicks/'
+7. Run the following query: select count(*) from parquet_clicks;
+8. Note the number of mappers it spins up to complete the query - you'll see only 1 because it's a small file.
+9. Load the Delta-Hive connector JAR in the Hive CLI with this command:
+    ADD JAR /home/hadoop/delta-hive-assembly_2.11-0.6.0.jar;
+10. Set the hive.input.format property in the Hive CLI with this command:
+     SET hive.input.format=io.delta.hive.HiveInputFormat;
+11. Create an external Delta table pointing to the second Parquet file that got created.  Example (substitute your own schema):
+     CREATE EXTERNAL TABLE delta_clicks(userid BIGINT, clickadid BIGINT, clicktimestamp TIMESTAMP)
+     STORED BY 'io.delta.hive2.DeltaStorageHandler'
+     LOCATION 's3://your/path/here/deltaclicks/'
+12. Run the following query: select count(*) from delta_clicks;
+13. Notice the number of mappers that got created for the one small file it had to process.  In this testing it spun up 8 mappers to count the records in a 3 KB file.
+14. Run the following query again in the same Hive CLI session, so that hive.input.format is still pointed to the Delta-Hive connector's class: select count(*) from parquet_clicks;
+15. Notice that it now also spins up the same number of mappers that the query for the Delta table did.
+
+#### Observed results
+When the Delta-Hive connector was used Hive spun up 8 mappers to count the records in a 3 KB file.
+
+#### Expected results
+The connector should only spin up 1 mapper to process such a tiny file.
+
+#### Further details
+The Delta-Hive connector was created using the older versions of the Hive and MapReduce interfaces.  The excessive use of mappers for all table types is an issue that was present in the old versions.  The issue can be reproduced independently from the Delta-Hive connector with a regular Parquet table in Hive by changing the hive.input.format Hive property setting to org.apache.hadoop.hive.ql.io.HiveInputFormat, which is the original default.  The org.apache.hadoop.hive.ql.io.HiveInputFormat class is what the Delta-Hive connector’s HiveInputFormat class extends.
+
+The current default hive.input.format value used by Hive is org.apache.hadoop.hive.ql.io.CombineHiveInputFormat.  This newer class combines data in a much more intelligent manner, making fewer data splits and therefore fewer mappers.  Everyone that uses Hive today is using this default.  In order to use the Delta-Hive connector, however, the hive.input.format has to be changed to the connector’s io.delta.hive.HiveInputFormat class, which extends the old interface.  Then the mapper explosion issue returns not just for Delta queries, but for any other tables that get queried while the Delta-Hive connector’s class is being used.
+
+In order to get rid of the mapper explosion issue when the Delta-Hive connector is being used, the connector needs to be changed to integrate with the newer Hive classes that use the better data split calculations.
+ 
+### Environment information
+
+* Delta Lake version: Versions that use minReaderVersion 1 and minWriterVersion 2
+* Hive version: 2.3.7
+* Scala version: 2.11
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [ ] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [X] No. I cannot contribute a bug fix at this time.

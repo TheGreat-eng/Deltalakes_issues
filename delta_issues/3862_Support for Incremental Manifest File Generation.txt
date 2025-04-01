@@ -1,0 +1,18 @@
+Is there way to generate manifest files for only the partitions that were updated/created in the current transaction .
+
+` df = spark.read.csv(s3://temp/2020-01-01.csv) `
+
+`delta_table = DeltaTable.forPath(spark, delta_table_path) `
+
+`delta_table.alias("source").merge(df.alias("new_data"), "source.id = ` `new_data.id").whenNotMatchedInsertAll().execute() `
+
+`partition = " date=2020-01-01  "  `
+`spark.read.format("delta").load(delta_table_path).where( `
+ `expr(partition)).repartition( 4).write.option("dataChange", `
+  `                      "False").format( `
+  `      "delta").mode("overwrite").option('replaceWhere',partition).save(delta_table_path) `
+
+`delta_table.generate("symlink_format_manifest") `
+
+When I run the generate method it creates/updates manifest files for all the partitions  in the table . Currently it works fine and seems fast enough since the number of partitions in the table is less . But the number of partitions is expected to grow to thousands . 
+

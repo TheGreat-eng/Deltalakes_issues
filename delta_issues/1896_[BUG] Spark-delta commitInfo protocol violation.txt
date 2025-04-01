@@ -1,0 +1,42 @@
+## Bug
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the issue title
+For example: [BUG][Spark] Title of my issue
+-->
+
+- [X] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+### Describe the problem
+Spark-delta cannot deserialize a delta table history where the operationMetrics contain integers instead of string values. This violates the Delta Protocol, since it should be able to deserialize any format: https://github.com/delta-io/delta/blob/master/PROTOCOL.md#commit-provenance-information
+
+`Implementations are free to store any valid JSON-formatted data via the commitInfo action.`
+
+
+#### Steps to reproduce
+Write a delta table with Delta-RS, do any operation that provides operationMetrics in the commitInfo and then try to do Table.history() with spark-delta.
+
+
+
+#### Observed results
+
+What you will get is this since it expects a string even though the protocol permits any value.
+```
+MismatchedInputException: Cannot deserialize value of type `java.lang.String` from Object value (token `JsonToken.START_OBJECT`)
+ at [Source: (String)"{"commitInfo":{"timestamp":1703277009126,"operation":"OPTIMIZE","operationParameters":{"targetSize":"1000000000"},"clientVersion":"delta-rs.0.16.5","operationMetrics":{"filesAdded":{
+"avg":717028931.0,"max":940352015,"min":363011010,"totalFiles":4,"totalSize":2868115724},"filesRemoved":{"avg":179660.21727615935,"max":225198,"min":132135,"totalFiles":17747,"totalSize":3188429876},"numB
+atches":586551,"numFilesAdded":4,"numFilesRemoved":17747,"partitionsOptimized":2,"preserveInsertionOrder":true,"to"[truncated 70 chars]; line: 1, column: 182] (through reference chain: org.apache.spark.sq
+l.delta.actions.SingleAction["commitInfo"]->org.apache.spark.sql.delta.actions.CommitInfo["operationMetrics"]->com.fasterxml.jackson.module.scala.deser.GenericMapFactoryDeserializerResolver$BuilderWrapper
+["filesAdded"]) 
+```
+
+#### Expected results
+
+Properly deserialize any value as stated by the protocol.
+
+#### Further details

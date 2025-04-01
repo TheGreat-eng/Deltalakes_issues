@@ -1,0 +1,24 @@
+Resolves https://github.com/delta-io/delta/issues/923
+
+Please see the full design doc here. An except is copied below.
+
+## PR Summary
+This PR adds statistics generation such that per-file statistics are injected into `AddFile` during writes. This is accomplished by `StatisticsCollection` which `TransactionalWrite` extends. During the actual file write, `DataSkippingStatsTracker` will use the given `StatisticsCollection` `Expression` to generate the stats values.
+
+We add `StatsCollectionSuite` to test that statistics generation is correct.
+
+## Design Doc Excerpt
+Public API Changes
+- DeltaSQLConfig.DELTA_COLLECT_STATS - whether or not stats collection is enabled
+- DeltaSQLConfig.DATA_SKIPPING_STRING_PREFIX_LENGTH - for string columns, how long prefix to store in the data skipping index
+- DeltaConfig.DATA_SKIPPING_NUM_INDEXED_COLS - the number of columns to collect stats on for data skipping
+
+Statistics column schema
+- The AddFile metadata action already supports storing the numRecords statistic, and the Delta [protocol](https://github.com/delta-io/delta/blob/master/PROTOCOL.md#per-file-statistics) already gives an example of how to store per-column min, max, and null-count statistics, too. I propose we use the same such statistics schema.
+
+The actual implementation can be broken down into four fairly self-contained tasks.
+- Create the per-column statistics expression - I propose a StatisticsCollection class be created which creates the stats generation Expression given an input schema (and the number of column to index)
+- Execute that Expression to actually generate and collect the statistics values - 
+[org.apache.spark.sql.execution.datasources.FileFormatWriter.write](https://github.com/apache/spark/blob/master/sql/core/src/main/scala/org/apache/spark/sql/execution/datasources/FileFormatWriter.scala#L95) already supports receiving a statistics tracker of type [org.apache.spark.sql.execution.datasources.WriteJobStatsTracker](https://github.com/apache/spark/blob/master/sql/core/src/main/scala/org/apache/spark/sql/execution/datasources/WriteStatsTracker.scala#L37). We just need to inject in our own that uses the StatisticsCollection instance above
+- Inject both of these entities during the actual data write - `TransactionalWrite::writeFiles` seems like the place for this
+- Tests - All we really need to test is StatisticsCollection

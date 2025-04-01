@@ -1,0 +1,10 @@
+In an HDFS cluster using an Observer NameNode, transaction committing can fail due to read after write consistency issues. This is due to the mixed use of FileContext for writes and FileSystem for reads in the HDFSLogStore, and the fact that FileSystem caches clients (the fact that FileContext/AbstractFileSystem doesn't cache clients isn't part of the consistency issue, but is a separate but related performance issue). If one or the other was used exclusively it would fix the consistency issue. What is happening right now is (all on the driver):
+1. A snapshot is read from the LogStore using the FileSystem API creating a new DFSClient.
+2. A new commit is written using the FileContext API using a new DFSClient.
+3. During the commit process it checks if it can see the newer version after writing it, reading the file system with the FIleSystem API and DFSClient from stage 1 due to the caching. This happens [here](https://github.com/delta-io/delta/blob/master/core/src/main/scala/org/apache/spark/sql/delta/OptimisticTransaction.scala#L722).
+
+Normally a write forces the DFSClient to update its required state ID to the latest version, so a subsequent read from that client will see what it just wrote. But since different clients are technically used, there's no need for the DFSClient from the read calls to know there's a newer state ID it needs to look for.
+
+The sort of related problem in an HA setup is that the FileContext API creates a new DFSClient every time a new FileContext object is created. This doesn't cause consistency issues, but it does force the client to have to find the active namenode before every write call, instead of remembering from the last write call. This also leads to a bunch of exception messages getting printed out when there really isn't an "error".
+
+Current workaround is setting the auto msync period to 0 so every read call is guaranteed to be up to date. This can be done solely on the driver by setting the config as a Java system property.

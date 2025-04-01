@@ -1,0 +1,26 @@
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+
+## Description
+
+This is a plain refactor of REORG TABLE / OPTIMIZE to allow for better extendability and adding new types of REORG TABLE operations in the future.
+
+The REORG operation currently supports:
+- PURGE: remove soft deleted rows (DVs) and dropped columns.
+- UPGRADE UNIFORM: rewrite files to be iceberg compatible.
+
+More operations can be used in the future to allow dropping table features, in particular for column mapping: rewrite files to have the physical column names match the logical column name.
+
+## How was this patch tested?
+
+This a plain refactor without functional changes.

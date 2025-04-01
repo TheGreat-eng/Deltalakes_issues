@@ -1,0 +1,12 @@
+
+## Description
+When reading from a Delta streaming source with schema tracking enabled - by specifying `schemaTrackingLocation` - internal metadata in the table schema causes a schema change to be detected.
+
+This is especially problematic for identity columns that track the current high-water mark for ids as metadata in the table schema and update it on every write, causing streams to repeatedly fail and requiring a restart.
+
+This change addresses the issue by ignoring internal metadata fields when detecting schema changes.
+
+A flag is added to revert to the old behavior if needed.
+
+## How was this patch tested?
+Added test case covering problematic use case with both fix enabled and disabled.

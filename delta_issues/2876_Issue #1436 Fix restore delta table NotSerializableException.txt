@@ -1,0 +1,22 @@
+When execute `restore` command on delta table by spark sql with Hadoop 2,  it reported `java.io.NotSerializableException: org.apache.hadoop.fs.Path`
+
+## Description
+
+Resolves #1436 
+
+## How was this patch tested?
+
+Package new version of delta-core jar and put it under $SPARK_HOME/jars directory. Launch spark-sql and execute `restore table xxx TO VERSION AS OF xx` command on existed delta table, it executed successfully. Then execute `DESCRIBE HISTORY xxx` command on the delta table, it show `RESTORE` operation at the last commit.
+
+spark-sql (default)> restore table default.people10m TO VERSION AS OF 4;
+table_size_after_restore  num_of_files_after_restore  num_removed_files num_restored_files  removed_files_size  restored_files_size
+1808  4 5 4 2260  1808
+Time taken: 22.38 seconds, Fetched 1 row(s)
+
+spark-sql (default)> DESCRIBE HISTORY default.people10m;
+version timestamp userId  userName  operation operationParameters job notebook  clusterIreadVersion isolationLevel  isBlindAppend operationMetrics  userMetadata  engineInfo
+7 2022-10-18 10:23:33.325 NULL  NULL  RESTORE {"timestamp":null,"version":"4"}  NULL  NULL  NULL  Serializable  false {"numOfFilesAfterRestore":"4","numRemovedFiles":"5","numRestoredFiles":"4","removedFilesSize":"2260","restoredFilesSize":"1808","tableSizeAfterRestore":"1808"} NULL  Apache-Spark/3.3.0 Delta-Lake/2.1.0-SNAPSHOT
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

@@ -1,0 +1,7 @@
+There are two merge Job, and they read the same snapshot version,
+1. merge job1 , when not matched , add a new record with primarykey pk1 to new file1
+2. merg job2, commit and do conflict check with job1's commit, there is no conflict ,and also add a new record with primarykey pk1 to new file2
+
+so now delta table has two record with the same pk1? 
+
+If I'm wrong ,pls correct me, thank you! @tdas @zsxwing 

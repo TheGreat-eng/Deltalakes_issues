@@ -1,0 +1,7 @@
+Hello, 
+
+Delta Lake versions <= 0.8.0 have a compile-time dependency on the SBT plugin `sbt-spark-package` which is currently unavailable because requests to `https://dl.bintray.com/spark-packages/maven` are returning 403 Forbidden.  I think this is due to Bintray being sunset since May 1st.
+
+Is there a workaround?  There is an issue tracking this on the `sbt-spark-package` repo [here](https://github.com/databricks/sbt-spark-package/issues/50).
+
+Thanks!

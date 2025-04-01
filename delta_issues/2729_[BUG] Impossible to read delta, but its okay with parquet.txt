@@ -1,0 +1,64 @@
+## Bug
+
+### Describe the problem
+
+Impossible to read delta, got blank view and no report on synapse. I got complete data using parquet 
+
+#### Steps to reproduce
+
+```
+df.write \
+    .format('delta') \
+    .mode('overwrite') \
+    .option("overwriteSchema", 'True') \
+    .option("inferSchema", 'True') \
+    .save(TBP_LOCATION_PATH)
+
+    spark.sql(f"""DROP TABLE IF EXISTS {DB_TBC}.{f'tbc_{SCHEMA}_{OBJ_NAME}'}""")
+    spark.sql(f"""CREATE TABLE IF NOT EXISTS {DB_TBP}.{f'tbp_{OBJ_NAME}'} USING DELTA LOCATION '{TBP_LOCATION_PATH}'""")
+    spark.sql(f"""OPTIMIZE {DB_TBP}.{f'tbp_{OBJ_NAME}'}""")
+
+SELECT
+TOP 100 *
+FROM
+OPENROWSET
+BULK 'https://path/view.delta/'
+FORMAT = 'DELTA'
+AS [result]
+```
+
+
+```
+df.write \
+    .format('parquet') \
+    .mode('overwrite') \
+    .option("overwriteSchema", 'True') \
+    .option("inferSchema", 'True') \
+    .save(TBP_LOCATION_PATH)
+
+    spark.sql(f"""DROP TABLE IF EXISTS {DB_TBC}.{f'tbc_{SCHEMA}_{OBJ_NAME}'}""")
+    spark.sql(f"""CREATE TABLE IF NOT EXISTS {DB_TBP}.{f'tbp_{OBJ_NAME}'} USING PARQUET LOCATION '{TBP_LOCATION_PATH}'""")
+
+SELECT
+TOP 100 *
+FROM
+OPENROWSET
+BULK 'https://path/view.parquet/'
+FORMAT = 'PARQUET'
+AS [result]
+```
+
+
+#### Observed results
+
+Writing .delta files I got no error, but Its showing blank view, and got desired results when I write and read .parquet files on gold
+
+#### Expected results
+
+Got the same results using .delta
+
+### Environment information
+
+* Delta Lake version: 11.3
+* Spark version: 3.3.0
+* Scala version: 2.12

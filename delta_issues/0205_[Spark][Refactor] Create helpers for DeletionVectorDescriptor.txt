@@ -1,0 +1,13 @@
+#### Which Delta project/connector is this regarding?
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+In this PR, we extract helpers for building the file name and for extracting DV prefix and UUID in DeletionVectorDescriptor to clean up the code a little and make testing easier in the future.
+## How was this patch tested?
+Simple refactors. Existing tests pass.
+## Does this PR introduce _any_ user-facing changes?
+No.

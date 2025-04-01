@@ -1,0 +1,48 @@
+## Bug
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the issue title
+For example: [BUG][Spark] Title of my issue
+-->
+
+- [X] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+### Describe the problem
+Protocol says schemaString is required:
+
+![Image](https://github.com/user-attachments/assets/f38c4565-f971-4008-bd6d-595002251a8d)
+
+Spark Delta allows null schemaString, and also expects this behavior, as we have units tests relying on this, for example: `build/sbt spark/'testOnly org.apache.spark.sql.delta.OptimisticTransactionSuite -- -t "allow concurrent set-txns with different app ids"'`
+
+And also in the ActionSerializerSuite:
+
+![Image](https://github.com/user-attachments/assets/e3f176e7-4693-4378-82c2-f5ee3ce4cb50)
+
+#### Steps to reproduce
+`build/sbt spark/'testOnly org.apache.spark.sql.delta.OptimisticTransactionSuite -- -t "allow concurrent set-txns with different app ids"'`
+
+#### Observed results
+00000000000000000000.json has:
+`{"metaData":{"id":"f13d60e6-6a52-4679-8a7e-aec5b405eb29","format":{"provider":"parquet","options":{}},"partitionColumns":[],"configuration":{}}}`
+
+#### Expected results
+Error, we shouldn't allow this commit
+
+### Environment information
+
+* Delta Lake version: 3.2
+* Spark version: 3.5
+* Scala version: 2.12
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [ ] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [X] No. I cannot contribute a bug fix at this time.

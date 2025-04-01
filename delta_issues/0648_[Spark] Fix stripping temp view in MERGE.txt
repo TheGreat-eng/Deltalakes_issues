@@ -1,0 +1,9 @@
+## Description
+We (unfortunately) allow running MERGE on views over Delta tables. We detect when the view is equivalent to a `SELECT * FROM target` and strip the plan to only keep the target logical relation.
+That step doesn't handle more complex views, e.g. with multiple aliases and can then leave target plans with Project nodes that can cause analysis exceptions during MERGE execution.
+
+This fix improves detecting and stripping views that are equivalent to `SELECT * FROM target`
+
+## How was this patch tested?
+- Expand existing MERGE into temp views tests and check that views are correctly removed from the target plan.
+

@@ -1,0 +1,71 @@
+## Bug
+MSCK REPAIR TABLE command doesn't seem to work with Delta Lake >= 2.0.0 despite being mentioned in [docs](https://docs.delta.io/latest/presto-integration.html#step-2-configure-presto-trino-or-athena-to-read-the-generated-manifests) 
+
+### Describe the problem
+Originally I came across this issue using EMR + Athena but it's reproducible on local as well. The point is that invoking
+```python
+spark.sql("MSCK REPAIR TABLE test.table")
+```
+throws 
+```python
+pyspark.sql.utils.AnalysisException: MSCK REPAIR TABLE is not supported for v2 tables.
+```
+Despite being referenced in docs:
+> If the Delta table is partitioned, run MSCK REPAIR TABLE mytable after generating the manifests to force the metastore (connected to Presto, Trino, or Athena) to discover the partitions.
+
+#### Steps to reproduce
+
+pyspark --packages io.delta:delta-core_2.12:2.0.0 --conf "spark.sql.extensions=io.delta.sql.DeltaSparkSessionExtension" --conf "spark.sql.catalog.spark_catalog=org.apache.spark.sql.delta.catalog.DeltaCatalog" --driver-memory=12g --conf "spark.sql.warehouse.dir=/Users/mateusz/Desktop/tmp123/spark_warehouse"
+```python
+import pyspark.sql.functions as f
+spark.sql("create database test")
+(
+    spark.range(1, 10)
+    .withColumn("part", f.col("id") % 2)
+    .write
+    .partitionBy("part")
+    .option("overwriteSchema", "true")
+    .mode("overwrite")
+    .format("delta")
+    .saveAsTable("test.table")
+)
+```
+```python
+spark.sql("MSCK REPAIR TABLE test.table")
+```
+
+#### Observed results
+
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+  File "/opt/homebrew/Cellar/apache-spark/3.2.1/libexec/python/pyspark/sql/session.py", line 723, in sql
+    return DataFrame(self._jsparkSession.sql(sqlQuery), self._wrapped)
+  File "/opt/homebrew/Cellar/apache-spark/3.2.1/libexec/python/lib/py4j-0.10.9.3-src.zip/py4j/java_gateway.py", line 1321, in __call__
+  File "/opt/homebrew/Cellar/apache-spark/3.2.1/libexec/python/pyspark/sql/utils.py", line 117, in deco
+    raise converted from None
+pyspark.sql.utils.AnalysisException: MSCK REPAIR TABLE is not supported for v2 tables.
+#### Expected results
+
+<!-- What did you expect to happen? -->
+
+I'd like the table to be querable by Athena as defined [here](https://docs.delta.io/latest/presto-integration.html#step-2-configure-presto-trino-or-athena-to-read-the-generated-manifests) 
+
+#### Further details
+
+<!--
+Include any additional details that may be useful for diagnosing the problem here. If including tracebacks, please include the full traceback. Large logs and files should be attached.
+-->
+
+### Environment information
+
+* Delta Lake version: 2.0.0
+* Spark version: 3.2.1
+* Scala version: 2.12
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [X] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute a bug fix at this time.

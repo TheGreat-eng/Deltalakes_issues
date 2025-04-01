@@ -1,0 +1,7 @@
+When the configuration spark.databricks.delta.schema.autoMerge.enabled is set to true, the implicit cast from integer to boolean doesn't work after switch to the 2.1.1 version.
+
+```
+org.apache.spark.sql.AnalysisException: Failed to merge fields 'enabled' and 'enabled'. Failed to merge incompatible data types BooleanType and IntegerType
+at org.apache.spark.sql.delta.schema.SchemaMergingUtils$.$anonfun$mergeSchemas$1(SchemaMergingUtils.scala:201)
+```
+I believe before the strict schema check  introduction, such cases were being handled by native spark cast and runtime errors were possible only if one tried making incompatible casts.  I am not sure whether it makes sense to introduce a special flag to restore the previous behaviour but it would be awesome to have this compatibility information somewhere in the migration notes. It took quite a while to figure out why our pipelines started failing. 

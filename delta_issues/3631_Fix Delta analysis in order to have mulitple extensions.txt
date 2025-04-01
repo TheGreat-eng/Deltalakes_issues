@@ -1,0 +1,2 @@
+Currently, in an environnement with mutliple spark extensions like delta and iceberg extensions. Merge and Delete it's not working because Delta analysis transform the table even if it's not a delta table. So delta extensions do let other extensions handle none delta table.
+So instead of transforming the table as for Update call, Merge and Delete should not transform it.

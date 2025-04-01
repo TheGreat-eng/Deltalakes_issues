@@ -1,0 +1,54 @@
+## Description
+
+Instead of creating new rules to handle `EqualNullSafe`, we can rewrite `EqualNullSafe(a, NotNullLiteral)` as `And(IsNotNull(a), EqualTo(a, NotNullLiteral))` and rewrite `EqualNullSafe(a, null)` as `IsNull(a)` to let the existing logic handle it.
+
+Here is the diff of `core/src/main/scala/org/apache/spark/sql/delta/stats/DataSkippingReader.scala` when comparing to a commit not including changes in #1014:
+```diff
+$ git diff 29530ae -- core/src/main/scala/org/apache/spark/sql/delta/stats/DataSkippingReader.scala
+diff --git a/core/src/main/scala/org/apache/spark/sql/delta/stats/DataSkippingReader.scala b/core/src/main/scala/org/apache/spark/sql/delta/stats/DataSkippingReader.scala
+index 5bceb4b4..ec911840 100644
+--- a/core/src/main/scala/org/apache/spark/sql/delta/stats/DataSkippingReader.scala
++++ b/core/src/main/scala/org/apache/spark/sql/delta/stats/DataSkippingReader.scala
+@@ -29,11 +29,11 @@ import org.apache.spark.sql.{DataFrame, _}
+ import org.apache.spark.sql.catalyst.encoders.ExpressionEncoder
+ import org.apache.spark.sql.catalyst.expressions._
+ import org.apache.spark.sql.catalyst.expressions.Literal.{FalseLiteral, TrueLiteral}
+-import org.apache.spark.sql.catalyst.util.{GenericArrayData, TypeUtils}
++import org.apache.spark.sql.catalyst.util.TypeUtils
+ import org.apache.spark.sql.execution.InSubqueryExec
+ import org.apache.spark.sql.expressions.SparkUserDefinedFunction
+ import org.apache.spark.sql.functions._
+-import org.apache.spark.sql.types.{AtomicType, BooleanType, ByteType, CalendarIntervalType, DataType, DateType, DoubleType, FloatType, IntegerType, LongType, NumericType, ShortType, StringType, StructType, TimestampType}
++import org.apache.spark.sql.types.{AtomicType, BooleanType, CalendarIntervalType, DataType, DateType, NumericType, StringType, StructType, TimestampType}
+ import org.apache.spark.unsafe.types.{CalendarInterval, UTF8String}
+ 
+ /**
+@@ -439,6 +439,19 @@ trait DataSkippingReaderBase
+     case Not(EqualTo(v: Literal, a)) =>
+       constructDataFilters(Not(EqualTo(a, v)))
+ 
++    // Rewrite `EqualNullSafe(a, NotNullLiteral)` as `And(IsNotNull(a), EqualTo(a, NotNullLiteral))`
++    // and rewrite `EqualNullSafe(a, null)` as `IsNull(a)` to let the existing logic handle it.
++    case EqualNullSafe(a, v: Literal) =>
++      val rewrittenExpr = if (v.value != null) And(IsNotNull(a), EqualTo(a, v)) else IsNull(a)
++      constructDataFilters(rewrittenExpr)
++    case EqualNullSafe(v: Literal, a) =>
++      constructDataFilters(EqualNullSafe(a, v))
++    case Not(EqualNullSafe(a, v: Literal)) =>
++      val rewrittenExpr = if (v.value != null) And(IsNotNull(a), EqualTo(a, v)) else IsNull(a)
++      constructDataFilters(Not(rewrittenExpr))
++    case Not(EqualNullSafe(v: Literal, a)) =>
++      constructDataFilters(Not(EqualNullSafe(a, v)))
++
+     // Match any file whose min is less than the requested upper bound.
+     case LessThan(SkippingEligibleColumn(a), SkippingEligibleLiteral(v)) =>
+       val minCol = StatsColumn(MIN, a)
+```
+
+## How was this patch tested?
+
+Existing tests added by #1014 should cover the correctness.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

@@ -1,0 +1,48 @@
+## Bug
+
+### Describe the problem
+Trying to generate manifest file for certain partition file always return a warning since indicating it is recommended to use predicate rather than full partition path
+ 
+#### Steps to reproduce
+insert partition path `/table/year=2022/month=11/day=17/hour=02` rather than `/table` to the method Delta.forPath 
+
+<!--
+Please include copy-pastable code snippets if possible.
+1. _____
+<img width="635" alt="Screen Shot 2022-11-17 at 2 15 07 PM" src="https://user-images.githubusercontent.com/15958942/202537915-5efbd749-bb61-4b16-a59c-11075959c547.png">
+
+2. _____
+![Screen Shot 2022-11-17 at 1 03 31 PM](https://user-images.githubusercontent.com/15958942/202537823-ad5850f1-71d6-435a-8bd0-9bc16717f76b.png)
+
+![Screen Shot 2022-11-17 at 1 56 32 PM](https://user-images.githubusercontent.com/15958942/202537754-eb4bb2ca-5837-4eca-8008-a31eb6f02b1f.png)
+
+3. _____
+-->
+
+#### Observed results
+
+<!-- What happened?  This could be a description, log output, etc. -->
+
+#### Expected results
+
+<!-- What did you expect to happen? -->
+
+#### Further details
+
+<!--
+Include any additional details that may be useful for diagnosing the problem here. If including tracebacks, please include the full traceback. Large logs and files should be attached.
+-->
+
+### Environment information
+
+* Delta Lake version:1.0
+* Spark version:3.2
+* Scala version:2.12
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [X] Yes. I can contribute a fix for this bug independently.
+- [X] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute a bug fix at this time.

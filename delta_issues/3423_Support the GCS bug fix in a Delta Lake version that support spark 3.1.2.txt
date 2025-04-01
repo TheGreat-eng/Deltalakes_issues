@@ -1,0 +1,11 @@
+Delta Lake 1.1.0 is build on spark 3.2.0. It has a bug fix for using GCS.
+[The bug
+](https://github.com/delta-io/delta/commit/7a3f1e8ec626e80880d524c2b897a969c8b4d63a)
+[The fix](https://github.com/delta-io/delta/commit/95e90763fd9f54df8880911b28b97b023a485d5f)
+
+but for now, It seems that GCP DataProc service only support spark 3.1.2
+[GCP DataProc](https://cloud.google.com/dataproc/docs/concepts/versioning/dataproc-release-2.0)
+
+Which means that the users who uses GCS cannot enjoy this bug fix which is very critical.
+
+I am strongly recommending back-porting this bug fix to spark 3.1.2, maybe under the version 1.0.1

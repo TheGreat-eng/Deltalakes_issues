@@ -1,0 +1,19 @@
+## Feature request
+
+### Overview
+
+Spark 3.4 is built with Scala 2.12.17. If there isn't anything blocking us, I think we should move to the same version.
+
+### Motivation
+
+The same as https://github.com/apache/spark/pull/37892
+
+### Further details
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [ ] Yes. I can contribute this feature independently.
+- [X] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.

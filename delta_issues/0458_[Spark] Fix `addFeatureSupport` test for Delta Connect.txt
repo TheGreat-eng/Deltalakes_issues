@@ -1,0 +1,19 @@
+#### Which Delta project/connector is this regarding?
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+This PR follows https://github.com/delta-io/delta/pull/3786 to fix an error running the test in Delta Connect mode, in which the "DELTA_UNSUPPORTED_FEATURES_IN_CONFIG" exception is wrapped by `SparkConnectGrpcException` rather than being a `Py4JJavaError`.
+
+## How was this patch tested?
+
+Locally.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No.

@@ -1,0 +1,8 @@
+May I suggest to add in the documentation that a delta table can be queried from spark-sql using the format `delta.`/pathtodelta/` ? 
+
+For instance in section **Retrieve Delta table details** in https://docs.delta.io/0.8.0/delta-utility.html#id3 (here only SQL code is provided) this would be
+```
+spark.sql("DESCRIBE DETAIL delta.`/data/events`")
+```
+
+Probably it's trivial but I guess it could help.

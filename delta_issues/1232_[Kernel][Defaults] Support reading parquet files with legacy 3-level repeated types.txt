@@ -1,0 +1,27 @@
+## Description
+When legacy mode is enabled in Spark, array physical types are stored slightly different from the standard format.
+
+Standard mode (default):
+```
+optional group readerFeatures (LIST) {
+  repeated group list {
+    optional binary element (STRING);
+  }
+}
+```
+
+When write legacy mode is enabled (`spark.sql.parquet.writeLegacyFormat = true`):
+```
+optional group readerFeatures (LIST) {
+  repeated group bag {
+    optional binary array (STRING);
+  }
+}
+```
+
+TODO: We need to handle the 2-level lists. Will post a separate PR. The challenge is with generating or finding the Parquet files with 2-level lists.
+
+## How was this patch tested?
+Added tests
+
+Fixes #3082 

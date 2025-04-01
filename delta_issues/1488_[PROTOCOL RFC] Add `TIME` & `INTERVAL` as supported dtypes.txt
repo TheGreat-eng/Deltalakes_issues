@@ -1,0 +1,33 @@
+I am often getting the question, why doesn't delta-rs support time/interval dtypes.. Seems obvious to add since it's supported by Parquet and supported by most engines.
+
+We can do the same thing as timestampNtz and gate these behind a reader & writer feature. I am proposing we add these primitive types:
+
+Type Name | Description
+-- | --
+time| Microsecond precision time of day (backed by parquet `TimeType`) **https://github.com/apache/parquet-format/blob/master/LogicalTypes.md#time**
+interval | A fixed amount of time https://github.com/apache/parquet-format/blob/master/LogicalTypes.md#interval
+
+### Time
+This feature introduces a new data type to support `time`. For example: `00:00:00, or 24:00:00.` The serialization method would be: `{hour}:{minute}:{second}`
+
+### Interval
+This feature introduces a new data type to support day-time `interval`s. For example:` 5d 10h 5m 10s`. The serialization method would be: `{day}d:{hour}h:{minute}m:{second}s`
+
+### To support these feature:
+To have a column of Time/Interval type in a table, the table must have Reader Version 3 and Writer Version 7. A feature name time/interval must exist in the table's readerFeatures and writerFeatures.
+
+
+# Engine support:
+Engine | Type Name | Support | equivalent engine type 
+-- | -- | -- | --
+Spark | time | No| N/A
+Spark | interval | Yes | DayTimeIntervalType
+Trino | time | Yes | TIME(P)
+Trino| interval | Yes | INTERVAL DAY TO SECOND
+Flink | time | Yes | TIME(P)
+Flink | interval | Yes | INTERVAL DAY TO SECOND
+Datafusion | time | Yes | Time (in arrow: Time64)
+Datafusion | interval | Yes | Interval(DayTime)
+
+
+

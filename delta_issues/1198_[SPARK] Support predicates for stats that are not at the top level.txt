@@ -1,0 +1,25 @@
+#### Which Delta project/connector is this regarding?
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+This refactoring adds support for nested statistics columns. So far, all statistics are keys in the stats struct in AddFiles. This PR adds support for statistics that are part of nested structs. This is a prerequisite for file skipping on collated string columns ([Protocol RFC](https://github.com/delta-io/delta/pull/3068)). Statistics for collated string columns will be wrapped in a struct keyed by the versioned collation that was used to generate them.  For example:
+
+```
+"stats": { "statsWithCollation": { "icu.en_US.72": { "minValues": { ...} } } }
+```
+
+This PR replaces statType in StatsColumn with pathToStatType, which can be used to represent a path. This way we can re-use all of the existing data skipping code without changes.
+
+## How was this patch tested?
+
+It is not possible to test this change without altering [statsSchema](https://github.com/delta-io/delta/blob/master/spark/src/main/scala/org/apache/spark/sql/delta/stats/StatisticsCollection.scala#L285). I would still like to ship this PR separately because the change is big enough in itself. There is existing test coverage for stats parsing and file skipping, but none of them uses nested statistics yet.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

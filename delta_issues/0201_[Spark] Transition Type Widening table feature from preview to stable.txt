@@ -1,0 +1,17 @@
+## Description
+## What changes were proposed in this pull request?
+The type widening spec has been stable since June 2024, both the preview and stable table features are supported since Delta 3.3.
+Until now, the preview feature was enabled by default when enabling type widening. This change switches to enabling the stable feature instead by default.
+Clients that only understand the preview feature (Delta 3.2, Delta 4.0 Preview) won't be able to read *newly created* tables. That means clients will need to upgrade from Delta 3.2 to 3.3 for that specific use case.
+
+The preview and stable features are compatible, the only difference is that the stable spec doesn't require storing the table version as part of the type widening metadata. The stable feature doesn't write and ignores on read this `tableVersion` field.
+
+## How was this patch tested?
+Updated existing tests.
+
+## Does this PR introduce _any_ user-facing changes?
+The stable table feature `typeWidening` is now added to the table when enabling type widening instead of the preview table feature `typeWidening-preview`.
+
+This will prevent Delta 3.2 from reading *newly created* tables with upcoming Delta versions (3.4/4.0?), requiring readers to upgrade to Delta 3.3 and above.
+
+

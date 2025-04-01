@@ -1,0 +1,2 @@
+Hi,
+I just started using delta lake and noticed that vacuum creates a single job per file in spark, does this make any sense?

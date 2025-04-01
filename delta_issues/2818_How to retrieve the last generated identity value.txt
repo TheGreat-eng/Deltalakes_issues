@@ -1,0 +1,17 @@
+I am using identity column to auto generate the value for one of the column. 
+
+CREATE TABLE IF NOT EXISTS T_EMPLOYEE
+(
+	EMPLOYEE_ID BIGINT NOT NULL GENERATED ALWAYS AS IDENTITY (START WITH 1 INCREMENT BY 1),
+	EMPLOYEE_NAME STRING NOT NULL
+) 
+
+Insert into T_EMPLOYEE values ('employee_1')
+
+Now, to get the identity generated value for above insert, I need to run another sql query on T_EMPLOYEE table. such as
+
+select  EMPLOYEE_ID from T_EMPLOYEE where EMPLOYEE_ID = 'employee_1'
+
+Is there any other way to get the generated identity value without running another query? For e.g. MS SQL Server has scope_identity function.
+
+Thanks in advance. 

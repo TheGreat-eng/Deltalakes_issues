@@ -1,0 +1,131 @@
+## Bug
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the issue title
+For example: [BUG][Spark] Title of my issue
+-->
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+### Describe the problem
+
+When executing a delta merge operation, if the affected table is read t he lineage of it is affected. So if a DataFrame is checked before and after the merge operation, it can have different values even if cached.
+
+#### Steps to reproduce
+
+<!--
+Please include copy-pastable code snippets if possible.
+1. _____
+2. _____
+3. _____
+-->
+Pyspark code
+```
+from pyspark.sql.types import StructType, StructField, StringType
+from delta.tables import DeltaTable
+from pyspark.sql import DataFrame
+
+print("Start")
+table = "MYTABLE"
+path = "MYPATH"
+
+schema = StructType([StructField("id", StringType(), True)])
+
+df = spark.createDataFrame(
+    [("A",), ("B",), ("C",), ("D",)],
+    schema
+)
+
+df_del = spark.createDataFrame(
+    [("A",), ("B",),("OTHER",)],
+    schema
+)
+df.write.format("delta").mode("overwrite").saveAsTable(table)
+df_read = spark.read.format("delta").load(path).cache()
+df_read.show() # First read
+
+
+delta_table = DeltaTable.forPath(df.sparkSession, path)
+
+delta_table.alias("target").merge(
+    source=df_del.alias("source"),
+    condition=" AND ".join([f"target.{pk} = source.{pk}" for pk in df_del.columns]),
+).whenMatchedDelete().execute()
+
+df_read.show() # Second read. It changed!
+```
+
+
+#### Observed results
+
+<!-- What happened?  This could be a description, log output, etc. -->
+```
++---+
+| id|
++---+
+|  A|
+|  B|
+|  C|
+|  D|
++---+
+
+TABLE END
++---+
+| id|
++---+
+|  C|
+|  D|
++---+
+```
+
+
+#### Expected results
+
+<!-- What did you expect to happen? -->
+```
++---+
+| id|
++---+
+|  A|
+|  B|
+|  C|
+|  D|
++---+
+
+TABLE END
++---+
+| id|
++---+
+|  A|
+|  B|
+|  C|
+|  D|
++---+
+```
+
+#### Further details
+
+<!--
+Include any additional details that may be useful for diagnosing the problem here. If including tracebacks, please include the full traceback. Large logs and files should be attached.
+-->
+
+I am executing this code in Fabric.
+
+### Environment information
+
+* Delta Lake version: 3.2
+* Spark version: 3.5
+* Scala version: 2.12.17
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [ ] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [x] No. I cannot contribute a bug fix at this time.

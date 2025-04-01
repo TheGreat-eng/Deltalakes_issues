@@ -1,0 +1,78 @@
+## Bug
+
+### Describe the problem
+
+Hi, I'm using slowly changing dimensions type 2 in some tables. 
+Right now I'm basically replicating this code: (https://mungingdata.com/delta-lake/type-2-scd-upserts/) which creates a staging table wich contains both the rows to be inserted and the rows to be updated.
+
+Right now, the merge fails after a few minutes with a "GC overhead limit exceeded" error unless I persist the staging table before the merge.
+
+This error only happens in the open source version of delta lake when using delta-lake >= 2.2. (It works perfectly in databricks in a small single machine cluster)
+
+The table I'm trying to write only has about 1000 rows.  When using a checkpoint in the staging table, everything works in just a few seconds.
+
+I think it has something to do with the change made in delta-lake 2.2 to materialize the source table in the merge command.
+
+#### Steps to reproduce
+
+Follow the steps in the link: https://mungingdata.com/delta-lake/type-2-scd-upserts/
+
+#### Observed results
+
+The java vm throws a GC overhead limit exceeded error without showing the merge command started in the sparkUI
+
+#### Expected results
+
+The table gets written
+
+#### Further details
+
+`Py4JJavaError: An error occurred while calling o830.execute.
+: java.lang.OutOfMemoryError: GC overhead limit exceeded
+        at org.apache.spark.sql.catalyst.trees.TreeNode$$Lambda$1710/145625669.get$Lambda(Unknown Source)
+        at java.lang.invoke.LambdaForm$DMH/1123225098.invokeStatic_LL_L(LambdaForm$DMH)
+        at java.lang.invoke.LambdaForm$MH/644166178.linkToTargetMethod(LambdaForm$MH)
+        at org.apache.spark.sql.catalyst.trees.TreeNode.transformDownWithPruning(TreeNode.scala:584)
+        at org.apache.spark.sql.catalyst.trees.TreeNode.$anonfun$transformDownWithPruning$3(TreeNode.scala:589)
+        at org.apache.spark.sql.catalyst.trees.TreeNode$$Lambda$1713/935828957.apply(Unknown Source)
+        at scala.collection.TraversableLike.$anonfun$map$1(TraversableLike.scala:286)
+        at scala.collection.TraversableLike$$Lambda$55/554348863.apply(Unknown Source)
+        at scala.collection.mutable.ResizableArray.foreach(ResizableArray.scala:62)
+        at scala.collection.mutable.ResizableArray.foreach$(ResizableArray.scala:55)
+        at scala.collection.mutable.ArrayBuffer.foreach(ArrayBuffer.scala:49)
+        at scala.collection.TraversableLike.map(TraversableLike.scala:286)
+        at scala.collection.TraversableLike.map$(TraversableLike.scala:279)
+        at scala.collection.AbstractTraversable.map(Traversable.scala:108)
+        at org.apache.spark.sql.catalyst.trees.TreeNode.mapChildren(TreeNode.scala:698)
+        at org.apache.spark.sql.catalyst.trees.TreeNode.transformDownWithPruning(TreeNode.scala:589)
+        at org.apache.spark.sql.catalyst.trees.TreeNode.$anonfun$transformDownWithPruning$3(TreeNode.scala:589)
+        at org.apache.spark.sql.catalyst.trees.TreeNode$$Lambda$1713/935828957.apply(Unknown Source)
+        at org.apache.spark.sql.catalyst.trees.UnaryLike.mapChildren(TreeNode.scala:1228)
+        at org.apache.spark.sql.catalyst.trees.UnaryLike.mapChildren$(TreeNode.scala:1227)
+        at org.apache.spark.sql.catalyst.expressions.UnaryExpression.mapChildren(Expression.scala:498)
+        at org.apache.spark.sql.catalyst.trees.TreeNode.transformDownWithPruning(TreeNode.scala:589)
+        at org.apache.spark.sql.catalyst.trees.TreeNode.$anonfun$transformDownWithPruning$3(TreeNode.scala:589)
+        at org.apache.spark.sql.catalyst.trees.TreeNode$$Lambda$1713/935828957.apply(Unknown Source)
+        at org.apache.spark.sql.catalyst.trees.BinaryLike.mapChildren(TreeNode.scala:1254)
+        at org.apache.spark.sql.catalyst.trees.BinaryLike.mapChildren$(TreeNode.scala:1253)
+        at org.apache.spark.sql.catalyst.expressions.BinaryExpression.mapChildren(Expression.scala:608)
+        at org.apache.spark.sql.catalyst.trees.TreeNode.transformDownWithPruning(TreeNode.scala:589)
+        at org.apache.spark.sql.catalyst.trees.TreeNode.$anonfun$transformDownWithPruning$3(TreeNode.scala:589)
+        at org.apache.spark.sql.catalyst.trees.TreeNode$$Lambda$1713/935828957.apply(Unknown Source)
+        at org.apache.spark.sql.catalyst.trees.BinaryLike.mapChildren(TreeNode.scala:1254)
+        at org.apache.spark.sql.catalyst.trees.BinaryLike.mapChildren$(TreeNode.scala:1253)
+`
+
+### Environment information
+
+* Delta Lake version: 2.2.3
+* Spark version: 3.3.2
+* Scala version: 2.12
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [ ] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [ x] No. I cannot contribute a bug fix at this time.

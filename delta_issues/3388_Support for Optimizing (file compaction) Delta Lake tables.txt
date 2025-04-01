@@ -1,0 +1,17 @@
+## Overview
+Table optimize is an operation to rearrange the data and/or metadata to speed up queries and/or reduce the metadata size. Some of the ways to accomplish this is to compact small files into large files and/or ordering data by column, clustering the data in Z-order curves etc.
+
+This work adds the “OPTIMIZE (file compaction)” as outlined on the Delta OSS 2022 H1 roadmap [here](https://github.com/delta-io/delta/issues/920).
+
+## Requirements
+
+- Optimize should respect the transactional properties of the Delta table. That means it can run in parallel with reads and writes without violating any ACID properties.
+- In case of conflict during optimize run, optimize should retry once before failing.
+- Option to select a subset of partitions in a table to optimize.
+
+## Design Sketch
+Design details are [here](https://docs.google.com/document/d/1lCZzOfdqH9jHoTzAfLhXW_G6fguqJIEtwtbsojN67Lc/edit?usp=sharing).
+
+## Future Work
+- **Support partial progress capture**: Instead of committing all the file compaction job changes at the end of the job, commit these changes periodically to DeltaLog so that even if the job fails at least some progress is captured.
+- **Support for Z-Order**:  Data clustering via multi-column locality-preserving space-filling curves with offline sorting.

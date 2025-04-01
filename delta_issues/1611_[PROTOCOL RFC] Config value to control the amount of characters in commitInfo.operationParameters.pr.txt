@@ -1,0 +1,23 @@
+## Protocol Change Request
+
+### Description of the protocol change
+the issue is properly explained in https://github.com/delta-io/delta/issues/2565
+https://github.com/delta-io/delta/pull/2680 is the PR raised to resolve the issue.
+It adds a new configuration value called maxAmountOfCharInTransactionPredicate (open to name suggestions) which controls the maximum number of characters allowed in the predicate output within a commit, with a default value of 4096.
+
+<!--
+Please describe the motivation and high-level description of the protocol change you are proposing.
+For a fairly large protocol change, it is recommended that you provide a design doc - (e.g., a google doc, preferably with the ability to comment in the doc). 
+For the next steps on how to proceed with the request, see the protocol RFC process in https://github.com/delta-io/delta/tree/master/protocol_rfcs
+--> 
+
+
+### Willingness to contribute
+
+The Delta Lake Community encourages protocol innovations. Would you or another member of your organization be willing to contribute this feature to the Delta Lake code base?
+
+- [x] Yes. I can contribute.
+- [ ] Yes. I would be willing to contribute with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute at this time.
+
+

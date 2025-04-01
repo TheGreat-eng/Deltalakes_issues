@@ -1,0 +1,11 @@
+## Feature request
+
+### Overview
+
+https://github.com/delta-io/delta/pull/1210 allows `S3SingleDriverLogStore` to use the `startAfter` param for faster `list` logStore calls. This feature only works on `S3A` file systems.
+
+The feature: We should update the [S3DynamoDBLogStore](https://github.com/delta-io/delta/blob/master/storage-s3-dynamodb/src/main/java/io/delta/storage/S3DynamoDBLogStore.java) to use this feature, too.
+
+### Motivation
+
+We want to bring the same `list` performance improvements made in #1210 for single-driver writes to our multi-cluster writer.

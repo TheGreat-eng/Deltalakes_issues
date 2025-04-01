@@ -1,0 +1,13 @@
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+Adds a guardrail for the type widening table feature to reject reads when an unsupported change was applied to the table.
+This should never happen unless an implementation doesn't respect the type widening feature specification, which explicitly lists type changes that are allowed.
+
+## How was this patch tested?
+- Added a test manually committing an invalid type change.

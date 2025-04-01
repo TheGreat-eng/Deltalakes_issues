@@ -1,0 +1,8 @@
+## What changes were proposed in this pull request?
+This change records an event `delta.typeWidening.typeChanges` whenever one or more type changes are applied to a Delta table.
+
+For consistency, the existing event `delta.typeWideningFeatureRemovalMetrics` is renamed to `delta.typeWidening.featureRemovalMetrics`.
+
+## How was this patch tested?
+- Added a test covering event `delta.typeWidening.typeChanges`
+- Added a test covering event `delta.typeWidening.featureRemovalMetrics`

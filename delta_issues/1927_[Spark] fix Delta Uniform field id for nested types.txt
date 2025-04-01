@@ -1,0 +1,21 @@
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+Iceberg CREATE_TABLE and REPLACE_TABLE reassigns the field id in schema, which made the field id in converted Iceberg schema different from whats in parquet file written by Delta. This fixes by setting Delta schema with Delta generated field id to ensure consistency between field id in Iceberg schema after conversion and field id in parquet files. 
+
+
+## How was this patch tested?
+
+UT

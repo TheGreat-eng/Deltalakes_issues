@@ -1,0 +1,1 @@
+Hi all, this is a naive question and my apologies for not googling enough for finding an answer. But could my Azure function write to delta, basically can azure functions support pySpark. Has anyone done it before ?

@@ -1,0 +1,1 @@
+Include within the delta.io documentation a Delta Guide that includes best practices, scenarios, use cases, etc.  

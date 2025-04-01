@@ -1,0 +1,44 @@
+## Bug
+
+#### Which Delta project/connector is this regarding?
+- [X] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [X] Other (fill in here)
+
+### Describe the problem
+[PROTOCOL](https://github.com/delta-io/delta/blob/master/PROTOCOL.md#partition-value-serialization) says: `Encoded as a string of escaped binary values. For example, "\u0001\u0002\u0003"`
+
+This is not happening for values that can be represented by string:
+
+INSERT INTO TestBinary VALUES (10, X'123456'); -- OK
+![Image](https://github.com/user-attachments/assets/06c5abbd-d9f1-4064-a957-b39ab20a324f)
+
+INSERT INTO TestBinary VALUES (10, CAST('Hello' as BINARY)); // NOT OK
+![Image](https://github.com/user-attachments/assets/a6d4099f-16e5-42b2-8332-0df85eac2106)
+
+#### Steps to reproduce
+CREATE TABLE TestBinary (id INT, value BINARY) PARTITIONED BY (value);
+INSERT INTO TestBinary VALUES (10, CAST('Hello' as BINARY));
+INSERT INTO TestBinary VALUES (10, X'123456');
+
+#### Observed results
+Hello
+
+#### Expected results
+\u0048\u0065\u006c\u006c\u006f
+
+### Environment information
+
+* Delta Lake version: 3.2
+* Spark version: 3.5
+* Scala version: 2.12
+
+### Willingness to contribute
+
+The Delta Lake Community encourages bug fix contributions. Would you or another member of your organization be willing to contribute a fix for this bug to the Delta Lake code base?
+
+- [ ] Yes. I can contribute a fix for this bug independently.
+- [ ] Yes. I would be willing to contribute a fix for this bug with guidance from the Delta Lake community.
+- [X] No. I cannot contribute a bug fix at this time.

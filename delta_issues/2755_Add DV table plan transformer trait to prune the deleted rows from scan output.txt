@@ -1,0 +1,12 @@
+This PR is part of the feature: Support reading Delta tables with deletion vectors (more details at https://github.com/delta-io/delta/issues/1485)
+
+Add a trait (used by `PrepareDeltaScan` to modify its output) to modify DV enabled tables to prune the deleted rows from scan output
+
+Planner trait to inject a Filter just after the Delta Parquet scan. This transformer modifies the plan:<br>. <ul><li>Before rule: `<Parent Node> -> Delta Scan (key, value)` . Here we are reading `key`, `value` columns from the Delta table</li><li>After rule: `<Parent Node> -> Project(key, value) -> Filter (udf(__skip_row == 0) -> Delta Scan (key, value, __skip_row)`</li><li><ul><li>Here we insert a new column in Delta scan `__skip_row`. This value is populated by the Parquet reader using the DV corresponding to the Parquet file read (refer [to the change](https://github.com/delta-io/delta/pull/1542)) and it contains `0` if we want to keep the row. </li><li>The scan created also disables Parquet file splitting and filter pushdowns, because in order to generate the `__skip_row` we need to read the rows in a file consecutively in order to generate the row index. This is a drawback we need to pay until we upgrade to latest Apache Spark which contains Parquet reader changes that automatically generate the row_index irrespective of the file splitting and filter pushdowns.</li><li>The scan created also contains a broadcast variable of Parquet File -> DV File map. The Parquet reader created uses this map to find the DV file corresponding to the Parquet file.</li><li>Filter created just filters out rows with `__skip_row` equals to 0</li><li>And at the end we have a `Project` to keep the plan node output same as before the rule is applied</li></ul></li></ul>
+
+In addition
+* it adds the `deletionVector` to DeltaLog protocol objects (`AddFile`, `RemoveFile`)
+* It also updates the `OptimizeMetadataOnlyDeltaQuery` to take into consideration of the DVs when calculating the row count.
+* end-to-end integration of reading Delta tables with DVs in `DeletionVectorsSuite`
+
+In following up PRs, will be adding extensive tests.

@@ -1,0 +1,8 @@
+A command like `ALTER TABLE my_table CHANGE COLUMN id SET NOT NULL;` will fail with an AnalysisException `Cannot change nullable column to non-nullable`.
+
+Steps to reproduce:
+```
+sql("CREATE TABLE my_table (id INT) USING DELTA;")
+sql("INSERT INTO my_table VALUES (1);")
+sql("ALTER TABLE my_table CHANGE COLUMN id SET NOT NULL;")
+```

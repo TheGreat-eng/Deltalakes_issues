@@ -1,0 +1,5 @@
+## Description
+Fix helper method `deltaAssert` introduced in https://github.com/delta-io/delta/pull/2709 to not log failures when the assertion holds.
+
+## How was this patch tested?
+The helper intentionally behaves differently in tests and in production (failing vs. logging), there's no easy/meaningful way to test the prod behavior from tests.

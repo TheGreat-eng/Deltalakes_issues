@@ -1,0 +1,17 @@
+#### Which Delta project/connector is this regarding?
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+Check DV cardinality when reading DVs
+
+Update DeletionVectorStore to verify that the cardinality of the DVs we read from files are the expected ones.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

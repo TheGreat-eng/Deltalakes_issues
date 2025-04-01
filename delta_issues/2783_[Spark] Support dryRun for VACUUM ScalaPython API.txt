@@ -1,0 +1,10 @@
+## Description
+
+Add dryRun parameter to vacuum Scala/Python API. 
+Fixes #454  and can close #605.
+
+## How was this patch tested?
+Unit tests
+
+## Does this PR introduce _any_ user-facing changes?
+Scala / Python API supports dryRun option.

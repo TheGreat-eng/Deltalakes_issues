@@ -1,0 +1,6 @@
+## What changes were proposed in this pull request?
+Update MERGE tests to use `checkError` instead of inspecting error messages.
+Also cleans up error `_LEGACY_ERROR_TEMP_DELTA_0011`, a catch all that serves no purpose and hides information, failures to resolve the MERGE plan will anyway result in a proper error message.
+
+## How was this patch tested?
+Updated tests.

@@ -1,0 +1,43 @@
+Hi, how are you?
+
+Recently, I was designing the monitor of Delta Lake stream. However, I found that the offset information in delta Lake's Delta source offset can't directly identify the start offset position and end offset position of topic, which is not similar to Kafka source. In this way, I can't intuitively know my consumption status from the source information center. How can I know the consumption progress of Delta Lake stream?
+
+For example，
+Source information in Kafka，startOffset only include TopicPatition and its specific offset.
+Like:
+`"startOffset" : {
+  "topic-name" : {
+    "0" : 1,
+    "1" : 22,
+    "2" : 419,
+  }
+},
+"endOffset" : {
+  "topic-name" : {
+    "0" : 10,
+    "1" : 100,
+    "2" : 1000
+  }
+}`
+
+But in Delta ，startOffset include sourceVersion、reservoirId、reservoirVersion、index and isStartingVersion,I don't seem to know the exact offset value
+Like:
+
+`"startOffset" : {
+      "sourceVersion" : 1,
+      "reservoirId" : "78dca187-ba05-46df-b663-b25d19cd34d2",
+      "reservoirVersion" : 3733,
+      "index" : -1,
+      "isStartingVersion" : false
+    },
+    "endOffset" : {
+      "sourceVersion" : 1,
+      "reservoirId" : "78dca187-ba05-46df-b663-b25d19cd34d2",
+      "reservoirVersion" : 3733,
+      "index" : -1,
+      "isStartingVersion" : false
+    }`
+
+I don't think these fields have much to do with the value of offset，and hope someone can answer this question.
+
+Thank you.

@@ -1,0 +1,2 @@
+There is no support for dynamic partition overwrite for now. It seems we can only overwrite with replaceWhere option to specify the overwrite part, which is not convenient.
+I am not sure why we don't have dynamic overwrite support in delta, is there any limits about it?

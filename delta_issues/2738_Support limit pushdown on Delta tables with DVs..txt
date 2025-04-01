@@ -1,0 +1,7 @@
+This PR is part of the feature: Support reading Delta tables with deletion vectors (more details at https://github.com/delta-io/delta/issues/1485)
+
+Currently the limit pushdown code doesn't take into account the DVs when pruning the list of files based on the `limit` value. This will result in wrong results for `LIMIT` queries. Update the code to take `dv.cardinality` when finding the number of rows in a `AddFile`. 
+
+It also adds
+ * comments around data skipping code and how data skipping continue to work without giving wrong results (with a bit performance overhead) when querying tables with DVs
+ * test utilities to associate DVs with `AddFile` for testing purposes.

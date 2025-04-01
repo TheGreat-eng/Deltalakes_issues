@@ -1,0 +1,1 @@
+The return type of `createRelation` should be `BaseRelation` instead of `DataFrame`.

@@ -1,0 +1,30 @@
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the pull request title
+For example: [Spark] Title of my pull request
+-->
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [x] Kernel
+- [ ] Other (fill in here)
+
+## Description
+Add a set of conversions to the default parquet reader provided by kernel to allow reading columns using a wider type than the actual in the parquet file.
+This will support the type widening table feature, see https://github.com/delta-io/delta/blob/master/protocol_rfcs/type-widening.md.
+
+Conversions added:
+- INT32 -> long
+- FLOAT -> double
+- decimal precision/scale increase
+- DATE -> timestamp_ntz
+- INT32 -> double
+- integers -> decimal
+
+## How was this patch tested?
+Added tests covering all conversions in `ParquetColumnReaderSuite`
+
+## Does this PR introduce _any_ user-facing changes?
+This change alone doesn't allow reading Delta table that use the type widening table feature. That feature is still unsupported.
+It does allow reading Delta tables that somehow have Parquet files that contain types that are different from the table schema, but that really should never happen for tables that don't support type widening..

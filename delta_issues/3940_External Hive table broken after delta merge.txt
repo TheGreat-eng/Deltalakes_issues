@@ -1,0 +1,21 @@
+We have a directory on S3 under which parquet files are present. We have an external hive table created on these files.
+
+**e.g.**
+`create external table ratings_np(userId int, movieId int, rating double, time_stamp date)
+stored as parquet location "s3://<some-location>/data/";`
+
+
+Now we had performed a delta operation (open source) at the same location which converted it to a delta table. After the delta operation is completed it created a _delta_log directory under which transactional log json files are present.
+
+Now when I running a query against my hive table it is throwing an exception because of these JSON files. 
+**Exception:**
+`Failed with exception java.io.IOException:java.lang.RuntimeException: s3://<some-location>/data/_delta_log/00000000000000000000.json is not a Parquet file. expected magic number at tail [80, 65, 82, 49] but found [101, 125, 125, 10]`
+
+After I manually delete _delta_log directory, I am able to run the queries again. 
+
+I had looked at the delta connector solution as proposed by @tdas comment [here](https://github.com/delta-io/delta/issues/328#issuecomment-590633222). I haven't tried it though.
+
+I am wondering if it can be solved in any simpler way?
+
+e.g. configure the path under which _delta_log directory is created. 
+A location which I can give as an input and delta process will create _delta_log directory at that location instead of where data is present. 

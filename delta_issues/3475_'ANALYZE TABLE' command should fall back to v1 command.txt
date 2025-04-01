@@ -1,0 +1,11 @@
+There are few DDL commands in Spark that are not supported for v2 tables. One of the commands still not supported in Spark 3.2 is `ANALYZE TABLE`. (And I don't see any active development happening for this command for Spark 3.3 yet). Thus, this PR proposes to make v2 delta table fall back to v1 table if the command is `ANALYZE TABLE`.
+
+Without this change, you will see an error message like:
+```
+ANALYZE TABLE is not supported for v2 tables.
+org.apache.spark.sql.AnalysisException: ANALYZE TABLE is not supported for v2 tables.
+	at org.apache.spark.sql.errors.QueryCompilationErrors$.notSupportedForV2TablesError(QueryCompilationErrors.scala:928)
+	at org.apache.spark.sql.errors.QueryCompilationErrors$.analyzeTableNotSupportedForV2TablesError(QueryCompilationErrors.scala:932)
+	at org.apache.spark.sql.execution.datasources.v2.DataSourceV2Strategy.apply(DataSourceV2Strategy.scala:339)
+	at org.apache.spark.sql.catalyst.planning.QueryPlanner.$anonfun$plan$1(QueryPlanner.scala:63)
+```

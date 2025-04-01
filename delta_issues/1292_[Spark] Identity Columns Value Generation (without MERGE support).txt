@@ -1,0 +1,22 @@
+#### Which Delta project/connector is this regarding?
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+This PR is part of https://github.com/delta-io/delta/issues/1959
+
+In this PR, we enable basic ingestion for Identity Columns. 
+* We use a custom UDF `GenerateIdentityValues` to generate values when not supplemented by the user. 
+* We introduce classes to help update and track the high watermark of identity columns. 
+* We also do some cleanup/ improve readability for ColumnWithDefaultExprUtils
+
+Note: This does NOT enable Ingestion with MERGE INTO yet. That will come in a follow up PR, to make this easier to review.
+
+## How was this patch tested?
+We introduce a new test suite IdentityColumnIngestionSuite.
+
+## Does this PR introduce _any_ user-facing changes?
+No.

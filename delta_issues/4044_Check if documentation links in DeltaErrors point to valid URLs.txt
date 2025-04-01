@@ -1,0 +1,3 @@
+ - New test suite to test the documentation links in `DeltaErrors`
+ - `DocsPath` now has a method `generateDocsLink` which will be used to create the docs link that is passed to the error message
+ - `DeltaErrorsSuiteBase` contains a list of all the error message in `DeltaErrors` that are applicable to Delta. The test accesses each link in each error message and checks to see if the HTTP response is valid for docs.delta.io.{path}

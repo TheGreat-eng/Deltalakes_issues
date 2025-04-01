@@ -1,0 +1,40 @@
+## Bug java.lang.NoSuchMethodError: org.apache.spark.sql.catalyst.TableIdentifier.copy(Ljava/lang/String;Lscala/Option;)Lorg/apache/spark/sql/catalyst/TableIdentifier
+
+#### Which Delta project/connector is this regarding?
+
+- [ ] Spark 3.5.1
+- [ ] Hadoop 3.3.5
+- [ ] Pyspark 3.5.1
+- [ ] Delta lake 3.2.0
+### Describe the problem
+While performing `prod_dataframe.write.saveAsTable(PROD_TABLE_NAME, format="delta", mode="overwrite", path=str(PROD_TABLE_PATH))`
+The following error occurs:
+`java.lang.NoSuchMethodError: org.apache.spark.sql.catalyst.TableIdentifier.copy(Ljava/lang/String;Lscala/Option;)Lorg/apache/spark/sql/catalyst/TableIdentifier`
+#### Steps to reproduce
+spark: SparkSession = (
+            SparkSession.builder.config("spark.sql.extensions", "io.delta.sql.DeltaSparkSessionExtension")
+            .config("spark.sql.catalog.spark_catalog", "org.apache.spark.sql.delta.catalog.DeltaCatalog")
+            .config("spark.jars.packages", "io.delta:delta-spark_2.12:3.1.0")
+            .config("spark.sql.warehouse.dir", f"file:{tmp_dir}/spark-warehouse")
+            .config("spark.driver.extraJavaOptions", f"-Dderby.system.home={tmp_dir}/derby")
+            .enableHiveSupport()
+            .getOrCreate()
+        )
+prod_timestamp = 1625309472.357246
+prod_timestamp = datetime.fromtimestamp(prod_timestamp)
+prod_timestamp = prod_timestamp.strftime("%d-%m-%Y, %H:%M:%S")
+prod_dataframe: DataFrame = spark.createDataFrame(
+    [
+        {"id": 1, "name": "Alice", "timestamp": prod_timestamp},
+        {"id": 3, "name": "Bob",  "timestamp": prod_timestamp},
+    ]
+)
+prod_dataframe.write.saveAsTable(PROD_TABLE_NAME, format="delta", mode="overwrite", path=str(PROD_TABLE_PATH))
+
+#### Observed results
+
+The error happens during the run of a pytest. 
+
+#### Expected results
+
+Created table.

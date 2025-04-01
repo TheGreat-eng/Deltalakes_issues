@@ -1,0 +1,2 @@
+this optimize the vacuum command by parallelizing the delete operation.
+- closes issues #395 and #220  

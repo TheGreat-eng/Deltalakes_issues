@@ -1,0 +1,3 @@
+- follow up to https://github.com/delta-io/delta/pull/980
+- rename `class HDFSLogStoreSuite` to `trait `HDFSLogStoreSuiteBase` so that internal (scala) and public (java) HDFSLogStore suites can both use that trait
+- we add a specific test to `HDFSLogStoreSuiteBase` to test the `HDFSLogStore.writeInternal ... rename` edge case brought up by the above PR #980 

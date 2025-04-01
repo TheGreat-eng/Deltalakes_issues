@@ -1,0 +1,24 @@
+spark.sql.caseSensitive=true allows users to create a table using parquet with two columns with the same name but different case sense.
+
+**sample code working.**
+
+set spark.sql.caseSensitive=true
+
+spark.sql("CREATE TABLE `tableADLGen2` (
+`DEVICE_D1` FLOAT,
+`device_D1` FLOAT, 
+`date` INT ) 
+USING PARQUET OPTIONS (path 'abfss://dev@adlsgen2.dfs.core.windows.net/devices') PARTITIONED BY (date)")
+
+
+**sample code failing:** 
+
+set spark.sql.caseSensitive=true
+
+spark.sql("CREATE TABLE `tableADLGen2` (
+`DEVICE_D1` FLOAT,
+`device_D1` FLOAT, 
+`date` INT ) 
+USING DELTA OPTIONS (path 'abfss://dev@adlsgen2.dfs.core.windows.net/devices') PARTITIONED BY (date)")
+
+'Found duplicate column(s) in the metadata update: seg2a_botton_left_ctrl_mode_c2395;'

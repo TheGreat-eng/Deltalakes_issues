@@ -1,0 +1,15 @@
+#### Which Delta project/connector is this regarding?
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [X] Other (Delta Sharing)
+
+## Description
+Use bytes length for file size in DeltaSharingLogFileStatus, to match the actual size of the bytes in SeekableByteArrayInputStream, this is to avoid the length difference caused by non utf-8 characters.
+
+## How was this patch tested?
+Unit Test
+
+## Does this PR introduce _any_ user-facing changes?
+No

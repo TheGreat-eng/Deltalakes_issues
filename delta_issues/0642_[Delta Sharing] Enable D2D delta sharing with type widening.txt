@@ -1,0 +1,6 @@
+## Description
+Adds type widening to the list of supported features for D2D delta sharing and adds client-side tests covering reading a table that had a type change applied using the type widening table feature.
+
+## How was this patch tested?
+Added tests.
+

@@ -1,0 +1,8 @@
+## Description
+Fix https://github.com/delta-io/delta/issues/1204
+
+## How was this patch tested?
+No, no code change
+
+## Does this PR introduce _any_ user-facing changes?
+No

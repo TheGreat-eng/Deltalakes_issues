@@ -1,0 +1,16 @@
+#### Which Delta project/connector is this regarding?
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [X] Other (Delta Sharing)
+
+## Description
+Add doc for delta sharing with examples of commands.
+
+## How was this patch tested?
+N/A
+
+
+## Does this PR introduce _any_ user-facing changes?
+No

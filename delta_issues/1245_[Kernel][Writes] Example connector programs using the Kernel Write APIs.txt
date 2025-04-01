@@ -1,0 +1,19 @@
+## Description
+Sample connector programs using the Kernel write APIs to
+* create unpartitioned table
+* create partitioned table
+* create unpartitioned table and insert data into it (CTAS)
+* create partitioned table and insert data into it (CTAS)
+* insert into an existing unpartitioned table
+* idempotent inserts
+* insert with optional checkpoint
+
+Also run these examples as part of the integration tests for release verification
+
+## How was this patch tested?
+Manually ran 
+```
+$ kernel/examples/run-kernel-examples.py --use-local
+
+$ kernel/examples/run-kernel-examples.py --version 3.2.0 --maven-repo https://oss.sonatype.org/content/repositories/iodelta-1138
+```

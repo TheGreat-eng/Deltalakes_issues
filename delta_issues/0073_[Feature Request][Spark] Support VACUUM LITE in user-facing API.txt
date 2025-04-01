@@ -1,0 +1,33 @@
+## Feature request
+
+#### Which Delta project/connector is this regarding?
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+### Overview
+
+Currently the only option for `deltaTable.vacuum()` in Python API is `retention`, so you cannot run VACUUM LITE with public API although this feature is supported in delta-io (https://github.com/delta-io/delta/pull/3757)
+The only way to run VACUUM LITE is to set `spark.conf` which seems a bit not intuitive
+
+### Motivation
+
+The feature will introduce a more obvious way to run `VACUUM LITE` via public APIs
+
+### Further details
+
+As far as I see, here are the implementation steps:
+- add `vacuumType` argument to `executeVacuum` interface method [here](https://github.com/delta-io/delta/blob/f24a55affa5792fac8950f7e30e2c4e684cda994/spark/src/main/scala/io/delta/tables/execution/DeltaTableOperations.scala#L90), it's already implemented under the hood [here](https://github.com/delta-io/delta/blob/master/spark/src/main/scala/org/apache/spark/sql/delta/commands/VacuumCommand.scala#L59)
+- add one more overload for method [here](https://github.com/delta-io/delta/blob/f24a55affa5792fac8950f7e30e2c4e684cda994/spark/src/main/scala/io/delta/tables/DeltaTable.scala#L102)
+- expose for Python API [here](https://github.com/delta-io/delta/blob/f24a55affa5792fac8950f7e30e2c4e684cda994/python/delta/tables.py#L52)
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [x] Yes. I can contribute this feature independently.
+- [ ] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [ ] No. I cannot contribute this feature at this time.

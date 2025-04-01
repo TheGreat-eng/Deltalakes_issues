@@ -1,0 +1,5 @@
+## Description
+This PR lets us get the sonatype credentials and GPG passphrase from environmental variables during releases.
+
+## How was this patch tested?
+Locally tests against sonatype.

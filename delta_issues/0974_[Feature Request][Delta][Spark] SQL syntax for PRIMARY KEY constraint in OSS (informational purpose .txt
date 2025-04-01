@@ -1,0 +1,48 @@
+## Feature request
+
+#### Which Delta project/connector is this regarding?
+<!--
+Please add the component selected below to the beginning of the issue title
+For example: [Feature Request][Spark] Title of my issue
+-->
+
+- [x] Spark
+- [x] Standalone
+- [x] Flink
+- [x] Kernel
+- [ ] Other (fill in here)
+
+### Overview
+
+Support SQL syntax for PRIMARY KEY information in Delta Tables (of course, without enforcing primary key, similarly as in Databricks)
+
+### Further details
+
+please see: https://docs.databricks.com/en/sql/language-manual/sql-ref-syntax-ddl-create-table-constraint.html
+
+examples:
+
+```sql
+-- Create a table with a primary key
+> CREATE TABLE persons(first_name STRING NOT NULL, last_name STRING NOT NULL, nickname STRING,
+                       CONSTRAINT persons_pk PRIMARY KEY(first_name, last_name));
+
+-- create a table with a foreign key
+> CREATE TABLE pets(name STRING, owner_first_name STRING, owner_last_name STRING,
+                    CONSTRAINT pets_persons_fk FOREIGN KEY (owner_first_name, owner_last_name) REFERENCES persons);
+
+-- Create a table with a single column primary key and system generated name
+> CREATE TABLE customers(customerid STRING NOT NULL PRIMARY KEY, name STRING);
+
+-- Create a table with a names single column primary key and a named single column foreign key
+> CREATE TABLE orders(orderid BIGINT NOT NULL CONSTRAINT orders_pk PRIMARY KEY,
+                      customerid STRING CONSTRAINT orders_customers_fk REFERENCES customers);
+```
+
+### Willingness to contribute
+
+The Delta Lake Community encourages new feature contributions. Would you or another member of your organization be willing to contribute an implementation of this feature?
+
+- [ ] Yes. I can contribute this feature independently.
+- [ ] Yes. I would be willing to contribute this feature with guidance from the Delta Lake community.
+- [x] No. I cannot contribute this feature at this time.

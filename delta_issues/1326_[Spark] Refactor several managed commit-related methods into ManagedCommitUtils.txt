@@ -1,0 +1,19 @@
+#### Which Delta project/connector is this regarding?
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+This PR refactors several methods that were internal to commit owner (client) implementations (AbstractBatchBackfillingCommitOwnerClient and InMemoryCommitOwner) into ManagedCommitUtils. These methods are generic and should be easily accessible to any commit owner (client) implementations so we are making them static methods.
+
+## How was this patch tested?
+
+Refactor only so existing tests are sufficient.
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

@@ -1,0 +1,24 @@
+I want to use `delta` as the default data source.  However it not work as expected.
+
+**Error message**
+
+```
+pyspark.sql.utils.AnalysisException: Hive support is required to CREATE Hive TABLE (AS SELECT);;
+'CreateTable `events2`, org.apache.hadoop.hive.serde2.lazy.LazySimpleSerDe, ErrorIfExists
+
+```
+
+**Code**
+
+```python
+spark.sql("SET spark.sql.sources.default=org.apache.spark.sql.delta")
+spark.sql(
+    """
+CREATE TABLE events (
+  date DATE,
+  eventId STRING,
+  eventType STRING,
+  data STRING)
+"""
+)
+```

@@ -1,0 +1,15 @@
+#### Which Delta project/connector is this regarding?
+
+- [X] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+Remove two unused methods in DeltaErrors.scala
+
+## How was this patch tested?
+
+N/A

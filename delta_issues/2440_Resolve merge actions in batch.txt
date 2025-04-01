@@ -1,0 +1,10 @@
+## Description
+
+This change improves the time required to resolve assignment expressions in merge UPDATE SET * and INSERT * by grouping the resolution of all column assignments in one batch instead of processing each column assignment separately.
+
+As a result, the analysis time of merge commands with UPDATE SET * or INSERT * actions on thousands of columns is reduced from minutes to seconds.
+
+In addition, the logic to pass the plans that should be used for resolution is simplified. Instead of passing a dummy plan with the right children - either the source only, the target only or both - we directly pass the list of plans to use to the resolution helper.
+
+## How was this patch tested?
+- Confirmed locally that the analysis time is orders of magnitude faster when the source and table contain 5000 columns.

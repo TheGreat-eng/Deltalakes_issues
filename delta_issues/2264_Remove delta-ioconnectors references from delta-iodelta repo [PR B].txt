@@ -1,0 +1,11 @@
+## Description
+
+When the delta-io/connectors repo was migrated into delta-io/delta, various `delta-io/connectors` references were not updated. This PR fixes that.
+
+## How was this patch tested?
+
+N/A
+
+## Does this PR introduce _any_ user-facing changes?
+
+Updates `pom.xml`s to reference the correct repo.

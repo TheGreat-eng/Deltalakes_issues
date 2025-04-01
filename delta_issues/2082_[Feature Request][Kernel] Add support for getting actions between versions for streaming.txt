@@ -1,0 +1,44 @@
+## Feature request
+
+#### Which Delta project/connector is this regarding?
+Streaming queries require file actions between versions to incrementally process the Delta table. So far Kernel doesn't have support to get actions between table versions.
+
+### Overview
+
+Following the proposed APIs (based on Delta-Spark APIs). These APIs will be used when the connector just needs the changes that happened between two versions (for example streaming).
+```
+package io.delta.kernel;
+
+interface Table
+{
+
+  /**
+   * Get the list of changes between the <i>startVersion</i> and
+   * <i>endVersion</i>
+   */
+  CloseableIterator<FilteredColumnarBatch> getChanges(
+    long startVersion,
+    long endVersion)
+
+    /**
+   * Get the list of changes between the <i>startVersion</i> to the latest
+   * version as of this call.
+   */
+  CloseableIterator<FilteredColumnarBatch> getChanges(long startVersion)
+}
+```
+
+#### Design Questions:
+* Should Kernel even support this?
+* [Major] What should be the schema of the returned FilterColumnarBatch?
+   * What particular contents of the remove, cdc etc to expose?
+   * Should we provide utility methods to interface with these extra actions?
+    * This needs discussion to make sure we still maintain the primary goals of the Kernel.
+* [Major] Should the standalone sit on top of Kernel and expose these actions?
+
+
+#### Estimates
+* Design doc and consensus - 1 Wk
+* Implementation - 1.5 wks.
+  * Refactor SnapshotImpl
+  * May be less if we can port the tests over from Delta-Spark.

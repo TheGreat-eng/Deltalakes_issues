@@ -1,0 +1,18 @@
+#### Which Delta project/connector is this regarding?
+
+- [x] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+Minor refactoring of the constructors in `DeltaInvariantViolationException` to make them easier to use in other parts of Spark.
+
+## How was this patch tested?
+Minor refactoring change. Tested in companion Spark PR... 
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

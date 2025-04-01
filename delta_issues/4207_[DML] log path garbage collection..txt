@@ -1,0 +1,3 @@
+Delta already implements `Vacuum` command for data path garbage collection in the latest version, but I can't find any collection mechanism for log path (default value is `_delta_log`).
+otherwise, the delta log file will grow fast in an append Structured Streaming program.
+I think is a batter idea to collect these log file when we run `Vaccum` command.

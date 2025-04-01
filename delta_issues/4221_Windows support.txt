@@ -1,0 +1,23 @@
+Hi,
+
+Is Windows supported by delta?
+I tried to compile under Windows and I have some tests failed.
+
+[info] Total number of tests run: 188
+[info] Suites: completed 16, aborted 0
+[info] Tests: succeeded 183, failed 5, canceled 0, ignored 0, pending 0
+[info] *** 5 TESTS FAILED ***
+[error] Failed tests:
+[error]         org.apache.spark.sql.delta.DeltaLogSuite
+[error]         org.apache.spark.sql.delta.DeltaSuite
+[error]         org.apache.spark.sql.delta.DeltaSourceSuite
+[error] (test:test) sbt.TestsFailedException: Tests unsuccessful
+[error] Total time: 1071 s, completed Jul 16, 2019 3:25:42 PM
+
+</testcase><testcase classname="org.apache.spark.sql.delta.DeltaSuite" name="input files should be absolute paths" time="2.163">
+</testcase><testcase classname="org.apache.spark.sql.delta.DeltaSuite" name="special chars in base path" time="0.013">
+</testcase><testcase classname="org.apache.spark.sql.delta.DeltaLogSuite" name="ActionLog cache should use the normalized path as key" time="0.007">
+</testcase><testcase classname="org.apache.spark.sql.delta.DeltaLogSuite" name="do not relativize paths in RemoveFiles" time="1.349">
+</testcase><testcase classname="org.apache.spark.sql.delta.DeltaSourceSuite" name="Delta sources don't write offsets with null json" time="5.114">
+
+Thank you.

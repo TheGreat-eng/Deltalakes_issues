@@ -1,0 +1,23 @@
+Hi Everyone,
+
+Trying delta lake with  python (delta-spark-1.0.0 ,pyspark-3.1.2).Strangely Running into No Such method Error while trying to do a merge.
+
+Code:
+newData = spark.range(0, 20)
+
+deltaTable = DeltaTable.forPath(spark, "/tmp/delta-table")
+
+deltaTable.alias("oldData")\
+    .merge(
+    newData.alias("newData"),
+    "oldData.id = newData.id")\
+    .whenMatchedUpdate(set={"id": col("newData.id")})\
+    .whenNotMatchedInsert(values={"id": col("newData.id")})\
+    .execute()
+
+deltaTable.toDF().show()
+
+Error:
+Py4JJavaError: An error occurred while calling o65.execute.
+: java.lang.NoSuchMethodError: org.apache.spark.sql.catalyst.expressions.Alias.<init>(Lorg/apache/spark/sql/catalyst/expressions/Expression;Ljava/lang/String;Lorg/apache/spark/sql/catalyst/expressions/ExprId;Lscala/collection/Seq;Lscala/Option;)V
+	at org.apache.spark.sql.delta.commands.MergeIntoCommand.$anonfun$buildTargetPlanWithFiles$1(MergeIntoCommand.scala:577)

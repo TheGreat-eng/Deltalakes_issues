@@ -1,0 +1,18 @@
+#### Which Delta project/connector is this regarding?
+- [X] Spark
+- [ ] Standalone
+- [ ] Flink
+- [ ] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+`DeltaSourceOffset.isStartingVersion` means "is this offset part of an initial snapshot", which is the exact opposite of `"startingVersion"` which is the user specified option that means "no initial snapshot, just changes starting at this version". This PR renames `isStartingVersion` to `isInitialSnapshot`, keeping the serialized name as "isStartingVersion".
+
+## How was this patch tested?
+
+Unit tests
+
+## Does this PR introduce _any_ user-facing changes?
+
+No

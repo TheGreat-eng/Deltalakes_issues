@@ -1,0 +1,7 @@
+## Description
+Improves the running time of DeletionVectorsSuite. It also includes some minor import cleanup.
+
+Resolves #3257 
+
+## How was this patch tested?
+Test only PR.

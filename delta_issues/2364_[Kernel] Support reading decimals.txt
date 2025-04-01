@@ -1,0 +1,27 @@
+#### Which Delta project/connector is this regarding?
+
+- [ ] Spark
+- [ ] Standalone
+- [ ] Flink
+- [x] Kernel
+- [ ] Other (fill in here)
+
+## Description
+
+Adds support for `DecimalType`.
+
+- Adds the `getDecimal` API to `ColumnVector` and `Row`
+- Reading decimals from parquet (in the default parquet reader)
+- Reading decimal partition columns
+- Creating decimal type literals, and evaluating them in the default `ExpressionHandler`
+
+- Also refactors some test utilities to `TestUtils` and updates `DeletionVectorSuite` accordingly
+
+### Some details
+
+1) We add the `getDecimal` API to `ColumnVector`. Connector implementations of a decimal `ColumnVector`s are welcome to add and use their own decimal API in their implementation.
+2) In the default parquet reader, for now we materialize decimals in memory as java `BigDecimals` in `DefaultDecimalVector` since performance is not our main goal. We can revisit this later and back int/long decimals with primitive arrays (and store the precison/scale separately). We would still implement the `getDecimal` API so this can be optimized later.
+
+## How was this patch tested?
+
+Adds test tables to `GoldenTables`. Adds end-to-end tests and some specific tests for the parquet reader.

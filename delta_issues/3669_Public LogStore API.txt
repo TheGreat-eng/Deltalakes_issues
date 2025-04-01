@@ -1,0 +1,3 @@
+LogStore is designed to be extended by developers for storage systems. But it's currently in a private package. We should make it become a public API.
+
+In addition, currently the user can only set one LogStore class for the entire application. It's pretty common that an application may need to access multiple storages and we should improve the LogStore configuration to support specifying LogStore class for each storage. 

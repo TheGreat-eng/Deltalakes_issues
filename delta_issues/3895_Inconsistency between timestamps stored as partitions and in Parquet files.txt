@@ -1,0 +1,69 @@
+When I write the same timestamp value into two different columns, once as a partition value and once as regular data, Delta will return different timestamps for these columns. For example, consider Timestamp.valueOf("2020-05-05 00:00:00.000") . I wrote three rows, each one was written while a different Spark session time zone was set (the time zone used for writing will be in the first column). I also wrote a simple function to display the table after setting the session time zone in Spark.
+
+scala> displayTable("UTC")
+
+writer time zone | partition | data
+-----------------|----------|-------
+Europe/Vilnius | 2020-05-05 **03**:00:00 | 2020-05-05 **00**:00:00
+America/Bahia_Banderas | 2020-05-**04 19**:00:00 | 2020-05-**05 00**:00:00
+UTC | 2020-05-05 00:00:00 | 2020-05-05 00:00:00
+
+scala> displayTable("America/Bahia_Banderas")
+
+writer time zone | partition | data
+-----------------|----------|-------
+Europe/Vilnius | 2020-05-**05 03**:00:00 | 2020-05-**04 19**:00:00
+America/Bahia_Banderas | 2020-05-04 19:00:00 | 2020-05-04 19:00:00
+UTC | 2020-05-**05 00**:00:00 | 2020-05-**04 19**:00:00
+
+Here's my code:
+
+```scala
+import scala.reflect.runtime.universe.TypeTag
+import java.sql.Timestamp
+import org.apache.spark.sql.Encoder
+
+case class Types(writer_time_zone: String,
+                 partition: Timestamp,
+                 data: Timestamp)
+
+import spark.implicits._
+
+val location = "/delta/export/verify_timestamp_consistency"
+
+def saveEntity[T: Encoder: TypeTag](entity: T, mergeSchema: Boolean = false): Unit = {
+  Seq(entity).toDS()
+    .write
+    .partitionBy("writer_time_zone",
+      "partition")
+    .format("delta")
+    .mode("append")
+    .option("mergeSchema", "true")
+    .save(location)
+}
+
+def saveTimestamps(timezone: String): Unit = {
+  spark.conf.set("spark.sql.session.timeZone", timezone)
+  saveEntity(
+    Types(
+      // stored as partition values
+      timezone,
+      Timestamp.valueOf("2020-05-05 00:00:00.000"),
+      // stored in Parquet
+      Timestamp.valueOf("2020-05-05 00:00:00.000")
+    )
+  )
+}
+
+def displayTable(timezone: String): Unit = {
+  spark.conf.set("spark.sql.session.timeZone", timezone)
+  val events = spark.read.format("delta").load(location)
+  events.show()
+}
+
+saveTimestamps("UTC")
+saveTimestamps("Europe/Vilnius")
+saveTimestamps("America/Bahia_Banderas")
+
+displayTable("UTC")
+```

@@ -1,0 +1,1 @@
+API to see if a Delta table exists at a path or cataloged table.

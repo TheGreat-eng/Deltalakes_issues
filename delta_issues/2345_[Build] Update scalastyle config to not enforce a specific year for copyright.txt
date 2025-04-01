@@ -1,0 +1,9 @@
+## Description
+
+Updates the scalastyle config to accept years other than 2021 in the copyright header.
+
+Note: This doesn't specify valid vs non valid years but accepts any 4 digit number. We can be more specific if desired.
+
+## How was this patch tested?
+
+Updates one file in Kernel to be "2023" which fails without this change.

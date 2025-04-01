@@ -1,0 +1,9 @@
+## Description
+This change adds finer-grained of individual MERGE steps (`findTouchedFiles`, `writeAllChanges`, `writeInsertsOnlyWhenNoMatchedClauses`) by recording additional merge sub-operations.
+The helper method `recordMergeOperation` is improved to include an operation type.
+
+## How was this patch tested?
+Adding tests to check tracking works as expected for upserts and insert only merges.
+
+This PR is based on https://github.com/delta-io/delta/pull/1834 (unmerged) and includes changes from that other PR.
+To exclude these unrelated changes when reviewing, ignore the first commit [Refactor collecting merge stats](https://github.com/delta-io/delta/pull/1841/commits/57855adc6bce896f4ad27ce7148087e7375541a4) in this PR: [actual diff](https://github.com/delta-io/delta/pull/1841/commits/b7b9a17c568de5bcaf4dfe1f22df382b2ee29450)

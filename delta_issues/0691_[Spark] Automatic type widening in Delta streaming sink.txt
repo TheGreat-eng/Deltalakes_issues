@@ -1,0 +1,42 @@
+## Description
+This change introduces automatic type widening during schema evolution in the Delta streaming sink.
+Conditions for type widening to trigger:
+- Type widening is enabled on the Delta table
+- Schema evolution (`mergeSchema`) is enabled on the sink
+- The data written to the sink uses a type that is strictly wider than the current type in the table schema, and moving from the narrower to the wider type is eligible for type widening - see `TypeWidening.isTypeChangeSupportedForSchemaEvolution`
+
+When all conditions are satisfied, the table schema is updated to use the wider type before ingesting the data.
+
+## How was this patch tested?
+Added test suite `TypeWideningStreamingSinkSuite` covering type widening in the Delta streaming sink
+
+## Does this PR introduce _any_ user-facing changes?
+This builds on the user-facing change introduced in https://github.com/delta-io/delta/pull/3443 that allows writing to a delta sink using a different type than the current table type.
+Without type widening:
+```
+spark.readStream
+    .table("delta_source")
+    # Column 'a' has type INT in 'delta_sink'.
+    .select(col("a").cast("long").alias("a"))
+    .writeStream
+    .format("delta")
+    .option("checkpointLocation", "<location>")
+    .toTable("delta_sink")
+```
+The write to the sink succeeds, column `a`  retains its type `INT` and the data is cast from `LONG` to `INT` on write.
+
+With type widening:
+```
+spark.sql("ALTER TABLE delta_sink SET TBLPROPERTIES ('delta.enableTypeWidening' = 'true')")
+spark.readStream
+    .table("delta_source")
+    # Column 'a' has type INT in 'delta_sink'.
+    .select(col("a").cast("long").alias("a"))
+    .writeStream
+    .format("delta")
+    .option("checkpointLocation", "<location>")
+    .option("mergeSchema", "true")
+    .toTable("delta_sink")
+```
+The write to sink succeeds, the type of column `a` is changed from `INT` to `LONG`, data is ingested as `LONG`.
+
