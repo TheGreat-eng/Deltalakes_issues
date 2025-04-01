@@ -17,13 +17,13 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class DeltaIssueSearch extends JFrame {
-    private final JTable issueTable;
-    private final DefaultTableModel tableModel;
-    private final JTextField searchField;
-    private final JComboBox<String> tagFilterComboBox;
-    private final List<IssueItem> allIssues = new ArrayList<>();
-    private TableRowSorter<DefaultTableModel> sorter;
-    private final JLabel statusLabel;
+    private final JTable issueTable; // Bảng hiển thị danh sách vấn đề (issues)
+    private final DefaultTableModel tableModel; // Mô hình dữ liệu cho bảng
+    private final JTextField searchField; // Ô tìm kiếm
+    private final JComboBox<String> tagFilterComboBox; // Bộ lọc theo tag
+    private final List<IssueItem> allIssues = new ArrayList<>(); // Danh sách chứa tất cả các issue
+    private TableRowSorter<DefaultTableModel> sorter; // Công cụ sắp xếp và lọc bảng
+    private final JLabel statusLabel; // Nhãn hiển thị trạng thái
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
@@ -32,7 +32,7 @@ public class DeltaIssueSearch extends JFrame {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            new DeltaIssueSearch().setVisible(true);
+            new DeltaIssueSearch().setVisible(true); // Khởi chạy giao diện chính
         });
     }
 
@@ -42,6 +42,7 @@ public class DeltaIssueSearch extends JFrame {
         setSize(900, 600);
         setLocationRelativeTo(null);
 
+        // Định nghĩa tiêu đề cột cho bảng
         String[] columnNames = { "ID", "Tag", "Description", "File name" };
         tableModel = new DefaultTableModel(columnNames, 0) {
             @Override
@@ -57,11 +58,13 @@ public class DeltaIssueSearch extends JFrame {
         issueTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         issueTable.getTableHeader().setReorderingAllowed(false);
 
+        // Định nghĩa độ rộng cột trong bảng
         issueTable.getColumnModel().getColumn(0).setPreferredWidth(50); // ID
         issueTable.getColumnModel().getColumn(1).setPreferredWidth(120); // Tag
         issueTable.getColumnModel().getColumn(2).setPreferredWidth(550); // Description
         issueTable.getColumnModel().getColumn(3).setPreferredWidth(180); // File name
 
+        // Xử lý khi người dùng nhấp đúp vào một dòng trong bảng để mở file
         issueTable.addMouseListener(new java.awt.event.MouseAdapter() {
             @Override
             public void mouseClicked(java.awt.event.MouseEvent evt) {
@@ -76,6 +79,7 @@ public class DeltaIssueSearch extends JFrame {
             }
         });
 
+        // Panel tìm kiếm
         JPanel searchPanel = new JPanel(new BorderLayout(5, 0));
         searchPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
 
@@ -101,16 +105,19 @@ public class DeltaIssueSearch extends JFrame {
         searchPanel.add(searchLabel, BorderLayout.WEST);
         searchPanel.add(searchField, BorderLayout.CENTER);
 
+        // Bộ lọc theo tag
         tagFilterComboBox = new JComboBox<>();
         tagFilterComboBox.addItem("All");
         tagFilterComboBox.addActionListener(e -> applyFilters());
 
+        // Panel chứa bộ lọc
         JPanel filterPanel = new JPanel(new BorderLayout(5, 0));
         filterPanel.setBorder(new EmptyBorder(0, 10, 10, 10));
         JLabel tagLabel = new JLabel("Filter by Tag:");
         filterPanel.add(tagLabel, BorderLayout.WEST);
         filterPanel.add(tagFilterComboBox, BorderLayout.CENTER);
 
+        // Nút chọn thư mục chứa các file issue
         JButton browseButton = new JButton("Select Directory");
         browseButton.addActionListener(e -> {
             JFileChooser fileChooser = new JFileChooser();
@@ -126,6 +133,7 @@ public class DeltaIssueSearch extends JFrame {
         browsePanel.add(browseButton);
         filterPanel.add(browsePanel, BorderLayout.EAST);
 
+        // Kết hợp các panel lại
         JPanel infoPanel = new JPanel(new BorderLayout());
         infoPanel.add(searchPanel, BorderLayout.NORTH);
         infoPanel.add(filterPanel, BorderLayout.SOUTH);
@@ -140,7 +148,7 @@ public class DeltaIssueSearch extends JFrame {
 
         add(mainPanel);
 
-        findAndLoadDeltaIssues();
+        findAndLoadDeltaIssues(); // Tự động tìm và tải các issue khi khởi động
     }
 
     private void findAndLoadDeltaIssues() {
@@ -237,6 +245,10 @@ public class DeltaIssueSearch extends JFrame {
         }
     }
 
+    /**
+     * Áp dụng bộ lọc tìm kiếm và lọc theo tag
+     */
+
     private void applyFilters() {
         RowFilter<DefaultTableModel, Object> searchFilter = null;
         String searchText = searchField.getText().toLowerCase();
@@ -269,6 +281,9 @@ public class DeltaIssueSearch extends JFrame {
         statusLabel.setText("Showing " + filteredRowCount + " / " + allIssues.size() + " files");
     }
 
+    /**
+     * Mở file tương ứng khi nhấn đúp chuột vào dòng trong bảng
+     */
     private void openFile(String filename) {
         Optional<IssueItem> item = allIssues.stream()
                 .filter(i -> i.getFilename().equals(filename))
@@ -293,6 +308,10 @@ public class DeltaIssueSearch extends JFrame {
             }
         }
     }
+
+    /**
+     * Lớp đại diện cho một issue trong danh sách
+     */
 
     private static class IssueItem {
         private final String id;
