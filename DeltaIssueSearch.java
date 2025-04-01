@@ -37,13 +37,12 @@ public class DeltaIssueSearch extends JFrame {
     }
 
     public DeltaIssueSearch() {
-        setTitle("Delta Issues - Tìm kiếm theo Tag");
+        setTitle("Delta Issues - Search by Tag");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(900, 600);
         setLocationRelativeTo(null);
 
-        // Tạo model cho table
-        String[] columnNames = { "ID", "Tag", "Mô tả", "Tên file" };
+        String[] columnNames = { "ID", "Tag", "Description", "File name" };
         tableModel = new DefaultTableModel(columnNames, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -51,22 +50,18 @@ public class DeltaIssueSearch extends JFrame {
             }
         };
 
-        // Tạo sorter
         sorter = new TableRowSorter<>(tableModel);
 
-        // Tạo table
         issueTable = new JTable(tableModel);
         issueTable.setRowSorter(sorter);
         issueTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         issueTable.getTableHeader().setReorderingAllowed(false);
 
-        // Thiết lập độ rộng cột
         issueTable.getColumnModel().getColumn(0).setPreferredWidth(50); // ID
         issueTable.getColumnModel().getColumn(1).setPreferredWidth(120); // Tag
-        issueTable.getColumnModel().getColumn(2).setPreferredWidth(550); // Mô tả
-        issueTable.getColumnModel().getColumn(3).setPreferredWidth(180); // Tên file
+        issueTable.getColumnModel().getColumn(2).setPreferredWidth(550); // Description
+        issueTable.getColumnModel().getColumn(3).setPreferredWidth(180); // File name
 
-        // Double-click để mở file
         issueTable.addMouseListener(new java.awt.event.MouseAdapter() {
             @Override
             public void mouseClicked(java.awt.event.MouseEvent evt) {
@@ -81,7 +76,6 @@ public class DeltaIssueSearch extends JFrame {
             }
         });
 
-        // Panel tìm kiếm
         JPanel searchPanel = new JPanel(new BorderLayout(5, 0));
         searchPanel.setBorder(new EmptyBorder(10, 10, 10, 10));
 
@@ -103,23 +97,21 @@ public class DeltaIssueSearch extends JFrame {
             }
         });
 
-        JLabel searchLabel = new JLabel("Tìm kiếm:");
+        JLabel searchLabel = new JLabel("Search:");
         searchPanel.add(searchLabel, BorderLayout.WEST);
         searchPanel.add(searchField, BorderLayout.CENTER);
 
-        // Tạo combobox cho lọc tag
         tagFilterComboBox = new JComboBox<>();
-        tagFilterComboBox.addItem("Tất cả");
+        tagFilterComboBox.addItem("All");
         tagFilterComboBox.addActionListener(e -> applyFilters());
 
         JPanel filterPanel = new JPanel(new BorderLayout(5, 0));
         filterPanel.setBorder(new EmptyBorder(0, 10, 10, 10));
-        JLabel tagLabel = new JLabel("Lọc theo Tag:");
+        JLabel tagLabel = new JLabel("Filter by Tag:");
         filterPanel.add(tagLabel, BorderLayout.WEST);
         filterPanel.add(tagFilterComboBox, BorderLayout.CENTER);
 
-        // Thêm nút Browse để chọn thư mục
-        JButton browseButton = new JButton("Chọn thư mục");
+        JButton browseButton = new JButton("Select Directory");
         browseButton.addActionListener(e -> {
             JFileChooser fileChooser = new JFileChooser();
             fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
@@ -134,42 +126,33 @@ public class DeltaIssueSearch extends JFrame {
         browsePanel.add(browseButton);
         filterPanel.add(browsePanel, BorderLayout.EAST);
 
-        // Panel thông tin
         JPanel infoPanel = new JPanel(new BorderLayout());
         infoPanel.add(searchPanel, BorderLayout.NORTH);
         infoPanel.add(filterPanel, BorderLayout.SOUTH);
 
-        // Status bar
-        statusLabel = new JLabel("Sẵn sàng");
+        statusLabel = new JLabel("Ready");
         statusLabel.setBorder(new EmptyBorder(5, 10, 5, 10));
 
-        // Panel chính
         JPanel mainPanel = new JPanel(new BorderLayout());
         mainPanel.add(infoPanel, BorderLayout.NORTH);
         mainPanel.add(new JScrollPane(issueTable), BorderLayout.CENTER);
         mainPanel.add(statusLabel, BorderLayout.SOUTH);
 
-        // Thêm vào frame
         add(mainPanel);
 
-        // Tự động tìm và đọc thư mục delta_issues
         findAndLoadDeltaIssues();
     }
 
     private void findAndLoadDeltaIssues() {
-        // Tìm thư mục delta_issues trong các vị trí phổ biến
         List<String> potentialPaths = new ArrayList<>();
 
-        // Thêm thư mục hiện tại và các thư mục con của nó
         potentialPaths.add(".");
         potentialPaths.add("./delta_issues");
 
-        // Thêm một số vị trí phổ biến khác
         String userDir = System.getProperty("user.dir");
         potentialPaths.add(userDir);
         potentialPaths.add(userDir + "/delta_issues");
 
-        // Kiểm tra các đường dẫn
         for (String path : potentialPaths) {
             File dir = new File(path);
             File deltaDir = new File(dir, "delta_issues");
@@ -183,42 +166,36 @@ public class DeltaIssueSearch extends JFrame {
             }
         }
 
-        // Nếu không tìm thấy, hiển thị thông báo
-        statusLabel.setText("Không tìm thấy thư mục delta_issues. Vui lòng sử dụng nút 'Chọn thư mục'.");
+        statusLabel.setText("Delta_issues directory not found. Please use the 'Select Directory' button.");
     }
 
     private void loadIssuesFromDirectory(String directoryPath) {
         try {
-            // Xóa dữ liệu cũ
             tableModel.setRowCount(0);
             allIssues.clear();
 
-            // Xóa các tag cũ
             tagFilterComboBox.removeAllItems();
-            tagFilterComboBox.addItem("Tất cả");
+            tagFilterComboBox.addItem("All");
 
-            // Đường dẫn đến thư mục
             Path path = Paths.get(directoryPath);
             if (!Files.exists(path) || !Files.isDirectory(path)) {
                 JOptionPane.showMessageDialog(this,
-                        "Thư mục không tồn tại: " + directoryPath,
-                        "Lỗi", JOptionPane.ERROR_MESSAGE);
+                        "Directory does not exist: " + directoryPath,
+                        "Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
 
-            statusLabel.setText("Đang đọc thư mục: " + directoryPath);
+            statusLabel.setText("Reading directory: " + directoryPath);
 
-            // Lấy danh sách các file trong thư mục
             List<Path> files = Files.list(path)
                     .filter(p -> !Files.isDirectory(p))
                     .collect(Collectors.toList());
 
             if (files.isEmpty()) {
-                statusLabel.setText("Không tìm thấy file nào trong thư mục: " + directoryPath);
+                statusLabel.setText("No files found in directory: " + directoryPath);
                 return;
             }
 
-            // Pattern để tìm ID, tag và mô tả
             Pattern pattern = Pattern.compile("(\\d+)_\\[(.*?)\\]\\s*(.*)");
             Set<String> uniqueTags = new HashSet<>();
 
@@ -231,10 +208,8 @@ public class DeltaIssueSearch extends JFrame {
                     String tag = matcher.group(2);
                     String description = matcher.group(3);
 
-                    // Xử lý trường hợp có nhiều tag
                     String[] multipleTags = tag.split("\\]\\[");
 
-                    // Lưu ý các tag bên trong
                     for (String t : multipleTags) {
                         uniqueTags.add(t);
                     }
@@ -245,21 +220,20 @@ public class DeltaIssueSearch extends JFrame {
                 }
             }
 
-            // Thêm các tag vào combobox
             List<String> sortedTags = new ArrayList<>(uniqueTags);
             Collections.sort(sortedTags);
             for (String tag : sortedTags) {
                 tagFilterComboBox.addItem(tag);
             }
 
-            statusLabel.setText("Đã tải " + allIssues.size() + " file từ thư mục: " + directoryPath);
+            statusLabel.setText("Loaded " + allIssues.size() + " files from directory: " + directoryPath);
 
         } catch (IOException e) {
             JOptionPane.showMessageDialog(this,
-                    "Lỗi khi đọc thư mục: " + e.getMessage(),
-                    "Lỗi", JOptionPane.ERROR_MESSAGE);
+                    "Error reading directory: " + e.getMessage(),
+                    "Error", JOptionPane.ERROR_MESSAGE);
             e.printStackTrace();
-            statusLabel.setText("Lỗi: " + e.getMessage());
+            statusLabel.setText("Error: " + e.getMessage());
         }
     }
 
@@ -274,7 +248,7 @@ public class DeltaIssueSearch extends JFrame {
         RowFilter<DefaultTableModel, Object> tagFilter = null;
         String selectedTag = (String) tagFilterComboBox.getSelectedItem();
 
-        if (selectedTag != null && !selectedTag.equals("Tất cả")) {
+        if (selectedTag != null && !selectedTag.equals("All")) {
             tagFilter = RowFilter.regexFilter("(?i)" + Pattern.quote(selectedTag), 1);
         }
 
@@ -292,11 +266,10 @@ public class DeltaIssueSearch extends JFrame {
         }
 
         int filteredRowCount = issueTable.getRowCount();
-        statusLabel.setText("Hiển thị " + filteredRowCount + " / " + allIssues.size() + " file");
+        statusLabel.setText("Showing " + filteredRowCount + " / " + allIssues.size() + " files");
     }
 
     private void openFile(String filename) {
-        // Tìm file trong danh sách
         Optional<IssueItem> item = allIssues.stream()
                 .filter(i -> i.getFilename().equals(filename))
                 .findFirst();
@@ -305,24 +278,22 @@ public class DeltaIssueSearch extends JFrame {
             try {
                 File file = new File(item.get().getFullPath());
 
-                // Mở file với ứng dụng mặc định của hệ thống
                 if (Desktop.isDesktopSupported() && file.exists()) {
                     Desktop.getDesktop().open(file);
                 } else {
                     JOptionPane.showMessageDialog(this,
-                            "Không thể mở file: " + filename,
-                            "Lỗi", JOptionPane.ERROR_MESSAGE);
+                            "Cannot open file: " + filename,
+                            "Error", JOptionPane.ERROR_MESSAGE);
                 }
             } catch (IOException e) {
                 JOptionPane.showMessageDialog(this,
-                        "Lỗi khi mở file: " + e.getMessage(),
-                        "Lỗi", JOptionPane.ERROR_MESSAGE);
+                        "Error opening file: " + e.getMessage(),
+                        "Error", JOptionPane.ERROR_MESSAGE);
                 e.printStackTrace();
             }
         }
     }
 
-    // Lớp để lưu trữ thông tin issue
     private static class IssueItem {
         private final String id;
         private final String tag;
